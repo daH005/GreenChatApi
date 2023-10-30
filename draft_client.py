@@ -2,6 +2,7 @@
 from websocket import WebSocketApp  # pip install websocket-client
 from threading import Thread
 import json
+import time
 
 from config import URL
 
@@ -29,7 +30,9 @@ if __name__ == '__main__':
     )
     thread: Thread = Thread(target=app.run_forever)
     thread.start()
+    time.sleep(1)
     name = input('Your name is ')
     while True:
+        time.sleep(1)
         text = input('New message - ')
         app.send(json.dumps({'name': name, 'text': text}))
