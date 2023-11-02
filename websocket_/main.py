@@ -1,94 +1,84 @@
 import asyncio
 from websockets import WebSocketServerProtocol, serve, ConnectionClosed  # pip install websockets
-from uuid import UUID
 import json
-from typing import TypeAlias
-from pydantic import BaseModel, ValidationError, Field
+from pydantic import ValidationError  # pip install pydantic
 
 from config import HOST, PORT
+from api.websocket_.validation import ChatMessage, AuthMessage
+# FixMe: Скорректировать после привязки БД.
+from api.db import users, chats
 
-
-class ChatMessage(BaseModel):
-    user_id: int = Field(alias='userId')
-    chat_id: int = Field(alias='chatId')
-    text: str
-
-
-class AuthMessage(BaseModel):
-    user_id: int = Field(alias='userId')
-
-
-# Сюда складываем клиентов, подключённых к чату.
+# Сюда складываем клиентов, подключённых к серверу.
+# Ключ - ID пользователя;
+# Значение - сокет.
 clients: dict[int, WebSocketServerProtocol] = {}
-MessageDictType: TypeAlias = dict[str, str]
-# FixMe: Сюда временно складываем сообщения. В дальнейшем прикрутим БД.
-chats: list[dict] = [
-    # 0
-    {
-        'messages': [],
-        'users_ids': [0, 1],
-    },
-    # 1
-    {
-        'messages': [],
-        'users_ids': [0, 1],
-    },
-]
-users: list[dict[str, str]] = [
-    {
-        'name': 'Danil',
-    },
-    {
-        'name': 'Ivan'
-    },
-]
 
 
 async def main() -> None:
+    print('Serving Websocket server')
     async with serve(ws_handler, HOST, PORT):
         await asyncio.Future()  # run forever
 
 
 async def ws_handler(client: WebSocketServerProtocol) -> None:
-    """Обработчик сообщений от любого клиента."""
-    # FixMe: Сделать проверку пользователя. Например, по ключу-токену.
-    auth_message: AuthMessage
-    while True:
-        try:
-            auth_message: AuthMessage = AuthMessage(**json.loads(await client.recv()))
-        except ValidationError:
-            continue
-        clients[auth_message.user_id] = client
-        break
-
+    """Обработчик сообщений от клиентов для `serve(ws_handler=...)`."""
+    # Сначала авторизуем пользователя, после чего добавляем клиента в `clients`.
+    user_id: int = await wait_auth(client)
+    clients[user_id] = client
     print('New client connected -', client.id)
-
-    # await client.send(json.dumps(messages))
-
-    while True:
-        try:
-            try:
-                chat_message: ChatMessage = ChatMessage(**json.loads(await client.recv()))
-            except ValidationError:
-                continue
-            chats[chat_message.chat_id]['messages'].append(chat_message)
-            await send_each(chat_message)
-        except ConnectionClosed:
-            clients.pop(auth_message.user_id)  # noqa
-            break
+    try:
+        # Запускаем обмен рядовыми сообщениями.
+        # При разрыве соединения клиент удаляется из `clients`.
+        await start_communication(client)
+    except ConnectionClosed:
+        clients.pop(user_id)
     print('Connection closed', f'({client.id})')
 
 
-async def send_each(chat_message: ChatMessage) -> None:
-    """Отсылает `message` каждому клиенту. Если вдруг оказывается, что соединение с каким-то
-    клиентом оборвано, то он удаляется из `clients`.
+async def wait_auth(client: WebSocketServerProtocol) -> int:
+    """Ожидает валидного авторизующего сообщения от клиента.
+    Возвращает ID пользователя.
     """
-    dumped_message: str = json.dumps([{
-        **chat_message.model_dump(by_alias=True),
-        'name': users[chat_message.user_id]['name'],
-    }])
+    while True:
+        try:
+            # Ждём авторизующего сообщения, после чего преобразуем его из JSON -> Python dict,
+            # проведя валидацию.
+            auth_message: AuthMessage = AuthMessage.model_validate_json(await client.recv())
+        except ValidationError:
+            continue
+        return auth_message.user_id
+
+
+async def start_communication(client: WebSocketServerProtocol) -> None:
+    """Запускает стабильный обмен сообщениями с клиентом."""
+    while True:
+        try:
+            # Ждём сообщения, после чего преобразуем его из JSON -> Python dict,
+            # проведя валидацию.
+            chat_message: ChatMessage = ChatMessage.model_validate_json(await client.recv())
+        except ValidationError:
+            continue
+        # Сохраняем сообщение в БД для ФСБ.
+        # FixMe: Скорректировать после привязки БД.
+        chats[chat_message.chat_id]['messages'].append(chat_message)
+        await send_each(chat_message)
+
+
+async def send_each(chat_message: ChatMessage) -> None:
+    """Отсылает сообщение каждому клиенту, состоящему в заданном чате, а также подключённому в данный момент
+    времени к серверу.
+    """
+    # Добавляем имя пользователя к сообщению, после чего преобразуем его в JSON.
+    dumped_message: str = json.dumps([dict(
+        # FixMe: Скорректировать после привязки БД.
+        name=users[chat_message.user_id]['name'],
+        **chat_message.model_dump(by_alias=True)
+    )])
+    # Перебираем пользователей, состоящих в чате.
+    # FixMe: Скорректировать после привязки БД.
     for user_id in chats[chat_message.chat_id]['users_ids']:
         try:
+            # Если пользователь подключён к серверу, то отсылаем ему сообщение.
             if user_id in clients:
                 await clients[user_id].send(dumped_message)
         except ConnectionClosed:
