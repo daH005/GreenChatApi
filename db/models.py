@@ -1,5 +1,5 @@
 from __future__ import annotations
-from sqlalchemy import (
+from sqlalchemy import (  # pip install sqlalchemy
     create_engine,
     Column,
     Integer,

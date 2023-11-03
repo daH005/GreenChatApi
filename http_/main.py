@@ -1,5 +1,5 @@
-from flask import Flask, request
-from flask_cors import CORS
+from flask import Flask, request  # pip install flask
+from flask_cors import CORS  # pip install -U flask-cors
 from http import HTTPMethod, HTTPStatus
 
 from config import HOST, PORT
