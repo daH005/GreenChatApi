@@ -3,8 +3,8 @@ from flask_cors import CORS  # pip install -U flask-cors
 from http import HTTPMethod, HTTPStatus
 
 from config import HOST, PORT
-from api.db.models import User, UserChat
-from api.db.json_ import ChatJSONDict
+from db.models import User, UserChat
+from db.json_ import ChatJSONDict, JSONKey
 
 app: Flask = Flask(__name__)
 # Важно! CORS позволяет обращаться к нашему rest api (http api) с других доменов / портов.
@@ -16,9 +16,9 @@ def chat_history() -> ChatJSONDict | tuple[str, HTTPStatus]:
     """Выдаёт всю историю заданного чата. Ожидаются query-параметры 'email', 'password' и 'chatId'."""
     # Валидация данных из query-параметров:
     try:
-        email: str = request.args['email']
-        password: str = request.args['password']
-        chat_id: int = int(request.args['chatId'])
+        email: str = request.args[JSONKey.EMAIL]
+        password: str = request.args[JSONKey.PASSWORD]
+        chat_id: int = int(request.args[JSONKey.CHAT_ID])
     except (ValueError, TypeError, KeyError):
         return 'Request data is invalid.', HTTPStatus.BAD_REQUEST
     # Авторизуем пользователя:
@@ -29,7 +29,10 @@ def chat_history() -> ChatJSONDict | tuple[str, HTTPStatus]:
     # Проверка доступа пользователя к заданному чату.
     # Если всё ок, то возвращаем историю.
     try:
-        return UserChat.chat_if_user_has_access(auth_user.id, chat_id).to_json_dict()
+        return UserChat.chat_if_user_has_access(
+            user_id=auth_user.id,
+            chat_id=chat_id,
+        ).to_json_dict()
     except PermissionError:
         return 'Permission denied or chat not found.', HTTPStatus.FORBIDDEN
 

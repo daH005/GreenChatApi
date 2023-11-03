@@ -3,14 +3,14 @@ from websockets import WebSocketServerProtocol, serve, ConnectionClosed  # pip i
 import json
 
 from config import HOST, PORT
-from api.db.models import (
+from db.models import (
     User,
     ChatMessage,
     UserChat,
     Chat,
     session,
 )
-from api.db.json_ import (
+from db.json_ import (
     JSONKey,
     AuthSocketDataJSONDict,
     ChatMessageSocketDataJSONDict,
