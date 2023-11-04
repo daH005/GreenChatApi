@@ -1,10 +1,11 @@
+# ToDo: Пример больше не работает! Но остаётся для нуждающихся...
 # Было решено использовать `websocket`, а не `websocketS` в силу удобства callback'ов.
 from websocket import WebSocketApp  # pip install websocket-client
 from threading import Thread
 import json
 import time
 
-from config import URL
+URL = 'ws://localhost:80'
 
 
 def on_open(_) -> None:
