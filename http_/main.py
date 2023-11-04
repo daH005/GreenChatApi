@@ -16,7 +16,8 @@ CORS(app)
 @app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])
 @auth_required
 def chat_history(auth_user: User) -> SomeChatMessagesJSONDict:
-    """Выдаёт всю историю заданного чата. Ожидаются query-параметры 'authToken' и 'chatId'.
+    """Выдаёт всю историю заданного чата. Ожидаются query-параметры 'authToken' и 'chatId',
+    а также опциональный параметр 'skipFromEndCount'.
     При каждом обращении проверяет авторизацию пользователя по 'authToken'.
     """
     # Валидация данных из query-параметров:
@@ -24,13 +25,19 @@ def chat_history(auth_user: User) -> SomeChatMessagesJSONDict:
         chat_id: int = int(request.args[JSONKey.CHAT_ID])
     except (ValueError, KeyError):
         return abort(HTTPStatus.BAD_REQUEST)
+    # Параметр, определяющий отступ с конца истории.
+    skip_from_end_count: int | None
+    try:
+        skip_from_end_count = int(request.args[JSONKey.SKIP_FROM_END_COUNT])
+    except KeyError:
+        skip_from_end_count = None
     # Проверка доступа пользователя к заданному чату.
     # Если всё ок, то возвращаем историю.
     try:
         return UserChat.chat_if_user_has_access(
             user_id=auth_user.id,
             chat_id=chat_id,
-        ).to_json_dict()
+        ).to_json_dict()[:skip_from_end_count]
     except PermissionError:
         return abort(HTTPStatus.FORBIDDEN)
 
