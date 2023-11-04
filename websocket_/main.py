@@ -3,7 +3,6 @@ from websockets import WebSocketServerProtocol, serve, ConnectionClosed  # pip i
 import json
 from typing import NoReturn
 
-from config import HOST, PORT
 from db.models import (
     User,
     ChatMessage,
@@ -17,6 +16,7 @@ from db.json_ import (
     ChatMessageSocketDataJSONDict,
     ChatMessageJSONDict,
 )
+from config import HOST, PORT
 
 # Сюда складываем клиентов, подключённых к серверу в данный момент времени.
 # Ключ - ID пользователя `User.id`;
