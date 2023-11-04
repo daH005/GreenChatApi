@@ -13,17 +13,18 @@ CORS(app)
 
 @app.route('/chat_history', methods=[HTTPMethod.GET])
 def chat_history() -> ChatJSONDict | tuple[str, HTTPStatus]:
-    """Выдаёт всю историю заданного чата. Ожидаются query-параметры 'email', 'password' и 'chatId'."""
+    """Выдаёт всю историю заданного чата. Ожидаются query-параметры 'authToken' и 'chatId'.
+    При каждом обращении проверяет авторизацию пользователя по 'authToken'.
+    """
     # Валидация данных из query-параметров:
     try:
-        email: str = request.args[JSONKey.EMAIL]
-        password: str = request.args[JSONKey.PASSWORD]
+        auth_token: str = request.args[JSONKey.AUTH_TOKEN]
         chat_id: int = int(request.args[JSONKey.CHAT_ID])
     except (ValueError, TypeError, KeyError):
         return 'Request data is invalid.', HTTPStatus.BAD_REQUEST
     # Авторизуем пользователя:
     try:
-        auth_user: User = User.auth(email, password)
+        auth_user: User = User.auth_by_token(auth_token=auth_token)
     except PermissionError:
         return 'Permission denied.', HTTPStatus.UNAUTHORIZED
     # Проверка доступа пользователя к заданному чату.

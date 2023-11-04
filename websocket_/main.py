@@ -1,6 +1,7 @@
 import asyncio
 from websockets import WebSocketServerProtocol, serve, ConnectionClosed  # pip install websockets
 import json
+from typing import NoReturn
 
 from config import HOST, PORT
 from db.models import (
@@ -23,7 +24,7 @@ from db.json_ import (
 clients: dict[int, WebSocketServerProtocol] = {}
 
 
-async def main() -> None:
+async def main() -> NoReturn:
     """Запускает сервер."""
     print('Serving Websocket server')
     async with serve(ws_handler, HOST, PORT):
@@ -45,8 +46,11 @@ async def dump_and_send(client: WebSocketServerProtocol,
 async def ws_handler(client: WebSocketServerProtocol) -> None:
     """Обработчик сообщений от клиентов для `serve(ws_handler=...)`."""
     print('New client connected -', client.id)
-    # Сначала авторизуем клиента, после чего добавляем его в `clients`.
-    user: User = await wait_auth(client)
+    try:
+        # Сначала авторизуем клиента, после чего добавляем его в `clients`.
+        user: User = await wait_auth(client)
+    except ConnectionClosed:
+        return
     clients[user.id] = client
     print('Client was auth', f'({client.id})')
     try:
@@ -71,10 +75,7 @@ async def wait_auth(client: WebSocketServerProtocol) -> User:
         # В этом словаре ключи в стиле lowerCamelCase!
         auth_data: AuthSocketDataJSONDict = await wait_data(client)
         try:
-            auth_user: User = User.auth(
-                email=auth_data[JSONKey.EMAIL],  # type: ignore
-                password=auth_data[JSONKey.PASSWORD],  # type: ignore
-            )
+            auth_user: User = User.auth_by_token(auth_token=auth_data[JSONKey.AUTH_TOKEN])  # type: ignore
         except (TypeError, KeyError, PermissionError):
             continue
         return auth_user
