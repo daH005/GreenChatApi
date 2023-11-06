@@ -3,14 +3,14 @@ from websockets import WebSocketServerProtocol, serve, ConnectionClosed  # pip i
 import json
 from typing import NoReturn
 
-from db.models import (
+from api.db.models import (
     User,
     ChatMessage,
     UserChat,
     Chat,
     session,
 )
-from db.json_ import (
+from api.db.json_ import (
     JSONKey,
     AuthSocketDataJSONDict,
     ChatMessageSocketDataJSONDict,
