@@ -1,0 +1,216 @@
+from __future__ import annotations
+from sqlalchemy import (  # pip install sqlalchemy
+    create_engine,
+    Column,
+    Integer,
+    String,
+    Text,
+    DateTime,
+    ForeignKey,
+    Engine,
+)
+from sqlalchemy.orm import (
+    relationship,
+    declarative_base,
+    Session,
+)
+from datetime import datetime
+from pathlib import Path
+
+from api.db.json_ import (
+    ChatMessageJSONDict,
+    ChatJSONDict,
+    UserChatsJSONDict,
+    ChatInitialDataJSONDict,
+    AuthTokenJSONDict,
+    make_chat_message_json_dict,
+    make_chat_json_dict,
+    make_user_chats_json_dict,
+    make_chat_initial_data_json_dict,
+    make_auth_token_json_dict,
+)
+from api.db.encryption import make_auth_token
+
+__all__ = (
+    'session',
+    'User',
+    'Chat',
+    'UserChat',
+    'ChatMessage',
+)
+
+# FixMe: Думаю, перейдём на postgres. Или mysql (не работал на нём ещё).
+#  URL перенести в конфиг!
+path: Path = Path(__file__).resolve().parent
+# Подключаемся к БД и создаём сессию (не в универе).
+engine: Engine = create_engine('sqlite:///' + str(path.joinpath('db.db')))
+session: Session = Session(bind=engine)
+# Создаём базовый класс моделей.
+BaseModel = declarative_base()
+
+
+class User(BaseModel):
+    """Модель пользователя, имеющего возможность общаться в чатах."""
+
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    username = Column(String(100), nullable=False, unique=True)
+    first_name = Column(String(100), nullable=False)
+    last_name = Column(String(100), nullable=False)
+    email = Column(String(200), nullable=False, unique=True)
+    auth_token = Column(String(255), nullable=False, unique=True)  # username + password в BasicToken.
+
+    @classmethod
+    def new_by_password(cls, username: str,
+                        first_name: str,
+                        last_name: str,
+                        email: str,
+                        password: str,
+                        ) -> User:
+        """Создаёт пользователя по чистому паролю. Пароль шифруется в BasicToken."""
+        return User(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            auth_token=make_auth_token(username=username, password=password),
+        )
+
+    @classmethod
+    def auth_by_username_and_password(cls, username: str,
+                                      password: str,
+                                      ) -> User:
+        """Возвращает пользователя с указанными `username` и `password`.
+        Если пользователя с такими данными не существует, то вызывает `PermissionError`.
+        """
+        auth_token: str = make_auth_token(username=username, password=password)
+        return cls.auth_by_token(auth_token=auth_token)
+
+    @classmethod
+    def auth_by_token(cls, auth_token: str) -> User:
+        """Возвращает пользователя с указанным `auth_token`.
+        Если пользователя с такими данными не существует, то вызывает `PermissionError`.
+        """
+        result: User | None = session.query(cls).filter(cls.auth_token == auth_token).first()
+        if result is not None:
+            return result
+        raise PermissionError
+
+    def auth_token_json_dict(self) -> AuthTokenJSONDict:
+        """Возвращает словарь с токеном авторизации для последующей передачи клиенту."""
+        return make_auth_token_json_dict(auth_token=self.auth_token)  # type: ignore
+
+
+class Chat(BaseModel):
+    """Чат. Доступ к нему имеют не все пользователи, он обеспечивается через модель `UserChat`
+    со связью 'многие-ко-многим'.
+    """
+
+    __tablename__ = 'chats'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    messages = relationship('ChatMessage', backref='chat', order_by='ChatMessage.creating_datetime')
+
+    @property
+    def last_message(self) -> ChatMessage | None:
+        return self.messages[-1]  # type: ignore
+
+    def to_json_dict(self, skip_from_end_count: int | None) -> ChatJSONDict:
+        """Формирует словарь истории чата с ключами в стиле lowerCamelCase."""
+        if skip_from_end_count is not None:
+            if skip_from_end_count > 0:
+                skip_from_end_count = -skip_from_end_count
+        return make_chat_json_dict([message.to_json_dict() for message in self.messages[:skip_from_end_count]])
+
+
+class ChatMessage(BaseModel):
+    """Рядовое сообщение, относящееся к конкретному чату."""
+
+    __tablename__ = 'chats_messages'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    chat_id = Column(Integer, ForeignKey('chats.id'))
+    user = relationship('User', backref='chat_message', uselist=False)
+    text = Column(Text, nullable=False)
+    creating_datetime = Column(DateTime, default=datetime.now)
+
+    def to_json_dict(self) -> ChatMessageJSONDict:
+        """Формирует словарь сообщения с ключами в стиле lowerCamelCase."""
+        return make_chat_message_json_dict(
+            user_id=self.user_id,  # type: ignore
+            chat_id=self.chat_id,  # type: ignore
+            first_name=self.user.first_name,
+            last_name=self.user.last_name,
+            text=self.text,  # type: ignore
+            creating_datetime=self.creating_datetime.isoformat(),
+        )
+
+
+class UserChat(BaseModel):
+    """Модель-посредник, реализующая отношение 'многие-ко-многим' и
+    определяющая доступ к чатам только для тех пользователей, которые в них состоят.
+    """
+
+    __tablename__ = 'users_chats'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    chat_id = Column(Integer, ForeignKey('chats.id'))
+    user = relationship('User', backref='user_chat', uselist=False)
+    chat = relationship('Chat', backref='user_chat', uselist=False)
+
+    @classmethod
+    def chat_if_user_has_access(cls, user_id: int,
+                                chat_id: int,
+                                ) -> Chat:
+        """Возвращает чат, если пользователь в нём состоит.
+        Иначе - вызывает `PermissionError`.
+        """
+        result: UserChat | None = session.query(cls).filter(
+            cls.user_id == user_id, cls.chat_id == chat_id
+        ).first()
+        if result is not None:
+            return result.chat
+        raise PermissionError
+
+    @classmethod
+    def users_in_chat(cls, chat_id: int) -> list[User]:
+        """Формирует список пользователей, состоящих в указанном чате."""
+        results = session.query(cls).filter(cls.chat_id == chat_id).all()
+        return [result.user for result in results]
+
+    @classmethod
+    def user_chats_json_dict(cls, user_id: int) -> UserChatsJSONDict:
+        """Формирует словарь с ключами в стиле lowerCamelCase с данными
+        для инициализации чатов на клиенте.
+        """
+        results = session.query(cls).filter(cls.user_id == user_id).all()
+        chats: list[ChatInitialDataJSONDict] = []
+        for result in results:
+            chats.append(make_chat_initial_data_json_dict(
+                chat_id=result.chat_id,  # type: ignore
+                chat_name=cls.chat_name(user_id, result.chat_id),  # type: ignore
+                last_chat_message=result.chat.last_message.to_json_dict(),
+            ))
+        return make_user_chats_json_dict(chats)
+
+    @classmethod
+    def chat_name(cls, user_id: int,
+                  chat_id: int,
+                  ) -> str:
+        """Определяет имя чата для указанного пользователя.
+        Если чат - не беседа, то именем чата является имя собеседника.
+        """
+        result = session.query(Chat).filter(Chat.id == chat_id).first()
+        if result is not None:
+            if result.name:
+                return result.name  # type: ignore
+            result = session.query(cls).filter(cls.user_id != user_id, cls.chat_id == chat_id).first()
+            if result is not None:
+                return result.user.first_name
+        raise ValueError
+
+
+# Создаём таблицы в БД.
+# Повторный запуск программы не обнуляет данные (даже в случае с sqlite).
+# FixMe: Подумать над миграциями (Alembic).
+BaseModel.metadata.create_all(engine)
