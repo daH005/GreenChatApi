@@ -130,7 +130,7 @@ class JSONDictPreparer:
             JSONKey.FIRST_NAME: chat_message.user.first_name,
             JSONKey.LAST_NAME: chat_message.user.last_name,
             JSONKey.TEXT: chat_message.text,
-            JSONKey.CREATING_DATETIME: chat_message.creating_datetime,
+            JSONKey.CREATING_DATETIME: chat_message.creating_datetime.isoformat(),
         }
 
     @classmethod
