@@ -21,12 +21,12 @@ def auth_by_token_required(route_func: T_route) -> T_route:
         try:
             auth_token: str = request.headers[JSONKey.AUTH_TOKEN]
         except KeyError:
-            return abort(HTTPStatus.BAD_REQUEST)
+            return abort(HTTPStatus.UNAUTHORIZED)
         # Авторизуем пользователя:
         try:
             auth_user: User = User.auth_by_token(auth_token=auth_token)
         except PermissionError:
-            return abort(HTTPStatus.UNAUTHORIZED)
+            return abort(HTTPStatus.FORBIDDEN)
         # При успешной авторизации продолжаем выполнение декорируемого обработчика.
         return route_func(*args, **kwargs, auth_user=auth_user)
     return wrapper

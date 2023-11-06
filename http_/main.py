@@ -80,6 +80,8 @@ def chat_history(auth_user: User) -> ChatJSONDict:
         skip_from_end_count = int(request.args[JSONKey.SKIP_FROM_END_COUNT])
     except KeyError:
         skip_from_end_count = None
+    except ValueError:
+        return abort(HTTPStatus.BAD_REQUEST)
     # Проверка доступа пользователя к заданному чату.
     # Если всё ок, то возвращаем историю.
     try:
