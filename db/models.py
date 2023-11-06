@@ -17,25 +17,13 @@ from sqlalchemy.orm import (
 from datetime import datetime
 from pathlib import Path
 
-from api.db.json_ import (
-    ChatMessageJSONDict,
-    ChatJSONDict,
-    UserChatsJSONDict,
-    ChatInitialDataJSONDict,
-    AuthTokenJSONDict,
-    make_chat_message_json_dict,
-    make_chat_json_dict,
-    make_user_chats_json_dict,
-    make_chat_initial_data_json_dict,
-    make_auth_token_json_dict,
-)
 from api.db.encryption import make_auth_token
 
 __all__ = (
     'session',
     'User',
     'Chat',
-    'UserChat',
+    'UserChatMatch',
     'ChatMessage',
 )
 
@@ -96,13 +84,9 @@ class User(BaseModel):
             return result
         raise PermissionError
 
-    def auth_token_json_dict(self) -> AuthTokenJSONDict:
-        """Возвращает словарь с токеном авторизации для последующей передачи клиенту."""
-        return make_auth_token_json_dict(auth_token=self.auth_token)  # type: ignore
-
 
 class Chat(BaseModel):
-    """Чат. Доступ к нему имеют не все пользователи, он обеспечивается через модель `UserChat`
+    """Чат. Доступ к нему имеют не все пользователи, он обеспечивается через модель `UserChatMatch`
     со связью 'многие-ко-многим'.
     """
 
@@ -114,13 +98,6 @@ class Chat(BaseModel):
     @property
     def last_message(self) -> ChatMessage | None:
         return self.messages[-1]  # type: ignore
-
-    def to_json_dict(self, skip_from_end_count: int | None) -> ChatJSONDict:
-        """Формирует словарь истории чата с ключами в стиле lowerCamelCase."""
-        if skip_from_end_count is not None:
-            if skip_from_end_count > 0:
-                skip_from_end_count = -skip_from_end_count
-        return make_chat_json_dict([message.to_json_dict() for message in self.messages[:skip_from_end_count]])
 
 
 class ChatMessage(BaseModel):
@@ -134,19 +111,8 @@ class ChatMessage(BaseModel):
     text = Column(Text, nullable=False)
     creating_datetime = Column(DateTime, default=datetime.now)
 
-    def to_json_dict(self) -> ChatMessageJSONDict:
-        """Формирует словарь сообщения с ключами в стиле lowerCamelCase."""
-        return make_chat_message_json_dict(
-            user_id=self.user_id,  # type: ignore
-            chat_id=self.chat_id,  # type: ignore
-            first_name=self.user.first_name,
-            last_name=self.user.last_name,
-            text=self.text,  # type: ignore
-            creating_datetime=self.creating_datetime.isoformat(),
-        )
 
-
-class UserChat(BaseModel):
+class UserChatMatch(BaseModel):
     """Модель-посредник, реализующая отношение 'многие-ко-многим' и
     определяющая доступ к чатам только для тех пользователей, которые в них состоят.
     """
@@ -165,7 +131,7 @@ class UserChat(BaseModel):
         """Возвращает чат, если пользователь в нём состоит.
         Иначе - вызывает `PermissionError`.
         """
-        result: UserChat | None = session.query(cls).filter(
+        result: UserChatMatch | None = session.query(cls).filter(
             cls.user_id == user_id, cls.chat_id == chat_id
         ).first()
         if result is not None:
@@ -179,19 +145,10 @@ class UserChat(BaseModel):
         return [result.user for result in results]
 
     @classmethod
-    def user_chats_json_dict(cls, user_id: int) -> UserChatsJSONDict:
-        """Формирует словарь с ключами в стиле lowerCamelCase с данными
-        для инициализации чатов на клиенте.
-        """
+    def user_chats(cls, user_id: int) -> list[Chat]:
+        """Чаты, доступные указанному пользователю."""
         results = session.query(cls).filter(cls.user_id == user_id).all()
-        chats: list[ChatInitialDataJSONDict] = []
-        for result in results:
-            chats.append(make_chat_initial_data_json_dict(
-                chat_id=result.chat_id,  # type: ignore
-                chat_name=cls.chat_name(user_id, result.chat_id),  # type: ignore
-                last_chat_message=result.chat.last_message.to_json_dict(),
-            ))
-        return make_user_chats_json_dict(chats)
+        return [result.chat for result in results]
 
     @classmethod
     def chat_name(cls, user_id: int,
