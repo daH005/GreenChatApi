@@ -8,9 +8,11 @@ __all__ = (
 
 class EndpointName(StrEnum):
     CHAT_HISTORY = 'chat_history'
-    ALL_CHATS = 'all_chats'
+    USER_CHATS = 'user_chats'
+    AUTH = 'auth'
 
 
 class Url(StrEnum):
     CHAT_HISTORY = '/chatHistory'
-    ALL_CHATS = '/allChats'
+    USER_CHATS = '/userChats'
+    AUTH = '/auth'

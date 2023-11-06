@@ -3,16 +3,16 @@ from flask.sansio.scaffold import T_route
 from flask import abort, request
 from http import HTTPStatus
 
-from db.models import User
-from db.json_ import JSONKey
+from api.db.models import User
+from api.db.json_ import JSONKey
 
 __all__ = (
-    'auth_required',
+    'auth_by_token_required',
 )
 
 
-def auth_required(route_func: T_route) -> T_route:
-    """Добавляет к обработчику URL'а авторизацию. Здесь ожидается query-параметр 'authToken'.
+def auth_by_token_required(route_func: T_route) -> T_route:
+    """Добавляет к обработчику URL'а авторизацию по токену. Здесь ожидается query-параметр 'authToken'.
     Если всё ок, то передаёт декорируемой функции параметр `auth_user`.
     """
     @wraps(route_func)
