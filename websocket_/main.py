@@ -6,15 +6,16 @@ from typing import NoReturn
 from api.db.models import (
     User,
     ChatMessage,
-    UserChat,
+    UserChatMatch,
     Chat,
     session,
 )
-from api.db.json_ import (
+from api.json_ import (
     JSONKey,
     AuthSocketDataJSONDict,
     ChatMessageSocketDataJSONDict,
     ChatMessageJSONDict,
+    JSONDictPreparer,
 )
 from config import HOST, PORT
 
@@ -91,7 +92,7 @@ async def start_communication(client: WebSocketServerProtocol,
         chat_message_data: ChatMessageSocketDataJSONDict = await wait_data(client)
         try:
             # Проверяем доступ к заданному чату.
-            _chat: Chat = UserChat.chat_if_user_has_access(
+            _chat: Chat = UserChatMatch.chat_if_user_has_access(
                 user_id=user.id,
                 chat_id=chat_message_data[JSONKey.CHAT_ID],  # type: ignore
             )
@@ -119,9 +120,9 @@ async def send_each(chat_message: ChatMessage) -> None:
     времени к серверу.
     """
     # Преобразуем объект сообщения в словарь с ключами в стиле lowerCamelCase.
-    message_dict: ChatMessageJSONDict = chat_message.to_json_dict()
+    message_dict: ChatMessageJSONDict = JSONDictPreparer.chat_message(chat_message)
     # Перебираем пользователей, состоящих в чате.
-    for user in UserChat.users_in_chat(chat_message.chat_id):
+    for user in UserChatMatch.users_in_chat(chat_message.chat_id):
         try:
             # Если пользователь подключён в данный момент к серверу, то отсылаем ему сообщение.
             if user.id in clients:

@@ -4,7 +4,7 @@ from flask import abort, request
 from http import HTTPStatus
 
 from api.db.models import User
-from api.db.json_ import JSONKey
+from api.json_ import JSONKey
 
 __all__ = (
     'auth_by_token_required',
