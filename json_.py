@@ -127,8 +127,8 @@ class JSONDictPreparer:
             JSONKey.ID: chat_message.id,
             JSONKey.USER_ID: chat_message.user_id,
             JSONKey.CHAT_ID: chat_message.chat_id,
-            JSONKey.FIRST_NAME: chat_message.first_name,
-            JSONKey.LAST_NAME: chat_message.last_name,
+            JSONKey.FIRST_NAME: chat_message.user.first_name,
+            JSONKey.LAST_NAME: chat_message.user.last_name,
             JSONKey.TEXT: chat_message.text,
             JSONKey.CREATING_DATETIME: chat_message.creating_datetime,
         }
