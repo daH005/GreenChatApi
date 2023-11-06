@@ -18,6 +18,7 @@ __all__ = (
     'UserChatsJSONDict',
     'ChatInitialDataJSONDict',
     'AuthTokenJSONDict',
+    'UserInfoJSONDict',
     'JSONDictPreparer',
 )
 

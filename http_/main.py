@@ -7,6 +7,7 @@ from api.json_ import (
     ChatJSONDict,
     UserChatsJSONDict,
     AuthTokenJSONDict,
+    UserInfoJSONDict,
     JSONKey,
     JSONDictPreparer,
 )
@@ -37,6 +38,15 @@ def auth_by_username_and_password() -> AuthTokenJSONDict:
         return abort(HTTPStatus.FORBIDDEN)
     # Возвращаем токен для дальнейшего его сохранения у клиента в cookie.
     return JSONDictPreparer.auth_token(user=auth_user)
+
+
+@app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])
+@auth_by_token_required
+def user_info(auth_user: User) -> UserInfoJSONDict:
+    """Выдаёт всю информацию о пользователе (за исключением токена авторизации).
+    При каждом обращении проверяет авторизацию по `authToken`.
+    """
+    return JSONDictPreparer.user_info(user=auth_user)
 
 
 @app.route(Url.USER_CHATS, endpoint=EndpointName.USER_CHATS, methods=[HTTPMethod.GET])
