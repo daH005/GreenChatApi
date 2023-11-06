@@ -12,14 +12,14 @@ __all__ = (
 
 
 def auth_by_token_required(route_func: T_route) -> T_route:
-    """Добавляет к обработчику URL'а авторизацию по токену. Здесь ожидается query-параметр 'authToken'.
+    """Добавляет к обработчику URL'а авторизацию по токену. Здесь ожидается заголовок 'authToken'.
     Если всё ок, то передаёт декорируемой функции параметр `auth_user`.
     """
     @wraps(route_func)
     def wrapper(*args, **kwargs):
-        # Валидация данных из query-параметров:
+        # Валидация данных из заголовков:
         try:
-            auth_token: str = request.args[JSONKey.AUTH_TOKEN]
+            auth_token: str = request.headers[JSONKey.AUTH_TOKEN]
         except KeyError:
             return abort(HTTPStatus.BAD_REQUEST)
         # Авторизуем пользователя:
