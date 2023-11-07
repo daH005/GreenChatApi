@@ -62,6 +62,7 @@ class ChatMessageSocketDataJSONDict(TypedDict):
 class ChatJSONDict(TypedDict):
     """Словарь с историей чата. Высылается в качестве ответа на HTTP-запрос."""
 
+    id: int
     messages: list[ChatMessageJSONDict]
 
 
