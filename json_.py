@@ -118,6 +118,7 @@ class JSONDictPreparer:
             if skip_from_end_count > 0:
                 skip_from_end_count = -skip_from_end_count
         return {
+            JSONKey.ID: chat.id,
             JSONKey.MESSAGES: [cls.chat_message(chat_message) for chat_message in chat.messages[:skip_from_end_count]]
         }
 
