@@ -12,8 +12,9 @@ __all__ = (
 )
 
 load_dotenv()
+# Абсолютный путь к папке проекта `api`.
 BASE_DIR: Path = Path(__file__).resolve().parent
-
+# Хост общий для HTTP и WebSocket.
 HOST: Final[str] = environ.get('HOST', 'localhost')
 HTTP_PORT: Final[int] = int(environ.get('HTTP_PORT', 81))
 WEBSOCKET_PORT: Final[int] = int(environ.get('WEBSOCKET_PORT', 80))
@@ -25,6 +26,7 @@ WEBSOCKET_PORT: Final[int] = int(environ.get('WEBSOCKET_PORT', 80))
 #     port=5432,
 #     database='test_db',
 # )
+# FixMe: Перейдём на MySQL.
 DB_URL: str = 'sqlite:///' + str(BASE_DIR.joinpath('db/db.db'))
 
 if __name__ == '__main__':
