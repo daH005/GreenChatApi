@@ -11,7 +11,7 @@ from api.json_ import (
     JSONKey,
     JSONDictPreparer,
 )
-from config import HOST, PORT
+from api.config import HOST, HTTP_PORT as PORT
 from endpoints import EndpointName, Url
 from decorators import auth_by_token_required
 

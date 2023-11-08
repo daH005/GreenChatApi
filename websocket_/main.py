@@ -17,7 +17,7 @@ from api.json_ import (
     ChatMessageJSONDict,
     JSONDictPreparer,
 )
-from config import HOST, PORT
+from api.config import HOST, WEBSOCKET_PORT as PORT
 
 # Сюда складываем клиентов, подключённых к серверу в данный момент времени.
 # Ключ - ID пользователя `User.id`;
