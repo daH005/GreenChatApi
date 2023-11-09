@@ -1,6 +1,6 @@
 from __future__ import annotations
 from enum import StrEnum
-from typing import TypedDict
+from typing import TypedDict, NotRequired
 
 from api.db.models import (
     User,
@@ -42,6 +42,7 @@ class JSONKey(StrEnum):
     MESSAGES = 'messages'
     CHATS = 'chats'
     LAST_CHAT_MESSAGE = 'lastChatMessage'
+    USER = 'user'
 
 
 class AuthSocketDataJSONDict(TypedDict):
@@ -70,12 +71,8 @@ class ChatMessageJSONDict(TypedDict):
     """Рядовое сообщение, отправляемое клиенту по HTTP / Websocket."""
 
     id: int
-    userId: int
     chatId: int
-    # FixMe: По хорошему тону лучше бы сделать ключ 'user' с этими данными.
-    username: str
-    firstName: str
-    lastName: str
+    user: UserInfoJSONDict
     text: str
     creatingDatetime: str
 
@@ -90,7 +87,7 @@ class ChatInitialDataJSONDict(TypedDict):
     """Начальные данные для загрузки чата на клиенте."""
 
     id: int
-    chatName: str
+    name: str
     lastChatMessage: ChatMessageJSONDict
 
 
@@ -107,7 +104,7 @@ class UserInfoJSONDict(TypedDict):
     username: str
     firstName: str
     lastName: str
-    email: str
+    email: NotRequired[str]
 
 
 class JSONDictPreparer:
@@ -128,11 +125,8 @@ class JSONDictPreparer:
     def chat_message(cls, chat_message: ChatMessage) -> ChatMessageJSONDict:
         return {
             JSONKey.ID: chat_message.id,
-            JSONKey.USER_ID: chat_message.user_id,
             JSONKey.CHAT_ID: chat_message.chat_id,
-            JSONKey.USERNAME: chat_message.user.username,
-            JSONKey.FIRST_NAME: chat_message.user.first_name,
-            JSONKey.LAST_NAME: chat_message.user.last_name,
+            JSONKey.USER: cls.user_info(chat_message.user),
             JSONKey.TEXT: chat_message.text,
             JSONKey.CREATING_DATETIME: chat_message.creating_datetime.isoformat(),
         }
@@ -155,11 +149,15 @@ class JSONDictPreparer:
         return {JSONKey.AUTH_TOKEN: user.auth_token}
 
     @classmethod
-    def user_info(cls, user: User) -> UserInfoJSONDict:
-        return {
+    def user_info(cls, user: User,
+                  exclude_email=True,
+                  ) -> UserInfoJSONDict:
+        user_info = {
             JSONKey.ID: user.id,
             JSONKey.USERNAME: user.username,
             JSONKey.FIRST_NAME: user.first_name,
             JSONKey.LAST_NAME: user.last_name,
-            JSONKey.EMAIL: user.email,
         }
+        if not exclude_email:
+            user[JSONKey.EMAIL] = user.email
+        return user_info
