@@ -38,7 +38,7 @@ class JSONKey(StrEnum):
     CREATING_DATETIME = 'creatingDatetime'
     AUTH_TOKEN = 'authToken'
     SKIP_FROM_END_COUNT = 'skipFromEndCount'
-    CHAT_NAME = 'chatName'
+    NAME = 'name'
     MESSAGES = 'messages'
     CHATS = 'chats'
     LAST_CHAT_MESSAGE = 'lastChatMessage'
@@ -145,7 +145,7 @@ class JSONDictPreparer:
         for chat in user_chats:
             result_chats.append({
                 JSONKey.ID: chat.id,
-                JSONKey.CHAT_NAME: UserChatMatch.chat_name(user_id=user.id, chat_id=chat.id),
+                JSONKey.NAME: UserChatMatch.chat_name(user_id=user.id, chat_id=chat.id),
                 JSONKey.LAST_CHAT_MESSAGE: cls.chat_message(chat.last_message),
             })
         return {JSONKey.CHATS: result_chats}
