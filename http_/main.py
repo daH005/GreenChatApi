@@ -11,13 +11,13 @@ from api.json_ import (
     JSONKey,
     JSONDictPreparer,
 )
-from api.config import HOST, HTTP_PORT as PORT
+from api.config import HOST, HTTP_PORT as PORT, CORS_ORIGINS
 from endpoints import EndpointName, Url
 from decorators import auth_by_token_required
 
 app: Flask = Flask(__name__)
-# Важно! CORS позволяет обращаться к нашему rest api (http api) с других доменов / портов.
-CORS(app)
+# Важно! CORS позволяет обращаться к нашему REST api с других доменов / портов.
+CORS(app, origins=CORS_ORIGINS)
 
 
 @app.route(Url.AUTH, endpoint=EndpointName.AUTH, methods=[HTTPMethod.POST])
