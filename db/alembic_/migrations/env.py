@@ -9,8 +9,7 @@ from api.config import DB_URL
 # Передаём переменные окружения.
 config = context.config
 section = config.config_ini_section
-config.set_section_option(section, 'DB_URL', DB_URL)  # FixMe: Позже добавить вызов метода `
-                                                      #  URL.render_as_string(hide_password=False)`.
+config.set_section_option(section, 'DB_URL', DB_URL.render_as_string(hide_password=False))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
