@@ -159,5 +159,5 @@ class JSONDictPreparer:
             JSONKey.LAST_NAME: user.last_name,
         }
         if not exclude_email:
-            user[JSONKey.EMAIL] = user.email
+            user_info[JSONKey.EMAIL] = user.email
         return user_info
