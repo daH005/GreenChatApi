@@ -2,7 +2,7 @@ from flask import Flask, request, abort  # pip install flask
 from flask_cors import CORS  # pip install -U flask-cors
 from http import HTTPMethod, HTTPStatus
 
-from api.db.models import User, UserChatMatch
+from api.db.models import User, UserChatMatch, session
 from api.json_ import (
     ChatJSONDict,
     UserChatsJSONDict,
@@ -91,6 +91,11 @@ def chat_history(auth_user: User) -> ChatJSONDict:
         )
     except PermissionError:
         return abort(HTTPStatus.FORBIDDEN)
+
+
+@app.teardown_appcontext
+def shutdown_db_session(exception=None) -> None:  # noqa
+    session.remove()
 
 
 if __name__ == '__main__':

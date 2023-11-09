@@ -12,7 +12,8 @@ from sqlalchemy import (  # pip install sqlalchemy
 from sqlalchemy.orm import (
     relationship,
     declarative_base,
-    Session,
+    sessionmaker,
+    scoped_session,
 )
 from datetime import datetime
 
@@ -30,7 +31,12 @@ __all__ = (
 
 # Подключаемся к БД и создаём сессию (не в универе).
 engine: Engine = create_engine(url=DB_URL)
-session: Session = Session(bind=engine)
+session: scoped_session = scoped_session(
+    sessionmaker(autocommit=False,
+                 autoflush=False,
+                 bind=engine,
+                 )
+)
 # Создаём базовый класс моделей.
 BaseModel = declarative_base()
 
