@@ -107,7 +107,7 @@ class ChatMessage(BaseModel):
     chat_id = Column(Integer, ForeignKey('chats.id'))
     user = relationship('User', backref='chat_message', uselist=False)
     text = Column(Text, nullable=False)
-    creating_datetime = Column(DateTime, default=datetime.now)
+    creating_datetime = Column(DateTime, default=datetime.utcnow)
 
 
 class UserChatMatch(BaseModel):
