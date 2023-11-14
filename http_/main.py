@@ -34,8 +34,8 @@ def auth_by_username_and_password() -> AuthTokenJSONDict:
     # Проводим авторизацию.
     try:
         auth_user: User = User.auth_by_username_and_password(username, password)
-    except PermissionError:
-        return abort(HTTPStatus.FORBIDDEN)
+    except ValueError:
+        return abort(HTTPStatus.NOT_FOUND)
     # Возвращаем токен для дальнейшего его сохранения у клиента в cookie.
     return JSONDictPreparer.auth_token(user=auth_user)
 
