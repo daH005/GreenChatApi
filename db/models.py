@@ -73,7 +73,7 @@ class User(BaseModel):
                                       password: str,
                                       ) -> User:
         """Возвращает пользователя с указанными `username` и `password`.
-        Если пользователя с такими данными не существует, то вызывает `PermissionError`.
+        Если пользователя с такими данными не существует, то вызывает `ValueError`.
         """
         auth_token: str = make_auth_token(username=username, password=password)
         return cls.auth_by_token(auth_token=auth_token)
@@ -81,12 +81,12 @@ class User(BaseModel):
     @classmethod
     def auth_by_token(cls, auth_token: str) -> User:
         """Возвращает пользователя с указанным `auth_token`.
-        Если пользователя с такими данными не существует, то вызывает `PermissionError`.
+        Если пользователя с такими данными не существует, то вызывает `ValueError`.
         """
         result: User | None = session.query(cls).filter(cls.auth_token == auth_token).first()
         if result is not None:
             return result
-        raise PermissionError
+        raise ValueError
 
 
 class Chat(BaseModel):
