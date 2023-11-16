@@ -1,4 +1,5 @@
-from flask import Flask, request, abort  # pip install flask
+from flask import Flask, request, abort, Response  # pip install flask
+from werkzeug.exceptions import HTTPException
 from flask_cors import CORS  # pip install -U flask-cors
 from http import HTTPMethod, HTTPStatus
 
@@ -18,6 +19,21 @@ from decorators import auth_by_token_required
 app: Flask = Flask(__name__)
 # Важно! CORS позволяет обращаться к нашему REST api с других доменов / портов.
 CORS(app, origins=CORS_ORIGINS)
+
+
+@app.teardown_appcontext
+def shutdown_db_session(exception=None) -> None:  # noqa
+    """Закрывает сессию БД после выполнения обработки запроса."""
+    session.remove()
+
+
+@app.errorhandler(HTTPException)
+def handle_exception(exception: HTTPException) -> Response:
+    """Заменяет все HTML-представления статус-кодов на JSON."""
+    response = exception.get_response()
+    response.content_type = 'application/json'
+    response.data = dict(code=exception.code)
+    return response
 
 
 @app.route(Url.AUTH, endpoint=EndpointName.AUTH, methods=[HTTPMethod.POST])
@@ -91,11 +107,6 @@ def chat_history(auth_user: User) -> ChatJSONDict:
         )
     except PermissionError:
         return abort(HTTPStatus.FORBIDDEN)
-
-
-@app.teardown_appcontext
-def shutdown_db_session(exception=None) -> None:  # noqa
-    session.remove()
 
 
 if __name__ == '__main__':
