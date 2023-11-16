@@ -109,8 +109,8 @@ class ChatMessage(BaseModel):
 
     __tablename__ = 'chats_messages'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    chat_id = Column(Integer, ForeignKey('chats.id'))
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    chat_id = Column(Integer, ForeignKey('chats.id'), nullable=False)
     user = relationship('User', backref='chat_message', uselist=False)
     text = Column(Text, nullable=False)
     creating_datetime = Column(DateTime, default=datetime.utcnow)
@@ -123,8 +123,8 @@ class UserChatMatch(BaseModel):
 
     __tablename__ = 'users_chats'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    chat_id = Column(Integer, ForeignKey('chats.id'))
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    chat_id = Column(Integer, ForeignKey('chats.id'), nullable=False)
     user = relationship('User', backref='user_chat', uselist=False)
     chat = relationship('Chat', backref='user_chat', uselist=False)
 
