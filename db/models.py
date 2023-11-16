@@ -12,14 +12,16 @@ from sqlalchemy import (  # pip install sqlalchemy
 from sqlalchemy.orm import (
     relationship,
     declarative_base,
-    Session,
+    sessionmaker,
+    scoped_session,
 )
 from datetime import datetime
-from pathlib import Path
 
 from api.db.encryption import make_auth_token
+from api.config import DB_URL
 
 __all__ = (
+    'BaseModel',
     'session',
     'User',
     'Chat',
@@ -27,12 +29,14 @@ __all__ = (
     'ChatMessage',
 )
 
-# FixMe: Думаю, перейдём на postgres. Или mysql (не работал на нём ещё).
-#  URL перенести в конфиг!
-path: Path = Path(__file__).resolve().parent
 # Подключаемся к БД и создаём сессию (не в универе).
-engine: Engine = create_engine('sqlite:///' + str(path.joinpath('db.db')))
-session: Session = Session(bind=engine)
+engine: Engine = create_engine(url=DB_URL)
+session: scoped_session = scoped_session(
+    sessionmaker(autocommit=False,
+                 autoflush=False,
+                 bind=engine,
+                 )
+)
 # Создаём базовый класс моделей.
 BaseModel = declarative_base()
 
@@ -69,7 +73,7 @@ class User(BaseModel):
                                       password: str,
                                       ) -> User:
         """Возвращает пользователя с указанными `username` и `password`.
-        Если пользователя с такими данными не существует, то вызывает `PermissionError`.
+        Если пользователя с такими данными не существует, то вызывает `ValueError`.
         """
         auth_token: str = make_auth_token(username=username, password=password)
         return cls.auth_by_token(auth_token=auth_token)
@@ -77,12 +81,12 @@ class User(BaseModel):
     @classmethod
     def auth_by_token(cls, auth_token: str) -> User:
         """Возвращает пользователя с указанным `auth_token`.
-        Если пользователя с такими данными не существует, то вызывает `PermissionError`.
+        Если пользователя с такими данными не существует, то вызывает `ValueError`.
         """
         result: User | None = session.query(cls).filter(cls.auth_token == auth_token).first()
         if result is not None:
             return result
-        raise PermissionError
+        raise ValueError
 
 
 class Chat(BaseModel):
@@ -105,11 +109,11 @@ class ChatMessage(BaseModel):
 
     __tablename__ = 'chats_messages'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    chat_id = Column(Integer, ForeignKey('chats.id'))
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    chat_id = Column(Integer, ForeignKey('chats.id'), nullable=False)
     user = relationship('User', backref='chat_message', uselist=False)
     text = Column(Text, nullable=False)
-    creating_datetime = Column(DateTime, default=datetime.now)
+    creating_datetime = Column(DateTime, default=datetime.utcnow)
 
 
 class UserChatMatch(BaseModel):
@@ -119,8 +123,8 @@ class UserChatMatch(BaseModel):
 
     __tablename__ = 'users_chats'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    chat_id = Column(Integer, ForeignKey('chats.id'))
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    chat_id = Column(Integer, ForeignKey('chats.id'), nullable=False)
     user = relationship('User', backref='user_chat', uselist=False)
     chat = relationship('Chat', backref='user_chat', uselist=False)
 
@@ -165,9 +169,3 @@ class UserChatMatch(BaseModel):
             if result is not None:
                 return result.user.first_name
         raise ValueError
-
-
-# Создаём таблицы в БД.
-# Повторный запуск программы не обнуляет данные (даже в случае с sqlite).
-# FixMe: Подумать над миграциями (Alembic).
-BaseModel.metadata.create_all(engine)

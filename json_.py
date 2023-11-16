@@ -1,6 +1,6 @@
 from __future__ import annotations
 from enum import StrEnum
-from typing import TypedDict
+from typing import TypedDict, NotRequired
 
 from api.db.models import (
     User,
@@ -38,10 +38,11 @@ class JSONKey(StrEnum):
     CREATING_DATETIME = 'creatingDatetime'
     AUTH_TOKEN = 'authToken'
     SKIP_FROM_END_COUNT = 'skipFromEndCount'
-    CHAT_NAME = 'chatName'
+    NAME = 'name'
     MESSAGES = 'messages'
     CHATS = 'chats'
-    LAST_CHAT_MESSAGE = 'lastChatMessage'
+    LAST_CHAT_MESSAGE = 'lastMessage'
+    USER = 'user'
 
 
 class AuthSocketDataJSONDict(TypedDict):
@@ -70,12 +71,8 @@ class ChatMessageJSONDict(TypedDict):
     """Рядовое сообщение, отправляемое клиенту по HTTP / Websocket."""
 
     id: int
-    userId: int
     chatId: int
-    # FixMe: По хорошему тону лучше бы сделать ключ 'user' с этими данными.
-    username: str
-    firstName: str
-    lastName: str
+    user: UserInfoJSONDict
     text: str
     creatingDatetime: str
 
@@ -90,7 +87,7 @@ class ChatInitialDataJSONDict(TypedDict):
     """Начальные данные для загрузки чата на клиенте."""
 
     id: int
-    chatName: str
+    name: str
     lastChatMessage: ChatMessageJSONDict
 
 
@@ -107,7 +104,7 @@ class UserInfoJSONDict(TypedDict):
     username: str
     firstName: str
     lastName: str
-    email: str
+    email: NotRequired[str]
 
 
 class JSONDictPreparer:
@@ -128,11 +125,8 @@ class JSONDictPreparer:
     def chat_message(cls, chat_message: ChatMessage) -> ChatMessageJSONDict:
         return {
             JSONKey.ID: chat_message.id,
-            JSONKey.USER_ID: chat_message.user_id,
             JSONKey.CHAT_ID: chat_message.chat_id,
-            JSONKey.USERNAME: chat_message.user.username,
-            JSONKey.FIRST_NAME: chat_message.user.first_name,
-            JSONKey.LAST_NAME: chat_message.user.last_name,
+            JSONKey.USER: cls.user_info(chat_message.user),
             JSONKey.TEXT: chat_message.text,
             JSONKey.CREATING_DATETIME: chat_message.creating_datetime.isoformat(),
         }
@@ -143,10 +137,14 @@ class JSONDictPreparer:
                    ) -> UserChatsJSONDict:
         result_chats = []
         for chat in user_chats:
+            try:
+                last_message = cls.chat_message(chat.last_message)
+            except IndexError:
+                last_message = None
             result_chats.append({
                 JSONKey.ID: chat.id,
-                JSONKey.CHAT_NAME: UserChatMatch.chat_name(user_id=user.id, chat_id=chat.id),
-                JSONKey.LAST_CHAT_MESSAGE: cls.chat_message(chat.last_message),
+                JSONKey.NAME: UserChatMatch.chat_name(user_id=user.id, chat_id=chat.id),
+                JSONKey.LAST_CHAT_MESSAGE: last_message,
             })
         return {JSONKey.CHATS: result_chats}
 
@@ -155,11 +153,15 @@ class JSONDictPreparer:
         return {JSONKey.AUTH_TOKEN: user.auth_token}
 
     @classmethod
-    def user_info(cls, user: User) -> UserInfoJSONDict:
-        return {
+    def user_info(cls, user: User,
+                  exclude_email=True,
+                  ) -> UserInfoJSONDict:
+        user_info = {
             JSONKey.ID: user.id,
             JSONKey.USERNAME: user.username,
             JSONKey.FIRST_NAME: user.first_name,
             JSONKey.LAST_NAME: user.last_name,
-            JSONKey.EMAIL: user.email,
         }
+        if not exclude_email:
+            user_info[JSONKey.EMAIL] = user.email
+        return user_info
