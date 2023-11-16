@@ -137,10 +137,14 @@ class JSONDictPreparer:
                    ) -> UserChatsJSONDict:
         result_chats = []
         for chat in user_chats:
+            try:
+                last_message = cls.chat_message(chat.last_message)
+            except IndexError:
+                last_message = None
             result_chats.append({
                 JSONKey.ID: chat.id,
                 JSONKey.NAME: UserChatMatch.chat_name(user_id=user.id, chat_id=chat.id),
-                JSONKey.LAST_CHAT_MESSAGE: cls.chat_message(chat.last_message),
+                JSONKey.LAST_CHAT_MESSAGE: last_message,
             })
         return {JSONKey.CHATS: result_chats}
 
