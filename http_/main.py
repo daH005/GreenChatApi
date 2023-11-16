@@ -81,16 +81,11 @@ def user_chats(auth_user: User) -> UserChatsJSONDict:
 
 @app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])
 @auth_by_token_required
-def chat_history(auth_user: User) -> ChatJSONDict:
+def chat_history(chat_id: int, auth_user: User) -> ChatJSONDict:
     """Выдаёт всю историю заданного чата. Ожидаются query-параметры 'authToken' и 'chatId',
     а также опциональный параметр 'skipFromEndCount'.
     При каждом обращении проверяет авторизацию пользователя по 'authToken'.
     """
-    # Валидация данных из query-параметров:
-    try:
-        chat_id: int = int(request.args[JSONKey.CHAT_ID])
-    except (ValueError, KeyError):
-        return abort(HTTPStatus.BAD_REQUEST)
     # Параметр, определяющий отступ с конца истории.
     skip_from_end_count: int | None
     try:

@@ -14,7 +14,7 @@ class EndpointName(StrEnum):
 
 
 class Url(StrEnum):
-    AUTH = '/auth'
-    USER_INFO = '/userInfo'
-    USER_CHATS = '/userChats'
-    CHAT_HISTORY = '/chatHistory'
+    AUTH = '/user/auth'
+    USER_INFO = '/user/info'
+    USER_CHATS = '/user/chats'
+    CHAT_HISTORY = '/chats/<int:chat_id>/history'
