@@ -100,10 +100,13 @@ async def start_communication(client: WebSocketServerProtocol,
             continue
         # Формируем сообщение для сохранения в БД и дальнейшей рассылке другим клиентам.
         try:
+            text: str = chat_message_data[JSONKey.TEXT]  # type: ignore
+            if not text:
+                continue
             chat_message: ChatMessage = ChatMessage(
                 user_id=user.id,
                 chat_id=chat_message_data[JSONKey.CHAT_ID],  # type: ignore
-                text=chat_message_data[JSONKey.TEXT],  # type: ignore
+                text=text,
             )
         except KeyError:
             continue
