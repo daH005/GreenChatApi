@@ -41,7 +41,7 @@ class JSONKey(StrEnum):
     NAME = 'name'
     MESSAGES = 'messages'
     CHATS = 'chats'
-    LAST_CHAT_MESSAGE = 'lastChatMessage'
+    LAST_CHAT_MESSAGE = 'lastMessage'
     USER = 'user'
 
 
