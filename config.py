@@ -23,7 +23,7 @@ HTTP_PORT: Final[int] = int(environ.get('HTTP_PORT', 81))
 # Порт для веб-сокета.
 WEBSOCKET_PORT: Final[int] = int(environ.get('WEBSOCKET_PORT', 80))
 # Домены для CORS, с которых мы принимаем запросы.
-CORS_ORIGINS: Final[list[str]] = environ.get('CORS_ORIGINS', '').split()
+CORS_ORIGINS: Final[list[str]] = environ.get('CORS_ORIGINS', '').split(',')
 # URL для подключения к БД.
 DB_URL: URL = URL.create(
     drivername=environ['DB_DRIVERNAME'],
