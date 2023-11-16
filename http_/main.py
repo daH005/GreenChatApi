@@ -2,6 +2,7 @@ from flask import Flask, request, abort, Response  # pip install flask
 from werkzeug.exceptions import HTTPException
 from flask_cors import CORS  # pip install -U flask-cors
 from http import HTTPMethod, HTTPStatus
+from json import dumps as json_dumps
 
 from api.db.models import User, UserChatMatch, session
 from api.json_ import (
@@ -32,7 +33,7 @@ def handle_exception(exception: HTTPException) -> Response:
     """Заменяет все HTML-представления статус-кодов на JSON."""
     response = exception.get_response()
     response.content_type = 'application/json'
-    response.data = dict(code=exception.code)
+    response.data = json_dumps(dict(code=exception.code))
     return response
 
 
