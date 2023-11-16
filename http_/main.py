@@ -40,7 +40,8 @@ def handle_exception(exception: HTTPException) -> Response:
 @app.route(Url.AUTH, endpoint=EndpointName.AUTH, methods=[HTTPMethod.POST])
 def auth_by_username_and_password() -> AuthTokenJSONDict:
     """Авторизует пользователя по логину и паролю. Возвращает токен авторизации
-    для его дальнейшего сохранение в cookie и работы с нашим rest api + websocket.
+    для его дальнейшего сохранения в cookie и работы с нашим RESTful api + websocket.
+    Ожидается JSON с ключами 'username' и 'password'.
     """
     # Валидация данных из JSON:
     try:
@@ -60,8 +61,8 @@ def auth_by_username_and_password() -> AuthTokenJSONDict:
 @app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])
 @auth_by_token_required
 def user_info(auth_user: User) -> UserInfoJSONDict:
-    """Выдаёт всю информацию о пользователе (за исключением токена авторизации).
-    При каждом обращении проверяет авторизацию по `authToken`.
+    """Выдаёт всю информацию о `auth_user` (за исключением токена авторизации).
+    Ожидается заголовок 'authToken'.
     """
     return JSONDictPreparer.user_info(user=auth_user, exclude_email=False)
 
@@ -69,9 +70,8 @@ def user_info(auth_user: User) -> UserInfoJSONDict:
 @app.route(Url.USER_CHATS, endpoint=EndpointName.USER_CHATS, methods=[HTTPMethod.GET])
 @auth_by_token_required
 def user_chats(auth_user: User) -> UserChatsJSONDict:
-    """Выдаёт все чаты пользователя (от каждого чата берётся только последнее сообщение).
-    Ожидается query-параметр 'authToken'.
-    При каждом обращении проверяет авторизацию пользователя по 'authToken'.
+    """Выдаёт все чаты `auth_user` (от каждого чата берётся только последнее сообщение).
+    Ожидается заголовок 'authToken'.
     """
     return JSONDictPreparer.user_chats(
         user_chats=UserChatMatch.user_chats(user_id=auth_user.id),
@@ -82,9 +82,8 @@ def user_chats(auth_user: User) -> UserChatsJSONDict:
 @app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])
 @auth_by_token_required
 def chat_history(chat_id: int, auth_user: User) -> ChatJSONDict:
-    """Выдаёт всю историю заданного чата. Ожидаются query-параметры 'authToken' и 'chatId',
-    а также опциональный параметр 'skipFromEndCount'.
-    При каждом обращении проверяет авторизацию пользователя по 'authToken'.
+    """Выдаёт всю историю заданного чата (при условии, что он доступен для `auth_user`).
+    Ожидается заголовок 'authToken', а также опциональный query-параметр 'skipFromEndCount'.
     """
     # Параметр, определяющий отступ с конца истории.
     skip_from_end_count: int | None
