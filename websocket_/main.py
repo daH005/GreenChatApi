@@ -80,7 +80,7 @@ async def wait_auth(client: WebSocketServerProtocol) -> User:
         auth_data: AuthSocketDataJSONDict = await wait_data(client)
         try:
             auth_user: User = User.auth_by_token(auth_token=auth_data[JSONKey.AUTH_TOKEN])  # type: ignore
-        except (TypeError, KeyError, PermissionError):
+        except (TypeError, KeyError, ValueError):
             continue
         return auth_user
 
