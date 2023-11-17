@@ -21,8 +21,9 @@ from api.config import HOST, WEBSOCKET_PORT as PORT
 
 # Сюда складываем клиентов, подключённых к серверу в данный момент времени.
 # Ключ - ID пользователя `User.id`;
-# Значение - сокет.
-clients: dict[int, WebSocketServerProtocol] = {}
+# Значение - список сокетов (список, т.к. человек может быть подключён
+# с нескольких вкладок браузера, с телефона и т.д.).
+clients: dict[int, list[WebSocketServerProtocol]] = {}
 
 
 async def main() -> NoReturn:
@@ -52,7 +53,7 @@ async def ws_handler(client: WebSocketServerProtocol) -> None:
         user: User = await wait_auth(client)
     except ConnectionClosed:
         return
-    clients[user.id] = client
+    clients.setdefault(user.id, []).append(client)
     print('Client was auth', f'({client.id})')
     try:
         # Запускаем обмен рядовыми сообщениями.
@@ -129,7 +130,8 @@ async def send_each(chat_message: ChatMessage) -> None:
         try:
             # Если пользователь подключён в данный момент к серверу, то отсылаем ему сообщение.
             if user.id in clients:
-                await dump_and_send(clients[user.id], message_dict)
+                for client in clients[user.id]:
+                    await dump_and_send(client, message_dict)
         except ConnectionClosed:
             continue
 
