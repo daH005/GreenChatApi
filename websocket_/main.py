@@ -62,8 +62,10 @@ async def ws_handler(client: WebSocketServerProtocol) -> None:
     except ConnectionClosed:
         # Пока досконально не разбирался, но по каким-то причинам элемент может пропасть,
         # из-за чего `.pop(...)` вызовет ошибку.
-        if user.id in clients:
-            clients.pop(user.id)
+        try:
+            clients[user.id].remove(client)
+        except ValueError:
+            pass
     print('Connection closed', f'({client.id})')
 
 
