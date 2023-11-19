@@ -100,7 +100,7 @@ class Chat(BaseModel):
     messages = relationship('ChatMessage', backref='chat', order_by='ChatMessage.creating_datetime')
 
     @property
-    def last_message(self) -> ChatMessage | None:
+    def last_message(self) -> ChatMessage:
         return self.messages[-1]  # type: ignore
 
 
