@@ -320,15 +320,15 @@ class TestUserChatMatch:
         assert UserChatMatch.user_chats(user_id=user_id) == chats
 
     @staticmethod
-    @pytest.mark.parametrize(('user_id', 'chat_id', 'chat_name'), [
-        (1, 1, _TEST_USERS[1].first_name),
-        (1, 3, _TEST_CHATS[2].name),
+    @pytest.mark.parametrize(('user_id', 'chat', 'chat_name'), [
+        (1, _TEST_CHATS[0], _TEST_USERS[1].first_name),
+        (1, _TEST_CHATS[2], _TEST_CHATS[2].name),
     ])
     def test_chat_name(user_id: int,
-                       chat_id: int,
+                       chat: Chat,
                        chat_name: str,
                        ) -> None:
         """Позитивный тест: определение имени чата для конкретного пользователя.
         Если чат - это беседа, то выдаётся `Chat.name`, иначе - имя собеседника.
         """
-        assert UserChatMatch.chat_name(user_id=user_id, chat_id=chat_id) == chat_name
+        assert UserChatMatch.chat_name(user_id=user_id, chat=chat) == chat_name
