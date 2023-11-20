@@ -6,7 +6,7 @@ from json import dumps as json_dumps
 
 from api.db.models import User, UserChatMatch, session
 from api.json_ import (
-    ChatJSONDict,
+    ChatHistoryJSONDict,
     UserChatsJSONDict,
     AuthTokenJSONDict,
     UserInfoJSONDict,
@@ -75,7 +75,7 @@ def user_chats(auth_user: User) -> UserChatsJSONDict:
     """
     return JSONDictPreparer.prepare_user_chats(
         user_chats=UserChatMatch.user_chats(user_id=auth_user.id),
-        user=auth_user,
+        user_id=auth_user.id,
     )
 
 
@@ -83,14 +83,14 @@ def user_chats(auth_user: User) -> UserChatsJSONDict:
 @auth_by_token_required
 def chat_history(chat_id: int,
                  auth_user: User,
-                 ) -> ChatJSONDict:
+                 ) -> ChatHistoryJSONDict:
     """Выдаёт всю историю заданного чата (при условии, что он доступен для `auth_user`).
     Ожидается заголовок 'authToken', а также опциональный query-параметр 'offsetFromEnd'.
     """
     # Параметр, определяющий отступ с конца истории.
     offset_from_end: int | None
     try:
-        offset_from_end = int(request.args[JSONKey.OFFSET_FROM_END])
+        offset_from_end = -int(request.args[JSONKey.OFFSET_FROM_END])
     except KeyError:
         offset_from_end = None
     except ValueError:
@@ -99,8 +99,8 @@ def chat_history(chat_id: int,
     # Если всё ок, то возвращаем историю.
     try:
         return JSONDictPreparer.prepare_chat_history(
-            chat=UserChatMatch.chat_if_user_has_access(user_id=auth_user.id, chat_id=chat_id),
-            offset_from_end=offset_from_end,
+            chat_messages=UserChatMatch.chat_if_user_has_access(user_id=auth_user.id,
+                                                                chat_id=chat_id).messages[:offset_from_end],
         )
     except PermissionError:
         return abort(HTTPStatus.FORBIDDEN)

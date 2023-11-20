@@ -12,8 +12,8 @@ from api.db.models import (
 )
 from api.json_ import (
     JSONKey,
-    AuthSocketDataJSONDict,
-    ChatMessageSocketDataJSONDict,
+    AuthWebSocketDataJSONDict,
+    ChatMessageWebSocketDataJSONDict,
     ChatMessageJSONDict,
     JSONDictPreparer,
 )
@@ -77,7 +77,7 @@ async def wait_auth(client: WebSocketServerProtocol) -> User:
         # Ждём авторизующего сообщения, после чего преобразуем его из JSON -> Python dict
         # и проверяем email + password в БД.
         # В этом словаре ключи в стиле lowerCamelCase!
-        auth_data: AuthSocketDataJSONDict = await wait_data(client)
+        auth_data: AuthWebSocketDataJSONDict = await wait_data(client)
         try:
             auth_user: User = User.auth_by_token(auth_token=auth_data[JSONKey.AUTH_TOKEN])  # type: ignore
         except (TypeError, KeyError, ValueError):
@@ -92,7 +92,7 @@ async def start_communication(client: WebSocketServerProtocol,
     while True:
         # Ждём сообщение в какой-нибудь чат.
         # В этом словаре ключи в стиле lowerCamelCase!
-        chat_message_data: ChatMessageSocketDataJSONDict = await wait_data(client)
+        chat_message_data: ChatMessageWebSocketDataJSONDict = await wait_data(client)
         try:
             # Проверяем доступ к заданному чату.
             _chat: Chat = UserChatMatch.chat_if_user_has_access(
