@@ -2,17 +2,11 @@ import pytest
 from sqlalchemy import create_engine, Engine
 from sqlalchemy.orm import create_session, Session
 from datetime import datetime, timedelta
-from random import choice
-from string import ascii_uppercase
 
 from api.db.encryption import make_auth_token
 from api.db import models
 from api.db.models import *
-
-
-def make_random_string() -> str:
-    """Генерирует случайную 40-символьную строку. Число подобрано опытным путём."""
-    return ''.join(choice(ascii_uppercase) for _ in range(40))
+from common import make_random_string
 
 
 # Данные для создания тестовых пользователей.
