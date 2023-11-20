@@ -64,7 +64,7 @@ def user_info(auth_user: User) -> UserInfoJSONDict:
     """Выдаёт всю информацию о `auth_user` (за исключением токена авторизации).
     Ожидается заголовок 'authToken'.
     """
-    return JSONDictPreparer.prepare_user_info(user=auth_user, exclude_email=False)
+    return JSONDictPreparer.prepare_user_info(user=auth_user, exclude_important_info=False)
 
 
 @app.route(Url.USER_CHATS, endpoint=EndpointName.USER_CHATS, methods=[HTTPMethod.GET])

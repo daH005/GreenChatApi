@@ -154,7 +154,7 @@ class JSONDictPreparer:
 
     @classmethod
     def prepare_user_info(cls, user: User,
-                          exclude_email=True,
+                          exclude_important_info=True,
                           ) -> UserInfoJSONDict:
         user_info = {
             JSONKey.ID: user.id,
@@ -162,6 +162,6 @@ class JSONDictPreparer:
             JSONKey.FIRST_NAME: user.first_name,
             JSONKey.LAST_NAME: user.last_name,
         }
-        if not exclude_email:
+        if not exclude_important_info:
             user_info[JSONKey.EMAIL] = user.email
         return user_info
