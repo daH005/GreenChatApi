@@ -9,115 +9,110 @@ from api.db.models import *
 from common import make_random_string
 
 
-# Данные для создания тестовых пользователей.
-NEW_USERS_TEST_DATA = [
-    ('user1', 'test_pass123', 'dan@mail.ru'),  # id = 1
-    ('user2', 'test_pass__', 'dan123@mail.ru'),  # id = 2
-    ('dan005', 'test_pass__', 'dan228@mail.ru'),  # id = 3
+# Пароли тестовых пользователей.
+USERS_PASSWORDS = [
+    'test_pass123',
+    'test_pass__',
+    'test_pass__',
 ]
-# Данные для создания тестовых чатов.
-NEW_CHATS_TEST_DATA = [
-    None,  # id = 1
-    None,  # id = 2
-    'Беседа',  # id = 3
-    None,  # id = 4
+# Тестовые пользователи.
+USERS = [
+    # id = 1
+    User.new_by_password(
+        username='user1',
+        password=USERS_PASSWORDS[0],
+        email='dan@mail.ru',
+        first_name='first_name',
+        last_name='last_name',
+    ),
+    # id = 2
+    User.new_by_password(
+        username='user2',
+        password=USERS_PASSWORDS[1],
+        email='dan123@mail.ru',
+        first_name='first_name',
+        last_name='last_name',
+    ),
+    # id = 3
+    User.new_by_password(
+        username='dan005',
+        password=USERS_PASSWORDS[2],
+        email='dan228@mail.ru',
+        first_name='first_name',
+        last_name='last_name',
+    ),
 ]
-# Данные для создания тестовых сообщений.
-NEW_CHATS_MESSAGES_TEST_DATA = [
-    (1, 1, 'Hi!'),
-    (2, 1, 'Hello! How are u?'),
-    (1, 2, 'Yup.'),
-    (1, 3, 'And?..'),
+# Тестовые чаты.
+CHATS = [
+    # id = 1
+    Chat(name=None),
+    # id = 2
+    Chat(name=None),
+    # id = 3
+    Chat(name='Беседа'),
+    # id = 4
+    Chat(name=None),
 ]
-# Данные для создания тестовых доступов к чатам.
-NEW_USERS_CHATS_MATCHES_TEST_DATA = [
-    (1, 1),
-    (1, 2),
-    (1, 3),
-    (2, 1),
+# Тестовые сообщения.
+CHATS_MESSAGES = [
+    ChatMessage(
+        user_id=1,
+        chat_id=1,
+        text='Hi!',
+    ),
+    ChatMessage(
+        user_id=2,
+        chat_id=1,
+        text='Hello! How are u?',
+    ),
+    ChatMessage(
+        user_id=1,
+        chat_id=2,
+        text='Yup.',
+    ),
+    ChatMessage(
+        user_id=1,
+        chat_id=3,
+        text='And?..',
+    ),
+]
+# Доступы к тестовым чатам.
+USERS_CHATS_MATCHES = [
+    UserChatMatch(
+        user_id=1,
+        chat_id=1,
+    ),
+    UserChatMatch(
+        user_id=1,
+        chat_id=2,
+    ),
+    UserChatMatch(
+        user_id=1,
+        chat_id=3,
+    ),
+    UserChatMatch(
+        user_id=2,
+        chat_id=1,
+    ),
 ]
 
 
 def _prepare_test_db() -> None:
     """Оформляет тестовую БД перед началом тестов.
-    Подменяет объект сессии, а также создаёт таблицы.
+    Подменяет объект сессии, а также создаёт таблицы, после чего заполняет их
+    объектами, определёнными в начале модуля.
     """
     engine_for_test: Engine = create_engine('sqlite:///:memory:')
     session_for_test: Session = create_session(bind=engine_for_test)
     globals()['session'] = session_for_test
     models.session = session_for_test
     BaseModel.metadata.create_all(bind=engine_for_test)
-
-
-def _make_test_users() -> list[User]:
-    """Создаёт и добавляет пользователей в тестовую БД."""
-    users = []
-    for user_data in NEW_USERS_TEST_DATA:
-        user = User.new_by_password(
-            username=user_data[0],
-            password=user_data[1],
-            email=user_data[2],
-            first_name='first_name',
-            last_name='last_name',
-        )
-        users.append(user)
-        models.session.add(user)
+    models.session.add_all(USERS + CHATS + CHATS_MESSAGES + USERS_CHATS_MATCHES)
     models.session.commit()
-    return users
-
-
-def _make_test_chats() -> list[Chat]:
-    """Создаёт и добавляет чаты в тестовую БД."""
-    chats = []
-    for chat_data in NEW_CHATS_TEST_DATA:
-        chat = Chat(
-            name=chat_data,
-        )
-        chats.append(chat)
-        models.session.add(chat)
-    models.session.commit()
-    return chats
-
-
-def _make_test_chats_messages() -> list[ChatMessage]:
-    """Создаёт и добавляет сообщения в тестовую БД."""
-    chats_messages = []
-    for chat_message_data in NEW_CHATS_MESSAGES_TEST_DATA:
-        chat_message = ChatMessage(
-            user_id=chat_message_data[0],
-            chat_id=chat_message_data[1],
-            text=chat_message_data[2],
-        )
-        chats_messages.append(chat_message)
-        models.session.add(chat_message)
-    models.session.commit()
-    return chats_messages
-
-
-def _make_test_users_chats_matches() -> list[UserChatMatch]:
-    """Создаёт и добавляет доступы к чатам в тестовую БД."""
-    users_chats_matches = []
-    for user_chat_match_data in NEW_USERS_CHATS_MATCHES_TEST_DATA:
-        user_chat_match = UserChatMatch(
-            user_id=user_chat_match_data[0],
-            chat_id=user_chat_match_data[1],
-        )
-        users_chats_matches.append(user_chat_match)
-        models.session.add(user_chat_match)
-    models.session.commit()
-    return users_chats_matches
 
 
 # Подготавливаем тестовую БД.
 _prepare_test_db()
-# Тестовые пользователи.
-_TEST_USERS: list[User] = _make_test_users()
-# Тестовые чаты.
-_TEST_CHATS: list[Chat] = _make_test_chats()
-# Тестовые сообщения.
-_TEST_CHATS_MESSAGES: list[ChatMessage] = _make_test_chats_messages()
-# Тестовые доступы.
-_TEST_USERS_CHATS_MATCHES: list[UserChatMatch] = _make_test_users_chats_matches()
 
 
 class TestUser:
@@ -140,16 +135,16 @@ class TestUser:
         assert hasattr(User, attr_name)
 
     @staticmethod
-    @pytest.mark.parametrize('user', _TEST_USERS)
+    @pytest.mark.parametrize('user', USERS)
     def test_user_has_encrypted_auth_token(user: User) -> None:
         """Позитивный тест: пользователи должны иметь действительно зашифрованный токен авторизации."""
-        assert user.auth_token == make_auth_token(user.username, NEW_USERS_TEST_DATA[user.id - 1][1])
+        assert user.auth_token == make_auth_token(user.username, USERS_PASSWORDS[user.id - 1])
 
     @staticmethod
-    @pytest.mark.parametrize('user', _TEST_USERS)
+    @pytest.mark.parametrize('user', USERS)
     def test_user_auth_by_username_and_password(user: User) -> None:
         """Позитивный тест: авторизация по логину и паролю."""
-        assert User.auth_by_username_and_password(user.username, NEW_USERS_TEST_DATA[user.id - 1][1]) == user
+        assert User.auth_by_username_and_password(user.username, USERS_PASSWORDS[user.id - 1]) == user
 
     @staticmethod
     @pytest.mark.parametrize(('username', 'password'),
@@ -162,7 +157,7 @@ class TestUser:
             User.auth_by_username_and_password(username, password)
 
     @staticmethod
-    @pytest.mark.parametrize('user', _TEST_USERS)
+    @pytest.mark.parametrize('user', USERS)
     def test_user_auth_by_token(user: User) -> None:
         """Позитивный тест: авторизация по токену."""
         assert User.auth_by_token(user.auth_token) == user
@@ -190,11 +185,11 @@ class TestChat:
         assert hasattr(Chat, attr_name)
 
     @staticmethod
-    @pytest.mark.parametrize('chat', _TEST_CHATS)
+    @pytest.mark.parametrize('chat', CHATS)
     def test_last_message_is_last_added(chat: Chat) -> None:
         """Позитивный тест: геттер `Chat.last_message` возвращает последний добавленный в БД `ChatMessage`."""
         chat_message = ChatMessage(
-            user_id=_TEST_USERS[0].id,
+            user_id=USERS[0].id,
             chat_id=chat.id,
             text='Hi!',
         )
@@ -270,7 +265,7 @@ class TestUserChatMatch:
                          chat_id: int,
                          ) -> None:
         """Позитивный тест: пользователь, состоящий в чате, должен иметь к нему доступ."""
-        assert UserChatMatch.chat_if_user_has_access(user_id, chat_id) == _TEST_CHATS[chat_id - 1]
+        assert UserChatMatch.chat_if_user_has_access(user_id, chat_id) == CHATS[chat_id - 1]
 
     @staticmethod
     @pytest.mark.parametrize(('user_id', 'chat_id'), [
@@ -291,8 +286,8 @@ class TestUserChatMatch:
 
     @staticmethod
     @pytest.mark.parametrize(('chat_id', 'users'), [
-        (1, [_TEST_USERS[0], _TEST_USERS[1]]),
-        (2, [_TEST_USERS[0]]),
+        (1, [USERS[0], USERS[1]]),
+        (2, [USERS[0]]),
         (4, [])
     ])
     def test_users_in_chat(chat_id: int,
@@ -303,8 +298,8 @@ class TestUserChatMatch:
 
     @staticmethod
     @pytest.mark.parametrize(('user_id', 'chats'), [
-        (1, _TEST_CHATS[:-1]),
-        (2, [_TEST_CHATS[0]]),
+        (1, CHATS[:-1]),
+        (2, [CHATS[0]]),
         (3, []),
     ])
     def test_user_chats(user_id: int,
@@ -315,8 +310,9 @@ class TestUserChatMatch:
 
     @staticmethod
     @pytest.mark.parametrize(('user_id', 'chat', 'chat_name'), [
-        (1, _TEST_CHATS[0], _TEST_USERS[1].first_name),
-        (1, _TEST_CHATS[2], _TEST_CHATS[2].name),
+        # Здесь ничего не перепутано!
+        (1, CHATS[0], USERS[1].first_name),
+        (1, CHATS[2], CHATS[2].name),
     ])
     def test_chat_name(user_id: int,
                        chat: Chat,
