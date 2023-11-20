@@ -159,7 +159,7 @@ class TestUser:
                                                                                      ) -> None:
         """Негативный тест: авторизация по неверным логину или паролю должна вызывать `ValueError`."""
         with pytest.raises(ValueError):
-            User.auth_by_username_and_password(username=username, password=password)
+            User.auth_by_username_and_password(username, password)
 
     @staticmethod
     @pytest.mark.parametrize('user', _TEST_USERS)
@@ -270,7 +270,7 @@ class TestUserChatMatch:
                          chat_id: int,
                          ) -> None:
         """Позитивный тест: пользователь, состоящий в чате, должен иметь к нему доступ."""
-        assert UserChatMatch.chat_if_user_has_access(user_id=user_id, chat_id=chat_id) == _TEST_CHATS[chat_id - 1]
+        assert UserChatMatch.chat_if_user_has_access(user_id, chat_id) == _TEST_CHATS[chat_id - 1]
 
     @staticmethod
     @pytest.mark.parametrize(('user_id', 'chat_id'), [
@@ -287,7 +287,7 @@ class TestUserChatMatch:
         то вызывается `PermissionError`.
         """
         with pytest.raises(PermissionError):
-            UserChatMatch.chat_if_user_has_access(user_id=user_id, chat_id=chat_id)
+            UserChatMatch.chat_if_user_has_access(user_id, chat_id)
 
     @staticmethod
     @pytest.mark.parametrize(('chat_id', 'users'), [
@@ -299,7 +299,7 @@ class TestUserChatMatch:
                            users: list[User],
                            ) -> None:
         """Позитивный тест: получение всех пользователей, состоящих в чате."""
-        assert UserChatMatch.users_in_chat(chat_id=chat_id) == users
+        assert UserChatMatch.users_in_chat(chat_id) == users
 
     @staticmethod
     @pytest.mark.parametrize(('user_id', 'chats'), [
@@ -311,7 +311,7 @@ class TestUserChatMatch:
                         chats: list[Chat],
                         ) -> None:
         """Позитивный тест: получение всех чатов, в которых состоит пользователь."""
-        assert UserChatMatch.user_chats(user_id=user_id) == chats
+        assert UserChatMatch.user_chats(user_id) == chats
 
     @staticmethod
     @pytest.mark.parametrize(('user_id', 'chat', 'chat_name'), [
@@ -325,4 +325,4 @@ class TestUserChatMatch:
         """Позитивный тест: определение имени чата для конкретного пользователя.
         Если чат - это беседа, то выдаётся `Chat.name`, иначе - имя собеседника.
         """
-        assert UserChatMatch.chat_name(user_id=user_id, chat=chat) == chat_name
+        assert UserChatMatch.chat_name(user_id, chat) == chat_name
