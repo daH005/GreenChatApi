@@ -199,6 +199,21 @@ class TestChat:
         session.delete(chat_message)
         session.commit()
 
+    @staticmethod
+    @pytest.mark.parametrize(('chat', 'user_id', 'expected_chat_name'), [
+        # Здесь ничего не перепутано!
+        (CHATS[0], 1, USERS[1].first_name),
+        (CHATS[2], 1, CHATS[2].name),
+    ])
+    def test_chat_name_definition(chat: Chat,
+                                  user_id: int,
+                                  expected_chat_name: str,
+                                  ) -> None:
+        """Позитивный тест: определение имени чата для конкретного пользователя.
+        Если чат - это беседа, то выдаётся `Chat.name`, иначе - имя собеседника.
+        """
+        assert chat.define_chat_name_for_user_id(user_id) == expected_chat_name
+
 
 class TestChatMessage:
     """Тестовый класс для модели сообщения."""
@@ -248,7 +263,7 @@ class TestUserChatMatch:
         'chat_if_user_has_access',
         'users_in_chat',
         'user_chats',
-        'chat_name',
+        'interlocutor_name',
     ])
     def test_user_chat_match_has_required_attrs(attr_name: str) -> None:
         """Позитивный тест: модель доступа к чату должна иметь необходимый перечень атрибутов."""
@@ -285,40 +300,39 @@ class TestUserChatMatch:
             UserChatMatch.chat_if_user_has_access(user_id, chat_id)
 
     @staticmethod
-    @pytest.mark.parametrize(('chat_id', 'users'), [
+    @pytest.mark.parametrize(('chat_id', 'expected_users'), [
         (1, [USERS[0], USERS[1]]),
         (2, [USERS[0]]),
         (4, [])
     ])
     def test_users_in_chat(chat_id: int,
-                           users: list[User],
+                           expected_users: list[User],
                            ) -> None:
         """Позитивный тест: получение всех пользователей, состоящих в чате."""
-        assert UserChatMatch.users_in_chat(chat_id) == users
+        assert UserChatMatch.users_in_chat(chat_id) == expected_users
 
     @staticmethod
-    @pytest.mark.parametrize(('user_id', 'chats'), [
+    @pytest.mark.parametrize(('user_id', 'expected_chats'), [
         (1, CHATS[:-1]),
         (2, [CHATS[0]]),
         (3, []),
     ])
     def test_user_chats(user_id: int,
-                        chats: list[Chat],
+                        expected_chats: list[Chat],
                         ) -> None:
         """Позитивный тест: получение всех чатов, в которых состоит пользователь."""
-        assert UserChatMatch.user_chats(user_id) == chats
+        assert UserChatMatch.user_chats(user_id) == expected_chats
 
     @staticmethod
-    @pytest.mark.parametrize(('user_id', 'chat', 'chat_name'), [
+    @pytest.mark.parametrize(('user_id', 'chat_id', 'expected_interlocutor_name'), [
         # Здесь ничего не перепутано!
-        (1, CHATS[0], USERS[1].first_name),
-        (1, CHATS[2], CHATS[2].name),
+        (1, 1, USERS[1].first_name),
+        (2, 1, USERS[0].first_name),
     ])
-    def test_chat_name(user_id: int,
-                       chat: Chat,
-                       chat_name: str,
-                       ) -> None:
-        """Позитивный тест: определение имени чата для конкретного пользователя.
-        Если чат - это беседа, то выдаётся `Chat.name`, иначе - имя собеседника.
+    def test_interlocutor_name_definition(user_id: int,
+                                          chat_id: int,
+                                          expected_interlocutor_name: str,
+                                          ) -> None:
+        """Позитивный тест: определение имени собеседника.
         """
-        assert UserChatMatch.chat_name(user_id, chat) == chat_name
+        assert UserChatMatch.interlocutor_name(user_id, chat_id) == expected_interlocutor_name

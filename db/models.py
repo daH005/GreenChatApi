@@ -103,6 +103,14 @@ class Chat(BaseModel):
     def last_message(self) -> ChatMessage:
         return self.messages[-1]  # type: ignore
 
+    def define_chat_name_for_user_id(self, user_id: int) -> str:
+        """Определяет имя чата для конкретного пользователя.
+        Дело в том, что если чат - не беседа, то имя чата - это имя собеседника.
+        """
+        if self.name:
+            return self.name  # type: ignore
+        return UserChatMatch.interlocutor_name(user_id=user_id, chat_id=self.id)  # type: ignore
+
 
 class ChatMessage(BaseModel):
     """Рядовое сообщение, относящееся к конкретному чату."""
@@ -155,16 +163,12 @@ class UserChatMatch(BaseModel):
         return [match.chat for match in matches]
 
     @classmethod
-    def chat_name(cls, user_id: int,
-                  chat: Chat,
-                  ) -> str:
-        """Определяет имя чата для указанного пользователя.
-        Если чат - не беседа, то именем чата является имя собеседника.
-        """
-        if chat.name:
-            return chat.name  # type: ignore
+    def interlocutor_name(cls, user_id: int,
+                          chat_id: int,
+                          ) -> str:
+        """Определяет имя собеседника."""
         interlocutor_match: cls | None = session.query(cls).filter(cls.user_id != user_id,
-                                                                   cls.chat_id == chat.id).first()  # type: ignore
+                                                                   cls.chat_id == chat_id).first()  # type: ignore
         if interlocutor_match is not None:
             return interlocutor_match.user.first_name
         raise ValueError
