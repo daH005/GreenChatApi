@@ -107,6 +107,9 @@ class ChatInitialDataJSONDict(TypedDict):
 
 
 class JSONDictPreparer:
+    """Подготовитель словарей данных с ключами в стиле lowerCamelCase
+    для их дальнейшей отправки в сеть по HTTP / WebSocket.
+    """
 
     @classmethod
     def prepare_auth_token(cls, auth_token: str) -> AuthTokenJSONDict:
