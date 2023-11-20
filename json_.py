@@ -6,7 +6,6 @@ from api.db.models import (
     User,
     ChatMessage,
     Chat,
-    UserChatMatch,
 )
 
 __all__ = (
@@ -157,7 +156,7 @@ class JSONDictPreparer:
                 last_message = None
             chats_for_json.append({
                 JSONKey.ID: chat.id,
-                JSONKey.NAME: UserChatMatch.chat_name(user_id=user_id, chat=chat),
+                JSONKey.NAME: chat.define_chat_name_for_user_id(user_id=user_id),
                 JSONKey.LAST_CHAT_MESSAGE: last_message,
             })
         return {JSONKey.CHATS: chats_for_json}
