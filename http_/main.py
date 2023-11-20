@@ -55,7 +55,7 @@ def auth_by_username_and_password() -> AuthTokenJSONDict:
     except ValueError:
         return abort(HTTPStatus.FORBIDDEN)
     # Возвращаем токен для дальнейшего его сохранения у клиента в cookie.
-    return JSONDictPreparer.prepare_auth_token(user=auth_user)
+    return JSONDictPreparer.prepare_auth_token(auth_token=auth_user.auth_token)
 
 
 @app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])

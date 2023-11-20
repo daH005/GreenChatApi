@@ -149,8 +149,8 @@ class JSONDictPreparer:
         return {JSONKey.CHATS: result_chats}
 
     @classmethod
-    def prepare_auth_token(cls, user: User) -> AuthTokenJSONDict:
-        return {JSONKey.AUTH_TOKEN: user.auth_token}
+    def prepare_auth_token(cls, auth_token: str) -> AuthTokenJSONDict:
+        return {JSONKey.AUTH_TOKEN: auth_token}
 
     @classmethod
     def prepare_user_info(cls, user: User,
