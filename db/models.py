@@ -83,9 +83,9 @@ class User(BaseModel):
         """Возвращает пользователя с указанным `auth_token`.
         Если пользователя с такими данными не существует, то вызывает `ValueError`.
         """
-        result: User | None = session.query(cls).filter(cls.auth_token == auth_token).first()
-        if result is not None:
-            return result
+        user: User | None = session.query(cls).filter(cls.auth_token == auth_token).first()
+        if user is not None:
+            return user
         raise ValueError
 
 
@@ -135,37 +135,36 @@ class UserChatMatch(BaseModel):
         """Возвращает чат, если пользователь в нём состоит.
         Иначе - вызывает `PermissionError`.
         """
-        result: UserChatMatch | None = session.query(cls).filter(
+        match: UserChatMatch | None = session.query(cls).filter(
             cls.user_id == user_id, cls.chat_id == chat_id
         ).first()
-        if result is not None:
-            return result.chat
+        if match is not None:
+            return match.chat
         raise PermissionError
 
     @classmethod
     def users_in_chat(cls, chat_id: int) -> list[User]:
         """Формирует список пользователей, состоящих в указанном чате."""
-        results = session.query(cls).filter(cls.chat_id == chat_id).all()
-        return [result.user for result in results]
+        matches: list[cls] = session.query(cls).filter(cls.chat_id == chat_id).all()  # type: ignore
+        return [match.user for match in matches]
 
     @classmethod
     def user_chats(cls, user_id: int) -> list[Chat]:
         """Чаты, доступные указанному пользователю."""
-        results = session.query(cls).filter(cls.user_id == user_id).all()
-        return [result.chat for result in results]
+        matches: list[cls] = session.query(cls).filter(cls.user_id == user_id).all()  # type: ignore
+        return [match.chat for match in matches]
 
     @classmethod
     def chat_name(cls, user_id: int,
-                  chat_id: int,
+                  chat: Chat,
                   ) -> str:
         """Определяет имя чата для указанного пользователя.
         Если чат - не беседа, то именем чата является имя собеседника.
         """
-        result = session.query(Chat).filter(Chat.id == chat_id).first()
-        if result is not None:
-            if result.name:
-                return result.name  # type: ignore
-            result = session.query(cls).filter(cls.user_id != user_id, cls.chat_id == chat_id).first()
-            if result is not None:
-                return result.user.first_name
+        if chat.name:
+            return chat.name  # type: ignore
+        interlocutor_match: cls | None = session.query(cls).filter(cls.user_id != user_id,
+                                                                   cls.chat_id == chat.id).first()  # type: ignore
+        if interlocutor_match is not None:
+            return interlocutor_match.user.first_name
         raise ValueError
