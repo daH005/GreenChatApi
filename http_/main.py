@@ -81,16 +81,18 @@ def user_chats(auth_user: User) -> UserChatsJSONDict:
 
 @app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])
 @auth_by_token_required
-def chat_history(chat_id: int, auth_user: User) -> ChatJSONDict:
+def chat_history(chat_id: int,
+                 auth_user: User,
+                 ) -> ChatJSONDict:
     """Выдаёт всю историю заданного чата (при условии, что он доступен для `auth_user`).
-    Ожидается заголовок 'authToken', а также опциональный query-параметр 'skipFromEndCount'.
+    Ожидается заголовок 'authToken', а также опциональный query-параметр 'offsetFromEnd'.
     """
     # Параметр, определяющий отступ с конца истории.
-    skip_from_end_count: int | None
+    offset_from_end: int | None
     try:
-        skip_from_end_count = int(request.args[JSONKey.SKIP_FROM_END_COUNT])
+        offset_from_end = int(request.args[JSONKey.OFFSET_FROM_END])
     except KeyError:
-        skip_from_end_count = None
+        offset_from_end = None
     except ValueError:
         return abort(HTTPStatus.BAD_REQUEST)
     # Проверка доступа пользователя к заданному чату.
@@ -98,7 +100,7 @@ def chat_history(chat_id: int, auth_user: User) -> ChatJSONDict:
     try:
         return JSONDictPreparer.prepare_chat_history(
             chat=UserChatMatch.chat_if_user_has_access(user_id=auth_user.id, chat_id=chat_id),
-            skip_from_end_count=skip_from_end_count,
+            offset_from_end=offset_from_end,
         )
     except PermissionError:
         return abort(HTTPStatus.FORBIDDEN)

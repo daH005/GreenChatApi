@@ -37,7 +37,7 @@ class JSONKey(StrEnum):
     EMAIL = 'email'
     CREATING_DATETIME = 'creatingDatetime'
     AUTH_TOKEN = 'authToken'
-    SKIP_FROM_END_COUNT = 'skipFromEndCount'
+    OFFSET_FROM_END = 'offsetFromEnd'
     NAME = 'name'
     MESSAGES = 'messages'
     CHATS = 'chats'
@@ -111,14 +111,14 @@ class JSONDictPreparer:
 
     @classmethod
     def prepare_chat_history(cls, chat: Chat,
-                             skip_from_end_count: int | None,
+                             offset_from_end: int | None,
                              ) -> ChatJSONDict:
-        if skip_from_end_count is not None:
-            if skip_from_end_count > 0:
-                skip_from_end_count = -skip_from_end_count
+        if offset_from_end is not None:
+            if offset_from_end > 0:
+                offset_from_end = -offset_from_end
         return {
             JSONKey.ID: chat.id,
-            JSONKey.MESSAGES: [cls.prepare_chat_message(chat_message) for chat_message in chat.messages[:skip_from_end_count]]
+            JSONKey.MESSAGES: [cls.prepare_chat_message(chat_message) for chat_message in chat.messages[:offset_from_end]]
         }
 
     @classmethod
