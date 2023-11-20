@@ -126,7 +126,7 @@ async def send_each(chat_message: ChatMessage) -> None:
     времени к серверу.
     """
     # Преобразуем объект сообщения в словарь с ключами в стиле lowerCamelCase.
-    message_dict: ChatMessageJSONDict = JSONDictPreparer.chat_message(chat_message)
+    message_dict: ChatMessageJSONDict = JSONDictPreparer.prepare_chat_message(chat_message)
     # Перебираем пользователей, состоящих в чате.
     for user in UserChatMatch.users_in_chat(chat_message.chat_id):
         try:

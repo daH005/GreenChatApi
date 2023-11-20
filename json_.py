@@ -110,35 +110,35 @@ class UserInfoJSONDict(TypedDict):
 class JSONDictPreparer:
 
     @classmethod
-    def chat_history(cls, chat: Chat,
-                     skip_from_end_count: int | None,
-                     ) -> ChatJSONDict:
+    def prepare_chat_history(cls, chat: Chat,
+                             skip_from_end_count: int | None,
+                             ) -> ChatJSONDict:
         if skip_from_end_count is not None:
             if skip_from_end_count > 0:
                 skip_from_end_count = -skip_from_end_count
         return {
             JSONKey.ID: chat.id,
-            JSONKey.MESSAGES: [cls.chat_message(chat_message) for chat_message in chat.messages[:skip_from_end_count]]
+            JSONKey.MESSAGES: [cls.prepare_chat_message(chat_message) for chat_message in chat.messages[:skip_from_end_count]]
         }
 
     @classmethod
-    def chat_message(cls, chat_message: ChatMessage) -> ChatMessageJSONDict:
+    def prepare_chat_message(cls, chat_message: ChatMessage) -> ChatMessageJSONDict:
         return {
             JSONKey.ID: chat_message.id,
             JSONKey.CHAT_ID: chat_message.chat_id,
-            JSONKey.USER: cls.user_info(chat_message.user),
+            JSONKey.USER: cls.prepare_user_info(chat_message.user),
             JSONKey.TEXT: chat_message.text,
             JSONKey.CREATING_DATETIME: chat_message.creating_datetime.isoformat(),
         }
 
     @classmethod
-    def user_chats(cls, user_chats: list[Chat],
-                   user: User,
-                   ) -> UserChatsJSONDict:
+    def prepare_user_chats(cls, user_chats: list[Chat],
+                           user: User,
+                           ) -> UserChatsJSONDict:
         result_chats = []
         for chat in user_chats:
             try:
-                last_message = cls.chat_message(chat.last_message)
+                last_message = cls.prepare_chat_message(chat.last_message)
             except IndexError:
                 last_message = None
             result_chats.append({
@@ -149,13 +149,13 @@ class JSONDictPreparer:
         return {JSONKey.CHATS: result_chats}
 
     @classmethod
-    def auth_token(cls, user: User) -> AuthTokenJSONDict:
+    def prepare_auth_token(cls, user: User) -> AuthTokenJSONDict:
         return {JSONKey.AUTH_TOKEN: user.auth_token}
 
     @classmethod
-    def user_info(cls, user: User,
-                  exclude_email=True,
-                  ) -> UserInfoJSONDict:
+    def prepare_user_info(cls, user: User,
+                          exclude_email=True,
+                          ) -> UserInfoJSONDict:
         user_info = {
             JSONKey.ID: user.id,
             JSONKey.USERNAME: user.username,

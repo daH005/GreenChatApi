@@ -55,7 +55,7 @@ def auth_by_username_and_password() -> AuthTokenJSONDict:
     except ValueError:
         return abort(HTTPStatus.FORBIDDEN)
     # Возвращаем токен для дальнейшего его сохранения у клиента в cookie.
-    return JSONDictPreparer.auth_token(user=auth_user)
+    return JSONDictPreparer.prepare_auth_token(user=auth_user)
 
 
 @app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])
@@ -64,7 +64,7 @@ def user_info(auth_user: User) -> UserInfoJSONDict:
     """Выдаёт всю информацию о `auth_user` (за исключением токена авторизации).
     Ожидается заголовок 'authToken'.
     """
-    return JSONDictPreparer.user_info(user=auth_user, exclude_email=False)
+    return JSONDictPreparer.prepare_user_info(user=auth_user, exclude_email=False)
 
 
 @app.route(Url.USER_CHATS, endpoint=EndpointName.USER_CHATS, methods=[HTTPMethod.GET])
@@ -73,7 +73,7 @@ def user_chats(auth_user: User) -> UserChatsJSONDict:
     """Выдаёт все чаты `auth_user` (от каждого чата берётся только последнее сообщение).
     Ожидается заголовок 'authToken'.
     """
-    return JSONDictPreparer.user_chats(
+    return JSONDictPreparer.prepare_user_chats(
         user_chats=UserChatMatch.user_chats(user_id=auth_user.id),
         user=auth_user,
     )
@@ -96,7 +96,7 @@ def chat_history(chat_id: int, auth_user: User) -> ChatJSONDict:
     # Проверка доступа пользователя к заданному чату.
     # Если всё ок, то возвращаем историю.
     try:
-        return JSONDictPreparer.chat_history(
+        return JSONDictPreparer.prepare_chat_history(
             chat=UserChatMatch.chat_if_user_has_access(user_id=auth_user.id, chat_id=chat_id),
             skip_from_end_count=skip_from_end_count,
         )
