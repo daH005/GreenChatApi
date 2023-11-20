@@ -3,4 +3,4 @@
 __pycache__
 db/db.db
 db/__create_test_data.py
-db/_tests/.pytest_cache
+_tests/.pytest_cache
