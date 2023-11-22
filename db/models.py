@@ -1,17 +1,17 @@
 from __future__ import annotations
 from sqlalchemy import (  # pip install sqlalchemy
     create_engine,
-    Column,
     Integer,
     String,
     Text,
-    DateTime,
     ForeignKey,
     Engine,
 )
 from sqlalchemy.orm import (
+    mapped_column,
+    Mapped,
     relationship,
-    declarative_base,
+    DeclarativeBase,
     sessionmaker,
     scoped_session,
 )
@@ -37,20 +37,28 @@ session: scoped_session = scoped_session(
                  bind=engine,
                  )
 )
-# Создаём базовый класс моделей.
-BaseModel = declarative_base()
+
+
+class BaseModel(DeclarativeBase):
+    """Базовый класс модели."""
 
 
 class User(BaseModel):
     """Модель пользователя, имеющего возможность общаться в чатах."""
 
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    username = Column(String(100), nullable=False, unique=True)
-    first_name = Column(String(100), nullable=False)
-    last_name = Column(String(100), nullable=False)
-    email = Column(String(200), nullable=False, unique=True)
-    auth_token = Column(String(255), nullable=False, unique=True)  # username + password в BasicToken.
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    # username + password в BasicToken.
+    auth_token: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    email: Mapped[str] = mapped_column(String(200), nullable=False, unique=True)
+    first_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    last_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    chats_messages: Mapped[list['ChatMessage']] = relationship(
+        back_populates='user',
+        order_by='ChatMessage.creating_datetime',
+    )
+    user_chats_matches: Mapped[list['UserChatMatch']] = relationship(back_populates='user')
 
     @classmethod
     def new_by_password(cls, username: str,
@@ -95,11 +103,14 @@ class Chat(BaseModel):
     """
 
     __tablename__ = 'chats'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100))
-    messages = relationship('ChatMessage', backref='chat', order_by='ChatMessage.creating_datetime',
-                            cascade='all, delete',
-                            )
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=True)
+    messages: Mapped[list['ChatMessage']] = relationship(
+        back_populates='chat',
+        order_by='ChatMessage.creating_datetime',
+        cascade='all, delete',
+    )
+    users_chats_matches: Mapped[list['UserChatMatch']] = relationship(back_populates='chat')
 
     @property
     def last_message(self) -> ChatMessage:
@@ -118,12 +129,13 @@ class ChatMessage(BaseModel):
     """Рядовое сообщение, относящееся к конкретному чату."""
 
     __tablename__ = 'chats_messages'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    chat_id = Column(Integer, ForeignKey('chats.id'), nullable=False)
-    user = relationship('User', backref='chat_message', uselist=False)
-    text = Column(Text, nullable=False)
-    creating_datetime = Column(DateTime, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+    chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id'), nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    creating_datetime: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    user: Mapped['User'] = relationship(back_populates='chats_messages', uselist=False)
+    chat: Mapped['Chat'] = relationship(back_populates='messages', uselist=False)
 
 
 class UserChatMatch(BaseModel):
@@ -132,11 +144,11 @@ class UserChatMatch(BaseModel):
     """
 
     __tablename__ = 'users_chats'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    chat_id = Column(Integer, ForeignKey('chats.id'), nullable=False)
-    user = relationship('User', backref='user_chat', uselist=False)
-    chat = relationship('Chat', backref='user_chat', uselist=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+    chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id'), nullable=False)
+    user: Mapped['User'] = relationship(back_populates='user_chats_matches', uselist=False)
+    chat: Mapped['Chat'] = relationship(back_populates='users_chats_matches', uselist=False)
 
     @classmethod
     def chat_if_user_has_access(cls, user_id: int,

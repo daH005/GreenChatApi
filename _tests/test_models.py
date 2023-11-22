@@ -107,7 +107,7 @@ def _prepare_test_db() -> None:
     globals()['session'] = session_for_test
     models.session = session_for_test
     BaseModel.metadata.create_all(bind=engine_for_test)
-    models.session.add_all(USERS + CHATS + CHATS_MESSAGES + USERS_CHATS_MATCHES)
+    models.session.add_all(USERS + CHATS + CHATS_MESSAGES + USERS_CHATS_MATCHES)  # type: ignore
     models.session.commit()
 
 
