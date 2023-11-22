@@ -10,6 +10,7 @@ __all__ = (
     'HTTP_PORT',
     'WEBSOCKET_PORT',
     'CORS_ORIGINS',
+    'JWT_SECRET_KEY',
     'DB_URL',
 )
 
