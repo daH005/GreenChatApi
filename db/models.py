@@ -97,7 +97,9 @@ class Chat(BaseModel):
     __tablename__ = 'chats'
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
-    messages = relationship('ChatMessage', backref='chat', order_by='ChatMessage.creating_datetime')
+    messages = relationship('ChatMessage', backref='chat', order_by='ChatMessage.creating_datetime',
+                            cascade='all, delete',
+                            )
 
     @property
     def last_message(self) -> ChatMessage:
