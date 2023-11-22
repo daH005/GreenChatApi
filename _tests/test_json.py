@@ -117,8 +117,8 @@ CHATS = [
 ])
 def test_auth_token_to_json_dict(auth_token: str) -> None:
     """Позитивный тест: формирование словаря с токеном."""
-    assert JSONDictPreparer.prepare_auth_token(auth_token) == {
-        'authToken': auth_token,
+    assert JSONDictPreparer.prepare_jwt_token(auth_token) == {
+        'JWTToken': auth_token,
     }
 
 

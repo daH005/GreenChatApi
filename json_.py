@@ -10,13 +10,13 @@ from api.db.models import (
 
 __all__ = (
     'JSONKey',
-    'AuthWebSocketDataJSONDict',
+    'JWTAuthWebSocketDataJSONDict',
     'ChatMessageWebSocketDataJSONDict',
     'ChatHistoryJSONDict',
     'ChatMessageJSONDict',
     'UserChatsJSONDict',
     'ChatInitialDataJSONDict',
-    'AuthTokenJSONDict',
+    'JWTTokenJSONDict',
     'UserInfoJSONDict',
     'JSONDictPreparer',
 )
@@ -35,7 +35,7 @@ class JSONKey(StrEnum):
     PASSWORD = 'password'
     EMAIL = 'email'
     CREATING_DATETIME = 'creatingDatetime'
-    AUTH_TOKEN = 'authToken'
+    JWT_TOKEN = 'JWTToken'
     OFFSET_FROM_END = 'offsetFromEnd'
     NAME = 'name'
     MESSAGES = 'messages'
@@ -44,10 +44,10 @@ class JSONKey(StrEnum):
     USER = 'user'
 
 
-class AuthWebSocketDataJSONDict(TypedDict):
+class JWTAuthWebSocketDataJSONDict(TypedDict):
     """Словарь с авторизующими данными. Поступает при первом сообщении по веб-сокету."""
 
-    authToken: str
+    JWTToken: str
 
 
 class ChatMessageWebSocketDataJSONDict(TypedDict):
@@ -59,10 +59,10 @@ class ChatMessageWebSocketDataJSONDict(TypedDict):
     text: str
 
 
-class AuthTokenJSONDict(TypedDict):
+class JWTTokenJSONDict(TypedDict):
     """Словарь с токеном авторизации."""
 
-    authToken: str
+    JWTToken: str
 
 
 class UserInfoJSONDict(TypedDict):
@@ -111,8 +111,8 @@ class JSONDictPreparer:
     """
 
     @classmethod
-    def prepare_auth_token(cls, auth_token: str) -> AuthTokenJSONDict:
-        return {JSONKey.AUTH_TOKEN: auth_token}
+    def prepare_jwt_token(cls, jwt_token: str) -> JWTTokenJSONDict:
+        return {JSONKey.JWT_TOKEN: jwt_token}
 
     @classmethod
     def prepare_user_info(cls, user: User,
