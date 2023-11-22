@@ -96,6 +96,11 @@ class User(BaseModel):
             return user
         raise ValueError
 
+    @classmethod
+    def find_by_id(cls, id_: int) -> User | None:
+        """Поиск пользователя по его ID (внимание - данные пользователя никуда не улетают! Этот метод нужен для jwt)."""
+        return session.query(cls).filter(cls.id == id_).first()
+
 
 class Chat(BaseModel):
     """Чат. Доступ к нему имеют не все пользователи, он обеспечивается через модель `UserChatMatch`
