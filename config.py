@@ -17,13 +17,15 @@ load_dotenv()
 # Абсолютный путь к папке проекта `api`.
 BASE_DIR: Path = Path(__file__).resolve().parent
 # Хост общий для HTTP и WebSocket.
-HOST: Final[str] = environ.get('HOST', 'localhost')
+HOST: Final[str] = environ['HOST']
 # Порт для REST api.
-HTTP_PORT: Final[int] = int(environ.get('HTTP_PORT', 81))
+HTTP_PORT: Final[int] = int(environ['HTTP_PORT'])
 # Порт для веб-сокета.
-WEBSOCKET_PORT: Final[int] = int(environ.get('WEBSOCKET_PORT', 80))
+WEBSOCKET_PORT: Final[int] = int(environ['WEBSOCKET_PORT'])
 # Домены для CORS, с которых мы принимаем запросы.
-CORS_ORIGINS: Final[list[str]] = environ.get('CORS_ORIGINS', '').split(',')
+CORS_ORIGINS: Final[list[str]] = environ['CORS_ORIGINS'].split(',')
+# JWT-токен для REST api.
+JWT_SECRET_KEY: Final[str] = environ['JWT_SECRET_KEY']
 # URL для подключения к БД.
 DB_URL: URL = URL.create(
     drivername=environ['DB_DRIVERNAME'],
@@ -38,3 +40,4 @@ if __name__ == '__main__':
     print(BASE_DIR)
     print(DB_URL)
     print(CORS_ORIGINS)
+    print(JWT_SECRET_KEY)
