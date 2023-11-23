@@ -11,6 +11,7 @@ __all__ = (
     'WEBSOCKET_PORT',
     'CORS_ORIGINS',
     'JWT_SECRET_KEY',
+    'CACHE_REDIS_URL',
     'DB_URL',
 )
 
@@ -27,6 +28,8 @@ WEBSOCKET_PORT: Final[int] = int(environ['WEBSOCKET_PORT'])
 CORS_ORIGINS: Final[list[str]] = environ['CORS_ORIGINS'].split(',')
 # JWT-токен для REST api.
 JWT_SECRET_KEY: Final[str] = environ['JWT_SECRET_KEY']
+# URL для подключения к Redis.
+CACHE_REDIS_URL: Final[str] = environ['CACHE_REDIS_URL']
 # URL для подключения к БД.
 DB_URL: URL = URL.create(
     drivername=environ['DB_DRIVERNAME'],

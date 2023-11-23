@@ -9,9 +9,10 @@ from flask_jwt_extended import (  # pip install flask-jwt-extended
     jwt_required,
     JWTManager,
 )
-
+from flask_caching import Cache  # pip install Flask-Caching
 
 from api.db.models import User, UserChatMatch, session
+current_user: User  # Аннотация прокси-объекта из библиотеки JWT.
 from api.json_ import (
     ChatHistoryJSONDict,
     UserChatsJSONDict,
@@ -20,25 +21,41 @@ from api.json_ import (
     JSONKey,
     JSONDictPreparer,
 )
-from api.config import HOST, HTTP_PORT as PORT, CORS_ORIGINS, JWT_SECRET_KEY
+from api.config import (
+    HOST,
+    HTTP_PORT as PORT,
+    CORS_ORIGINS,
+    JWT_SECRET_KEY,
+    CACHE_REDIS_URL,
+)
 from endpoints import EndpointName, Url
 
-current_user: User  # Добавил аннотацию.
+# Инициализируем Flask-приложение. Выполняем все необходимые настройки.
 app: Flask = Flask(__name__)
-app.config['JWT_SECRET_KEY'] = JWT_SECRET_KEY
+app.config.update(dict(
+    JWT_SECRET_KEY=JWT_SECRET_KEY,
+    CACHE_TYPE='RedisCache',
+    CACHE_REDIS_URL=CACHE_REDIS_URL,
+))
 # Важно! CORS позволяет обращаться к нашему REST api с других доменов / портов.
 CORS(app, origins=CORS_ORIGINS)
 # Объект, обеспечивающий OAuth авторизацию.
 jwt: JWTManager = JWTManager(app)
+# Объект, обеспечивающий кэширование.
+cache: Cache = Cache(app)
 
 
 @jwt.user_identity_loader
 def user_identity_lookup(user: User) -> str:
+    """Определяет данные, кодирование которых и будет представлять собой JWT-токен."""
     return user.auth_token
 
 
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data) -> User | None:
+    """Авторизует пользователя, отправившего запрос.
+    Библиотека JWT ожидает `None`, поэтому отлавливаем наше собственное исключение.
+    """
     identity: str = jwt_data['sub']
     try:
         return User.auth_by_token(auth_token=identity)
@@ -48,7 +65,7 @@ def user_lookup_callback(_jwt_header, jwt_data) -> User | None:
 
 @app.teardown_appcontext
 def shutdown_db_session(exception=None) -> None:
-    """Закрывает сессию БД после выполнения обработки запроса."""
+    """Закрывает сессию БД после обработки каждого запроса."""
     if exception:
         print(exception)
     session.remove()
@@ -85,6 +102,7 @@ def auth_by_username_and_password() -> JWTTokenJSONDict:
 
 
 @app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])
+# @cache.cached(make_cache_key=lambda: 'user_info_' + request.authorization.token)
 @jwt_required()
 def user_info() -> UserInfoJSONDict:
     """Выдаёт всю информацию о `current_user` (за исключением `auth_token`)."""
@@ -92,6 +110,7 @@ def user_info() -> UserInfoJSONDict:
 
 
 @app.route(Url.USER_CHATS, endpoint=EndpointName.USER_CHATS, methods=[HTTPMethod.GET])
+# @cache.cached(make_cache_key=lambda: 'user_chats_' + request.authorization.token)
 @jwt_required()
 def user_chats() -> UserChatsJSONDict:
     """Выдаёт все чаты `current_user` (от каждого чата берётся только последнее сообщение)."""
@@ -102,6 +121,7 @@ def user_chats() -> UserChatsJSONDict:
 
 
 @app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])
+# @cache.cached(make_cache_key=lambda chat_id: 'chat_history_' + str(chat_id))
 @jwt_required()
 def chat_history(chat_id: int) -> ChatHistoryJSONDict:
     """Выдаёт всю историю заданного чата (при условии, что он доступен для `current_user`).
