@@ -33,11 +33,11 @@ from endpoints import EndpointName, Url
 
 # Инициализируем Flask-приложение. Выполняем все необходимые настройки.
 app: Flask = Flask(__name__)
-app.config.update(dict(
+app.config.from_mapping(
     JWT_SECRET_KEY=JWT_SECRET_KEY,
     JWT_ALGORITHM=JWT_ALGORITHM,
     JWT_ACCESS_TOKEN_EXPIRES=JWT_ACCESS_TOKEN_EXPIRES,
-))
+)
 # Важно! CORS позволяет обращаться к нашему REST api с других доменов / портов.
 CORS(app, origins=CORS_ORIGINS)
 # Объект, обеспечивающий OAuth авторизацию.
