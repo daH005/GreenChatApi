@@ -99,6 +99,13 @@ def auth_by_username_and_password() -> JWTTokenJSONDict:
     return JSONDictPreparer.prepare_jwt_token(jwt_token=create_access_token(identity=auth_user))
 
 
+@app.route(Url.REFRESH_TOKEN, endpoint=EndpointName.REFRESH_TOKEN, methods=[HTTPMethod.POST])
+@jwt_required()
+def refresh_token() -> JWTTokenJSONDict:
+    """Выдаёт новый JWT-токен для увеличения срока доступности."""
+    return JSONDictPreparer.prepare_jwt_token(jwt_token=create_access_token(identity=current_user))
+
+
 @app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])
 @jwt_required()
 def user_info() -> UserInfoJSONDict:
