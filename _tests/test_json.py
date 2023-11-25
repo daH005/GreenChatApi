@@ -6,6 +6,17 @@ from api.db.models import *
 from common import make_random_string
 
 
+def setup_module() -> None:
+    """Переопределяет метод `UserChatMatch.interlocutor_name` на время тестов."""
+    UserChatMatch.interlocutor_name__saved = UserChatMatch.interlocutor_name
+    UserChatMatch.interlocutor_name = lambda user_id, chat_id: CHATS[chat_id - 1].interlocutor_name  # noqa
+
+
+def teardown_module() -> None:
+    """Возвращает метод `UserChatMatch.interlocutor_name` в исходное состояние."""
+    UserChatMatch.interlocutor_name = UserChatMatch.interlocutor_name__saved  # noqa
+
+
 def _make_test_chat_message(user: User, **kwargs) -> ChatMessage:
     """Создаёт объект `ChatMessage` с модификациями под тестовые нужды."""
     chat_message = ChatMessage(**kwargs)
@@ -38,7 +49,7 @@ USERS = [
     User(
         id=2,
         username='user2',
-        auth_token='----supertoken----',
+        auth_token='----supertoken----',  # noqa
         email='dan123@mail.ru',
         first_name='first_name1',
         last_name='last_name',
@@ -186,14 +197,13 @@ def test_user_chats_to_json_dict(user_chats: list[Chat],
                                  user_id: int,
                                  ) -> None:
     """Позитивный тест: формирование словаря с чатами, в которых состоит пользователь."""
-    UserChatMatch.interlocutor_name = lambda user_id, chat_id: CHATS[chat_id - 1].interlocutor_name  # noqa
     expected_dict = {
         'chats': []
     }
     for chat in user_chats:
         expected_dict['chats'].append({
             'id': chat.id,
-            'name': chat.name if chat.name else chat.interlocutor_name,
+            'name': chat.name if chat.name else chat.interlocutor_name,  # noqa
             'lastMessage': {
                 'id': chat.last_message.id,
                 'user': {
