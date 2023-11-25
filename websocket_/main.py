@@ -2,6 +2,7 @@ import asyncio
 from websockets import WebSocketServerProtocol, serve, ConnectionClosed  # pip install websockets
 import json
 from typing import NoReturn
+from jwt import decode  # pip install pyjwt
 
 from api.db.models import (
     User,
@@ -12,12 +13,17 @@ from api.db.models import (
 )
 from api.json_ import (
     JSONKey,
-    AuthWebSocketDataJSONDict,
+    JWTAuthWebSocketDataJSONDict,
     ChatMessageWebSocketDataJSONDict,
     ChatMessageJSONDict,
     JSONDictPreparer,
 )
-from api.config import HOST, WEBSOCKET_PORT as PORT
+from api.config import (
+    HOST,
+    WEBSOCKET_PORT as PORT,
+    JWT_SECRET_KEY,
+    JWT_ALGORITHM,
+)
 
 # Сюда складываем клиентов, подключённых к серверу в данный момент времени.
 # Ключ - ID пользователя `User.id`;
@@ -76,10 +82,12 @@ async def wait_auth(client: WebSocketServerProtocol) -> User:
     while True:
         # Ждём авторизующего сообщения, после чего преобразуем его из JSON -> Python dict
         # и проверяем email + password в БД.
-        # В этом словаре ключи в стиле lowerCamelCase!
-        auth_data: AuthWebSocketDataJSONDict = await wait_data(client)
+        auth_data: JWTAuthWebSocketDataJSONDict = await wait_data(client)
+        auth_token: str = decode(auth_data[JSONKey.JWT_TOKEN],  # type: ignore
+                                 key=JWT_SECRET_KEY,
+                                 algorithms=[JWT_ALGORITHM])['sub']
         try:
-            auth_user: User = User.auth_by_token(auth_token=auth_data[JSONKey.AUTH_TOKEN])  # type: ignore
+            auth_user: User = User.auth_by_token(auth_token=auth_token)
         except (TypeError, KeyError, ValueError):
             continue
         return auth_user
