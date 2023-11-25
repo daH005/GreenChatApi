@@ -6,6 +6,7 @@ from sqlalchemy.engine.url import URL
 
 __all__ = (
     'BASE_DIR',
+    'DEBUG',
     'HOST',
     'HTTP_PORT',
     'WEBSOCKET_PORT',
@@ -19,6 +20,8 @@ __all__ = (
 load_dotenv()
 # Абсолютный путь к папке проекта `api`.
 BASE_DIR: Path = Path(__file__).resolve().parent
+# Флаг для режима тестирования.
+DEBUG: Final[bool] = False if environ['DEBUG'].lower() == 'false' else bool(environ['DEBUG'])
 # Хост общий для HTTP и WebSocket.
 HOST: Final[str] = environ['HOST']
 # Порт для REST api.
@@ -48,3 +51,4 @@ if __name__ == '__main__':
     print(DB_URL)
     print(CORS_ORIGINS)
     print(JWT_SECRET_KEY)
+    print(DEBUG)

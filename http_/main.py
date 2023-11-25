@@ -21,6 +21,7 @@ from api.json_ import (
     JSONDictPreparer,
 )
 from api.config import (
+    DEBUG,
     HOST,
     HTTP_PORT as PORT,
     CORS_ORIGINS,
@@ -149,4 +150,4 @@ def chat_history(chat_id: int) -> ChatHistoryJSONDict:
 
 
 if __name__ == '__main__':
-    app.run(HOST, PORT, debug=True)
+    app.run(HOST, PORT, debug=DEBUG)
