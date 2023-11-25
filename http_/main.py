@@ -9,7 +9,6 @@ from flask_jwt_extended import (  # pip install flask-jwt-extended
     jwt_required,
     JWTManager,
 )
-from flask_caching import Cache  # pip install Flask-Caching
 
 from api.db.models import User, UserChatMatch, session
 current_user: User  # Аннотация прокси-объекта из библиотеки JWT.
