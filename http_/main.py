@@ -26,6 +26,8 @@ from api.config import (
     HTTP_PORT as PORT,
     CORS_ORIGINS,
     JWT_SECRET_KEY,
+    JWT_ALGORITHM,
+    JWT_ACCESS_TOKEN_EXPIRES,
     CACHE_REDIS_URL,
 )
 from endpoints import EndpointName, Url
@@ -34,6 +36,8 @@ from endpoints import EndpointName, Url
 app: Flask = Flask(__name__)
 app.config.update(dict(
     JWT_SECRET_KEY=JWT_SECRET_KEY,
+    JWT_ALGORITHM=JWT_ALGORITHM,
+    JWT_ACCESS_TOKEN_EXPIRES=JWT_ACCESS_TOKEN_EXPIRES,
     CACHE_TYPE='RedisCache',
     CACHE_REDIS_URL=CACHE_REDIS_URL,
 ))

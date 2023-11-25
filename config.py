@@ -11,6 +11,8 @@ __all__ = (
     'WEBSOCKET_PORT',
     'CORS_ORIGINS',
     'JWT_SECRET_KEY',
+    'JWT_ALGORITHM',
+    'JWT_ACCESS_TOKEN_EXPIRES',
     'CACHE_REDIS_URL',
     'DB_URL',
 )
@@ -28,6 +30,10 @@ WEBSOCKET_PORT: Final[int] = int(environ['WEBSOCKET_PORT'])
 CORS_ORIGINS: Final[list[str]] = environ['CORS_ORIGINS'].split(',')
 # JWT-токен для REST api.
 JWT_SECRET_KEY: Final[str] = environ['JWT_SECRET_KEY']
+# JWT-алгоритм для шифрования и дешифрования.
+JWT_ALGORITHM: Final[str] = environ['JWT_ALGORITHM']
+# Срок жизни каждого JWT-токена (в секундах).
+JWT_ACCESS_TOKEN_EXPIRES: Final[int] = int(environ['JWT_ACCESS_TOKEN_EXPIRES'])
 # URL для подключения к Redis.
 CACHE_REDIS_URL: Final[str] = environ['CACHE_REDIS_URL']
 # URL для подключения к БД.

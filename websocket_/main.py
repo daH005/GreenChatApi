@@ -18,7 +18,12 @@ from api.json_ import (
     ChatMessageJSONDict,
     JSONDictPreparer,
 )
-from api.config import HOST, WEBSOCKET_PORT as PORT, JWT_SECRET_KEY
+from api.config import (
+    HOST,
+    WEBSOCKET_PORT as PORT,
+    JWT_SECRET_KEY,
+    JWT_ALGORITHM,
+)
 
 # Сюда складываем клиентов, подключённых к серверу в данный момент времени.
 # Ключ - ID пользователя `User.id`;
@@ -80,7 +85,7 @@ async def wait_auth(client: WebSocketServerProtocol) -> User:
         auth_data: JWTAuthWebSocketDataJSONDict = await wait_data(client)
         auth_token: str = decode(auth_data[JSONKey.JWT_TOKEN],  # type: ignore
                                  key=JWT_SECRET_KEY,
-                                 algorithms=['HS256'])['sub']
+                                 algorithms=[JWT_ALGORITHM])['sub']
         try:
             auth_user: User = User.auth_by_token(auth_token=auth_token)
         except (TypeError, KeyError, ValueError):
