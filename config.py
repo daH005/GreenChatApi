@@ -13,7 +13,6 @@ __all__ = (
     'JWT_SECRET_KEY',
     'JWT_ALGORITHM',
     'JWT_ACCESS_TOKEN_EXPIRES',
-    'CACHE_REDIS_URL',
     'DB_URL',
 )
 
@@ -34,8 +33,6 @@ JWT_SECRET_KEY: Final[str] = environ['JWT_SECRET_KEY']
 JWT_ALGORITHM: Final[str] = environ['JWT_ALGORITHM']
 # Срок жизни каждого JWT-токена (в секундах).
 JWT_ACCESS_TOKEN_EXPIRES: Final[int] = int(environ['JWT_ACCESS_TOKEN_EXPIRES'])
-# URL для подключения к Redis.
-CACHE_REDIS_URL: Final[str] = environ['CACHE_REDIS_URL']
 # URL для подключения к БД.
 DB_URL: URL = URL.create(
     drivername=environ['DB_DRIVERNAME'],

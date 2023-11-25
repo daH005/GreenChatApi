@@ -28,7 +28,6 @@ from api.config import (
     JWT_SECRET_KEY,
     JWT_ALGORITHM,
     JWT_ACCESS_TOKEN_EXPIRES,
-    CACHE_REDIS_URL,
 )
 from endpoints import EndpointName, Url
 
@@ -38,15 +37,11 @@ app.config.update(dict(
     JWT_SECRET_KEY=JWT_SECRET_KEY,
     JWT_ALGORITHM=JWT_ALGORITHM,
     JWT_ACCESS_TOKEN_EXPIRES=JWT_ACCESS_TOKEN_EXPIRES,
-    CACHE_TYPE='RedisCache',
-    CACHE_REDIS_URL=CACHE_REDIS_URL,
 ))
 # Важно! CORS позволяет обращаться к нашему REST api с других доменов / портов.
 CORS(app, origins=CORS_ORIGINS)
 # Объект, обеспечивающий OAuth авторизацию.
 jwt: JWTManager = JWTManager(app)
-# Объект, обеспечивающий кэширование.
-cache: Cache = Cache(app)
 
 
 @jwt.user_identity_loader
@@ -106,7 +101,6 @@ def auth_by_username_and_password() -> JWTTokenJSONDict:
 
 
 @app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])
-# @cache.cached(make_cache_key=lambda: 'user_info_' + request.authorization.token)
 @jwt_required()
 def user_info() -> UserInfoJSONDict:
     """Выдаёт всю информацию о `current_user` (за исключением `auth_token`)."""
@@ -114,7 +108,6 @@ def user_info() -> UserInfoJSONDict:
 
 
 @app.route(Url.USER_CHATS, endpoint=EndpointName.USER_CHATS, methods=[HTTPMethod.GET])
-# @cache.cached(make_cache_key=lambda: 'user_chats_' + request.authorization.token)
 @jwt_required()
 def user_chats() -> UserChatsJSONDict:
     """Выдаёт все чаты `current_user` (от каждого чата берётся только последнее сообщение)."""
@@ -125,7 +118,6 @@ def user_chats() -> UserChatsJSONDict:
 
 
 @app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])
-# @cache.cached(make_cache_key=lambda chat_id: 'chat_history_' + str(chat_id))
 @jwt_required()
 def chat_history(chat_id: int) -> ChatHistoryJSONDict:
     """Выдаёт всю историю заданного чата (при условии, что он доступен для `current_user`).
