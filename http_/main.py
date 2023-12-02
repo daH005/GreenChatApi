@@ -117,11 +117,20 @@ def user_info() -> UserInfoJSONDict:
 @app.route(Url.USER_CHATS, endpoint=EndpointName.USER_CHATS, methods=[HTTPMethod.GET])
 @jwt_required()
 def user_chats() -> UserChatsJSONDict:
-    """Выдаёт все чаты `current_user` (от каждого чата берётся только последнее сообщение)."""
-    return JSONDictPreparer.prepare_user_chats(
+    """Выдаёт все чаты `current_user` (от каждого чата берётся только последнее сообщение).
+    Выполняет сортировку списка чатов по дате создания последнего сообщения (от позднего к раннему).
+    """
+    dict_ = JSONDictPreparer.prepare_user_chats(
         user_chats=UserChatMatch.user_chats(user_id=current_user.id),
         user_id=current_user.id,
     )
+    return {
+        JSONKey.CHATS: sorted(
+            dict_[JSONKey.CHATS],  # type: ignore
+            key=lambda chat: chat[JSONKey.LAST_CHAT_MESSAGE][JSONKey.CREATING_DATETIME],
+            reverse=True,
+        )
+    }
 
 
 @app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])
