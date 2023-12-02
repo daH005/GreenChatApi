@@ -120,17 +120,17 @@ def user_chats() -> UserChatsJSONDict:
     """Выдаёт все чаты `current_user` (от каждого чата берётся только последнее сообщение).
     Выполняет сортировку списка чатов по дате создания последнего сообщения (от позднего к раннему).
     """
-    dict_ = JSONDictPreparer.prepare_user_chats(
+    dict_: UserChatsJSONDict = JSONDictPreparer.prepare_user_chats(
         user_chats=UserChatMatch.user_chats(user_id=current_user.id),
         user_id=current_user.id,
     )
-    return {
-        JSONKey.CHATS: sorted(
-            dict_[JSONKey.CHATS],  # type: ignore
-            key=lambda chat: chat[JSONKey.LAST_CHAT_MESSAGE][JSONKey.CREATING_DATETIME],
-            reverse=True,
-        )
-    }
+    # Выполняем сортировку чатов для того, чтобы это не пришлось делать клиенту самим.
+    dict_[JSONKey.CHATS] = sorted(  # type: ignore
+        dict_[JSONKey.CHATS],  # type: ignore
+        key=lambda chat: chat[JSONKey.LAST_CHAT_MESSAGE][JSONKey.CREATING_DATETIME],
+        reverse=True,
+    )
+    return dict_
 
 
 @app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])
