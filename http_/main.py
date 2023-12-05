@@ -15,8 +15,6 @@ current_user: User  # Аннотация прокси-объекта из биб
 from api.json_ import (
     ChatHistoryJSONDict,
     UserChatsJSONDict,
-    ChatInitialDataJSONDict,
-    ChatMessageJSONDict,
     JWTTokenJSONDict,
     UserInfoJSONDict,
     JSONKey,
