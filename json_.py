@@ -43,6 +43,8 @@ class JSONKey(StrEnum):
     LAST_CHAT_MESSAGE = 'lastMessage'
     USER = 'user'
     INTERLOCUTOR = 'interlocutor'
+    CHAT_IS_NEW = 'chatIsNew'
+    USERS_IDS = 'usersIds'
 
 
 class JWTAuthWebSocketDataJSONDict(TypedDict):
