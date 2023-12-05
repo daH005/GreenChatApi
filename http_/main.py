@@ -111,8 +111,17 @@ def refresh_token() -> JWTTokenJSONDict:
 @app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])
 @jwt_required()
 def user_info() -> UserInfoJSONDict:
-    """Выдаёт всю информацию о `current_user` (за исключением `auth_token`)."""
-    return JSONDictPreparer.prepare_user_info(user=current_user, exclude_important_info=False)
+    """Выдаёт всю доступную информацию о запрашиваемом пользователе.
+    Ожидается query-параметр 'id' - ID пользователя. Выдаётся урезанная информация.
+    В случае отсутствия параметра 'id' выдаётся расширенная информация об авторизованном пользователе `current_user`.
+    """
+    user_id_as_str: str | None = request.args.get(JSONKey.ID)
+    if user_id_as_str is None:
+        return JSONDictPreparer.prepare_user_info(user=current_user, exclude_important_info=False)
+    user: User | None = session.get(User, int(user_id_as_str))
+    if user is None:
+        return abort(HTTPStatus.NOT_FOUND)
+    return JSONDictPreparer.prepare_user_info(user=user)
 
 
 @app.route(Url.USER_CHATS, endpoint=EndpointName.USER_CHATS, methods=[HTTPMethod.GET])
