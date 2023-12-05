@@ -15,6 +15,8 @@ current_user: User  # Аннотация прокси-объекта из биб
 from api.json_ import (
     ChatHistoryJSONDict,
     UserChatsJSONDict,
+    ChatInitialDataJSONDict,
+    ChatMessageJSONDict,
     JWTTokenJSONDict,
     UserInfoJSONDict,
     JSONKey,
@@ -118,19 +120,12 @@ def user_info() -> UserInfoJSONDict:
 @jwt_required()
 def user_chats() -> UserChatsJSONDict:
     """Выдаёт все чаты `current_user` (от каждого чата берётся только последнее сообщение).
-    Выполняет сортировку списка чатов по дате создания последнего сообщения (от позднего к раннему).
+    Список чатов отсортирован по дате создания последнего сообщения (от позднего к раннему).
     """
-    dict_: UserChatsJSONDict = JSONDictPreparer.prepare_user_chats(
+    return JSONDictPreparer.prepare_user_chats(
         user_chats=UserChatMatch.user_chats(user_id=current_user.id),
         user_id=current_user.id,
     )
-    # Выполняем сортировку чатов для того, чтобы это не пришлось делать клиенту самим.
-    dict_[JSONKey.CHATS] = sorted(  # type: ignore
-        dict_[JSONKey.CHATS],  # type: ignore
-        key=lambda chat: chat[JSONKey.LAST_CHAT_MESSAGE].get(JSONKey.CREATING_DATETIME, 0),
-        reverse=True,
-    )
-    return dict_
 
 
 @app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])
