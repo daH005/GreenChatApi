@@ -14,6 +14,7 @@ USERS_PASSWORDS = [
     'test_pass123',
     'test_pass__',
     'test_pass__',
+    'test_pass__44',
 ]
 # Тестовые пользователи.
 USERS = [
@@ -38,6 +39,14 @@ USERS = [
         username='dan005',
         password=USERS_PASSWORDS[2],
         email='dan228@mail.ru',
+        first_name='first_name',
+        last_name='last_name',
+    ),
+    # id = 4
+    User.new_by_password(
+        username='new',
+        password=USERS_PASSWORDS[3],
+        email='dan22811@mail.ru',
         first_name='first_name',
         last_name='last_name',
     ),
@@ -93,6 +102,10 @@ USERS_CHATS_MATCHES = [
     UserChatMatch(
         user_id=2,
         chat_id=1,
+    ),
+    UserChatMatch(
+        user_id=4,
+        chat_id=2,
     ),
 ]
 
@@ -179,6 +192,7 @@ class TestChat:
         'name',
         'messages',
         'last_message',
+        'interlocutor',
     ])
     def test_chat_has_required_attrs(attr_name: str) -> None:
         """Позитивный тест: модель чата должна иметь необходимый перечень атрибутов."""
@@ -200,19 +214,19 @@ class TestChat:
         session.commit()
 
     @staticmethod
-    @pytest.mark.parametrize(('chat', 'user_id', 'expected_chat_name'), [
+    @pytest.mark.parametrize(('chat', 'user_id', 'expected_user'), [
         # Здесь ничего не перепутано!
-        (CHATS[0], 1, USERS[1].first_name),
-        (CHATS[2], 1, CHATS[2].name),
+        (CHATS[0], 1, USERS[1]),
+        (CHATS[1], 4, USERS[0]),
     ])
-    def test_chat_name_definition(chat: Chat,
-                                  user_id: int,
-                                  expected_chat_name: str,
-                                  ) -> None:
-        """Позитивный тест: определение имени чата для конкретного пользователя.
+    def test_interlocutor_definition(chat: Chat,
+                                     user_id: int,
+                                     expected_user: User,
+                                     ) -> None:
+        """Позитивный тест: определение собеседника пользователя в личном чате.
         Если чат - это беседа, то выдаётся `Chat.name`, иначе - имя собеседника.
         """
-        assert chat.define_chat_name_for_user_id(user_id) == expected_chat_name
+        assert chat.interlocutor(user_id) == expected_user
 
 
 class TestChatMessage:
@@ -263,7 +277,7 @@ class TestUserChatMatch:
         'chat_if_user_has_access',
         'users_in_chat',
         'user_chats',
-        'interlocutor_name',
+        'interlocutor',
     ])
     def test_user_chat_match_has_required_attrs(attr_name: str) -> None:
         """Позитивный тест: модель доступа к чату должна иметь необходимый перечень атрибутов."""
@@ -302,7 +316,7 @@ class TestUserChatMatch:
     @staticmethod
     @pytest.mark.parametrize(('chat_id', 'expected_users'), [
         (1, [USERS[0], USERS[1]]),
-        (2, [USERS[0]]),
+        (2, [USERS[0], USERS[3]]),
         (4, [])
     ])
     def test_users_in_chat(chat_id: int,
@@ -327,15 +341,16 @@ class TestUserChatMatch:
         assert UserChatMatch.user_chats(user_id) == expected_chats
 
     @staticmethod
-    @pytest.mark.parametrize(('user_id', 'chat_id', 'expected_interlocutor_name'), [
+    @pytest.mark.parametrize(('user_id', 'chat_id', 'expected_user'), [
         # Здесь ничего не перепутано!
-        (1, 1, USERS[1].first_name),
-        (2, 1, USERS[0].first_name),
+        (1, 1, USERS[1]),
+        (2, 1, USERS[0]),
+        (1, 2, USERS[3]),
     ])
-    def test_interlocutor_name_definition(user_id: int,
-                                          chat_id: int,
-                                          expected_interlocutor_name: str,
-                                          ) -> None:
+    def test_interlocutor_definition(user_id: int,
+                                     chat_id: int,
+                                     expected_user: User,
+                                     ) -> None:
         """Позитивный тест: определение имени собеседника.
         """
-        assert UserChatMatch.interlocutor_name(user_id, chat_id) == expected_interlocutor_name
+        assert UserChatMatch.interlocutor(user_id, chat_id) == expected_user

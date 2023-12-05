@@ -42,6 +42,7 @@ class JSONKey(StrEnum):
     CHATS = 'chats'
     LAST_CHAT_MESSAGE = 'lastMessage'
     USER = 'user'
+    INTERLOCUTOR = 'interlocutor'
 
 
 class JWTAuthWebSocketDataJSONDict(TypedDict):
@@ -156,7 +157,8 @@ class JSONDictPreparer:
                 last_message = None
             chats_for_json.append({
                 JSONKey.ID: chat.id,
-                JSONKey.NAME: chat.define_chat_name_for_user_id(user_id=user_id),
+                JSONKey.NAME: chat.name,
+                JSONKey.INTERLOCUTOR: chat.interlocutor(user_id),
                 JSONKey.LAST_CHAT_MESSAGE: last_message,
             })
         return {JSONKey.CHATS: chats_for_json}

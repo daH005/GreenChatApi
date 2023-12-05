@@ -96,13 +96,6 @@ class User(BaseModel):
             return user
         raise ValueError
 
-    @classmethod
-    def find_by_id(cls, id_: int) -> User | None:
-        """Поиск пользователя по его ID (внимание - данные пользователя никуда не улетают! Этот метод нужен для jwt).
-        UPD: Всё-таки решено, что этот метод не нужен. Но пока оставим.
-        """
-        return session.query(cls).filter(cls.id == id_).first()
-
 
 class Chat(BaseModel):
     """Чат. Доступ к нему имеют не все пользователи, он обеспечивается через модель `UserChatMatch`
@@ -123,13 +116,9 @@ class Chat(BaseModel):
     def last_message(self) -> ChatMessage:
         return self.messages[-1]  # type: ignore
 
-    def define_chat_name_for_user_id(self, user_id: int) -> str:
-        """Определяет имя чата для конкретного пользователя.
-        Дело в том, что если чат - не беседа, то имя чата - это имя собеседника.
-        """
-        if self.name:
-            return self.name  # type: ignore
-        return UserChatMatch.interlocutor_name(user_id=user_id, chat_id=self.id)  # type: ignore
+    def interlocutor(self, user_id: int) -> User:
+        """Находит собеседника пользователя с `user_id`."""
+        return UserChatMatch.interlocutor(chat_id=self.id, user_id=user_id)
 
 
 class ChatMessage(BaseModel):
@@ -196,12 +185,11 @@ class UserChatMatch(BaseModel):
             return 0
 
     @classmethod
-    def interlocutor_name(cls, user_id: int,
-                          chat_id: int,
-                          ) -> str:
-        """Определяет имя собеседника."""
+    def interlocutor(cls, user_id: int,
+                     chat_id: int,
+                     ) -> User:
+        """Находит собеседника в личном чате с `chat_id` для пользователя с `user_id`."""
         interlocutor_match: cls | None = session.query(cls).filter(cls.user_id != user_id,
                                                                    cls.chat_id == chat_id).first()  # type: ignore
         if interlocutor_match is not None:
-            return interlocutor_match.user.first_name
-        raise ValueError
+            return interlocutor_match.user
