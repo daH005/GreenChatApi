@@ -179,9 +179,21 @@ class UserChatMatch(BaseModel):
 
     @classmethod
     def user_chats(cls, user_id: int) -> list[Chat]:
-        """Чаты, доступные указанному пользователю."""
+        """Чаты, доступные указанному пользователю.
+        Чаты сортируются по дате отправки последних сообщений от самого нового до самого старого.
+        """
         matches: list[cls] = session.query(cls).filter(cls.user_id == user_id).all()  # type: ignore
-        return [match.chat for match in matches]
+        return sorted([match.chat for match in matches], key=cls._value_for_user_chats_sort, reverse=True)
+
+    @staticmethod
+    def _value_for_user_chats_sort(chat: Chat) -> float | int:
+        """Выдаёт `datetime` последнего сообщения чата для сортировки в `user_chats`.
+        Если у чата вообще нет сообщений, то возвращает 0.
+        """
+        try:
+            return chat.last_message.creating_datetime.timestamp()
+        except IndexError:
+            return 0
 
     @classmethod
     def interlocutor_name(cls, user_id: int,
