@@ -158,6 +158,7 @@ class JSONDictPreparer:
             chats_for_json.append(cls.prepare_chat_info(chat, user_id))
         return {JSONKey.CHATS: chats_for_json}
 
+    # FixMe: Дописать тест для метода.
     @classmethod
     def prepare_chat_info(cls, chat: Chat,
                           user_id: int,
