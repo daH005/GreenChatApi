@@ -118,7 +118,10 @@ def user_info() -> UserInfoJSONDict:
     user_id_as_str: str | None = request.args.get(JSONKey.ID)
     if user_id_as_str is None:
         return JSONDictPreparer.prepare_user_info(user=current_user, exclude_important_info=False)
-    user: User | None = session.get(User, int(user_id_as_str))
+    try:
+        user: User | None = session.get(User, int(user_id_as_str))
+    except ValueError:
+        return abort(HTTPStatus.BAD_REQUEST)
     if user is None:
         return abort(HTTPStatus.NOT_FOUND)
     return JSONDictPreparer.prepare_user_info(user=user)
