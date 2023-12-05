@@ -119,6 +119,7 @@ class Chat(BaseModel):
         cascade='all, delete',
     )
 
+    # FixMe: Дописать тест для метода.
     @classmethod
     def new_with_matches(cls, users_ids: list[int],
                          name: str | None = None,
