@@ -11,7 +11,7 @@ from api.db.models import (
 __all__ = (
     'JSONKey',
     'JWTAuthWebSocketDataJSONDict',
-    'ChatMessageWebSocketDataJSONDict',
+    'WebSocketMessageJSONDict',
     'ChatHistoryJSONDict',
     'ChatMessageJSONDict',
     'UserChatsJSONDict',
@@ -53,7 +53,7 @@ class JWTAuthWebSocketDataJSONDict(TypedDict):
     JWTToken: str
 
 
-class ChatMessageWebSocketDataJSONDict(TypedDict):
+class WebSocketMessageJSONDict(TypedDict):
     """Рядовое сообщение в заданный чат, поступающее на сервер веб-сокета.
     Предполагается, что на данном этапе пользователь уже авторизован.
     """
