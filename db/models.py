@@ -119,6 +119,7 @@ class Chat(BaseModel):
         """Создаёт новый чат, а также сразу определяет связи по модели `UserChatMatch`."""
         chat: cls = cls(name=name)
         session.add(chat)
+        session.flush()
         for user_id in users_ids:
             match: UserChatMatch = UserChatMatch(user_id=user_id, chat_id=chat.id)
             session.add(match)
