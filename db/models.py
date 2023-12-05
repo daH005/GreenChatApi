@@ -112,6 +112,19 @@ class Chat(BaseModel):
     )
     users_chats_matches: Mapped[list['UserChatMatch']] = relationship(back_populates='chat')
 
+    @classmethod
+    def new_with_matches(cls, name: str | None,
+                         users_ids: list[int],
+                         ) -> Chat:
+        """Создаёт новый чат, а также сразу определяет связи по модели `UserChatMatch`."""
+        chat: cls = cls(name=name)
+        session.add(chat)
+        for user_id in users_ids:
+            match: UserChatMatch = UserChatMatch(user_id=user_id, chat_id=chat.id)
+            session.add(match)
+        session.commit()
+        return chat
+
     @property
     def last_message(self) -> ChatMessage:
         return self.messages[-1]  # type: ignore
