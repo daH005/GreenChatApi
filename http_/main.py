@@ -127,7 +127,7 @@ def user_chats() -> UserChatsJSONDict:
     # Выполняем сортировку чатов для того, чтобы это не пришлось делать клиенту самим.
     dict_[JSONKey.CHATS] = sorted(  # type: ignore
         dict_[JSONKey.CHATS],  # type: ignore
-        key=lambda chat: chat[JSONKey.LAST_CHAT_MESSAGE][JSONKey.CREATING_DATETIME],
+        key=lambda chat: chat[JSONKey.LAST_CHAT_MESSAGE].get(JSONKey.CREATING_DATETIME, 0),
         reverse=True,
     )
     return dict_
