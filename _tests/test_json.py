@@ -190,10 +190,19 @@ def test_user_chats_to_json_dict(user_chats: list[Chat],
         'chats': []
     }
     for chat in user_chats:
+        interlocutor: User | None = chat.interlocutor(user_id)
+        interlocutor_info: UserInfoJSONDict | None = None
+        if interlocutor is not None:
+            interlocutor_info: UserInfoJSONDict = {
+                'id': interlocutor.id,  # type: ignore
+                'username': interlocutor.username,  # type: ignore
+                'firstName': interlocutor.first_name,  # type: ignore
+                'lastName': interlocutor.last_name,  # type: ignore
+            }
         expected_dict['chats'].append({
             'id': chat.id,
             'name': chat.name,
-            'interlocutor': chat.interlocutor(user_id),
+            'interlocutor': interlocutor_info,
             'lastMessage': {
                 'id': chat.last_message.id,
                 'user': {
