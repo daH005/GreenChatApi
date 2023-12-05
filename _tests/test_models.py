@@ -313,6 +313,7 @@ class TestUserChatMatch:
 
     @staticmethod
     @pytest.mark.parametrize(('user_id', 'expected_chats'), [
+        # Чаты необходимо задавать в отсортированном виде по убыванию `Chat.last_message.creating_datetime`!
         (1, CHATS[:-1]),
         (2, [CHATS[0]]),
         (3, []),
@@ -320,7 +321,9 @@ class TestUserChatMatch:
     def test_user_chats(user_id: int,
                         expected_chats: list[Chat],
                         ) -> None:
-        """Позитивный тест: получение всех чатов, в которых состоит пользователь."""
+        """Позитивный тест: получение всех чатов, в которых состоит пользователь.
+        Чаты должны быть отсортированы по убыванию `Chat.last_message.creating_datetime`.
+        """
         assert UserChatMatch.user_chats(user_id) == expected_chats
 
     @staticmethod
