@@ -57,8 +57,12 @@ class User(BaseModel):
     chats_messages: Mapped[list['ChatMessage']] = relationship(
         back_populates='user',
         order_by='ChatMessage.creating_datetime',
+        cascade='all, delete',
     )
-    user_chats_matches: Mapped[list['UserChatMatch']] = relationship(back_populates='user')
+    user_chats_matches: Mapped[list['UserChatMatch']] = relationship(
+        back_populates='user',
+        cascade='all, delete',
+    )
 
     @classmethod
     def new_by_password(cls, username: str,
@@ -110,7 +114,10 @@ class Chat(BaseModel):
         order_by='ChatMessage.creating_datetime',
         cascade='all, delete',
     )
-    users_chats_matches: Mapped[list['UserChatMatch']] = relationship(back_populates='chat')
+    users_chats_matches: Mapped[list['UserChatMatch']] = relationship(
+        back_populates='chat',
+        cascade='all, delete',
+    )
 
     @classmethod
     def new_with_matches(cls, users_ids: list[int],
