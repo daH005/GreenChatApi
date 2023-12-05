@@ -60,6 +60,8 @@ class WebSocketMessageJSONDict(TypedDict):
 
     chatId: int
     text: str
+    chatIsNew: NotRequired[bool]
+    usersIds: NotRequired[list[int]]
 
 
 class JWTTokenJSONDict(TypedDict):
