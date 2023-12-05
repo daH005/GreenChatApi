@@ -38,6 +38,7 @@ app.config.from_mapping(
     JWT_ALGORITHM=JWT_ALGORITHM,
     JWT_ACCESS_TOKEN_EXPIRES=JWT_ACCESS_TOKEN_EXPIRES,
 )
+app.json.ensure_ascii = False
 # Важно! CORS позволяет обращаться к нашему REST api с других доменов / портов.
 CORS(app, origins=CORS_ORIGINS)
 # Объект, обеспечивающий OAuth авторизацию.
