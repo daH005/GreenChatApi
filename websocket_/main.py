@@ -101,21 +101,26 @@ async def start_communication(client: WebSocketServerProtocol,
         # Ждём сообщение в какой-нибудь чат.
         message: WebSocketMessageJSONDict = await wait_data(client)
         try:
-            # Проверяем доступ к заданному чату.
-            _chat: Chat = UserChatMatch.chat_if_user_has_access(
-                user_id=user.id,
-                chat_id=message[JSONKey.CHAT_ID],  # type: ignore
-            )
+            if message.get(JSONKey.CHAT_IS_NEW):  # type: ignore
+                # Создаём новый чат.
+                chat: Chat = Chat.new_with_matches(users_ids=message[JSONKey.USERS_IDS])  # type: ignore
+            else:
+                # Проверяем доступ к заданному чату.
+                chat: Chat = UserChatMatch.chat_if_user_has_access(
+                    user_id=user.id,
+                    chat_id=message[JSONKey.CHAT_ID],  # type: ignore
+                )
+            chat_id: int = chat.id
         except (PermissionError, KeyError):
             continue
-        # Формируем сообщение для сохранения в БД и дальнейшей рассылке другим клиентам.
+        # Формируем сообщение для сохранения в БД и дальнейшей рассылки другим клиентам.
         try:
             text: str = message[JSONKey.TEXT]  # type: ignore
             if not text:
                 continue
             chat_message: ChatMessage = ChatMessage(
                 user_id=user.id,
-                chat_id=message[JSONKey.CHAT_ID],  # type: ignore
+                chat_id=chat_id,
                 text=text,
             )
         except KeyError:
@@ -125,10 +130,13 @@ async def start_communication(client: WebSocketServerProtocol,
         session.commit()
         # Отсылаем сообщение всем, кто в данный момент времени подключён к серверу
         # и состоит в текущем чате.
-        await send_each(chat_message)
+        await send_each(chat_message, message.get(JSONKey.CHAT_IS_NEW, False), chat)  # type: ignore
 
 
-async def send_each(chat_message: ChatMessage) -> None:
+async def send_each(chat_message: ChatMessage,
+                    chat_is_new: bool = False,
+                    new_chat: Chat | None = None,
+                    ) -> None:
     """Отсылает сообщение каждому клиенту, состоящему в заданном чате, а также подключённому в данный момент
     времени к серверу.
     """
@@ -139,8 +147,14 @@ async def send_each(chat_message: ChatMessage) -> None:
         try:
             # Если пользователь подключён в данный момент к серверу, то отсылаем ему сообщение.
             if user.id in clients:
+                message_dict_for_cur_user = message_dict
+                if chat_is_new:
+                    message_dict_for_cur_user = {
+                        **JSONDictPreparer.prepare_chat_info(chat=new_chat, user_id=user.id),
+                        JSONKey.CHAT_IS_NEW: True,
+                    }
                 for client in clients[user.id]:
-                    await dump_and_send(client, message_dict)
+                    await dump_and_send(client, message_dict_for_cur_user)
         except ConnectionClosed:
             continue
 
