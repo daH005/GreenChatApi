@@ -38,6 +38,7 @@ app.config.from_mapping(
     JWT_ALGORITHM=JWT_ALGORITHM,
     JWT_ACCESS_TOKEN_EXPIRES=JWT_ACCESS_TOKEN_EXPIRES,
 )
+app.json.ensure_ascii = False
 # Важно! CORS позволяет обращаться к нашему REST api с других доменов / портов.
 CORS(app, origins=CORS_ORIGINS)
 # Объект, обеспечивающий OAuth авторизацию.
@@ -110,27 +111,32 @@ def refresh_token() -> JWTTokenJSONDict:
 @app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])
 @jwt_required()
 def user_info() -> UserInfoJSONDict:
-    """Выдаёт всю информацию о `current_user` (за исключением `auth_token`)."""
-    return JSONDictPreparer.prepare_user_info(user=current_user, exclude_important_info=False)
+    """Выдаёт всю доступную информацию о запрашиваемом пользователе.
+    Ожидается query-параметр 'id' - ID пользователя. Выдаётся урезанная информация.
+    В случае отсутствия параметра 'id' выдаётся расширенная информация об авторизованном пользователе `current_user`.
+    """
+    user_id_as_str: str | None = request.args.get(JSONKey.ID)
+    if user_id_as_str is None:
+        return JSONDictPreparer.prepare_user_info(user=current_user, exclude_important_info=False)
+    try:
+        user: User | None = session.get(User, int(user_id_as_str))
+    except ValueError:
+        return abort(HTTPStatus.BAD_REQUEST)
+    if user is None:
+        return abort(HTTPStatus.NOT_FOUND)
+    return JSONDictPreparer.prepare_user_info(user=user)
 
 
 @app.route(Url.USER_CHATS, endpoint=EndpointName.USER_CHATS, methods=[HTTPMethod.GET])
 @jwt_required()
 def user_chats() -> UserChatsJSONDict:
     """Выдаёт все чаты `current_user` (от каждого чата берётся только последнее сообщение).
-    Выполняет сортировку списка чатов по дате создания последнего сообщения (от позднего к раннему).
+    Список чатов отсортирован по дате создания последнего сообщения (от позднего к раннему).
     """
-    dict_ = JSONDictPreparer.prepare_user_chats(
+    return JSONDictPreparer.prepare_user_chats(
         user_chats=UserChatMatch.user_chats(user_id=current_user.id),
         user_id=current_user.id,
     )
-    return {
-        JSONKey.CHATS: sorted(
-            dict_[JSONKey.CHATS],  # type: ignore
-            key=lambda chat: chat[JSONKey.LAST_CHAT_MESSAGE][JSONKey.CREATING_DATETIME],
-            reverse=True,
-        )
-    }
 
 
 @app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])

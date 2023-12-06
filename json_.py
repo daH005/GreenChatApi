@@ -11,7 +11,7 @@ from api.db.models import (
 __all__ = (
     'JSONKey',
     'JWTAuthWebSocketDataJSONDict',
-    'ChatMessageWebSocketDataJSONDict',
+    'WebSocketMessageJSONDict',
     'ChatHistoryJSONDict',
     'ChatMessageJSONDict',
     'UserChatsJSONDict',
@@ -42,6 +42,9 @@ class JSONKey(StrEnum):
     CHATS = 'chats'
     LAST_CHAT_MESSAGE = 'lastMessage'
     USER = 'user'
+    INTERLOCUTOR = 'interlocutor'
+    CHAT_IS_NEW = 'chatIsNew'
+    USERS_IDS = 'usersIds'
 
 
 class JWTAuthWebSocketDataJSONDict(TypedDict):
@@ -50,13 +53,15 @@ class JWTAuthWebSocketDataJSONDict(TypedDict):
     JWTToken: str
 
 
-class ChatMessageWebSocketDataJSONDict(TypedDict):
+class WebSocketMessageJSONDict(TypedDict):
     """Рядовое сообщение в заданный чат, поступающее на сервер веб-сокета.
     Предполагается, что на данном этапе пользователь уже авторизован.
     """
 
     chatId: int
     text: str
+    chatIsNew: NotRequired[bool]
+    usersIds: NotRequired[list[int]]
 
 
 class JWTTokenJSONDict(TypedDict):
@@ -150,13 +155,24 @@ class JSONDictPreparer:
                            ) -> UserChatsJSONDict:
         chats_for_json = []
         for chat in user_chats:
-            try:
-                last_message = cls.prepare_chat_message(chat.last_message)
-            except IndexError:
-                last_message = None
-            chats_for_json.append({
-                JSONKey.ID: chat.id,
-                JSONKey.NAME: chat.define_chat_name_for_user_id(user_id=user_id),
-                JSONKey.LAST_CHAT_MESSAGE: last_message,
-            })
+            chats_for_json.append(cls.prepare_chat_info(chat, user_id))
         return {JSONKey.CHATS: chats_for_json}
+
+    # FixMe: Дописать тест для метода.
+    @classmethod
+    def prepare_chat_info(cls, chat: Chat,
+                          user_id: int,
+                          ) -> ChatInitialDataJSONDict:
+        try:
+            last_message = cls.prepare_chat_message(chat.last_message)
+        except IndexError:
+            last_message = None
+        interlocutor_info = chat.interlocutor(user_id)
+        if interlocutor_info is not None:
+            interlocutor_info = cls.prepare_user_info(interlocutor_info)
+        return {
+            JSONKey.ID: chat.id,
+            JSONKey.NAME: chat.name,
+            JSONKey.INTERLOCUTOR: interlocutor_info,
+            JSONKey.LAST_CHAT_MESSAGE: last_message,
+        }

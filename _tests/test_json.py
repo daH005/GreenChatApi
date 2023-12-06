@@ -6,17 +6,6 @@ from api.db.models import *
 from common import make_random_string
 
 
-def setup_module() -> None:
-    """Переопределяет метод `UserChatMatch.interlocutor_name` на время тестов."""
-    UserChatMatch.interlocutor_name__saved = UserChatMatch.interlocutor_name
-    UserChatMatch.interlocutor_name = lambda user_id, chat_id: CHATS[chat_id - 1].interlocutor_name  # noqa
-
-
-def teardown_module() -> None:
-    """Возвращает метод `UserChatMatch.interlocutor_name` в исходное состояние."""
-    UserChatMatch.interlocutor_name = UserChatMatch.interlocutor_name__saved  # noqa
-
-
 def _make_test_chat_message(user: User, **kwargs) -> ChatMessage:
     """Создаёт объект `ChatMessage` с модификациями под тестовые нужды."""
     chat_message = ChatMessage(**kwargs)
@@ -201,9 +190,19 @@ def test_user_chats_to_json_dict(user_chats: list[Chat],
         'chats': []
     }
     for chat in user_chats:
+        interlocutor: User | None = chat.interlocutor(user_id)
+        interlocutor_info: UserInfoJSONDict | None = None
+        if interlocutor is not None:
+            interlocutor_info: UserInfoJSONDict = {
+                'id': interlocutor.id,  # type: ignore
+                'username': interlocutor.username,  # type: ignore
+                'firstName': interlocutor.first_name,  # type: ignore
+                'lastName': interlocutor.last_name,  # type: ignore
+            }
         expected_dict['chats'].append({
             'id': chat.id,
-            'name': chat.name if chat.name else chat.interlocutor_name,  # noqa
+            'name': chat.name,
+            'interlocutor': interlocutor_info,
             'lastMessage': {
                 'id': chat.last_message.id,
                 'user': {
