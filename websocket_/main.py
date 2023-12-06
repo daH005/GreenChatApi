@@ -48,7 +48,7 @@ async def dump_and_send(client: WebSocketServerProtocol,
                         data: dict | list,
                         ) -> None:
     """Преобразует `data` в JSON, после чего отправляет данные клиенту."""
-    await client.send(json.dumps(data))
+    await client.send(json.dumps(data, ensure_ascii=False))
 
 
 async def ws_handler(client: WebSocketServerProtocol) -> None:
