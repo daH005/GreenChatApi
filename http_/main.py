@@ -30,6 +30,7 @@ from api.config import (
     JWT_ACCESS_TOKEN_EXPIRES,
 )
 from endpoints import EndpointName, Url
+from validation import UserJSONValidator
 
 # Инициализируем Flask-приложение. Выполняем все необходимые настройки.
 app: Flask = Flask(__name__)
@@ -78,6 +79,26 @@ def handle_exception(exception: HTTPException) -> Response:
     response.content_type = 'application/json'
     response.data = json_dumps(dict(code=exception.code))
     return response
+
+
+@app.route(Url.REG, endpoint=EndpointName.REG, methods=[HTTPMethod.POST])
+def create_new_user() -> JWTTokenJSONDict:
+    """Создаёт нового пользователя по JSON-данным. Возвращает JWT-токен
+    для его дальнейшего сохранения у клиента в localStorage и работы с нашим RESTful api + websocket.
+    Ожидается JSON с ключами 'username', 'password', 'firstName', 'lastName' и 'email'.
+    """
+    # Если данные невалидны, то здесь же падает `abort` с 400-м статус-кодом.
+    user_data: UserJSONValidator = UserJSONValidator.from_json()
+    new_user: User = User.new_by_password(
+        username=user_data.username,
+        password=user_data.password,
+        first_name=user_data.first_name,
+        last_name=user_data.last_name,
+        email=user_data.email,
+    )
+    session.add(new_user)
+    session.commit()
+    return JSONDictPreparer.prepare_jwt_token(jwt_token=create_access_token(identity=new_user))
 
 
 @app.route(Url.AUTH, endpoint=EndpointName.AUTH, methods=[HTTPMethod.POST])

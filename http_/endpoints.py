@@ -7,6 +7,7 @@ __all__ = (
 
 
 class EndpointName(StrEnum):
+    REG = 'reg'
     AUTH = 'auth'
     REFRESH_TOKEN = 'refresh_token'
     USER_INFO = 'user_info'
@@ -15,6 +16,7 @@ class EndpointName(StrEnum):
 
 
 class Url(StrEnum):
+    REG = '/user/new'
     AUTH = '/user/auth'
     REFRESH_TOKEN = '/user/refreshToken'
     USER_INFO = '/user/info'
