@@ -128,6 +128,10 @@ class JSONDictPreparer:
         return {JSONKey.JWT_TOKEN: jwt_token}
 
     @classmethod
+    def prepare_already_taken(cls, flag: bool) -> AlreadyTakenFlagJSONDict:
+        return {JSONKey.IS_ALREADY_TAKEN: flag}
+
+    @classmethod
     def prepare_user_info(cls, user: User,
                           exclude_important_info: bool = True,
                           ) -> UserInfoJSONDict:
