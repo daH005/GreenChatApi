@@ -45,6 +45,7 @@ class JSONKey(StrEnum):
     INTERLOCUTOR = 'interlocutor'
     CHAT_IS_NEW = 'chatIsNew'
     USERS_IDS = 'usersIds'
+    IS_ALREADY_TAKEN = 'isAlreadyTaken'
 
 
 class JWTAuthWebSocketDataJSONDict(TypedDict):
@@ -68,6 +69,12 @@ class JWTTokenJSONDict(TypedDict):
     """Словарь с токеном авторизации."""
 
     JWTToken: str
+
+
+class AlreadyTakenFlagJSONDict(TypedDict):
+    """Словарь с флагом, обозначающим заняты ли почта / логин."""
+
+    isAlreadyTaken: bool
 
 
 class UserInfoJSONDict(TypedDict):
