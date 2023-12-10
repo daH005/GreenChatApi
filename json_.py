@@ -18,6 +18,7 @@ __all__ = (
     'ChatInitialDataJSONDict',
     'JWTTokenJSONDict',
     'UserInfoJSONDict',
+    'AlreadyTakenFlagJSONDict',
     'JSONDictPreparer',
 )
 
