@@ -17,6 +17,7 @@ from api.json_ import (
     UserChatsJSONDict,
     JWTTokenJSONDict,
     UserInfoJSONDict,
+    AlreadyTakenFlagJSONDict,
     JSONKey,
     JSONDictPreparer,
 )
@@ -99,6 +100,34 @@ def create_new_user() -> JWTTokenJSONDict:
     session.add(new_user)
     session.commit()
     return JSONDictPreparer.prepare_jwt_token(jwt_token=create_access_token(identity=new_user))
+
+
+@app.route(Url.CHECK_USERNAME, endpoint=EndpointName.CHECK_USERNAME, methods=[HTTPMethod.GET])
+def check_username() -> AlreadyTakenFlagJSONDict:
+    """Проверят занятость логина. Ожидает query-параметр 'username'.
+    Возвращает словарь с флагом, обозначающим занятость.
+    """
+    try:
+        username: str = str(request.args[JSONKey.USERNAME])
+    except KeyError:
+        return abort(HTTPStatus.BAD_REQUEST)
+    return JSONDictPreparer.prepare_already_taken(
+        flag=User.username_is_already_taken(username_to_check=username),
+    )
+
+
+@app.route(Url.CHECK_EMAIL, endpoint=EndpointName.CHECK_EMAIL, methods=[HTTPMethod.GET])
+def check_email() -> AlreadyTakenFlagJSONDict:
+    """Проверят занятость почты. Ожидает query-параметр 'email'.
+    Возвращает словарь с флагом, обозначающим занятость.
+    """
+    try:
+        email: str = str(request.args[JSONKey.EMAIL])
+    except KeyError:
+        return abort(HTTPStatus.BAD_REQUEST)
+    return JSONDictPreparer.prepare_already_taken(
+        flag=User.email_is_already_taken(email_to_check=email),
+    )
 
 
 @app.route(Url.AUTH, endpoint=EndpointName.AUTH, methods=[HTTPMethod.POST])
