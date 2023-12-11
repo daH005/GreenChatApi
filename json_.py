@@ -88,7 +88,7 @@ class UserInfoJSONDict(TypedDict):
     """Вся информация о пользователе."""
 
     id: int
-    username: str
+    username: NotRequired[str]
     firstName: str
     lastName: str
     email: NotRequired[str]
