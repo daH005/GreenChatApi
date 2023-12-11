@@ -129,11 +129,11 @@ def test_user_info_to_json_dict(user: User,
     """Позитивный тест: формирование словаря с информацией о пользователе."""
     expected_dict = {
         'id': user.id,
-        'username': user.username,
         'firstName': user.first_name,
         'lastName': user.last_name,
     }
     if not exclude_important_info:
+        expected_dict['username'] = user.username
         expected_dict['email'] = user.email
     assert JSONDictPreparer.prepare_user_info(user, exclude_important_info) == expected_dict
 
@@ -149,7 +149,6 @@ def test_chat_history_to_json_dict(chat: Chat) -> None:
             'id': chat_message.id,
             'user': {
                 'id': chat_message.user.id,
-                'username': chat_message.user.username,
                 'firstName': chat_message.user.first_name,
                 'lastName': chat_message.user.last_name,
             },
@@ -167,7 +166,6 @@ def test_chat_message_to_json_dict(chat_message: ChatMessage) -> None:
         'id': chat_message.id,
         'user': {
             'id': chat_message.user.id,
-            'username': chat_message.user.username,
             'firstName': chat_message.user.first_name,
             'lastName': chat_message.user.last_name,
         },
@@ -195,7 +193,6 @@ def test_user_chats_to_json_dict(user_chats: list[Chat],
         if interlocutor is not None:
             interlocutor_info: UserInfoJSONDict = {
                 'id': interlocutor.id,  # type: ignore
-                'username': interlocutor.username,  # type: ignore
                 'firstName': interlocutor.first_name,  # type: ignore
                 'lastName': interlocutor.last_name,  # type: ignore
             }
@@ -207,7 +204,6 @@ def test_user_chats_to_json_dict(user_chats: list[Chat],
                 'id': chat.last_message.id,
                 'user': {
                     'id': chat.last_message.user.id,
-                    'username': chat.last_message.user.username,
                     'firstName': chat.last_message.user.first_name,
                     'lastName': chat.last_message.user.last_name,
                 },
