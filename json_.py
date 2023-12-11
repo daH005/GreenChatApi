@@ -69,7 +69,7 @@ class WebSocketNewChatJSONDict(TypedDict):
     """Сообщение для веб-сокета на создание нового чата."""
 
     text: str
-    usersIds: NotRequired[list[int]]
+    usersIds: list[int]
 
 
 class JWTTokenJSONDict(TypedDict):
