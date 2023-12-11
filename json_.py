@@ -55,7 +55,7 @@ class WebSocketMessageJSONDict(TypedDict):
     """Тип, определяющий интерфейс словаря-сообщения для веб-сокета."""
 
     type: str
-    data: JWTTokenJSONDict | WebSocketNewChatMessageJSONDict | ChatMessageJSONDict
+    data: JWTTokenJSONDict | WebSocketNewChatMessageJSONDict | WebSocketNewChatJSONDict
 
 
 class WebSocketNewChatMessageJSONDict(TypedDict):
