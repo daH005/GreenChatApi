@@ -10,7 +10,7 @@ from api.db.models import (
 
 __all__ = (
     'JSONKey',
-    'WebSocketMessageJSONDict',
+    'WebSocketMessageJSONDictType',
     'ChatHistoryJSONDict',
     'ChatMessageJSONDict',
     'UserChatsJSONDict',
@@ -50,7 +50,14 @@ class JSONKey(StrEnum):
     IS_ALREADY_TAKEN = 'isAlreadyTaken'
 
 
-class WebSocketMessageJSONDict(TypedDict):
+class WebSocketMessageJSONDictType(TypedDict):
+    """Тип, определяющий интерфейс словаря-сообщения для веб-сокета."""
+
+    type: str
+    data: JWTTokenJSONDict | WebSocketNewChatMessageJSONDict | ChatMessageJSONDict
+
+
+class WebSocketNewChatMessageJSONDict(TypedDict):
     """Рядовое сообщение в заданный чат, поступающее на сервер веб-сокета.
     Предполагается, что на данном этапе пользователь уже авторизован.
     """
