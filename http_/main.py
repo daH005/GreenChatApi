@@ -83,13 +83,18 @@ def handle_exception(exception: HTTPException) -> Response:
 
 
 @app.route(Url.REG, endpoint=EndpointName.REG, methods=[HTTPMethod.POST])
-def create_new_user() -> JWTTokenJSONDict:
+def create_new_user() -> tuple[JWTTokenJSONDict, HTTPStatus.CREATED]:
     """Создаёт нового пользователя по JSON-данным. Возвращает JWT-токен
     для его дальнейшего сохранения у клиента в localStorage и работы с нашим RESTful api + websocket.
     Ожидается JSON с ключами 'username', 'password', 'firstName', 'lastName' и 'email'.
+    Отдаёт 409-й статус-код в случаях, если почта / логин уже заняты.
     """
     # Если данные невалидны, то здесь же падает `abort` с 400-м статус-кодом.
     user_data: UserJSONValidator = UserJSONValidator.from_json()
+    if User.username_is_already_taken(username_to_check=user_data.username):
+        return abort(HTTPStatus.CONFLICT)
+    if User.email_is_already_taken(email_to_check=user_data.email):
+        return abort(HTTPStatus.CONFLICT)
     new_user: User = User.new_by_password(
         username=user_data.username,
         password=user_data.password,
@@ -99,7 +104,7 @@ def create_new_user() -> JWTTokenJSONDict:
     )
     session.add(new_user)
     session.commit()
-    return JSONDictPreparer.prepare_jwt_token(jwt_token=create_access_token(identity=new_user))
+    return JSONDictPreparer.prepare_jwt_token(jwt_token=create_access_token(identity=new_user)), HTTPStatus.CREATED
 
 
 @app.route(Url.CHECK_USERNAME, endpoint=EndpointName.CHECK_USERNAME, methods=[HTTPMethod.GET])
