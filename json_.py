@@ -10,7 +10,6 @@ from api.db.models import (
 
 __all__ = (
     'JSONKey',
-    'JWTAuthWebSocketDataJSONDict',
     'WebSocketMessageJSONDict',
     'ChatHistoryJSONDict',
     'ChatMessageJSONDict',
@@ -49,12 +48,6 @@ class JSONKey(StrEnum):
     CHAT_IS_NEW = 'chatIsNew'
     USERS_IDS = 'usersIds'
     IS_ALREADY_TAKEN = 'isAlreadyTaken'
-
-
-class JWTAuthWebSocketDataJSONDict(TypedDict):
-    """Словарь с авторизующими данными. Поступает при первом сообщении по веб-сокету."""
-
-    JWTToken: str
 
 
 class WebSocketMessageJSONDict(TypedDict):
