@@ -137,12 +137,12 @@ class JSONDictPreparer:
                           ) -> UserInfoJSONDict:
         user_info = {
             JSONKey.ID: user.id,
-            JSONKey.USERNAME: user.username,
             JSONKey.FIRST_NAME: user.first_name,
             JSONKey.LAST_NAME: user.last_name,
         }
         if not exclude_important_info:
             user_info[JSONKey.EMAIL] = user.email
+            user_info[JSONKey.USERNAME] = user.username
         return user_info
 
     @classmethod
