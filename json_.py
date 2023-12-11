@@ -26,6 +26,8 @@ __all__ = (
 class JSONKey(StrEnum):
     """Ключи, используемые в JSON'ах."""
 
+    TYPE = 'type'
+    DATA = 'data'
     ID = 'id'
     USER_ID = 'userId'
     CHAT_ID = 'chatId'
