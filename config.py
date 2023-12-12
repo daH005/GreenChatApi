@@ -15,6 +15,8 @@ __all__ = (
     'JWT_ALGORITHM',
     'JWT_ACCESS_TOKEN_EXPIRES',
     'DB_URL',
+    'EMAIL',
+    'EMAIL_PASSWORD',
 )
 
 load_dotenv()
@@ -45,6 +47,10 @@ DB_URL: URL = URL.create(
     port=int(environ['DB_PORT']),
     database=environ['DB_NAME'],
 )
+# Почта для отправки кодов при регистрации.
+EMAIL: Final[str] = environ['EMAIL']
+# Пароль для входа в почту (это специальный пароль для приложений).
+EMAIL_PASSWORD: Final[str] = environ['EMAIL_PASSWORD']
 
 if __name__ == '__main__':
     print(BASE_DIR)
