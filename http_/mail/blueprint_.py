@@ -1,7 +1,7 @@
-from flask import Blueprint, request, abort
+from flask import Blueprint, request, abort  # pip install flask
 from http import HTTPMethod, HTTPStatus
 from typing import Literal
-from pydantic import validate_email
+from pydantic import validate_email  # pip install pydantic
 from typing import Final
 from random import randint
 

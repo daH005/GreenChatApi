@@ -1,4 +1,4 @@
-from redis import Redis
+from redis import Redis  # pip install redis
 
 from api.config import REDIS_HOST, REDIS_PORT
 
