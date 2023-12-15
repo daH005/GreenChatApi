@@ -13,6 +13,8 @@ from api.http_.mail.tasks import send_code_task
 __all__ = (
     'bp',
     'make_and_save_code',
+    'code_is_valid',
+    'delete_code',
 )
 
 bp: Blueprint = Blueprint('mail', __name__)
@@ -30,12 +32,13 @@ def make_and_save_code() -> int:
     return code
 
 
-def check_and_delete_code(code: int | str) -> None:
-    """Проверяет наличие `code` в базе Redis.
-    Если код имеется, то он удаляется. Если кода нет - вызывается `ValueError`.
-    """
-    if not redis_app.sismember(REDIS_SET_NAME, str(code)):
-        raise ValueError
+def code_is_valid(code: int | str) -> bool:
+    """Проверяет наличие `code` в базе Redis."""
+    return bool(redis_app.sismember(REDIS_SET_NAME, str(code)))
+
+
+def delete_code(code: int | str) -> None:
+    """Удаляет `code` из Redis."""
     redis_app.srem(REDIS_SET_NAME, str(code))
 
 
@@ -57,18 +60,11 @@ def send_code() -> dict[Literal['code'], int]:
 @bp.route(Url.CHECK_CODE, endpoint=EndpointName.CHECK_CODE, methods=[HTTPMethod.POST])
 def check_code() -> CodeIsValidFlagJSONDict:
     """Проверяет код подтверждения почты. Возвращает словарь с флагом,
-    обозначающим верен ли переданный код.
-    Если код верен, то он удаляется из Redis.
+    обозначающим верен ли переданный код. На данном этапе код не удаляется.
     Ожидается JSON с одним ключом - 'code'.
     """
     try:
         code: int = int(request.json[JSONKey.CODE])
     except (ValueError, KeyError):
         return abort(HTTPStatus.BAD_REQUEST)
-    try:
-        check_and_delete_code(code)
-    except ValueError:
-        flag = False
-    else:
-        flag = True
-    return JSONDictPreparer.prepare_code_is_valid(flag=flag)
+    return JSONDictPreparer.prepare_code_is_valid(flag=code_is_valid(code))
