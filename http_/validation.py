@@ -30,3 +30,4 @@ class UserJSONValidator(RequestDataHandlerMixin):
     first_name: constr(min_length=1) = Field(alias=JSONKey.FIRST_NAME)
     last_name: constr(min_length=1) = Field(alias=JSONKey.LAST_NAME)
     email: EmailStr
+    code: int
