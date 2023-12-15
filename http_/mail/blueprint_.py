@@ -34,10 +34,10 @@ def make_and_save_code() -> int:
 def send_code() -> dict[Literal['code'], int]:
     """Генерирует случайный код и отправляет его на указанную почту.
     Код сохраняется в Redis и хранится там до момента его подтверждения.
-    Ожидается query-параметр 'email'.
+    Ожидается JSON с одним ключом - 'email'.
     """
     try:
-        email: str = validate_email(request.args[JSONKey.EMAIL])[1]
+        email: str = validate_email(request.json[JSONKey.EMAIL])[1]
     except (ValueError, KeyError):
         return abort(HTTPStatus.BAD_REQUEST)
     code: int = make_and_save_code()
