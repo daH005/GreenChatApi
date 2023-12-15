@@ -15,6 +15,8 @@ __all__ = (
     'JWT_ALGORITHM',
     'JWT_ACCESS_TOKEN_EXPIRES',
     'DB_URL',
+    'REDIS_HOST',
+    'REDIS_PORT',
     'REDIS_URL',
     'EMAIL',
     'EMAIL_PASSWORD',
@@ -59,8 +61,14 @@ DB_URL: URL = URL.create(
     database=environ['DB_NAME'],
 )
 
-# URL-адрес к базе Redis.
-REDIS_URL: Final[str] = environ['REDIS_URL']
+# Хост Redis'а.
+REDIS_HOST: Final[str] = environ['REDIS_HOST']
+
+# Порт для подключения к Redis.
+REDIS_PORT: Final[int] = int(environ['REDIS_PORT'])
+
+# Полный URL-адрес для подключения к Redis.
+REDIS_URL: Final[str] = f'redis://{REDIS_HOST}:{REDIS_PORT}'
 
 # Почта для отправки кодов при регистрации.
 EMAIL: Final[str] = environ['EMAIL']
