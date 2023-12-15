@@ -50,6 +50,7 @@ class JSONKey(StrEnum):
     CHAT_IS_NEW = 'chatIsNew'
     USERS_IDS = 'usersIds'
     IS_ALREADY_TAKEN = 'isAlreadyTaken'
+    CODE = 'code'
     CODE_IS_VALID = 'codeIsValid'
 
 
