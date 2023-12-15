@@ -19,6 +19,7 @@ __all__ = (
     'JWTTokenJSONDict',
     'UserInfoJSONDict',
     'AlreadyTakenFlagJSONDict',
+    'CodeIsValidFlagJSONDict',
     'JSONDictPreparer',
 )
 
@@ -49,6 +50,7 @@ class JSONKey(StrEnum):
     CHAT_IS_NEW = 'chatIsNew'
     USERS_IDS = 'usersIds'
     IS_ALREADY_TAKEN = 'isAlreadyTaken'
+    CODE_IS_VALID = 'codeIsValid'
 
 
 class WebSocketMessageJSONDict(TypedDict):
@@ -82,6 +84,12 @@ class AlreadyTakenFlagJSONDict(TypedDict):
     """Словарь с флагом, обозначающим заняты ли почта / логин."""
 
     isAlreadyTaken: bool
+
+
+class CodeIsValidFlagJSONDict(TypedDict):
+    """Словарь с флагом, обозначающим верен ли код подтверждения почты."""
+
+    codeIsValid: bool
 
 
 class UserInfoJSONDict(TypedDict):
@@ -136,6 +144,10 @@ class JSONDictPreparer:
     @classmethod
     def prepare_already_taken(cls, flag: bool) -> AlreadyTakenFlagJSONDict:
         return {JSONKey.IS_ALREADY_TAKEN: flag}
+
+    @classmethod
+    def prepare_code_is_valid(cls, flag: bool) -> CodeIsValidFlagJSONDict:
+        return {JSONKey.CODE_IS_VALID: flag}
 
     @classmethod
     def prepare_user_info(cls, user: User,
