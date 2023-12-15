@@ -18,8 +18,6 @@ __all__ = (
     'REDIS_HOST',
     'REDIS_PORT',
     'REDIS_URL',
-    'SMTP_HOST',
-    'SMTP_PORT',
     'EMAIL',
     'EMAIL_PASSWORD',
 )
@@ -71,12 +69,6 @@ REDIS_PORT: Final[int] = int(environ['REDIS_PORT'])
 
 # Полный URL-адрес для подключения к Redis.
 REDIS_URL: Final[str] = f'redis://{REDIS_HOST}:{REDIS_PORT}'
-
-# Хост для почты.
-SMTP_HOST: Final[str] = environ['SMTP_HOST']
-
-# Порт для почты.
-SMTP_PORT: Final[int] = int(environ['SMTP_PORT'])
 
 # Почта для отправки кодов при регистрации.
 EMAIL: Final[str] = environ['EMAIL']
