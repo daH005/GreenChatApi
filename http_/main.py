@@ -32,6 +32,7 @@ from api.config import (
 )
 from endpoints import EndpointName, Url
 from validation import UserJSONValidator
+from api.http_.mail.blueprint_ import bp as mail_bp
 
 # Инициализируем Flask-приложение. Выполняем все необходимые настройки.
 app: Flask = Flask(__name__)
@@ -45,6 +46,9 @@ app.json.ensure_ascii = False
 CORS(app, origins=CORS_ORIGINS)
 # Объект, обеспечивающий OAuth авторизацию.
 jwt: JWTManager = JWTManager(app)
+
+# Регистрация подмодулей приложения:
+app.register_blueprint(mail_bp)
 
 
 @jwt.user_identity_loader
