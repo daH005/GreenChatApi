@@ -16,7 +16,7 @@ __all__ = (
     'send_code',
 )
 
-app: Celery = Celery(broker=REDIS_URL)  # celery -A tasks worker --loglevel=INFO
+app: Celery = Celery(broker=REDIS_URL)
 
 
 @app.task
@@ -33,3 +33,11 @@ def send_code(to: str,
     with SMTP_SSL(host=SMTP_HOST, port=SMTP_PORT) as server:
         server.login(user=EMAIL, password=EMAIL_PASSWORD)
         server.sendmail(from_addr=EMAIL, to_addrs=to, msg=msg.as_string())
+
+
+if __name__ == '__main__':
+    argv = [
+        'worker',
+        '--loglevel=INFO',
+    ]
+    app.worker_main(argv)
