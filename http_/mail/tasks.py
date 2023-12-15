@@ -1,17 +1,25 @@
 from smtplib import SMTP_SSL
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from celery import Celery
 
-from api.config import EMAIL, EMAIL_PASSWORD
+from api.config import REDIS_URL
+from api.config import (
+    EMAIL,
+    EMAIL_PASSWORD,
+    SMTP_HOST,
+    SMTP_PORT,
+)
 
 __all__ = (
-    'SMTP_URL',
+    'app',
     'send_code',
 )
 
-SMTP_URL = 'smtp.' + EMAIL[EMAIL.index('@') + 1:]
+app: Celery = Celery(broker=REDIS_URL)  # celery -A tasks worker --loglevel=INFO
 
 
+@app.task
 def send_code(to: str,
               code: int | str,
               ) -> None:
@@ -22,10 +30,6 @@ def send_code(to: str,
     msg['From'] = EMAIL
     msg.attach(MIMEText('Ваш код подтверждения: ' + str(code)))
     # Устанавливаем соединение, логинимся и отправляем сообщение:
-    with SMTP_SSL(host=SMTP_URL, port=465) as server:
+    with SMTP_SSL(host=SMTP_HOST, port=SMTP_PORT) as server:
         server.login(user=EMAIL, password=EMAIL_PASSWORD)
         server.sendmail(from_addr=EMAIL, to_addrs=to, msg=msg.as_string())
-
-
-if __name__ == '__main__':
-    send_code(EMAIL, 55)
