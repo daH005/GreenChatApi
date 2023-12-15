@@ -8,7 +8,7 @@ from random import randint
 from api.http_.endpoints import EndpointName, Url
 from api.json_ import JSONKey
 from api.http_.redis_ import app as redis_app
-from api.http_.mail.tasks import send_code as send_code_
+from api.http_.mail.tasks import send_code_task
 
 __all__ = (
     'bp',
@@ -41,5 +41,5 @@ def send_code() -> dict[Literal['code'], int]:
     except (ValueError, KeyError):
         return abort(HTTPStatus.BAD_REQUEST)
     code: int = make_and_save_code()
-    send_code_(to=email, code=code)
+    send_code_task.delay(to=email, code=code)
     return dict(code=HTTPStatus.OK)

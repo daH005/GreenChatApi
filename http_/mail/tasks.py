@@ -13,16 +13,16 @@ from api.config import (
 
 __all__ = (
     'app',
-    'send_code',
+    'send_code_task',
 )
 
-app: Celery = Celery(broker=REDIS_URL)
+app: Celery = Celery(broker=REDIS_URL, broker_connection_retry_on_startup=True)
 
 
 @app.task
-def send_code(to: str,
-              code: int | str,
-              ) -> None:
+def send_code_task(to: str,
+                   code: int | str,
+                   ) -> None:
     """Отправляет код подтверждения на указанную почту."""
     # Оформляем сообщение:
     msg = MIMEMultipart()
@@ -39,5 +39,6 @@ if __name__ == '__main__':
     argv = [
         'worker',
         '--loglevel=INFO',
+        '--pool=solo'
     ]
     app.worker_main(argv)
