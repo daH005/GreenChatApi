@@ -43,7 +43,7 @@ def delete_code(code: int | str) -> None:
 
 
 @bp.route(Url.SEND_CODE, endpoint=EndpointName.SEND_CODE, methods=[HTTPMethod.POST])
-def send_code() -> dict[Literal['code'], int]:
+def send_code() -> dict[Literal['status'], int]:
     """Генерирует случайный код и отправляет его на указанную почту.
     Код сохраняется в Redis и хранится там до момента его подтверждения.
     Ожидается JSON с одним ключом - 'email'.
@@ -54,7 +54,7 @@ def send_code() -> dict[Literal['code'], int]:
         return abort(HTTPStatus.BAD_REQUEST)
     code: int = make_and_save_code()
     send_code_task.delay(to=email, code=code)
-    return dict(code=HTTPStatus.OK)
+    return dict(status=HTTPStatus.OK)
 
 
 @bp.route(Url.CHECK_CODE, endpoint=EndpointName.CHECK_CODE, methods=[HTTPMethod.POST])

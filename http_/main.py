@@ -86,7 +86,7 @@ def handle_exception(exception: HTTPException) -> Response:
     """Заменяет все HTML-представления статус-кодов на JSON."""
     response = exception.get_response()
     response.content_type = 'application/json'
-    response.data = json_dumps(dict(code=exception.code))
+    response.data = json_dumps(dict(status=exception.code))
     return response
 
 
