@@ -32,7 +32,11 @@ from api.config import (
 )
 from endpoints import EndpointName, Url
 from validation import UserJSONValidator
-from api.http_.mail.blueprint_ import bp as mail_bp
+from api.http_.mail.blueprint_ import (
+    bp as mail_bp,
+    code_is_valid,
+    delete_code,
+)
 
 # Инициализируем Flask-приложение. Выполняем все необходимые настройки.
 app: Flask = Flask(__name__)
@@ -90,15 +94,26 @@ def handle_exception(exception: HTTPException) -> Response:
 def create_new_user() -> tuple[JWTTokenJSONDict, HTTPStatus.CREATED]:
     """Создаёт нового пользователя по JSON-данным. Возвращает JWT-токен
     для его дальнейшего сохранения у клиента в localStorage и работы с нашим RESTful api + websocket.
-    Ожидается JSON с ключами 'username', 'password', 'firstName', 'lastName' и 'email'.
+    Ожидается JSON с ключами 'username', 'password', 'firstName', 'lastName', 'email' и 'code'.
+    Ключ 'code' - код подтверждения почты. Он удаляется из Redis именно здесь.
     Отдаёт 409-й статус-код в случаях, если почта / логин уже заняты.
     """
     # Если данные невалидны, то здесь же падает `abort` с 400-м статус-кодом.
     user_data: UserJSONValidator = UserJSONValidator.from_json()
+
+    # Проверяем код подтверждения почты:
+    if code_is_valid(user_data.code):
+        delete_code(user_data.code)
+    else:
+        return abort(HTTPStatus.BAD_REQUEST)
+
+    # Проверяем незанятость логина и почты:
     if User.username_is_already_taken(username_to_check=user_data.username):
         return abort(HTTPStatus.CONFLICT)
     if User.email_is_already_taken(email_to_check=user_data.email):
         return abort(HTTPStatus.CONFLICT)
+
+    # Все проверки пройдены. Создаём пользователя:
     new_user: User = User.new_by_password(
         username=user_data.username,
         password=user_data.password,
