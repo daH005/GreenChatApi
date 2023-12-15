@@ -19,7 +19,7 @@ __all__ = (
 app: Celery = Celery(broker=REDIS_URL, broker_connection_retry_on_startup=True)
 
 
-@app.task
+@app.task(name='send_code_task')
 def send_code_task(to: str,
                    code: int | str,
                    ) -> None:
@@ -39,6 +39,6 @@ if __name__ == '__main__':
     argv = [
         'worker',
         '--loglevel=INFO',
-        '--pool=solo'
+        '--pool=solo',  # Было сказано, что на Windows есть некий баг, который избегается этим параметром.
     ]
     app.worker_main(argv)
