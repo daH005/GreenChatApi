@@ -1,7 +1,7 @@
 import asyncio
 from websockets import WebSocketServerProtocol, serve, ConnectionClosed  # pip install websockets
 import json
-from typing import NoReturn
+from typing import NoReturn, Final
 from jwt import decode  # pip install pyjwt
 from enum import StrEnum
 
@@ -38,6 +38,8 @@ class MessageType(StrEnum):
 # Значение - список сокетов (список, т.к. человек может быть подключён
 # с нескольких вкладок браузера, с телефона и т.д.).
 clients: dict[int, list[WebSocketServerProtocol]] = {}
+# Максимальная длина текстового сообщения.
+TEXT_MAX_LENGTH: Final[int] = 10_000
 
 
 async def main() -> NoReturn:
@@ -130,7 +132,8 @@ async def start_communication(client: WebSocketServerProtocol,
             continue
         # Формируем сообщение для чата.
         try:
-            text: str = message[JSONKey.DATA][JSONKey.TEXT]  # type: ignore
+            # Обрезаем сообщение. Если оно гигантских размеров, то это гарантированно спам / флуд.
+            text: str = message[JSONKey.DATA][JSONKey.TEXT][:TEXT_MAX_LENGTH]  # type: ignore
             if not text:
                 continue
             chat_message: ChatMessage = ChatMessage(
