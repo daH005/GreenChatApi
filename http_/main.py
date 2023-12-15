@@ -17,6 +17,7 @@ from api.json_ import (
     UserChatsJSONDict,
     JWTTokenJSONDict,
     UserInfoJSONDict,
+    AlreadyTakenFlagJSONDict,
     JSONKey,
     JSONDictPreparer,
 )
@@ -30,6 +31,12 @@ from api.config import (
     JWT_ACCESS_TOKEN_EXPIRES,
 )
 from endpoints import EndpointName, Url
+from validation import UserJSONValidator
+from api.http_.mail.blueprint_ import (
+    bp as mail_bp,
+    code_is_valid,
+    delete_code,
+)
 
 # Инициализируем Flask-приложение. Выполняем все необходимые настройки.
 app: Flask = Flask(__name__)
@@ -43,6 +50,9 @@ app.json.ensure_ascii = False
 CORS(app, origins=CORS_ORIGINS)
 # Объект, обеспечивающий OAuth авторизацию.
 jwt: JWTManager = JWTManager(app)
+
+# Регистрация подмодулей приложения:
+app.register_blueprint(mail_bp)
 
 
 @jwt.user_identity_loader
@@ -76,8 +86,72 @@ def handle_exception(exception: HTTPException) -> Response:
     """Заменяет все HTML-представления статус-кодов на JSON."""
     response = exception.get_response()
     response.content_type = 'application/json'
-    response.data = json_dumps(dict(code=exception.code))
+    response.data = json_dumps(dict(status=exception.code))
     return response
+
+
+@app.route(Url.REG, endpoint=EndpointName.REG, methods=[HTTPMethod.POST])
+def create_new_user() -> tuple[JWTTokenJSONDict, HTTPStatus.CREATED]:
+    """Создаёт нового пользователя по JSON-данным. Возвращает JWT-токен
+    для его дальнейшего сохранения у клиента в localStorage и работы с нашим RESTful api + websocket.
+    Ожидается JSON с ключами 'username', 'password', 'firstName', 'lastName', 'email' и 'code'.
+    Ключ 'code' - код подтверждения почты. Он удаляется из Redis именно здесь.
+    Отдаёт 409-й статус-код в случаях, если почта / логин уже заняты.
+    """
+    # Если данные невалидны, то здесь же падает `abort` с 400-м статус-кодом.
+    user_data: UserJSONValidator = UserJSONValidator.from_json()
+
+    # Проверяем код подтверждения почты:
+    if code_is_valid(user_data.code):
+        delete_code(user_data.code)
+    else:
+        return abort(HTTPStatus.BAD_REQUEST)
+
+    # Проверяем незанятость логина и почты:
+    if User.username_is_already_taken(username_to_check=user_data.username):
+        return abort(HTTPStatus.CONFLICT)
+    if User.email_is_already_taken(email_to_check=user_data.email):
+        return abort(HTTPStatus.CONFLICT)
+
+    # Все проверки пройдены. Создаём пользователя:
+    new_user: User = User.new_by_password(
+        username=user_data.username,
+        password=user_data.password,
+        first_name=user_data.first_name,
+        last_name=user_data.last_name,
+        email=user_data.email,
+    )
+    session.add(new_user)
+    session.commit()
+    return JSONDictPreparer.prepare_jwt_token(jwt_token=create_access_token(identity=new_user)), HTTPStatus.CREATED
+
+
+@app.route(Url.CHECK_USERNAME, endpoint=EndpointName.CHECK_USERNAME, methods=[HTTPMethod.GET])
+def check_username() -> AlreadyTakenFlagJSONDict:
+    """Проверят занятость логина. Ожидает query-параметр 'username'.
+    Возвращает словарь с флагом, обозначающим занятость.
+    """
+    try:
+        username: str = str(request.args[JSONKey.USERNAME])
+    except KeyError:
+        return abort(HTTPStatus.BAD_REQUEST)
+    return JSONDictPreparer.prepare_already_taken(
+        flag=User.username_is_already_taken(username_to_check=username),
+    )
+
+
+@app.route(Url.CHECK_EMAIL, endpoint=EndpointName.CHECK_EMAIL, methods=[HTTPMethod.GET])
+def check_email() -> AlreadyTakenFlagJSONDict:
+    """Проверят занятость почты. Ожидает query-параметр 'email'.
+    Возвращает словарь с флагом, обозначающим занятость.
+    """
+    try:
+        email: str = str(request.args[JSONKey.EMAIL])
+    except KeyError:
+        return abort(HTTPStatus.BAD_REQUEST)
+    return JSONDictPreparer.prepare_already_taken(
+        flag=User.email_is_already_taken(email_to_check=email),
+    )
 
 
 @app.route(Url.AUTH, endpoint=EndpointName.AUTH, methods=[HTTPMethod.POST])

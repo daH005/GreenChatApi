@@ -100,6 +100,20 @@ class User(BaseModel):
             return user
         raise ValueError
 
+    # FixMe: Дописать тест для метода
+    @classmethod
+    def username_is_already_taken(cls, username_to_check: str) -> bool:
+        """Проверят занятость логина."""
+        user: User | None = session.query(cls).filter(cls.username == username_to_check).first()
+        return user is not None
+
+    # FixMe: Дописать тест для метода
+    @classmethod
+    def email_is_already_taken(cls, email_to_check: str) -> bool:
+        """Проверят занятость почты."""
+        user: User | None = session.query(cls).filter(cls.email == email_to_check).first()
+        return user is not None
+
 
 class Chat(BaseModel):
     """Чат. Доступ к нему имеют не все пользователи, он обеспечивается через модель `UserChatMatch`

@@ -10,14 +10,16 @@ from api.db.models import (
 
 __all__ = (
     'JSONKey',
-    'JWTAuthWebSocketDataJSONDict',
     'WebSocketMessageJSONDict',
+    'WebSocketNewChatJSONDict',
     'ChatHistoryJSONDict',
     'ChatMessageJSONDict',
     'UserChatsJSONDict',
     'ChatInitialDataJSONDict',
     'JWTTokenJSONDict',
     'UserInfoJSONDict',
+    'AlreadyTakenFlagJSONDict',
+    'CodeIsValidFlagJSONDict',
     'JSONDictPreparer',
 )
 
@@ -25,6 +27,8 @@ __all__ = (
 class JSONKey(StrEnum):
     """Ключи, используемые в JSON'ах."""
 
+    TYPE = 'type'
+    DATA = 'data'
     ID = 'id'
     USER_ID = 'userId'
     CHAT_ID = 'chatId'
@@ -45,23 +49,30 @@ class JSONKey(StrEnum):
     INTERLOCUTOR = 'interlocutor'
     CHAT_IS_NEW = 'chatIsNew'
     USERS_IDS = 'usersIds'
-
-
-class JWTAuthWebSocketDataJSONDict(TypedDict):
-    """Словарь с авторизующими данными. Поступает при первом сообщении по веб-сокету."""
-
-    JWTToken: str
+    IS_ALREADY_TAKEN = 'isAlreadyTaken'
+    CODE = 'code'
+    CODE_IS_VALID = 'codeIsValid'
 
 
 class WebSocketMessageJSONDict(TypedDict):
-    """Рядовое сообщение в заданный чат, поступающее на сервер веб-сокета.
-    Предполагается, что на данном этапе пользователь уже авторизован.
-    """
+    """Тип, определяющий интерфейс словаря-сообщения для веб-сокета."""
+
+    type: str
+    data: JWTTokenJSONDict | WebSocketNewChatMessageJSONDict | WebSocketNewChatJSONDict
+
+
+class WebSocketNewChatMessageJSONDict(TypedDict):
+    """Сообщение для веб-сокета на создание нового сообщения в заданном чате."""
 
     chatId: int
     text: str
-    chatIsNew: NotRequired[bool]
-    usersIds: NotRequired[list[int]]
+
+
+class WebSocketNewChatJSONDict(TypedDict):
+    """Сообщение для веб-сокета на создание нового чата."""
+
+    text: str
+    usersIds: list[int]
 
 
 class JWTTokenJSONDict(TypedDict):
@@ -70,11 +81,23 @@ class JWTTokenJSONDict(TypedDict):
     JWTToken: str
 
 
+class AlreadyTakenFlagJSONDict(TypedDict):
+    """Словарь с флагом, обозначающим заняты ли почта / логин."""
+
+    isAlreadyTaken: bool
+
+
+class CodeIsValidFlagJSONDict(TypedDict):
+    """Словарь с флагом, обозначающим верен ли код подтверждения почты."""
+
+    codeIsValid: bool
+
+
 class UserInfoJSONDict(TypedDict):
     """Вся информация о пользователе."""
 
     id: int
-    username: str
+    username: NotRequired[str]
     firstName: str
     lastName: str
     email: NotRequired[str]
@@ -120,17 +143,25 @@ class JSONDictPreparer:
         return {JSONKey.JWT_TOKEN: jwt_token}
 
     @classmethod
+    def prepare_already_taken(cls, flag: bool) -> AlreadyTakenFlagJSONDict:
+        return {JSONKey.IS_ALREADY_TAKEN: flag}
+
+    @classmethod
+    def prepare_code_is_valid(cls, flag: bool) -> CodeIsValidFlagJSONDict:
+        return {JSONKey.CODE_IS_VALID: flag}
+
+    @classmethod
     def prepare_user_info(cls, user: User,
                           exclude_important_info: bool = True,
                           ) -> UserInfoJSONDict:
         user_info = {
             JSONKey.ID: user.id,
-            JSONKey.USERNAME: user.username,
             JSONKey.FIRST_NAME: user.first_name,
             JSONKey.LAST_NAME: user.last_name,
         }
         if not exclude_important_info:
             user_info[JSONKey.EMAIL] = user.email
+            user_info[JSONKey.USERNAME] = user.username
         return user_info
 
     @classmethod
