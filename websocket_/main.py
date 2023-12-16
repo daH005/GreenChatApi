@@ -110,16 +110,24 @@ async def wait_auth(client: WebSocketServerProtocol) -> User:
 async def start_communication(client: WebSocketServerProtocol,
                               user: User,
                               ) -> None:
-    """Запускает обмен сообщениями с клиентом."""
+    """Запускает обмен основными сообщениями с клиентом."""
     while True:
         # Ждём какое-нибудь сообщение. После чего смотрим ключ 'type' и выполняем нужное действие.
         message: WebSocketMessageJSONDict = await wait_data(client)
         try:
             if message[JSONKey.TYPE] == MessageType.NEW_CHAT:  # type: ignore
                 # Проверка: пользователь не может создать чат между другими людьми, но не с собой.
-                if user.id not in message[JSONKey.DATA][JSONKey.USERS_IDS]:  # type: ignore
+                users_ids = message[JSONKey.DATA][JSONKey.USERS_IDS]  # type: ignore
+                if user.id not in users_ids:
                     continue
-                chat: Chat = Chat.new_with_matches(users_ids=message[JSONKey.DATA][JSONKey.USERS_IDS])  # type: ignore
+                # Попробуем найти чат перед его созданием.
+                # Если окажется, что чат уже существует, то модифицируем текущий "ивент",
+                # сделав его `MessageType.NEW_CHAT_MESSAGE`.
+                try:
+                    chat: Chat = UserChatMatch.find_private_chat(*users_ids)
+                    message[JSONKey.TYPE] = MessageType.NEW_CHAT_MESSAGE  # type: ignore
+                except ValueError:
+                    chat: Chat = Chat.new_with_matches(users_ids=users_ids)
             elif message[JSONKey.TYPE] == MessageType.NEW_CHAT_MESSAGE:  # type: ignore
                 # Проверяем доступ к заданному чату.
                 chat: Chat = UserChatMatch.chat_if_user_has_access(
@@ -128,7 +136,11 @@ async def start_communication(client: WebSocketServerProtocol,
                 )
             else:
                 continue
-        except (PermissionError, KeyError):
+        # Пояснение каждого исключения:
+        # 1. `PermissionError` - при попытке получить не свой чат.
+        # 2. `KeyError` - невалидный JSON.
+        # 3. `TypeError` - если длина `users_ids` больше 2-х.
+        except (PermissionError, KeyError, TypeError):
             continue
         # Формируем сообщение для чата.
         try:
