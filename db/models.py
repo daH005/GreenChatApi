@@ -139,9 +139,10 @@ class Chat(BaseModel):
     @classmethod
     def new_with_matches(cls, users_ids: list[int],
                          name: str | None = None,
+                         is_group: bool = False,
                          ) -> Chat:
         """Создаёт новый чат, а также сразу определяет связи по модели `UserChatMatch`."""
-        chat: cls = cls(name=name)
+        chat: cls = cls(name=name, is_group=is_group)
         session.add(chat)
         session.flush()
         for user_id in users_ids:
