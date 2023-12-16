@@ -130,7 +130,8 @@ class ChatInitialDataJSONDict(TypedDict):
 
     id: int
     name: str
-    lastMessage: ChatMessageJSONDict
+    lastMessage: ChatMessageJSONDict | None
+    interlocutor: UserInfoJSONDict | None
 
 
 class JSONDictPreparer:
