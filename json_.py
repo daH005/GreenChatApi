@@ -199,9 +199,10 @@ class JSONDictPreparer:
             last_message = cls.prepare_chat_message(chat.last_message)
         except IndexError:
             last_message = None
-        interlocutor_info = chat.interlocutor(user_id)
-        if interlocutor_info is not None:
-            interlocutor_info = cls.prepare_user_info(interlocutor_info)
+        if chat.is_group:
+            interlocutor_info = None
+        else:
+            interlocutor_info = cls.prepare_user_info(chat.interlocutor(user_id))
         return {
             JSONKey.ID: chat.id,
             JSONKey.NAME: chat.name,

@@ -155,8 +155,10 @@ class Chat(BaseModel):
     def last_message(self) -> ChatMessage:
         return self.messages[-1]  # type: ignore
 
-    def interlocutor(self, user_id: int) -> User:
-        """Находит собеседника пользователя с `user_id`."""
+    def interlocutor(self, user_id: int) -> User | None:
+        """Находит собеседника пользователя в указанном чате. Не имеет смысла использовать
+        этот метод в отношении группового чата, поскольку собеседников там много.
+        """
         return UserChatMatch.interlocutor(chat_id=self.id, user_id=user_id)
 
 
@@ -226,8 +228,10 @@ class UserChatMatch(BaseModel):
     @classmethod
     def interlocutor(cls, user_id: int,
                      chat_id: int,
-                     ) -> User:
-        """Находит собеседника в личном чате с `chat_id` для пользователя с `user_id`."""
+                     ) -> User | None:
+        """Выдаёт собеседника пользователя в указанном чате. Не имеет смысла использовать
+        этот метод в отношении группового чата, поскольку собеседников там много.
+        """
         interlocutor_match: cls | None = session.query(cls).filter(cls.user_id != user_id,
                                                                    cls.chat_id == chat_id).first()  # type: ignore
         if interlocutor_match is not None:
