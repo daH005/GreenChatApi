@@ -4,6 +4,7 @@ from sqlalchemy import (  # pip install sqlalchemy
     Integer,
     String,
     Text,
+    Boolean,
     ForeignKey,
     Engine,
 )
@@ -123,6 +124,7 @@ class Chat(BaseModel):
     __tablename__ = 'chats'
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=True)
+    is_group: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)  # FixMe: Дописать тест для поля.
     messages: Mapped[list['ChatMessage']] = relationship(
         back_populates='chat',
         order_by='ChatMessage.creating_datetime',
