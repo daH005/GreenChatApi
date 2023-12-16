@@ -7,6 +7,7 @@ from sqlalchemy import (  # pip install sqlalchemy
     Boolean,
     ForeignKey,
     Engine,
+    func,
 )
 from sqlalchemy.orm import (
     mapped_column,
@@ -155,9 +156,11 @@ class Chat(BaseModel):
     def last_message(self) -> ChatMessage:
         return self.messages[-1]  # type: ignore
 
-    def interlocutor(self, user_id: int) -> User | None:
+    # FixMe: Перепроверить тест
+    def interlocutor(self, user_id: int) -> User:
         """Находит собеседника пользователя в указанном чате. Не имеет смысла использовать
         этот метод в отношении группового чата, поскольку собеседников там много.
+        Если собеседник не найден, то вызывается `ValueError`.
         """
         return UserChatMatch.interlocutor(chat_id=self.id, user_id=user_id)
 
@@ -225,14 +228,38 @@ class UserChatMatch(BaseModel):
         except IndexError:
             return 0
 
+    # FixMe: Перепроверить тест.
     @classmethod
     def interlocutor(cls, user_id: int,
                      chat_id: int,
                      ) -> User | None:
         """Выдаёт собеседника пользователя в указанном чате. Не имеет смысла использовать
         этот метод в отношении группового чата, поскольку собеседников там много.
+        Если собеседник не найден, то вызывается `ValueError`.
         """
         interlocutor_match: cls | None = session.query(cls).filter(cls.user_id != user_id,
                                                                    cls.chat_id == chat_id).first()  # type: ignore
         if interlocutor_match is not None:
             return interlocutor_match.user
+        raise ValueError
+
+    # FixMe: Дописать тест для метода.
+    @classmethod
+    def find_private_chat(cls, first_user_id: int,
+                          second_user_id: int,
+                          ) -> Chat:
+        """Ищет личный чат между двумя пользователями.
+        Если чата нет, то вызывает `ValueError`.
+        """
+        matches: list[cls] = session.query(cls).filter(  # type: ignore
+            (cls.user_id == first_user_id) | (cls.user_id == second_user_id),
+        ).all()
+        # FixMe: Если появятся идеи о лучшей реализации, вероятно, с использованием более лучших SQL-запросов.
+        chats_ids = []
+        for match in matches:
+            if match.chat.is_group:
+                continue
+            if match.chat_id in chats_ids:
+                return match.chat
+            chats_ids.append(match.chat_id)
+        raise ValueError
