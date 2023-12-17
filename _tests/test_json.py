@@ -175,6 +175,7 @@ def test_chat_message_to_json_dict(chat_message: ChatMessage) -> None:
     }
 
 
+# FixMe: Поправить порядок чатов в декораторе!
 @pytest.mark.parametrize(('user_chats', 'user_id'), [
     (CHATS, 1),
     (CHATS[1:], 3),

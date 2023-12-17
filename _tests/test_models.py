@@ -313,6 +313,7 @@ class TestUserChatMatch:
         with pytest.raises(PermissionError):
             UserChatMatch.chat_if_user_has_access(user_id, chat_id)
 
+    # FixMe: Поправить порядок чатов в декораторе!
     @staticmethod
     @pytest.mark.parametrize(('chat_id', 'expected_users'), [
         (1, [USERS[0], USERS[1]]),
