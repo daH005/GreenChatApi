@@ -64,6 +64,9 @@ async def dump_and_send(client: WebSocketServerProtocol,
 async def ws_handler(client: WebSocketServerProtocol) -> None:
     """Обработчик сообщений от клиентов для `serve(ws_handler=...)`."""
     print('New client connected -', client.id)
+    # Выполняем закрытие старой сессии перед работой с новым клиентом.
+    # Очень важно, например, в случаях, когда пользователь только-только зарегистрировался.
+    session.remove()
     try:
         # Сначала авторизуем клиента, после чего добавляем его в `clients`.
         user: User = await wait_auth(client)
