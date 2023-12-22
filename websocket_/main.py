@@ -23,6 +23,7 @@ from api.config import (
     JWT_SECRET_KEY,
     JWT_ALGORITHM,
 )
+from api.websocket_.funcs import del_odd_from_str
 
 
 class MessageType(StrEnum):
@@ -149,6 +150,8 @@ async def start_communication(client: WebSocketServerProtocol,
         try:
             # Обрезаем сообщение. Если оно гигантских размеров, то это гарантированно спам / флуд.
             text: str = message[JSONKey.DATA][JSONKey.TEXT][:TEXT_MAX_LENGTH]  # type: ignore
+            # Убираем из сообщения лишние пробелы и переносы строк.
+            text = del_odd_from_str(text)
             if not text:
                 continue
             chat_message: ChatMessage = ChatMessage(
@@ -175,7 +178,7 @@ async def send_each(chat_message: ChatMessage,
                     ) -> None:
     """Отсылает сообщение каждому клиенту, кому оно адресовано, а также подключённому в данный момент."""
     # Начинаем составлять ответное сообщение.
-    answer_message: WebSocketMessageJSONDict = {
+    answer_message: WebSocketMessageJSONDict = {  # type: ignore
         JSONKey.TYPE: message_type,
         JSONKey.DATA: {},
     }
