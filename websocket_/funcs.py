@@ -18,4 +18,3 @@ def del_odd_from_str(str_: str) -> str:
 
 if __name__ == "__main__":
     print(del_odd_from_str(' string__    line-break\n\nnew-line\nnew-line-2\n'))
-
