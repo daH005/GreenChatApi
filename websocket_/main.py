@@ -160,6 +160,7 @@ async def start_communication(client: WebSocketServerProtocol,
                 text=text,
             )
         except KeyError:
+            session.rollback()
             continue
         # Сохраняем сообщение в БД (не для ФСБ).
         session.add(chat_message)
