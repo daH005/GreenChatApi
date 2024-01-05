@@ -77,6 +77,8 @@ def new_chat(user: User,
         name=data.name,
         is_group=data.is_group,
     )
+    session.add(chat)
+    session.flush()
 
     matches = []
     for id_ in data.users_ids:
@@ -86,7 +88,7 @@ def new_chat(user: User,
         )
         matches.append(match)
 
-    session.add_all([chat, *matches])
+    session.add_all(matches)
     session.commit()
 
     return_data = JSONDictPreparer.prepare_chat_info(chat=chat)

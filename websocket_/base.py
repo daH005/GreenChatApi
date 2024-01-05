@@ -151,7 +151,7 @@ class WebSocketClientHandler:
                 message: MessageJSONDict = await self._wait_json_dict()
                 await self._handle_message(message)
             except (JSONDecodeError, KeyError, Exception) as e:
-                logger.info('Handling error -', e)
+                logger.info('Handling error')
                 continue
             session.remove()
             logger.info(f'Message received and handled ({self.protocol.id}).')
