@@ -11,6 +11,7 @@ from api.json_ import JSONKey, WebSocketMessageJSONDict
 from api.raises_hinting import raises
 from api.config import JWT_SECRET_KEY, JWT_ALGORITHM
 from api.websocket_.funcs import UserID
+from api.websocket_.logs import logger
 
 __all__ = (
     'WebSocketServer',
@@ -41,14 +42,17 @@ class WebSocketServer:
             await asyncio.Future()  # run forever
 
     async def _handler(self, protocol: WebSocketServerProtocol) -> None:
+        logger.info(f'New client connected - {protocol.id}. Waiting authorization...')
         try:
             await self._handle_protocol(protocol)
         except (ConnectionClosed, ValueError):
+            logger.info(f'Client disconnected ({protocol.id}).')
             return
 
     async def _handle_protocol(self, protocol: WebSocketServerProtocol) -> None:
         client = WebSocketClientHandler(self, protocol)
         await client.auth()
+        logger.info(f'Client was auth ({protocol.id}). UserID - {client.user.id}.')
 
         self._add_client(client)
 
