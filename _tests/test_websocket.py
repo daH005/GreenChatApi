@@ -5,7 +5,7 @@ from api.websocket_.base import (
     WebSocketServer,
     WebSocketClientHandler,
 )
-from api.websocket_.main_ import new_chat_message, new_chat
+from api.websocket_.main import new_chat_message, new_chat
 from api._tests.db_test_data import *  # noqa
 
 
