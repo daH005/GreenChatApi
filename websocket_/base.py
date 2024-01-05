@@ -31,7 +31,7 @@ class WebSocketServer:
         self.host = host
         self.port = port
         self._clients: dict[UserID, list[WebSocketClientHandler]] = {}
-        self.handlers: dict[str, HandlerFuncT] = {}
+        self.handlers_funcs: dict[str, HandlerFuncT] = {}
 
     def run(self) -> NoReturn:
         asyncio.run(self._run())
@@ -92,7 +92,7 @@ class WebSocketServer:
 
     def handler(self, type_: str) -> Callable[[HandlerFuncT], HandlerFuncT]:
         def func_decorator(func: HandlerFuncT) -> HandlerFuncT:
-            self.handlers[type_] = func
+            self.handlers_funcs[type_] = func
             return func
         return func_decorator
 
@@ -144,9 +144,15 @@ class WebSocketClientHandler:
     
     @raises(JSONDecodeError, KeyError, Exception)
     def _handle_message(self, message: WebSocketMessageJSONDict) -> None:
-        users_ids, data = self.server.handlers[message[JSONKey.TYPE]](self.user, message[JSONKey.DATA])  # type: ignore
+        handler_func: HandlerFuncT = self._get_handler_func(message[JSONKey.TYPE])  # type: ignore
+        users_ids, data = handler_func(self.user, message[JSONKey.DATA])  # type: ignore
+
         _message = {
             JSONKey.TYPE: message[JSONKey.TYPE],  # type: ignore
             JSONKey.DATA: data,
         }
         self.server.send_to_many_users(users_ids=users_ids, message=_message)
+
+    @raises(KeyError)
+    def _get_handler_func(self, type_: str) -> HandlerFuncT:
+        return self.server.handlers_funcs[type_]
