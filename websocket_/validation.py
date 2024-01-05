@@ -17,5 +17,5 @@ class NewChatMessage(BaseModel):
 class NewChat(BaseModel):
 
     users_ids: list[int] = Field(alias=JSONKey.USERS_IDS)
-    name: str
-    is_group: bool = Field(alias=JSONKey.IS_GROUP)
+    name: str | None = Field(default=None)
+    is_group: bool = Field(alias=JSONKey.IS_GROUP, default=False)
