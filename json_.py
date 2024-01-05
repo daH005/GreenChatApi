@@ -52,6 +52,8 @@ class JSONKey(StrEnum):
     IS_ALREADY_TAKEN = 'isAlreadyTaken'
     CODE = 'code'
     CODE_IS_VALID = 'codeIsValid'
+    USERS = 'users'
+    IS_GROUP = 'isGroup'
 
 
 class WebSocketMessageJSONDict(TypedDict):
@@ -187,25 +189,24 @@ class JSONDictPreparer:
                            ) -> UserChatsJSONDict:
         chats_for_json = []
         for chat in user_chats:
-            chats_for_json.append(cls.prepare_chat_info(chat, user_id))
+            chats_for_json.append(cls.prepare_chat_info(chat))
         return {JSONKey.CHATS: chats_for_json}
 
     # FixMe: Дописать тест для метода.
     @classmethod
-    def prepare_chat_info(cls, chat: Chat,
-                          user_id: int,
-                          ) -> ChatInitialDataJSONDict:
+    def prepare_chat_info(cls, chat: Chat) -> ChatInitialDataJSONDict:
         try:
             last_message = cls.prepare_chat_message(chat.last_message)
         except IndexError:
             last_message = None
-        if chat.is_group:
-            interlocutor_info = None
-        else:
-            interlocutor_info = cls.prepare_user_info(chat.interlocutor(user_id))
         return {
             JSONKey.ID: chat.id,
             JSONKey.NAME: chat.name,
-            JSONKey.INTERLOCUTOR: interlocutor_info,
+            JSONKey.USERS: cls.prepare_users(chat.users()),
+            JSONKey.IS_GROUP: chat.is_group,
             JSONKey.LAST_CHAT_MESSAGE: last_message,
         }
+
+    @classmethod
+    def prepare_users(cls, users: list[User]) -> list[UserInfoJSONDict]:
+        return [cls.prepare_user_info(user) for user in users]
