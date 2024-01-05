@@ -7,7 +7,7 @@ from json import JSONDecodeError
 from jwt import decode  # pip install pyjwt
 
 from api.db.models import User, session
-from api.raises_hinting import raises
+from api.hinting import raises
 from api.config import JWT_SECRET_KEY, JWT_ALGORITHM
 from api.websocket_.funcs import UserID
 from api.websocket_.logs import logger

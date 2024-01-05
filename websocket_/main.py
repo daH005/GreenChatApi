@@ -3,7 +3,7 @@ from api.websocket_.base import (
 )
 from api.json_ import (
     JSONDictPreparer,
-    ChatInitialDataJSONDict,
+    ChatInfoJSONDict,
     ChatMessageJSONDict,
 )
 from api.db.models import (
@@ -56,7 +56,7 @@ def new_chat_message(user: User, data: dict) -> tuple[list[UserID], ChatMessageJ
 
 
 @server.handler(WebSocketMessageTypes.NEW_CHAT)
-def new_chat(user: User, data: dict) -> tuple[list[UserID], ChatInitialDataJSONDict]:
+def new_chat(user: User, data: dict) -> tuple[list[UserID], ChatInfoJSONDict]:
     data: NewChat = NewChat(**data)
 
     if user.id not in data.users_ids:

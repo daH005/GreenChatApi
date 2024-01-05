@@ -91,6 +91,7 @@ class TestChat:
         )
         session.add(chat_message)
         session.commit()
+        session.refresh(chat)  # important
         assert chat.last_message == chat_message
         session.delete(chat_message)
         session.commit()

@@ -18,7 +18,7 @@ from sqlalchemy.orm import (
 )
 from datetime import datetime
 
-from api.raises_hinting import raises
+from api.hinting import raises
 from api.db.encryption import make_auth_token
 from api.config import DB_URL
 

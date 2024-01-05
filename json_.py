@@ -10,12 +10,10 @@ from api.db.models import (
 
 __all__ = (
     'JSONKey',
-    'WebSocketMessageJSONDict',
-    'WebSocketNewChatJSONDict',
     'ChatHistoryJSONDict',
     'ChatMessageJSONDict',
     'UserChatsJSONDict',
-    'ChatInitialDataJSONDict',
+    'ChatInfoJSONDict',
     'JWTTokenJSONDict',
     'UserInfoJSONDict',
     'AlreadyTakenFlagJSONDict',
@@ -25,121 +23,89 @@ __all__ = (
 
 
 class JSONKey(StrEnum):
-    """Ключи, используемые в JSON'ах."""
 
-    TYPE = 'type'
-    DATA = 'data'
     ID = 'id'
     USER_ID = 'userId'
     CHAT_ID = 'chatId'
+
     FIRST_NAME = 'firstName'
     LAST_NAME = 'lastName'
+
     TEXT = 'text'
+    CREATING_DATETIME = 'creatingDatetime'
+    USER = 'user'
+
     USERNAME = 'username'
     PASSWORD = 'password'
     EMAIL = 'email'
-    CREATING_DATETIME = 'creatingDatetime'
+
     JWT_TOKEN = 'JWTToken'
+
     OFFSET_FROM_END = 'offsetFromEnd'
-    NAME = 'name'
-    MESSAGES = 'messages'
+
     CHATS = 'chats'
+
+    MESSAGES = 'messages'
+
+    NAME = 'name'
+    USERS = 'users'
+    IS_GROUP = 'isGroup'
     LAST_CHAT_MESSAGE = 'lastMessage'
-    USER = 'user'
-    INTERLOCUTOR = 'interlocutor'
-    CHAT_IS_NEW = 'chatIsNew'
     USERS_IDS = 'usersIds'
+
     IS_ALREADY_TAKEN = 'isAlreadyTaken'
     CODE = 'code'
     CODE_IS_VALID = 'codeIsValid'
-    USERS = 'users'
-    IS_GROUP = 'isGroup'
-
-
-class WebSocketMessageJSONDict(TypedDict):
-    """Тип, определяющий интерфейс словаря-сообщения для веб-сокета."""
-
-    type: str
-    data: JWTTokenJSONDict | WebSocketNewChatMessageJSONDict | WebSocketNewChatJSONDict
-
-
-class WebSocketNewChatMessageJSONDict(TypedDict):
-    """Сообщение для веб-сокета на создание нового сообщения в заданном чате."""
-
-    chatId: int
-    text: str
-
-
-class WebSocketNewChatJSONDict(TypedDict):
-    """Сообщение для веб-сокета на создание нового чата."""
-
-    text: str
-    usersIds: list[int]
 
 
 class JWTTokenJSONDict(TypedDict):
-    """Словарь с токеном авторизации."""
-
     JWTToken: str
 
 
 class AlreadyTakenFlagJSONDict(TypedDict):
-    """Словарь с флагом, обозначающим заняты ли почта / логин."""
-
     isAlreadyTaken: bool
 
 
 class CodeIsValidFlagJSONDict(TypedDict):
-    """Словарь с флагом, обозначающим верен ли код подтверждения почты."""
-
     codeIsValid: bool
 
 
 class UserInfoJSONDict(TypedDict):
-    """Вся информация о пользователе."""
 
     id: int
-    username: NotRequired[str]
     firstName: str
     lastName: str
+    username: NotRequired[str]
     email: NotRequired[str]
 
 
 class ChatHistoryJSONDict(TypedDict):
-    """Словарь с историей чата. Высылается в качестве ответа на HTTP-запрос."""
-
     messages: list[ChatMessageJSONDict]
 
 
 class ChatMessageJSONDict(TypedDict):
-    """Рядовое сообщение, отправляемое клиенту по HTTP / Websocket."""
 
     id: int
     chatId: int
-    user: UserInfoJSONDict
     text: str
     creatingDatetime: str
+    user: UserInfoJSONDict
 
 
 class UserChatsJSONDict(TypedDict):
-    """Словарь со всеми чата пользователя. От каждого чата берётся только последнее сообщение."""
-
-    chats: list[ChatInitialDataJSONDict]
+    chats: list[ChatInfoJSONDict]
 
 
-class ChatInitialDataJSONDict(TypedDict):
-    """Начальные данные для загрузки чата на клиенте."""
+class ChatInfoJSONDict(TypedDict):
 
     id: int
     name: str
+    isGroup: bool
     lastMessage: ChatMessageJSONDict | None
-    interlocutor: UserInfoJSONDict | None
+    users: list[UserInfoJSONDict]
 
 
 class JSONDictPreparer:
-    """Подготовитель словарей данных с ключами в стиле lowerCamelCase
-    для их дальнейшей отправки в сеть по HTTP / WebSocket.
-    """
 
     @classmethod
     def prepare_jwt_token(cls, jwt_token: str) -> JWTTokenJSONDict:
@@ -152,6 +118,27 @@ class JSONDictPreparer:
     @classmethod
     def prepare_code_is_valid(cls, flag: bool) -> CodeIsValidFlagJSONDict:
         return {JSONKey.CODE_IS_VALID: flag}
+
+    @classmethod
+    def prepare_user_chats(cls, user_chats: list[Chat]) -> UserChatsJSONDict:
+        chats_for_json = []
+        for chat in user_chats:
+            chats_for_json.append(cls.prepare_chat_info(chat))
+        return {JSONKey.CHATS: chats_for_json}
+
+    @classmethod
+    def prepare_chat_info(cls, chat: Chat) -> ChatInfoJSONDict:
+        try:
+            last_message = cls.prepare_chat_message(chat.last_message)
+        except IndexError:
+            last_message = None
+        return {
+            JSONKey.ID: chat.id,
+            JSONKey.NAME: chat.name,
+            JSONKey.IS_GROUP: chat.is_group,
+            JSONKey.LAST_CHAT_MESSAGE: last_message,
+            JSONKey.USERS: [cls.prepare_user_info(user) for user in chat.users()],
+        }
 
     @classmethod
     def prepare_user_info(cls, user: User,
@@ -178,35 +165,7 @@ class JSONDictPreparer:
         return {
             JSONKey.ID: chat_message.id,
             JSONKey.CHAT_ID: chat_message.chat_id,
-            JSONKey.USER: cls.prepare_user_info(chat_message.user),
             JSONKey.TEXT: chat_message.text,
             JSONKey.CREATING_DATETIME: chat_message.creating_datetime.isoformat(),
+            JSONKey.USER: cls.prepare_user_info(chat_message.user),
         }
-
-    @classmethod
-    def prepare_user_chats(cls, user_chats: list[Chat],
-                           user_id: int,
-                           ) -> UserChatsJSONDict:
-        chats_for_json = []
-        for chat in user_chats:
-            chats_for_json.append(cls.prepare_chat_info(chat))
-        return {JSONKey.CHATS: chats_for_json}
-
-    # FixMe: Дописать тест для метода.
-    @classmethod
-    def prepare_chat_info(cls, chat: Chat) -> ChatInitialDataJSONDict:
-        try:
-            last_message = cls.prepare_chat_message(chat.last_message)
-        except IndexError:
-            last_message = None
-        return {
-            JSONKey.ID: chat.id,
-            JSONKey.NAME: chat.name,
-            JSONKey.USERS: cls.prepare_users(chat.users()),
-            JSONKey.IS_GROUP: chat.is_group,
-            JSONKey.LAST_CHAT_MESSAGE: last_message,
-        }
-
-    @classmethod
-    def prepare_users(cls, users: list[User]) -> list[UserInfoJSONDict]:
-        return [cls.prepare_user_info(user) for user in users]

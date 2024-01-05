@@ -1,7 +1,7 @@
 from re import sub
 from typing import Final
 
-from api.raises_hinting import raises
+from api.hinting import raises
 from api.db.models import (
     session,
     UserChatMatch,
