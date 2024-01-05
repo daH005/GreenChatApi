@@ -46,6 +46,7 @@ class WebSocketServer:
 
     async def _run(self) -> NoReturn:
         async with serve(ws_handler=self._handler, host=self.host, port=self.port):
+            logger.info('WebSocketServer is serving...')
             await asyncio.Future()  # run forever
 
     async def _handler(self, protocol: WebSocketServerProtocol) -> None:
