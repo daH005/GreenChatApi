@@ -282,6 +282,7 @@ class TestChat:
         'messages',
         'last_message',
         'interlocutor',
+        'users',
     ])
     def test_positive_chat_has_required_attrs(attr_name: str) -> None:
         assert hasattr(Chat, attr_name)
@@ -307,6 +308,13 @@ class TestChat:
                                               expected_user: User,
                                               ) -> None:
         assert chat.interlocutor(user.id) == expected_user
+
+    @staticmethod
+    @pytest.mark.parametrize(('chat', 'expected_users'), USERS_IN_CHAT_METHOD_ARGS_SETS)
+    def test_positive_users_in_chat(chat: Chat,
+                                    expected_users: list[User],
+                                    ) -> None:
+        assert chat.users() == expected_users
 
 
 class TestChatMessage:

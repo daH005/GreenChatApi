@@ -142,6 +142,9 @@ class Chat(BaseModel):
     def interlocutor(self, user_id: int) -> User:
         return UserChatMatch.interlocutor(chat_id=self.id, user_id=user_id)
 
+    def users(self) -> list[User]:
+        return UserChatMatch.users_in_chat(chat_id=self.id)
+
 
 class ChatMessage(BaseModel):
 
