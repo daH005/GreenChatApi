@@ -28,3 +28,6 @@ def users_ids_of_chat_by_id(chat_id: int) -> list[UserID]:
 
 if __name__ == "__main__":
     print(clear_text_message(' string__    line-break\n\nnew-line\nnew-line-2\n'))
+    print(clear_text_message('    '))
+    print(clear_text_message(''))
+    print(clear_text_message(' '))
