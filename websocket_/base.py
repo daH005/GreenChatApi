@@ -54,8 +54,8 @@ class WebSocketServer:
         try:
             await self._handle_protocol(protocol)
         except (ConnectionClosed, ValueError):
-            logger.info(f'Client disconnected ({protocol.id}).')
-            return
+            pass
+        logger.info(f'Client disconnected ({protocol.id}).')
 
     async def _handle_protocol(self, protocol: WebSocketServerProtocol) -> None:
         client = WebSocketClientHandler(self, protocol)
@@ -149,13 +149,13 @@ class WebSocketClientHandler:
         while True:
             try:
                 message: MessageJSONDict = await self._wait_json_dict()
-                self._handle_message(message)
+                await self._handle_message(message)
             except (JSONDecodeError, KeyError, Exception):
                 continue
             session.remove()
     
     @raises(JSONDecodeError, KeyError, Exception)
-    def _handle_message(self, message: MessageJSONDict) -> None:
+    async def _handle_message(self, message: MessageJSONDict) -> None:
         handler_func: HandlerFuncT = self._get_handler_func(message[TYPE_KEY])
         users_ids, data = handler_func(self.user, message[DATA_KEY])
 
@@ -163,7 +163,7 @@ class WebSocketClientHandler:
             TYPE_KEY: message[TYPE_KEY],
             DATA_KEY: data,
         }
-        self.server.send_to_many_users(users_ids=users_ids, message=_message)
+        await self.server.send_to_many_users(users_ids=users_ids, message=_message)
 
     @raises(KeyError)
     def _get_handler_func(self, type_: str) -> HandlerFuncT:
