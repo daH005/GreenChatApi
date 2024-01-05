@@ -9,12 +9,11 @@ from api.db.models import (
     session,
     User,
     Chat,
-    ChatMessage,
     UserChatMatch,
 )
 from api.websocket_.funcs import (
-    clear_text_message,
     users_ids_of_chat_by_id,
+    make_chat_message_and_add_to_session,
 )
 from api.websocket_.validation import (
     NewChatMessage,
@@ -38,19 +37,18 @@ class WebSocketMessageTypes:
 def new_chat_message(user: User,
                      data: dict,
                      ) -> HandlerFuncReturnT:
-    data = NewChatMessage(**data)
+    data: NewChatMessage = NewChatMessage(**data)
 
     chat: Chat = UserChatMatch.chat_if_user_has_access(
         user_id=user.id,
         chat_id=data.chat_id,
     )
 
-    chat_message: ChatMessage = ChatMessage(
+    chat_message = make_chat_message_and_add_to_session(
+        text=data.text,
         user_id=user.id,
         chat_id=chat.id,
-        text=clear_text_message(text=data.text),
     )
-    session.add(chat_message)
     session.commit()
 
     return_data = JSONDictPreparer.prepare_chat_message(chat_message=chat_message)
@@ -61,7 +59,7 @@ def new_chat_message(user: User,
 def new_chat(user: User,
              data: dict,
              ) -> HandlerFuncReturnT:
-    data = NewChat(**data)
+    data: NewChat = NewChat(**data)
 
     if user.id not in data.users_ids:
         raise ValueError
@@ -89,6 +87,13 @@ def new_chat(user: User,
         matches.append(match)
 
     session.add_all(matches)
+
+    make_chat_message_and_add_to_session(
+        text=data.text,
+        user_id=user.id,
+        chat_id=chat.id,
+    )
+
     session.commit()
 
     return_data = JSONDictPreparer.prepare_chat_info(chat=chat)
