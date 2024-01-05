@@ -121,7 +121,7 @@ class Chat(BaseModel):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=True)
-    is_group: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)  # FixMe: Дописать тест для поля.
+    is_group: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     messages: Mapped[list['ChatMessage']] = relationship(
         back_populates='chat',
