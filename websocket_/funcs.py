@@ -1,15 +1,16 @@
 from re import sub
+from typing import Final
 
 __all__ = (
-    'del_odd_from_str',
+    'clear_text_message',
+    'TEXT_MAX_LENGTH',
 )
 
+TEXT_MAX_LENGTH: Final[int] = 10_000
 
-def del_odd_from_str(str_: str) -> str:
-    """Удаляет из строки лишние пробелы и переносы строк. Принцип следующий:
-    Строка модифицируется так, чтобы между отдельными словами мог быть либо один пробел, либо один перенос \n.
-    Также убираются пробелы и переносы по краям строки.
-    """
+
+def clear_text_message(str_: str) -> str:
+    str_ = str_[:TEXT_MAX_LENGTH]
     str_ = sub(r' {2,}', ' ', str_)
     str_ = sub(r'( ?\n ?)+', '\n', str_)
     str_ = str_.strip()
@@ -17,4 +18,4 @@ def del_odd_from_str(str_: str) -> str:
 
 
 if __name__ == "__main__":
-    print(del_odd_from_str(' string__    line-break\n\nnew-line\nnew-line-2\n'))
+    print(clear_text_message(' string__    line-break\n\nnew-line\nnew-line-2\n'))
