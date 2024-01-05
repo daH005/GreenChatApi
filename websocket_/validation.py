@@ -19,3 +19,4 @@ class NewChat(BaseModel):
     users_ids: list[int] = Field(alias=JSONKey.USERS_IDS)
     name: str | None = Field(default=None)
     is_group: bool = Field(alias=JSONKey.IS_GROUP, default=False)
+    text: str
