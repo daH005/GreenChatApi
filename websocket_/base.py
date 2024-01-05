@@ -1,13 +1,12 @@
 from __future__ import annotations
 import asyncio
 from websockets import WebSocketServerProtocol, serve, ConnectionClosed  # pip install websockets
-from typing import NoReturn, Callable
+from typing import NoReturn, Callable, TypedDict
 import json
 from json import JSONDecodeError
 from jwt import decode  # pip install pyjwt
 
 from api.db.models import User, session
-from api.json_ import JSONKey, WebSocketMessageJSONDict
 from api.raises_hinting import raises
 from api.config import JWT_SECRET_KEY, JWT_ALGORITHM
 from api.websocket_.funcs import UserID
@@ -22,6 +21,14 @@ __all__ = (
 
 HandlerFuncReturnT = tuple[list[UserID], dict]
 HandlerFuncT = Callable[[User, dict], HandlerFuncReturnT]
+TYPE_KEY = 'type'
+DATA_KEY = 'data'
+
+
+class MessageJSONDict(TypedDict):
+
+    type: str
+    data: dict
 
 
 class WebSocketServer:
@@ -72,7 +79,7 @@ class WebSocketServer:
             return
 
     async def send_to_many_users(self, users_ids: list[UserID],
-                                 message: WebSocketMessageJSONDict,
+                                 message: MessageJSONDict,
                                  ) -> None:
         for id_ in users_ids:
             if id_ not in self._clients:
@@ -80,14 +87,14 @@ class WebSocketServer:
             await self.send_to_one_user(id_, message)
 
     async def send_to_one_user(self, user_id: UserID,
-                               message: WebSocketMessageJSONDict,
+                               message: MessageJSONDict,
                                ) -> None:
         for client in self._clients[user_id]:
             await self.send_to_one_client(client, message)
 
     @staticmethod
     async def send_to_one_client(client: WebSocketClientHandler,
-                                 message: WebSocketMessageJSONDict,
+                                 message: MessageJSONDict,
                                  ) -> None:
         try:
             await client.protocol.send(json.dumps(message))
@@ -133,27 +140,27 @@ class WebSocketClientHandler:
         return await self.protocol.recv()
 
     @raises(ConnectionClosed, JSONDecodeError)
-    async def _wait_json_dict(self) -> WebSocketMessageJSONDict:
+    async def _wait_json_dict(self) -> MessageJSONDict:
         return json.loads(await self._wait_str())
 
     @raises(ConnectionClosed)
     async def listen(self) -> None:
         while True:
             try:
-                message: WebSocketMessageJSONDict = await self._wait_json_dict()
+                message: MessageJSONDict = await self._wait_json_dict()
                 self._handle_message(message)
             except (JSONDecodeError, KeyError, Exception):
                 continue
             session.remove()
     
     @raises(JSONDecodeError, KeyError, Exception)
-    def _handle_message(self, message: WebSocketMessageJSONDict) -> None:
-        handler_func: HandlerFuncT = self._get_handler_func(message[JSONKey.TYPE])  # type: ignore
-        users_ids, data = handler_func(self.user, message[JSONKey.DATA])  # type: ignore
+    def _handle_message(self, message: MessageJSONDict) -> None:
+        handler_func: HandlerFuncT = self._get_handler_func(message[TYPE_KEY])
+        users_ids, data = handler_func(self.user, message[DATA_KEY])
 
-        _message = {
-            JSONKey.TYPE: message[JSONKey.TYPE],  # type: ignore
-            JSONKey.DATA: data,
+        _message: MessageJSONDict = {  # type: ignore
+            TYPE_KEY: message[TYPE_KEY],
+            DATA_KEY: data,
         }
         self.server.send_to_many_users(users_ids=users_ids, message=_message)
 
