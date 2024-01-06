@@ -29,13 +29,13 @@ server = WebSocketServer(
 )
 
 
-class WebSocketMessageTypes:
+class MessageTypes:
 
     NEW_CHAT_MESSAGE = 'newChatMessage'
     NEW_CHAT = 'newChat'
 
 
-@server.handler(WebSocketMessageTypes.NEW_CHAT_MESSAGE)
+@server.handler(MessageTypes.NEW_CHAT_MESSAGE)
 def new_chat_message(user: User, data: dict) -> tuple[list[UserID], ChatMessageJSONDict]:
     data: NewChatMessage = NewChatMessage(**data)
 
@@ -55,7 +55,7 @@ def new_chat_message(user: User, data: dict) -> tuple[list[UserID], ChatMessageJ
     return users_ids_of_chat_by_id(chat_id=chat.id), return_data
 
 
-@server.handler(WebSocketMessageTypes.NEW_CHAT)
+@server.handler(MessageTypes.NEW_CHAT)
 def new_chat(user: User, data: dict) -> tuple[list[UserID], ChatInfoJSONDict]:
     data: NewChat = NewChat(**data)
 
