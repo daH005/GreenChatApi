@@ -31,12 +31,3 @@ def send_code_task(to: str,
     with SMTP_SSL(host=SMTP_HOST, port=SMTP_PORT) as server:
         server.login(user=EMAIL, password=EMAIL_PASSWORD)
         server.sendmail(from_addr=EMAIL, to_addrs=to, msg=msg.as_string())
-
-
-if __name__ == '__main__':
-    argv = [
-        'worker',
-        '--loglevel=INFO',
-        '--pool=solo',  # Было сказано, что на Windows есть некий баг, который избегается этим параметром.
-    ]
-    app.worker_main(argv)
