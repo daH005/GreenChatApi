@@ -65,7 +65,7 @@ def user_lookup_callback(_jwt_header, jwt_data) -> User | None:
     identity: str = jwt_data['sub']
     try:
         return User.auth_by_token(auth_token=identity)
-    except PermissionError:
+    except ValueError:
         return None
 
 
