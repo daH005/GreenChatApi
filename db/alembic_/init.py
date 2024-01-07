@@ -15,7 +15,10 @@ config.set_main_option('sqlalchemy.url', DB_URL.render_as_string(hide_password=F
 
 
 def make_migrations():
-    command.upgrade(config, 'head')
+    try:
+        command.upgrade(config, 'head')
+    except Exception as e:
+        print(e)
 
 
 if __name__ == '__main__':
