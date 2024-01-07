@@ -21,7 +21,6 @@ from api.hinting import raises
 from api.config import DB_URL
 from api.db.encryption import make_auth_token
 from api.db.base import BaseModel
-from api.db.alembic_.init import make_migrations
 
 __all__ = (
     'BaseModel',
@@ -39,7 +38,6 @@ session: scoped_session = scoped_session(
                  bind=engine,
                  )
 )
-make_migrations()
 
 
 class User(BaseModel):
