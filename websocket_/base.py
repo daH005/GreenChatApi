@@ -134,6 +134,7 @@ class WebSocketClientHandler:
 
     @raises(ValueError)
     def _try_auth_user(self, auth_token: str) -> None:
+        session.remove()  # for session updating
         self.user = User.auth_by_token(auth_token=auth_token)
 
     @raises(ConnectionClosed)
