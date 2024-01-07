@@ -1,185 +1,102 @@
-import asyncio
-from websockets import WebSocketServerProtocol, serve, ConnectionClosed  # pip install websockets
-import json
-from typing import NoReturn
-from jwt import decode  # pip install pyjwt
-from enum import StrEnum
-
-from api.db.models import (
-    User,
-    ChatMessage,
-    UserChatMatch,
-    Chat,
-    session,
+from api.websocket_.base import (
+    WebSocketServer,
 )
 from api.json_ import (
-    JSONKey,
-    WebSocketMessageJSONDict,
     JSONDictPreparer,
+    ChatInfoJSONDict,
+    ChatMessageJSONDict,
 )
-from api.config import (
-    HOST,
-    WEBSOCKET_PORT as PORT,
-    JWT_SECRET_KEY,
-    JWT_ALGORITHM,
+from api.db.models import (
+    session,
+    User,
+    Chat,
+    UserChatMatch,
+)
+from api.websocket_.funcs import (
+    UserID,
+    users_ids_of_chat_by_id,
+    make_chat_message_and_add_to_session,
+)
+from api.websocket_.validation import (
+    NewChatMessage,
+    NewChat,
+)
+from api.config import HOST, WEBSOCKET_PORT
+
+server = WebSocketServer(
+    host=HOST,
+    port=WEBSOCKET_PORT,
 )
 
 
-class MessageType(StrEnum):
-    """Перечисление всевозможных видов сообщений, с которыми работает веб-сокет."""
+class MessageTypes:
 
-    AUTH = 'auth'
     NEW_CHAT_MESSAGE = 'newChatMessage'
     NEW_CHAT = 'newChat'
 
 
-# Сюда складываем клиентов, подключённых к серверу в данный момент времени.
-# Ключ - ID пользователя `User.id`;
-# Значение - список сокетов (список, т.к. человек может быть подключён
-# с нескольких вкладок браузера, с телефона и т.д.).
-clients: dict[int, list[WebSocketServerProtocol]] = {}
+@server.handler(MessageTypes.NEW_CHAT_MESSAGE)
+def new_chat_message(user: User, data: dict) -> tuple[list[UserID], ChatMessageJSONDict]:
+    data: NewChatMessage = NewChatMessage(**data)
+
+    chat: Chat = UserChatMatch.chat_if_user_has_access(
+        user_id=user.id,
+        chat_id=data.chat_id,
+    )
+
+    chat_message = make_chat_message_and_add_to_session(
+        text=data.text,
+        user_id=user.id,
+        chat_id=chat.id,
+    )
+    session.commit()
+
+    return_data = JSONDictPreparer.prepare_chat_message(chat_message=chat_message)
+    return users_ids_of_chat_by_id(chat_id=chat.id), return_data
 
 
-async def main() -> NoReturn:
-    """Запускает сервер."""
-    print('Serving Websocket server')
-    async with serve(ws_handler, HOST, PORT):
-        await asyncio.Future()  # run forever
+@server.handler(MessageTypes.NEW_CHAT)
+def new_chat(user: User, data: dict) -> tuple[list[UserID], ChatInfoJSONDict]:
+    data: NewChat = NewChat(**data)
 
+    if user.id not in data.users_ids:
+        raise ValueError
 
-async def wait_data(client: WebSocketServerProtocol) -> dict:
-    """Ожидает данные от клиента. При получении сразу преобразует их из JSON -> Python object."""
-    return json.loads(await client.recv())
-
-
-async def dump_and_send(client: WebSocketServerProtocol,
-                        data: dict | list,
-                        ) -> None:
-    """Преобразует `data` в JSON, после чего отправляет данные клиенту."""
-    await client.send(json.dumps(data, ensure_ascii=False))
-
-
-async def ws_handler(client: WebSocketServerProtocol) -> None:
-    """Обработчик сообщений от клиентов для `serve(ws_handler=...)`."""
-    print('New client connected -', client.id)
     try:
-        # Сначала авторизуем клиента, после чего добавляем его в `clients`.
-        user: User = await wait_auth(client)
-    except ConnectionClosed:
-        return
-    clients.setdefault(user.id, []).append(client)
-    print('Client was auth', f'({client.id})')
-    try:
-        # Запускаем обмен сообщениями - в чаты, на добавление чатов, изменение / удаление сообщений и т.д.
-        # При разрыве соединения клиент удаляется из `clients`.
-        await start_communication(client, user)
-    except ConnectionClosed:
-        # Пока досконально не разбирался, но по каким-то причинам элемент может пропасть,
-        # из-за чего `.pop(...)` вызовет ошибку.
-        try:
-            clients[user.id].remove(client)
-        except ValueError:
-            pass
-    print('Connection closed', f'({client.id})')
+        UserChatMatch.find_private_chat(*data.users_ids)
+    except ValueError:
+        pass  # Чата нет, значит всё идёт по плану - создаём.
+    else:
+        raise ValueError
 
+    chat: Chat = Chat(
+        name=data.name,
+        is_group=data.is_group,
+    )
+    session.add(chat)
+    session.flush()
 
-async def wait_auth(client: WebSocketServerProtocol) -> User:
-    """Ожидает валидного авторизующего сообщения от клиента.
-    Возвращает объект `User`.
-    """
-    while True:
-        # Ждём авторизующего сообщения, после чего преобразуем его из JSON -> Python dict
-        # и проверяем валидность JWT-токена.
-        message: WebSocketMessageJSONDict = await wait_data(client)
-        try:
-            if message[JSONKey.TYPE] != MessageType.AUTH:  # type: ignore
-                continue
-            auth_token: str = decode(
-                message[JSONKey.DATA][JSONKey.JWT_TOKEN],  # type: ignore
-                key=JWT_SECRET_KEY,
-                algorithms=[JWT_ALGORITHM],
-            )['sub']
-            auth_user: User = User.auth_by_token(auth_token=auth_token)
-        except (TypeError, KeyError, ValueError):
-            continue
-        return auth_user
-
-
-async def start_communication(client: WebSocketServerProtocol,
-                              user: User,
-                              ) -> None:
-    """Запускает обмен сообщениями с клиентом."""
-    while True:
-        # Ждём какое-нибудь сообщение. После чего смотрим ключ 'type' и выполняем нужное действие.
-        message: WebSocketMessageJSONDict = await wait_data(client)
-        try:
-            if message[JSONKey.TYPE] == MessageType.NEW_CHAT:  # type: ignore
-                # Проверка: пользователь не может создать чат между другими людьми, но не с собой.
-                if user.id not in message[JSONKey.DATA][JSONKey.USERS_IDS]:  # type: ignore
-                    continue
-                chat: Chat = Chat.new_with_matches(users_ids=message[JSONKey.DATA][JSONKey.USERS_IDS])  # type: ignore
-            elif message[JSONKey.TYPE] == MessageType.NEW_CHAT_MESSAGE:  # type: ignore
-                # Проверяем доступ к заданному чату.
-                chat: Chat = UserChatMatch.chat_if_user_has_access(
-                    user_id=user.id,
-                    chat_id=message[JSONKey.DATA][JSONKey.CHAT_ID],  # type: ignore
-                )
-            else:
-                continue
-        except (PermissionError, KeyError):
-            continue
-        # Формируем сообщение для чата.
-        try:
-            text: str = message[JSONKey.DATA][JSONKey.TEXT]  # type: ignore
-            if not text:
-                continue
-            chat_message: ChatMessage = ChatMessage(
-                user_id=user.id,
-                chat_id=chat.id,
-                text=text,
-            )
-        except KeyError:
-            continue
-        # Сохраняем сообщение в БД (не для ФСБ).
-        session.add(chat_message)
-        session.commit()
-        # Отсылаем сообщение всем, кому оно адресовано, а также в данный момент времени подключённому к серверу.
-        await send_each(
-            chat_message=chat_message,
-            message_type=message[JSONKey.TYPE],  # type: ignore
-            chat=chat,
+    matches = []
+    for id_ in data.users_ids:
+        match = UserChatMatch(
+            user_id=id_,
+            chat_id=chat.id,
         )
+        matches.append(match)
 
+    session.add_all(matches)
 
-async def send_each(chat_message: ChatMessage,
-                    message_type: MessageType,
-                    chat: Chat | None = None,
-                    ) -> None:
-    """Отсылает сообщение каждому клиенту, кому оно адресовано, а также подключённому в данный момент."""
-    # Начинаем составлять ответное сообщение.
-    answer_message: WebSocketMessageJSONDict = {
-        JSONKey.TYPE: message_type,
-        JSONKey.DATA: {},
-    }
-    # Если тип сообщения - создание нового сообщения в чате, то сразу определяем одинаковые для всех получателей
-    # данные.
-    if message_type == MessageType.NEW_CHAT_MESSAGE:
-        answer_message[JSONKey.DATA] = JSONDictPreparer.prepare_chat_message(chat_message=chat_message)  # type: ignore
-    # Перебираем пользователей, состоящих в чате.
-    for user in UserChatMatch.users_in_chat(chat_message.chat_id):
-        try:
-            # Если пользователь подключён в данный момент к серверу, то мы отошлём ему сообщение.
-            if user.id in clients:
-                cur_message = answer_message
-                # Если тип сообщения - создание нового чата, то определяем конкретные данные для текущего получателя.
-                if message_type == MessageType.NEW_CHAT:
-                    cur_message[JSONKey.DATA] = JSONDictPreparer.prepare_chat_info(chat=chat,  # type: ignore
-                                                                                   user_id=user.id)
-                for client in clients[user.id]:
-                    await dump_and_send(client, cur_message)
-        except ConnectionClosed:
-            continue
+    make_chat_message_and_add_to_session(
+        text=data.text,
+        user_id=user.id,
+        chat_id=chat.id,
+    )
+
+    session.commit()
+
+    return_data = JSONDictPreparer.prepare_chat_info(chat=chat)
+    return data.users_ids, return_data
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    server.run()

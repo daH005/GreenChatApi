@@ -12,8 +12,7 @@ DATA_FOR_TESTS: Final[list[tuple[str, str]]] = [
 
 
 @pytest.mark.parametrize(ARGS_NAMES, DATA_FOR_TESTS)
-def test_encrypts(username: str, password: str) -> None:
-    """Тест: данные должны действительно шифроваться."""
+def test_positive_encrypts(username: str, password: str) -> None:
     token = make_auth_token(username, password)
     assert token != username
     assert token != password
@@ -22,16 +21,14 @@ def test_encrypts(username: str, password: str) -> None:
 
 
 @pytest.mark.parametrize(ARGS_NAMES, DATA_FOR_TESTS)
-def test_correctly_decrypts(username: str, password: str) -> None:
-    """После шифрования данные должны корректно расшифровываться."""
+def test_positive_correctly_decrypts(username: str, password: str) -> None:
     token = make_auth_token(username, password)
     d_username, d_password = decode_auth_token(token)
     assert username == d_username
     assert d_password == d_password
 
 
-def test_no_repeats() -> None:
-    """При разных данных токены не должны повторяться."""
+def test_positive_no_repeats() -> None:
     tokens = []
     for sub_data in DATA_FOR_TESTS:
         tokens.append(make_auth_token(*sub_data))
