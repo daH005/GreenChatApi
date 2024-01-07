@@ -3,18 +3,18 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool, MetaData
 from alembic import context
 
-from api.db.models import BaseModel
-from api.config import DB_URL
+from api.db.base import BaseModel
+# from api.config import DB_URL, BASE_DIR
 
-# Передаём переменные окружения.
 config = context.config
-section = config.config_ini_section
-config.set_section_option(section, 'DB_URL', DB_URL.render_as_string(hide_password=False))
+# config.set_main_option('script_location', str(BASE_DIR.joinpath('./db/alembic_/migrations')))
+# config.set_main_option('prepend_sys_path', str(BASE_DIR.joinpath('../')))
+# config.set_main_option('sqlalchemy.url', DB_URL.render_as_string(hide_password=False))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Передаём объект через который alembic проводит миграции.
+# Передаём объект, через который alembic проводит миграции.
 target_metadata: MetaData = BaseModel.metadata
 
 

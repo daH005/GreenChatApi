@@ -15,14 +15,13 @@ from sqlalchemy.orm import (
     sessionmaker,
     scoped_session,
 )
-from alembic.config import Config
-from alembic import command
 from datetime import datetime
 
 from api.hinting import raises
-from api.config import DB_URL, BASE_DIR
+from api.config import DB_URL
 from api.db.encryption import make_auth_token
 from api.db.base import BaseModel
+from api.db.alembic_.init import make_migrations
 
 __all__ = (
     'BaseModel',
@@ -40,8 +39,7 @@ session: scoped_session = scoped_session(
                  bind=engine,
                  )
 )
-alembic_cfg = Config(BASE_DIR.joinpath('db/alembic_/alembic.ini'))
-command.upgrade(alembic_cfg, 'head')
+make_migrations()
 
 
 class User(BaseModel):
