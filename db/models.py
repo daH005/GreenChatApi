@@ -12,7 +12,6 @@ from sqlalchemy.orm import (
     mapped_column,
     Mapped,
     relationship,
-    DeclarativeBase,
     sessionmaker,
     scoped_session,
 )
@@ -21,8 +20,9 @@ from alembic import command
 from datetime import datetime
 
 from api.hinting import raises
-from api.db.encryption import make_auth_token
 from api.config import DB_URL, BASE_DIR
+from api.db.encryption import make_auth_token
+from api.db.base import BaseModel
 
 __all__ = (
     'BaseModel',
@@ -42,13 +42,6 @@ session: scoped_session = scoped_session(
 )
 alembic_cfg = Config(BASE_DIR.joinpath('db/alembic_/alembic.ini'))
 command.upgrade(alembic_cfg, 'head')
-
-
-class BaseModel(DeclarativeBase):
-    id: int
-
-    def __repr__(self) -> str:
-        return type(self).__name__ + f'<{self.id}>'
 
 
 class User(BaseModel):
