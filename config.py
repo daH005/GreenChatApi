@@ -52,6 +52,7 @@ DB_URL: URL = URL.create(
 REDIS_HOST: Final[str] = environ['REDIS_HOST']
 REDIS_PORT: Final[int] = int(environ['REDIS_PORT'])
 REDIS_URL: Final[str] = f'redis://{REDIS_HOST}:{REDIS_PORT}'
+REDIS_CODES_EXPIRES: Final[int] = int(environ['REDIS_CODES_EXPIRES'])
 
 SMTP_HOST: Final[str] = environ['SMTP_HOST']
 SMTP_PORT: Final[int] = int(environ['SMTP_PORT'])
