@@ -18,6 +18,7 @@ __all__ = (
     'REDIS_HOST',
     'REDIS_PORT',
     'REDIS_URL',
+    'REDIS_CODES_EXPIRES',
     'SMTP_HOST',
     'SMTP_PORT',
     'EMAIL',
