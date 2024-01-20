@@ -2,8 +2,9 @@ from flask import Blueprint, request, abort  # pip install flask
 from http import HTTPMethod, HTTPStatus
 from pydantic import validate_email  # pip install pydantic
 
-from api.http_.endpoints import EndpointName, Url
+from api.db.models import User
 from api.json_ import JSONKey, CodeIsValidFlagJSONDict, JSONDictPreparer
+from api.http_.endpoints import EndpointName, Url
 from api.http_.mail.tasks import send_code_task
 from api.http_.redis_ import make_and_save_code, code_is_valid
 from api.http_.funcs import make_user_identify
@@ -34,6 +35,9 @@ def send_code() -> dict[str, int]:
         email: str = validate_email(request.json[JSONKey.EMAIL])[1]
     except (ValueError, KeyError):
         return abort(HTTPStatus.BAD_REQUEST)
+
+    if User.email_is_already_taken(email_to_check=email):
+        return abort(HTTPStatus.CONFLICT)
 
     try:
         code: int = make_and_save_code(identify=make_user_identify())
