@@ -23,7 +23,7 @@ def send_code() -> dict[str, int]:
         email,
     }
 
-    Statuses - 200, 400
+    Statuses - 200, 400, 409
 
     Returns:
     {
@@ -35,7 +35,10 @@ def send_code() -> dict[str, int]:
     except (ValueError, KeyError):
         return abort(HTTPStatus.BAD_REQUEST)
 
-    code: int = make_and_save_code(identify=make_user_identify())
+    try:
+        code: int = make_and_save_code(identify=make_user_identify())
+    except ValueError:
+        raise abort(HTTPStatus.CONFLICT)
     send_code_task.delay(to=email, code=code)
 
     return dict(status=HTTPStatus.OK)
