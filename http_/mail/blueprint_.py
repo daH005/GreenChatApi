@@ -3,7 +3,7 @@ from http import HTTPMethod, HTTPStatus
 from pydantic import validate_email  # pip install pydantic
 
 from api.db.models import User
-from api.json_ import JSONKey, CodeIsValidFlagJSONDict, JSONDictPreparer
+from api.json_ import JSONKey, CodeIsValidFlagJSONDictMaker
 from api.http_.endpoints import EndpointName, Url
 from api.http_.mail.tasks import send_code_task
 from api.http_.redis_ import make_and_save_code, code_is_valid
@@ -49,7 +49,7 @@ def send_code() -> dict[str, int]:
 
 
 @bp.route(Url.CHECK_CODE, endpoint=EndpointName.CHECK_CODE, methods=[HTTPMethod.GET])
-def check_code() -> CodeIsValidFlagJSONDict:
+def check_code() -> CodeIsValidFlagJSONDictMaker.Dict:
     """
     Query-params:
     - code
@@ -67,4 +67,4 @@ def check_code() -> CodeIsValidFlagJSONDict:
         return abort(HTTPStatus.BAD_REQUEST)
 
     flag: bool = code_is_valid(identify=make_user_identify(), code=code)
-    return JSONDictPreparer.prepare_code_is_valid(flag=flag)
+    return CodeIsValidFlagJSONDictMaker.make(flag=flag)
