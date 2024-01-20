@@ -2,6 +2,7 @@ from typing import Final
 from redis import Redis  # pip install redis
 from random import randint
 
+from api.hinting import raises
 from api.config import (
     REDIS_HOST,
     REDIS_PORT,
@@ -19,22 +20,29 @@ app: Redis = Redis(host=REDIS_HOST, port=REDIS_PORT)
 _KEY_PREFIX: Final[str] = 'greenchat_mail_codes'
 
 
-def make_and_save_code() -> int:
-    code: int = randint(1000, 9999)
-    key: str = _make_key(code)
+@raises(ValueError)
+def make_and_save_code(identify: str) -> int:
+    code: int = _make_random_code()
+    key: str = _make_key(identify)
     if app.exists(key):
-        return make_and_save_code()
+        raise ValueError
     app.set(key, code, ex=REDIS_CODES_EXPIRES)
     return code
 
 
-def code_is_valid(code: int | str) -> bool:
-    return bool(app.exists(_make_key(code)))
+def _make_random_code() -> int:
+    return randint(1000, 9999)
 
 
-def delete_code(code: int | str) -> None:
-    app.delete(_make_key(code))
+def code_is_valid(identify: str,
+                  code: int,
+                  ) -> bool:
+    return app.get(_make_key(identify)) == str(code)
 
 
-def _make_key(code: int | str) -> str:
-    return _KEY_PREFIX + str(code)
+def delete_code(identify: str) -> None:
+    app.delete(_make_key(identify))
+
+
+def _make_key(identify: str) -> str:
+    return _KEY_PREFIX + identify

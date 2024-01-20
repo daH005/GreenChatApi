@@ -6,6 +6,7 @@ from api.http_.endpoints import EndpointName, Url
 from api.json_ import JSONKey, CodeIsValidFlagJSONDict, JSONDictPreparer
 from api.http_.mail.tasks import send_code_task
 from api.http_.redis_ import make_and_save_code, code_is_valid
+from api.http_.funcs import make_user_identify
 
 __all__ = (
     'bp',
@@ -34,7 +35,7 @@ def send_code() -> dict[str, int]:
     except (ValueError, KeyError):
         return abort(HTTPStatus.BAD_REQUEST)
 
-    code: int = make_and_save_code()
+    code: int = make_and_save_code(identify=make_user_identify())
     send_code_task.delay(to=email, code=code)
 
     return dict(status=HTTPStatus.OK)
@@ -60,4 +61,5 @@ def check_code() -> CodeIsValidFlagJSONDict:
     except (ValueError, KeyError):
         return abort(HTTPStatus.BAD_REQUEST)
 
-    return JSONDictPreparer.prepare_code_is_valid(flag=code_is_valid(code))
+    flag: bool = code_is_valid(identify=make_user_identify(), code=code)
+    return JSONDictPreparer.prepare_code_is_valid(flag=flag)
