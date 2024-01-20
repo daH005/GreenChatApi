@@ -38,7 +38,10 @@ def _make_random_code() -> int:
 def code_is_valid(identify: str,
                   code: int,
                   ) -> bool:
-    return app.get(_make_key(identify)).decode(_ENCODING) == str(code)
+    existed_code: bytes | None = app.get(_make_key(identify))
+    if existed_code is not None:
+        return existed_code.decode(_ENCODING) == str(code)
+    return False
 
 
 def delete_code(identify: str) -> None:
