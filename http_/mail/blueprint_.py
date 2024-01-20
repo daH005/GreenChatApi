@@ -44,13 +44,11 @@ def send_code() -> dict[str, int]:
     return dict(status=HTTPStatus.OK)
 
 
-@bp.route(Url.CHECK_CODE, endpoint=EndpointName.CHECK_CODE, methods=[HTTPMethod.POST])
+@bp.route(Url.CHECK_CODE, endpoint=EndpointName.CHECK_CODE, methods=[HTTPMethod.GET])
 def check_code() -> CodeIsValidFlagJSONDict:
     """
-    Payload JSON:
-    {
-        code,
-    }
+    Query-params:
+    - code
 
     Statuses - 200, 400
 
@@ -60,7 +58,7 @@ def check_code() -> CodeIsValidFlagJSONDict:
     }
     """
     try:
-        code: int = int(request.json[JSONKey.CODE])
+        code: int = int(request.args[JSONKey.CODE])
     except (ValueError, KeyError):
         return abort(HTTPStatus.BAD_REQUEST)
 
