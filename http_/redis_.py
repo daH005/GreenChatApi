@@ -18,6 +18,7 @@ __all__ = (
 
 app: Redis = Redis(host=REDIS_HOST, port=REDIS_PORT)
 _KEY_PREFIX: Final[str] = 'greenchat_mail_codes'
+_ENCODING: Final[str] = 'utf-8'
 
 
 @raises(ValueError)
@@ -37,7 +38,7 @@ def _make_random_code() -> int:
 def code_is_valid(identify: str,
                   code: int,
                   ) -> bool:
-    return app.get(_make_key(identify)) == str(code)
+    return app.get(_make_key(identify)).decode(_ENCODING) == str(code)
 
 
 def delete_code(identify: str) -> None:
