@@ -24,7 +24,7 @@ def send_code() -> dict[str, int]:
         email,
     }
 
-    Statuses - 200, 400, 409
+    Statuses - 200, 400, 403, 409
 
     Returns:
     {
@@ -37,7 +37,7 @@ def send_code() -> dict[str, int]:
         return abort(HTTPStatus.BAD_REQUEST)
 
     if User.email_is_already_taken(email_to_check=email):
-        return abort(HTTPStatus.CONFLICT)
+        return abort(HTTPStatus.FORBIDDEN)
 
     try:
         code: int = make_and_save_code(identify=make_user_identify())
