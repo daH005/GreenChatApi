@@ -7,6 +7,8 @@ from api.config import (
     REDIS_HOST,
     REDIS_PORT,
     REDIS_CODES_EXPIRES,
+    DEBUG,
+    TEST_PASS_EMAIL_CODE,
 )
 
 __all__ = (
@@ -38,6 +40,9 @@ def _make_random_code() -> int:
 def code_is_valid(identify: str,
                   code: int,
                   ) -> bool:
+    if DEBUG and code == TEST_PASS_EMAIL_CODE:
+        return True
+
     existed_code: bytes | None = app.get(_make_key(identify))
     if existed_code is not None:
         return existed_code.decode(_ENCODING) == str(code)
