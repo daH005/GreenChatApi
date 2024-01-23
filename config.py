@@ -18,10 +18,12 @@ __all__ = (
     'REDIS_HOST',
     'REDIS_PORT',
     'REDIS_URL',
+    'REDIS_CODES_EXPIRES',
     'SMTP_HOST',
     'SMTP_PORT',
     'EMAIL',
     'EMAIL_PASSWORD',
+    'TEST_PASS_EMAIL_CODE',
 )
 
 load_dotenv()
@@ -52,12 +54,14 @@ DB_URL: URL = URL.create(
 REDIS_HOST: Final[str] = environ['REDIS_HOST']
 REDIS_PORT: Final[int] = int(environ['REDIS_PORT'])
 REDIS_URL: Final[str] = f'redis://{REDIS_HOST}:{REDIS_PORT}'
+REDIS_CODES_EXPIRES: Final[int] = int(environ['REDIS_CODES_EXPIRES'])
 
 SMTP_HOST: Final[str] = environ['SMTP_HOST']
 SMTP_PORT: Final[int] = int(environ['SMTP_PORT'])
 
 EMAIL: Final[str] = environ['EMAIL']
 EMAIL_PASSWORD: Final[str] = environ['EMAIL_PASSWORD']
+TEST_PASS_EMAIL_CODE: Final[int] = int(environ['TEST_PASS_EMAIL_CODE'])
 
 if __name__ == '__main__':
     print(BASE_DIR)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 from enum import StrEnum
 from typing import TypedDict, NotRequired
+from abc import ABC, abstractmethod
 
 from api.db.models import (
     User,
@@ -10,19 +11,21 @@ from api.db.models import (
 
 __all__ = (
     'JSONKey',
-    'ChatHistoryJSONDict',
-    'ChatMessageJSONDict',
-    'UserChatsJSONDict',
-    'ChatInfoJSONDict',
-    'JWTTokenJSONDict',
-    'UserInfoJSONDict',
-    'AlreadyTakenFlagJSONDict',
-    'CodeIsValidFlagJSONDict',
-    'JSONDictPreparer',
+    'ChatHistoryJSONDictMaker',
+    'ChatMessageJSONDictMaker',
+    'UserChatsJSONDictMaker',
+    'ChatInfoJSONDictMaker',
+    'JWTTokenJSONDictMaker',
+    'UserInfoJSONDictMaker',
+    'AlreadyTakenFlagJSONDictMaker',
+    'CodeIsValidFlagJSONDictMaker',
 )
 
 
 class JSONKey(StrEnum):
+    """Набор унифицированных имён, используемых в структурах данных,
+    передаваемых по сети (http, сокет).
+    """
 
     ID = 'id'
     USER_ID = 'userId'
@@ -58,92 +61,64 @@ class JSONKey(StrEnum):
     CODE_IS_VALID = 'codeIsValid'
 
 
-class JWTTokenJSONDict(TypedDict):
-    JWTToken: str
+class AbstractJSONDictMaker(ABC):
+    """Интерфейс класса для формирования JSON-словарей.
+    P.S. `TypedDict` не позволяет определять в нём методы. Если бы это было возможно,
+    то решение оказалось бы проще - метод `make` был бы помещен прямо в `TypedDict`.
+    """
+
+    Dict: TypedDict
+
+    @staticmethod
+    @abstractmethod
+    def make(*args, **kwargs) -> Dict:
+        raise NotImplementedError
 
 
-class AlreadyTakenFlagJSONDict(TypedDict):
-    isAlreadyTaken: bool
+class JWTTokenJSONDictMaker(AbstractJSONDictMaker):
 
+    class Dict(TypedDict):
+        JWTToken: str
 
-class CodeIsValidFlagJSONDict(TypedDict):
-    codeIsValid: bool
-
-
-class UserInfoJSONDict(TypedDict):
-
-    id: int
-    firstName: str
-    lastName: str
-    username: NotRequired[str]
-    email: NotRequired[str]
-
-
-class ChatHistoryJSONDict(TypedDict):
-    messages: list[ChatMessageJSONDict]
-
-
-class ChatMessageJSONDict(TypedDict):
-
-    id: int
-    chatId: int
-    text: str
-    creatingDatetime: str
-    user: UserInfoJSONDict
-
-
-class UserChatsJSONDict(TypedDict):
-    chats: list[ChatInfoJSONDict]
-
-
-class ChatInfoJSONDict(TypedDict):
-
-    id: int
-    name: str
-    isGroup: bool
-    lastMessage: ChatMessageJSONDict | None
-    users: list[UserInfoJSONDict]
-
-
-class JSONDictPreparer:
-
-    @classmethod
-    def prepare_jwt_token(cls, jwt_token: str) -> JWTTokenJSONDict:
+    @staticmethod
+    def make(jwt_token: str) -> Dict:
         return {JSONKey.JWT_TOKEN: jwt_token}
 
-    @classmethod
-    def prepare_already_taken(cls, flag: bool) -> AlreadyTakenFlagJSONDict:
+
+class AlreadyTakenFlagJSONDictMaker(AbstractJSONDictMaker):
+
+    class Dict(TypedDict):
+        isAlreadyTaken: bool
+
+    @staticmethod
+    def make(flag: bool) -> Dict:
         return {JSONKey.IS_ALREADY_TAKEN: flag}
 
-    @classmethod
-    def prepare_code_is_valid(cls, flag: bool) -> CodeIsValidFlagJSONDict:
+
+class CodeIsValidFlagJSONDictMaker(AbstractJSONDictMaker):
+
+    class Dict(TypedDict):
+        codeIsValid: bool
+
+    @staticmethod
+    def make(flag: bool) -> Dict:
         return {JSONKey.CODE_IS_VALID: flag}
 
-    @classmethod
-    def prepare_user_chats(cls, user_chats: list[Chat]) -> UserChatsJSONDict:
-        chats_for_json = []
-        for chat in user_chats:
-            chats_for_json.append(cls.prepare_chat_info(chat))
-        return {JSONKey.CHATS: chats_for_json}
 
-    @classmethod
-    def prepare_chat_info(cls, chat: Chat) -> ChatInfoJSONDict:
-        try:
-            last_message = cls.prepare_chat_message(chat.last_message)
-        except IndexError:
-            last_message = None
-        return {
-            JSONKey.ID: chat.id,
-            JSONKey.NAME: chat.name,
-            JSONKey.IS_GROUP: chat.is_group,
-            JSONKey.LAST_CHAT_MESSAGE: last_message,
-            JSONKey.USERS: [cls.prepare_user_info(user) for user in chat.users()],
-        }
+class UserInfoJSONDictMaker(AbstractJSONDictMaker):
 
-    @classmethod
-    def prepare_user_info(cls, user: User,
-                          exclude_important_info: bool = True,
-                          ) -> UserInfoJSONDict:
+    class Dict(TypedDict):
+
+        id: int
+        firstName: str
+        lastName: str
+        username: NotRequired[str]
+        email: NotRequired[str]
+
+    @staticmethod
+    def make(user: User,
+             exclude_important_info: bool = True,
+             ) -> Dict:
         user_info = {
             JSONKey.ID: user.id,
             JSONKey.FIRST_NAME: user.first_name,
@@ -154,18 +129,73 @@ class JSONDictPreparer:
             user_info[JSONKey.USERNAME] = user.username
         return user_info
 
-    @classmethod
-    def prepare_chat_history(cls, chat_messages: list[ChatMessage]) -> ChatHistoryJSONDict:
+
+class ChatHistoryJSONDictMaker(AbstractJSONDictMaker):
+
+    class Dict(TypedDict):
+        messages: list[ChatMessageJSONDictMaker.Dict]
+
+    @staticmethod
+    def make(chat_messages: list[ChatMessage]) -> Dict:
         return {
-            JSONKey.MESSAGES: [cls.prepare_chat_message(chat_message) for chat_message in chat_messages]
+            JSONKey.MESSAGES: [ChatMessageJSONDictMaker.make(chat_message) for chat_message in chat_messages]
         }
 
-    @classmethod
-    def prepare_chat_message(cls, chat_message: ChatMessage) -> ChatMessageJSONDict:
+
+class ChatMessageJSONDictMaker(AbstractJSONDictMaker):
+
+    class Dict(TypedDict):
+
+        id: int
+        chatId: int
+        text: str
+        creatingDatetime: str
+        user: UserInfoJSONDictMaker.Dict
+
+    @staticmethod
+    def make(chat_message: ChatMessage) -> Dict:
         return {
             JSONKey.ID: chat_message.id,
             JSONKey.CHAT_ID: chat_message.chat_id,
             JSONKey.TEXT: chat_message.text,
             JSONKey.CREATING_DATETIME: chat_message.creating_datetime.isoformat(),
-            JSONKey.USER: cls.prepare_user_info(chat_message.user),
+            JSONKey.USER: UserInfoJSONDictMaker.make(chat_message.user),
+        }
+
+
+class UserChatsJSONDictMaker(AbstractJSONDictMaker):
+
+    class Dict(TypedDict):
+        chats: list[ChatInfoJSONDictMaker.Dict]
+
+    @staticmethod
+    def make(user_chats: list[Chat]) -> Dict:
+        chats_for_json = []
+        for chat in user_chats:
+            chats_for_json.append(ChatInfoJSONDictMaker.make(chat))
+        return {JSONKey.CHATS: chats_for_json}
+
+
+class ChatInfoJSONDictMaker(AbstractJSONDictMaker):
+
+    class Dict(TypedDict):
+
+        id: int
+        name: str
+        isGroup: bool
+        lastMessage: ChatMessageJSONDictMaker.Dict | None
+        users: list[UserInfoJSONDictMaker.Dict]
+
+    @staticmethod
+    def make(chat: Chat) -> Dict:
+        try:
+            last_message = ChatMessageJSONDictMaker.make(chat.last_message)
+        except IndexError:
+            last_message = None
+        return {
+            JSONKey.ID: chat.id,
+            JSONKey.NAME: chat.name,
+            JSONKey.IS_GROUP: chat.is_group,
+            JSONKey.LAST_CHAT_MESSAGE: last_message,
+            JSONKey.USERS: [UserInfoJSONDictMaker.make(user) for user in chat.users()],
         }

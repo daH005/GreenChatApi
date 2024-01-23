@@ -53,10 +53,11 @@ class WebSocketServer:
         logger.info(f'New client connected - {protocol.id}. Waiting authorization...')
         try:
             await self._handle_protocol(protocol)
-        except (ConnectionClosed, ValueError):
+        except ConnectionClosed:
             pass
         logger.info(f'Client disconnected ({protocol.id}).')
 
+    @raises(ConnectionClosed)
     async def _handle_protocol(self, protocol: WebSocketServerProtocol) -> None:
         client = WebSocketClientHandler(self, protocol)
         await client.auth()
@@ -118,11 +119,14 @@ class WebSocketClientHandler:
         self.protocol = protocol
         self.user: User | None = None
 
-    @raises(ConnectionClosed, ValueError)
+    @raises(ConnectionClosed)
     async def auth(self) -> None:
         jwt_token: str = await self._wait_str()
         auth_token: str = self._decode_jwt(encoded=jwt_token)
-        self._try_auth_user(auth_token=auth_token)
+        try:
+            self._try_auth_user(auth_token=auth_token)
+        except ValueError:
+            await self.auth()
 
     @staticmethod
     def _decode_jwt(encoded: str) -> str:

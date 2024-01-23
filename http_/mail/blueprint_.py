@@ -2,10 +2,13 @@ from flask import Blueprint, request, abort  # pip install flask
 from http import HTTPMethod, HTTPStatus
 from pydantic import validate_email  # pip install pydantic
 
+from api.db.models import User
+from api.json_ import JSONKey, CodeIsValidFlagJSONDictMaker
 from api.http_.endpoints import EndpointName, Url
-from api.json_ import JSONKey, CodeIsValidFlagJSONDict, JSONDictPreparer
 from api.http_.mail.tasks import send_code_task
 from api.http_.redis_ import make_and_save_code, code_is_valid
+from api.http_.funcs import make_user_identify
+from api.config import DEBUG
 
 __all__ = (
     'bp',
@@ -22,7 +25,7 @@ def send_code() -> dict[str, int]:
         email,
     }
 
-    Statuses - 200, 400
+    Statuses - 200, 400, 403, 409
 
     Returns:
     {
@@ -34,19 +37,24 @@ def send_code() -> dict[str, int]:
     except (ValueError, KeyError):
         return abort(HTTPStatus.BAD_REQUEST)
 
-    code: int = make_and_save_code()
-    send_code_task.delay(to=email, code=code)
+    if User.email_is_already_taken(email_to_check=email):
+        return abort(HTTPStatus.FORBIDDEN)
+
+    if not DEBUG:
+        try:
+            code: int = make_and_save_code(identify=make_user_identify())
+        except ValueError:
+            raise abort(HTTPStatus.CONFLICT)
+        send_code_task.delay(to=email, code=code)
 
     return dict(status=HTTPStatus.OK)
 
 
-@bp.route(Url.CHECK_CODE, endpoint=EndpointName.CHECK_CODE, methods=[HTTPMethod.POST])
-def check_code() -> CodeIsValidFlagJSONDict:
+@bp.route(Url.CHECK_CODE, endpoint=EndpointName.CHECK_CODE, methods=[HTTPMethod.GET])
+def check_code() -> CodeIsValidFlagJSONDictMaker.Dict:
     """
-    Payload JSON:
-    {
-        code,
-    }
+    Query-params:
+    - code
 
     Statuses - 200, 400
 
@@ -56,8 +64,9 @@ def check_code() -> CodeIsValidFlagJSONDict:
     }
     """
     try:
-        code: int = int(request.json[JSONKey.CODE])
+        code: int = int(request.args[JSONKey.CODE])
     except (ValueError, KeyError):
         return abort(HTTPStatus.BAD_REQUEST)
 
-    return JSONDictPreparer.prepare_code_is_valid(flag=code_is_valid(code))
+    flag: bool = code_is_valid(identify=make_user_identify(), code=code)
+    return CodeIsValidFlagJSONDictMaker.make(flag=flag)

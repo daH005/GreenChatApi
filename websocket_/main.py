@@ -2,9 +2,8 @@ from api.websocket_.base import (
     WebSocketServer,
 )
 from api.json_ import (
-    JSONDictPreparer,
-    ChatInfoJSONDict,
-    ChatMessageJSONDict,
+    ChatInfoJSONDictMaker,
+    ChatMessageJSONDictMaker,
 )
 from api.db.models import (
     session,
@@ -36,7 +35,7 @@ class MessageTypes:
 
 
 @server.handler(MessageTypes.NEW_CHAT_MESSAGE)
-def new_chat_message(user: User, data: dict) -> tuple[list[UserID], ChatMessageJSONDict]:
+def new_chat_message(user: User, data: dict) -> tuple[list[UserID], ChatMessageJSONDictMaker.Dict]:
     data: NewChatMessage = NewChatMessage(**data)
 
     chat: Chat = UserChatMatch.chat_if_user_has_access(
@@ -51,12 +50,12 @@ def new_chat_message(user: User, data: dict) -> tuple[list[UserID], ChatMessageJ
     )
     session.commit()
 
-    return_data = JSONDictPreparer.prepare_chat_message(chat_message=chat_message)
+    return_data = ChatMessageJSONDictMaker.make(chat_message=chat_message)
     return users_ids_of_chat_by_id(chat_id=chat.id), return_data
 
 
 @server.handler(MessageTypes.NEW_CHAT)
-def new_chat(user: User, data: dict) -> tuple[list[UserID], ChatInfoJSONDict]:
+def new_chat(user: User, data: dict) -> tuple[list[UserID], ChatInfoJSONDictMaker.Dict]:
     data: NewChat = NewChat(**data)
 
     if user.id not in data.users_ids:
@@ -94,7 +93,7 @@ def new_chat(user: User, data: dict) -> tuple[list[UserID], ChatInfoJSONDict]:
 
     session.commit()
 
-    return_data = JSONDictPreparer.prepare_chat_info(chat=chat)
+    return_data = ChatInfoJSONDictMaker.make(chat=chat)
     return data.users_ids, return_data
 
 

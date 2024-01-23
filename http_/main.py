@@ -12,13 +12,12 @@ from flask_jwt_extended import (  # pip install flask-jwt-extended
 
 from api.db.models import User, UserChatMatch, session
 from api.json_ import (
-    ChatHistoryJSONDict,
-    UserChatsJSONDict,
-    JWTTokenJSONDict,
-    UserInfoJSONDict,
-    AlreadyTakenFlagJSONDict,
     JSONKey,
-    JSONDictPreparer,
+    ChatHistoryJSONDictMaker,
+    UserChatsJSONDictMaker,
+    JWTTokenJSONDictMaker,
+    UserInfoJSONDictMaker,
+    AlreadyTakenFlagJSONDictMaker,
 )
 from api.config import (
     DEBUG,
@@ -34,6 +33,7 @@ from validation import UserJSONValidator
 from api.http_.mail.blueprint_ import (
     bp as mail_bp,
 )
+from api.http_.funcs import make_user_identify
 from api.http_.redis_ import (
     code_is_valid,
     delete_code,
@@ -85,7 +85,7 @@ def handle_exception(exception: HTTPException) -> Response:
 
 
 @app.route(Url.REG, endpoint=EndpointName.REG, methods=[HTTPMethod.POST])
-def create_new_user() -> tuple[JWTTokenJSONDict, HTTPStatus.CREATED]:
+def create_new_user() -> tuple[JWTTokenJSONDictMaker.Dict, HTTPStatus.CREATED]:
     """
     Payload JSON:
     {
@@ -106,8 +106,9 @@ def create_new_user() -> tuple[JWTTokenJSONDict, HTTPStatus.CREATED]:
     """
     user_data: UserJSONValidator = UserJSONValidator.from_json()
 
-    if code_is_valid(user_data.code):
-        delete_code(user_data.code)
+    identify: str = make_user_identify()
+    if code_is_valid(identify=identify, code=user_data.code):
+        delete_code(identify=identify)
     else:
         return abort(HTTPStatus.BAD_REQUEST)
 
@@ -126,11 +127,11 @@ def create_new_user() -> tuple[JWTTokenJSONDict, HTTPStatus.CREATED]:
     session.add(new_user)
     session.commit()
 
-    return JSONDictPreparer.prepare_jwt_token(jwt_token=create_access_token(identity=new_user)), HTTPStatus.CREATED
+    return JWTTokenJSONDictMaker.make(jwt_token=create_access_token(identity=new_user)), HTTPStatus.CREATED
 
 
 @app.route(Url.CHECK_USERNAME, endpoint=EndpointName.CHECK_USERNAME, methods=[HTTPMethod.GET])
-def check_username() -> AlreadyTakenFlagJSONDict:
+def check_username() -> AlreadyTakenFlagJSONDictMaker.Dict:
     """
     Query-params:
     - username
@@ -147,13 +148,13 @@ def check_username() -> AlreadyTakenFlagJSONDict:
     except KeyError:
         return abort(HTTPStatus.BAD_REQUEST)
 
-    return JSONDictPreparer.prepare_already_taken(
+    return AlreadyTakenFlagJSONDictMaker.make(
         flag=User.username_is_already_taken(username_to_check=username),
     )
 
 
 @app.route(Url.CHECK_EMAIL, endpoint=EndpointName.CHECK_EMAIL, methods=[HTTPMethod.GET])
-def check_email() -> AlreadyTakenFlagJSONDict:
+def check_email() -> AlreadyTakenFlagJSONDictMaker.Dict:
     """
     Query-params:
     - email
@@ -170,13 +171,13 @@ def check_email() -> AlreadyTakenFlagJSONDict:
     except KeyError:
         return abort(HTTPStatus.BAD_REQUEST)
 
-    return JSONDictPreparer.prepare_already_taken(
+    return AlreadyTakenFlagJSONDictMaker.make(
         flag=User.email_is_already_taken(email_to_check=email),
     )
 
 
 @app.route(Url.AUTH, endpoint=EndpointName.AUTH, methods=[HTTPMethod.POST])
-def auth_by_username_and_password() -> JWTTokenJSONDict:
+def auth_by_username_and_password() -> JWTTokenJSONDictMaker.Dict:
     """
     Payload JSON:
     {
@@ -202,12 +203,12 @@ def auth_by_username_and_password() -> JWTTokenJSONDict:
     except ValueError:
         return abort(HTTPStatus.FORBIDDEN)
 
-    return JSONDictPreparer.prepare_jwt_token(jwt_token=create_access_token(identity=auth_user))
+    return JWTTokenJSONDictMaker.make(jwt_token=create_access_token(identity=auth_user))
 
 
 @app.route(Url.REFRESH_TOKEN, endpoint=EndpointName.REFRESH_TOKEN, methods=[HTTPMethod.POST])
 @jwt_required()
-def refresh_token() -> JWTTokenJSONDict:
+def refresh_token() -> JWTTokenJSONDictMaker.Dict:
     """
     Headers:
     Authorization: Bearer <JWT-Token>
@@ -225,12 +226,12 @@ def refresh_token() -> JWTTokenJSONDict:
         JWTToken,
     }
     """
-    return JSONDictPreparer.prepare_jwt_token(jwt_token=create_access_token(identity=current_user))
+    return JWTTokenJSONDictMaker.make(jwt_token=create_access_token(identity=current_user))
 
 
 @app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])
 @jwt_required()
-def user_info() -> UserInfoJSONDict:
+def user_info() -> UserInfoJSONDictMaker.Dict:
     """
     Headers:
     Authorization: Bearer <JWT-Token>
@@ -251,7 +252,7 @@ def user_info() -> UserInfoJSONDict:
     """
     user_id_as_str: str | None = request.args.get(JSONKey.ID)
     if user_id_as_str is None:
-        return JSONDictPreparer.prepare_user_info(user=current_user, exclude_important_info=False)
+        return UserInfoJSONDictMaker.make(user=current_user, exclude_important_info=False)
 
     try:
         user: User | None = session.get(User, int(user_id_as_str))
@@ -261,12 +262,12 @@ def user_info() -> UserInfoJSONDict:
     if user is None:
         return abort(HTTPStatus.NOT_FOUND)
 
-    return JSONDictPreparer.prepare_user_info(user=user)
+    return UserInfoJSONDictMaker.make(user=user)
 
 
 @app.route(Url.USER_CHATS, endpoint=EndpointName.USER_CHATS, methods=[HTTPMethod.GET])
 @jwt_required()
-def user_chats() -> UserChatsJSONDict:
+def user_chats() -> UserChatsJSONDictMaker.Dict:
     """ Чаты отсортированы по `ChatMessage.creating_datetime` (первый - поздний).
 
     Headers:
@@ -305,14 +306,14 @@ def user_chats() -> UserChatsJSONDict:
         ],
     }
     """
-    return JSONDictPreparer.prepare_user_chats(
+    return UserChatsJSONDictMaker.make(
         user_chats=UserChatMatch.user_chats(user_id=current_user.id),
     )
 
 
 @app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])
 @jwt_required()
-def chat_history(chat_id: int) -> ChatHistoryJSONDict:
+def chat_history(chat_id: int) -> ChatHistoryJSONDictMaker.Dict:
     """Сообщения отсортированы по `ChatMessage.creating_datetime` (первое - позднее).
 
     Headers:
@@ -353,7 +354,7 @@ def chat_history(chat_id: int) -> ChatHistoryJSONDict:
         chat_messages = UserChatMatch.chat_if_user_has_access(user_id=current_user.id,
                                                               chat_id=chat_id).messages[:offset_from_end]
         chat_messages = sorted(chat_messages, key=lambda x: -x.creating_datetime.timestamp())
-        return JSONDictPreparer.prepare_chat_history(
+        return ChatHistoryJSONDictMaker.make(
             chat_messages=chat_messages,
         )
     except PermissionError:

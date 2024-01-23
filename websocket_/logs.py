@@ -6,3 +6,4 @@ __all__ = (
 
 basicConfig(level=INFO)
 logger = getLogger(__name__)
+logger.setLevel(level=INFO)
