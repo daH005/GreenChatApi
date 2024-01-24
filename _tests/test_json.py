@@ -22,6 +22,9 @@ from api._tests.common import make_random_string  # noqa
     (ChatHistoryJSONDictMaker.make(CHATS[1].messages), {'messages'}),
     (ChatMessageJSONDictMaker.make(CHATS_MESSAGES[1]), {
         'id', 'chatId', 'text', 'creatingDatetime', 'user',
+    }),
+    (ChatMessageTypingJSONDictMaker.make(1, USERS[1]), {
+        'chatId', 'user',
     })
 ])
 def test_positive_dict_has_key(dict_: dict, keys: list[str] | set[str]) -> None:
