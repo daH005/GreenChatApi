@@ -154,18 +154,22 @@ class WebSocketClientHandler:
         while True:
             try:
                 message: MessageJSONDict = await self._wait_json_dict()
-                await self._handle_message(message)
-            except ConnectionClosed:
-                raise
-            except (JSONDecodeError, KeyError):
+            except JSONDecodeError:
                 continue
+
+            try:
+                await self._handle_message(message)
             except Exception as e:
-                logger.info('Handling error -', type(e).__name__)
+                logger.info('Handling error -',
+                            type(e).__name__,
+                            'on message -', message,
+                            f'UserID - {self.user.id} ({self.protocol.id})')
+                continue
 
             session.remove()
-            logger.info(f'Message received and handled ({self.protocol.id}).')
+            logger.info(f'Message received and handled. UserID - {self.user.id} ({self.protocol.id}).')
 
-    @raises(JSONDecodeError, KeyError, Exception)
+    @raises(KeyError, Exception)
     async def _handle_message(self, message: MessageJSONDict) -> None:
         handler_func: HandlerFuncT = self._get_handler_func(message[TYPE_KEY])
         users_ids, data = handler_func(self.user, message[DATA_KEY])
