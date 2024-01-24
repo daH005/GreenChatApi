@@ -13,6 +13,7 @@ __all__ = (
     'JSONKey',
     'ChatHistoryJSONDictMaker',
     'ChatMessageJSONDictMaker',
+    'ChatMessageTypingJSONDictMaker',
     'UserChatsJSONDictMaker',
     'ChatInfoJSONDictMaker',
     'JWTTokenJSONDictMaker',
@@ -160,6 +161,21 @@ class ChatMessageJSONDictMaker(AbstractJSONDictMaker):
             JSONKey.TEXT: chat_message.text,
             JSONKey.CREATING_DATETIME: chat_message.creating_datetime.isoformat(),
             JSONKey.USER: UserInfoJSONDictMaker.make(chat_message.user),
+        }
+
+
+class ChatMessageTypingJSONDictMaker(AbstractJSONDictMaker):
+
+    class Dict(TypedDict):
+
+        chatId: int
+        user: UserInfoJSONDictMaker.Dict
+
+    @staticmethod
+    def make(chat_id: int, user: User) -> Dict:
+        return {
+            JSONKey.CHAT_ID: chat_id,
+            JSONKey.USER: UserInfoJSONDictMaker.make(user),
         }
 
 
