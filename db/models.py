@@ -8,6 +8,7 @@ from sqlalchemy import (  # pip install sqlalchemy
     ForeignKey,
     Engine,
 )
+from sqlalchemy.dialects.mysql import DATETIME
 from sqlalchemy.orm import (
     mapped_column,
     Mapped,
@@ -149,7 +150,7 @@ class ChatMessage(BaseModel):
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
     chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id'), nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
-    creating_datetime: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    creating_datetime: Mapped[datetime] = mapped_column(DATETIME(fsp=6), default=datetime.utcnow)
 
     user: Mapped['User'] = relationship(back_populates='chats_messages', uselist=False)
     chat: Mapped['Chat'] = relationship(back_populates='messages', uselist=False)
