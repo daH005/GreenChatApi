@@ -10,6 +10,7 @@ from sqlalchemy import (  # pip install sqlalchemy
 )
 from sqlalchemy.dialects.mysql import DATETIME
 from sqlalchemy.orm import (
+    DeclarativeBase,
     mapped_column,
     Mapped,
     relationship,
@@ -21,11 +22,8 @@ from datetime import datetime
 from api.hinting import raises
 from api.config import DB_URL
 from api.db.encryption import make_auth_token
-from api.db.base import BaseModel
-from api.db.alembic_.init import make_migrations
 
 __all__ = (
-    'BaseModel',
     'session',
     'User',
     'Chat',
@@ -40,7 +38,13 @@ session: scoped_session = scoped_session(
                  bind=engine,
                  )
 )
-make_migrations()
+
+
+class BaseModel(DeclarativeBase):
+    id: int
+
+    def __repr__(self) -> str:
+        return type(self).__name__ + f'<{self.id}>'
 
 
 class User(BaseModel):
