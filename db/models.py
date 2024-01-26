@@ -25,6 +25,7 @@ from api.db.encryption import make_auth_token
 
 __all__ = (
     'session',
+    'BaseModel',
     'User',
     'Chat',
     'UserChatMatch',
