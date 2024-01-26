@@ -14,6 +14,7 @@ from api.db.models import (
     Chat,
     UserChatMatch,
 )
+from api.db.alembic_.init import make_migrations
 from api.websocket_.funcs import (
     UserID,
     users_ids_of_chat_by_id,
@@ -124,4 +125,5 @@ def new_chat_message_typing(user: User, data: dict) -> tuple[list[UserID], ChatM
 
 
 if __name__ == '__main__':
+    make_migrations()
     server.run()
