@@ -2,8 +2,13 @@ from logging import getLogger, basicConfig, INFO
 
 __all__ = (
     'logger',
+    'init_logs',
 )
 
-basicConfig(level=INFO)
 logger = getLogger(__name__)
-logger.setLevel(level=INFO)
+
+
+def init_logs() -> None:
+    basicConfig(level=INFO)
+    logger.setLevel(level=INFO)
+    logger.disabled = False
