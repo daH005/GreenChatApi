@@ -161,10 +161,11 @@ class WebSocketClientHandler:
             try:
                 await self._handle_message(message)
             except Exception as e:
-                logger.info('Handling error -',
-                            type(e).__name__,
-                            'on message -', message,
-                            f'UserID - {self.user.id} ({self.protocol.id})')
+                msg = (f'Handling error ({type(e).__name__}):\n'
+                       f'- Message:\n'
+                       f'{json.dumps(message, indent=4)}\n'
+                       f'- UserID: {self.user.id} ({self.protocol.id})')
+                logger.info(msg)
                 continue
 
             session.remove()
