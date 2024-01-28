@@ -1,7 +1,7 @@
 from __future__ import annotations
 import asyncio
 from websockets import WebSocketServerProtocol, serve, ConnectionClosed  # pip install websockets
-from typing import NoReturn, Callable, TypedDict
+from typing import NoReturn, Callable, TypedDict, Coroutine
 import json
 from json import JSONDecodeError
 from jwt import decode  # pip install pyjwt
@@ -16,11 +16,12 @@ __all__ = (
     'WebSocketServer',
     'WebSocketClientHandler',
     'HandlerFuncT',
-    'HandlerFuncReturnT',
+    'MessageJSONDict',
+    'TYPE_KEY',
+    'DATA_KEY'
 )
 
-HandlerFuncReturnT = tuple[list[UserID], dict]
-HandlerFuncT = Callable[[User, dict], HandlerFuncReturnT]
+HandlerFuncT = Callable[[User, dict], Coroutine]
 TYPE_KEY = 'type'
 DATA_KEY = 'data'
 
@@ -174,13 +175,7 @@ class WebSocketClientHandler:
     @raises(KeyError, Exception)
     async def _handle_message(self, message: MessageJSONDict) -> None:
         handler_func: HandlerFuncT = self._get_handler_func(message[TYPE_KEY])
-        users_ids, data = handler_func(self.user, message[DATA_KEY])
-
-        _message: MessageJSONDict = {  # type: ignore
-            TYPE_KEY: message[TYPE_KEY],
-            DATA_KEY: data,
-        }
-        await self.server.send_to_many_users(users_ids=users_ids, message=_message)
+        await handler_func(self.user, message[DATA_KEY])
 
     @raises(KeyError)
     def _get_handler_func(self, type_: str) -> HandlerFuncT:
