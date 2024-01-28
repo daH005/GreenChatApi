@@ -50,6 +50,9 @@ async def new_chat(user: User, data: dict) -> None:
     if user.id not in data.users_ids:
         raise ValueError
 
+    if not data.is_group and len(data.users_ids) > 2:
+        raise ValueError
+
     try:
         UserChatMatch.find_private_chat(*data.users_ids)
     except ValueError:
