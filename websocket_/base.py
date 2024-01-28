@@ -15,13 +15,14 @@ from api.websocket_.logs import logger, init_logs
 __all__ = (
     'WebSocketServer',
     'WebSocketClientHandler',
-    'HandlerFuncT',
+    'CommonHandlerFuncT',
     'MessageJSONDict',
     'TYPE_KEY',
     'DATA_KEY'
 )
 
-HandlerFuncT = Callable[[User, dict], Coroutine]
+CommonHandlerFuncT = Callable[[User, dict], Coroutine]
+ConnectAndDisconnectHandlerFuncT = Callable[[User], Coroutine]
 TYPE_KEY = 'type'
 DATA_KEY = 'data'
 
@@ -40,7 +41,7 @@ class WebSocketServer:
         self.host = host
         self.port = port
         self._clients: dict[UserID, list[WebSocketClientHandler]] = {}
-        self.handlers_funcs: dict[str, HandlerFuncT] = {}
+        self.common_handlers_funcs: dict[str, CommonHandlerFuncT] = {}
 
     def run(self) -> NoReturn:
         init_logs()  # Решено остановиться здесь из-за мерзкой реализации логов `alembic`
@@ -66,11 +67,16 @@ class WebSocketServer:
         logger.info(f'Client was auth ({protocol.id}). UserID - {client.user.id}.')
 
         self._add_client(client)
+        if self._user_have_only_one_connection(client.user.id):
+            await self._first_connection_handler(client.user)
 
         try:
             await client.listen()
         except ConnectionClosed:
             self._del_client(client)
+            if not self.user_have_connections(client.user.id):
+                await self._full_disconnection_handler(client.user)
+
             raise
 
     def _add_client(self, client: WebSocketClientHandler) -> None:
@@ -81,6 +87,12 @@ class WebSocketServer:
             self._clients[client.user.id].remove(client)
         except (KeyError, ValueError):
             return
+
+    def _user_have_only_one_connection(self, used_id: int) -> bool:
+        return len(self._clients.get(used_id, [])) == 1
+
+    def user_have_connections(self, used_id: int) -> bool:
+        return len(self._clients.get(used_id, [])) != 0
 
     async def send_to_many_users(self, users_ids: list[UserID],
                                  message: MessageJSONDict,
@@ -105,11 +117,27 @@ class WebSocketServer:
         except ConnectionClosed:
             return
 
-    def handler(self, type_: str) -> Callable[[HandlerFuncT], HandlerFuncT]:
-        def func_decorator(func: HandlerFuncT) -> HandlerFuncT:
-            self.handlers_funcs[type_] = func
+    def common_handler(self, type_: str) -> Callable[[CommonHandlerFuncT], CommonHandlerFuncT]:
+        def func_decorator(func: CommonHandlerFuncT) -> CommonHandlerFuncT:
+            self.common_handlers_funcs[type_] = func
             return func
         return func_decorator
+
+    def first_connection_handler(self, func: ConnectAndDisconnectHandlerFuncT) -> ConnectAndDisconnectHandlerFuncT:
+        self._first_connection_handler = func  # noqa
+        return func
+
+    @staticmethod
+    async def _first_connection_handler(user: User) -> None:
+        pass
+
+    def full_disconnection_handler(self, func: ConnectAndDisconnectHandlerFuncT) -> ConnectAndDisconnectHandlerFuncT:
+        self._full_disconnection_handler = func  # noqa
+        return func
+
+    @staticmethod
+    async def _full_disconnection_handler(user: User) -> None:
+        pass
 
 
 class WebSocketClientHandler:
@@ -174,9 +202,9 @@ class WebSocketClientHandler:
 
     @raises(KeyError, Exception)
     async def _handle_message(self, message: MessageJSONDict) -> None:
-        handler_func: HandlerFuncT = self._get_handler_func(message[TYPE_KEY])
+        handler_func: CommonHandlerFuncT = self._get_handler_func(message[TYPE_KEY])
         await handler_func(self.user, message[DATA_KEY])
 
     @raises(KeyError)
-    def _get_handler_func(self, type_: str) -> HandlerFuncT:
-        return self.server.handlers_funcs[type_]
+    def _get_handler_func(self, type_: str) -> CommonHandlerFuncT:
+        return self.server.common_handlers_funcs[type_]

@@ -37,12 +37,60 @@ server = WebSocketServer(
 
 class MessageTypes:
 
+    INTERLOCUTORS_ONLINE_INFO = 'interlocutorsOnlineInfo'
     NEW_CHAT = 'newChat'
     NEW_CHAT_MESSAGE = 'newChatMessage'
     NEW_CHAT_MESSAGE_TYPING = 'newChatMessageTyping'
 
 
-@server.handler(MessageTypes.NEW_CHAT)
+@server.first_connection_handler
+async def first_connection_handler(user: User) -> None:
+    # FixMe: think about dry...
+    interlocutors: list[User] = UserChatMatch.find_all_interlocutors(user_id=user.id)
+    ids = [interlocutor.id for interlocutor in interlocutors]
+
+    await server.send_to_many_users(
+        users_ids=ids,
+        message={
+            TYPE_KEY: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            DATA_KEY: {
+                user.id: True,
+            },
+        },
+    )
+
+    result_data = {}
+    for interlocutor in interlocutors:
+        if server.user_have_connections(interlocutor.id):
+            result_data[interlocutor.id] = True
+
+    await server.send_to_one_user(
+        user_id=user.id,
+        message={
+            TYPE_KEY: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            DATA_KEY: result_data,
+        }
+    )
+
+
+@server.full_disconnection_handler
+async def full_disconnection_handler(user: User) -> None:
+    # FixMe: think about dry...
+    interlocutors: list[User] = UserChatMatch.find_all_interlocutors(user_id=user.id)
+    ids = [interlocutor.id for interlocutor in interlocutors]
+
+    await server.send_to_many_users(
+        users_ids=ids,
+        message={
+            TYPE_KEY: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            DATA_KEY: {
+                user.id: False,
+            },
+        },
+    )
+
+
+@server.common_handler(MessageTypes.NEW_CHAT)
 @raises(ValidationError, ValueError)
 async def new_chat(user: User, data: dict) -> None:
     data: NewChat = NewChat(**data)
@@ -95,7 +143,7 @@ async def new_chat(user: User, data: dict) -> None:
     )
 
 
-@server.handler(MessageTypes.NEW_CHAT_MESSAGE)
+@server.common_handler(MessageTypes.NEW_CHAT_MESSAGE)
 @raises(ValidationError, PermissionError, ValueError)
 async def new_chat_message(user: User, data: dict) -> None:
     data: NewChatMessage = NewChatMessage(**data)
@@ -122,12 +170,12 @@ async def new_chat_message(user: User, data: dict) -> None:
     )
 
 
-@server.handler(MessageTypes.NEW_CHAT_MESSAGE_TYPING)
+@server.common_handler(MessageTypes.NEW_CHAT_MESSAGE_TYPING)
 @raises(ValidationError, PermissionError, ValueError)
 async def new_chat_message_typing(user: User, data: dict) -> None:
     data: NewChatTypingMessage = NewChatTypingMessage(**data)
 
-    # think about dry...
+    # FixMe: think about dry...
     chat: Chat = UserChatMatch.chat_if_user_has_access(
         user_id=user.id,
         chat_id=data.chat_id,
