@@ -218,15 +218,32 @@ class UserChatMatch(BaseModel):
     def find_private_chat(cls, first_user_id: int,
                           second_user_id: int,
                           ) -> Chat:
+        # FixMe: Улучшить, если появятся идеи о лучшей реализации, вероятно, с использованием более лучших SQL-запросов.
+        chats_ids = []
+
         matches: list[cls] = session.query(cls).filter(  # type: ignore
             (cls.user_id == first_user_id) | (cls.user_id == second_user_id),
         ).all()
-        # FixMe: Улучшить, если появятся идеи о лучшей реализации, вероятно, с использованием более лучших SQL-запросов.
-        chats_ids = []
         for match in matches:
             if match.chat.is_group:
                 continue
             if match.chat_id in chats_ids:
                 return match.chat
             chats_ids.append(match.chat_id)
+
         raise ValueError
+
+    @classmethod
+    def find_all_interlocutors(cls, user_id: int) -> list[User]:
+        interlocutors = set()
+
+        chats = cls.user_chats(user_id)
+        for chat in chats:
+            users = cls.users_in_chat(chat.id)
+            interlocutors.update(users)
+
+        self_user: User = session.get(User, user_id)  # noqa
+        if self_user in interlocutors:
+            interlocutors.remove(self_user)
+
+        return list(interlocutors)

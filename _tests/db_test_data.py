@@ -180,6 +180,22 @@ NO_FIND_PRIVATE_CHAT_METHOD_ARGS_SETS = [
     (USERS[2], USERS[4]),
 ]
 
+FIND_ALL_INTERLOCUTORS_METHOD_ARGS_SETS = [
+    (USERS[1], [
+        USERS[2],
+        USERS[4],
+    ]),
+    (USERS[2], [
+        USERS[1],
+        USERS[4],
+    ]),
+    (USERS[4], [
+        USERS[1],
+        USERS[2],
+    ]),
+    (USERS[3], []),
+]
+
 RANDOM_STRINGS = [make_random_string() for _ in range(10)]
 
 TEXT_MESSAGES = [
