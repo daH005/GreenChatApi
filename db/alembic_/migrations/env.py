@@ -3,13 +3,10 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool, MetaData
 from alembic import context
 
-from api.db.base import BaseModel
+from api.db.models import BaseModel
 # from api.config import DB_URL, BASE_DIR
 
 config = context.config
-# config.set_main_option('script_location', str(BASE_DIR.joinpath('./db/alembic_/migrations')))
-# config.set_main_option('prepend_sys_path', str(BASE_DIR.joinpath('../')))
-# config.set_main_option('sqlalchemy.url', DB_URL.render_as_string(hide_password=False))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

@@ -11,6 +11,7 @@ from flask_jwt_extended import (  # pip install flask-jwt-extended
 )
 
 from api.db.models import User, UserChatMatch, session
+from api.db.alembic_.init import make_migrations
 from api.json_ import (
     JSONKey,
     ChatHistoryJSONDictMaker,
@@ -362,4 +363,5 @@ def chat_history(chat_id: int) -> ChatHistoryJSONDictMaker.Dict:
 
 
 if __name__ == '__main__':
+    make_migrations()
     app.run(HOST, PORT, debug=DEBUG)

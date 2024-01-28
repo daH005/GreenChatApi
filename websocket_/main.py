@@ -2,6 +2,8 @@ from pydantic import ValidationError
 
 from api.websocket_.base import (
     WebSocketServer,
+    TYPE_KEY,
+    DATA_KEY,
 )
 from api.json_ import (
     ChatInfoJSONDictMaker,
@@ -14,8 +16,8 @@ from api.db.models import (
     Chat,
     UserChatMatch,
 )
+from api.db.alembic_.init import make_migrations
 from api.websocket_.funcs import (
-    UserID,
     users_ids_of_chat_by_id,
     make_chat_message_and_add_to_session,
 )
@@ -35,17 +37,68 @@ server = WebSocketServer(
 
 class MessageTypes:
 
+    INTERLOCUTORS_ONLINE_INFO = 'interlocutorsOnlineInfo'
     NEW_CHAT = 'newChat'
     NEW_CHAT_MESSAGE = 'newChatMessage'
     NEW_CHAT_MESSAGE_TYPING = 'newChatMessageTyping'
 
 
-@server.handler(MessageTypes.NEW_CHAT)
+@server.first_connection_handler
+async def first_connection_handler(user: User) -> None:
+    # FixMe: think about dry...
+    interlocutors: list[User] = UserChatMatch.find_all_interlocutors(user_id=user.id)
+    ids = [interlocutor.id for interlocutor in interlocutors]
+
+    await server.send_to_many_users(
+        users_ids=ids,
+        message={
+            TYPE_KEY: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            DATA_KEY: {
+                user.id: True,
+            },
+        },
+    )
+
+    result_data = {}
+    for interlocutor in interlocutors:
+        if server.user_have_connections(interlocutor.id):
+            result_data[interlocutor.id] = True
+
+    await server.send_to_one_user(
+        user_id=user.id,
+        message={
+            TYPE_KEY: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            DATA_KEY: result_data,
+        }
+    )
+
+
+@server.full_disconnection_handler
+async def full_disconnection_handler(user: User) -> None:
+    # FixMe: think about dry...
+    interlocutors: list[User] = UserChatMatch.find_all_interlocutors(user_id=user.id)
+    ids = [interlocutor.id for interlocutor in interlocutors]
+
+    await server.send_to_many_users(
+        users_ids=ids,
+        message={
+            TYPE_KEY: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            DATA_KEY: {
+                user.id: False,
+            },
+        },
+    )
+
+
+@server.common_handler(MessageTypes.NEW_CHAT)
 @raises(ValidationError, ValueError)
-def new_chat(user: User, data: dict) -> tuple[list[UserID], ChatInfoJSONDictMaker.Dict]:
+async def new_chat(user: User, data: dict) -> None:
     data: NewChat = NewChat(**data)
 
     if user.id not in data.users_ids:
+        raise ValueError
+
+    if not data.is_group and len(data.users_ids) > 2:
         raise ValueError
 
     try:
@@ -80,13 +133,19 @@ def new_chat(user: User, data: dict) -> tuple[list[UserID], ChatInfoJSONDictMake
 
     session.commit()
 
-    return_data = ChatInfoJSONDictMaker.make(chat=chat)
-    return data.users_ids, return_data
+    result_data = ChatInfoJSONDictMaker.make(chat=chat)
+    await server.send_to_many_users(
+        users_ids=data.users_ids,
+        message={
+            TYPE_KEY: MessageTypes.NEW_CHAT,
+            DATA_KEY: result_data,
+        },
+    )
 
 
-@server.handler(MessageTypes.NEW_CHAT_MESSAGE)
+@server.common_handler(MessageTypes.NEW_CHAT_MESSAGE)
 @raises(ValidationError, PermissionError, ValueError)
-def new_chat_message(user: User, data: dict) -> tuple[list[UserID], ChatMessageJSONDictMaker.Dict]:
+async def new_chat_message(user: User, data: dict) -> None:
     data: NewChatMessage = NewChatMessage(**data)
 
     chat: Chat = UserChatMatch.chat_if_user_has_access(
@@ -101,16 +160,22 @@ def new_chat_message(user: User, data: dict) -> tuple[list[UserID], ChatMessageJ
     )
     session.commit()
 
-    return_data = ChatMessageJSONDictMaker.make(chat_message=chat_message)
-    return users_ids_of_chat_by_id(chat_id=chat.id), return_data
+    result_data = ChatMessageJSONDictMaker.make(chat_message=chat_message)
+    await server.send_to_many_users(
+        users_ids=users_ids_of_chat_by_id(chat_id=chat.id),
+        message={
+            TYPE_KEY: MessageTypes.NEW_CHAT_MESSAGE,
+            DATA_KEY: result_data,
+        },
+    )
 
 
-@server.handler(MessageTypes.NEW_CHAT_MESSAGE_TYPING)
+@server.common_handler(MessageTypes.NEW_CHAT_MESSAGE_TYPING)
 @raises(ValidationError, PermissionError, ValueError)
-def new_chat_message_typing(user: User, data: dict) -> tuple[list[UserID], ChatMessageTypingJSONDictMaker.Dict]:
+async def new_chat_message_typing(user: User, data: dict) -> None:
     data: NewChatTypingMessage = NewChatTypingMessage(**data)
 
-    # think about dry...
+    # FixMe: think about dry...
     chat: Chat = UserChatMatch.chat_if_user_has_access(
         user_id=user.id,
         chat_id=data.chat_id,
@@ -119,9 +184,16 @@ def new_chat_message_typing(user: User, data: dict) -> tuple[list[UserID], ChatM
     ids = users_ids_of_chat_by_id(chat_id=chat.id)
     ids.remove(user.id)
 
-    return_data = ChatMessageTypingJSONDictMaker.make(chat_id=chat.id, user=user)
-    return ids, return_data
+    result_data = ChatMessageTypingJSONDictMaker.make(chat_id=chat.id, user=user)
+    await server.send_to_many_users(
+        users_ids=ids,
+        message={
+            TYPE_KEY: MessageTypes.NEW_CHAT_MESSAGE_TYPING,
+            DATA_KEY: result_data,
+        },
+    )
 
 
 if __name__ == '__main__':
+    make_migrations()
     server.run()

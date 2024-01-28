@@ -109,7 +109,7 @@ class TestChat:
     def test_positive_users_in_chat(chat: Chat,
                                     expected_users: list[User],
                                     ) -> None:
-        assert chat.users() == expected_users
+        assert set(chat.users()) == set(expected_users)
 
 
 class TestChatMessage:
@@ -179,7 +179,7 @@ class TestUserChatMatch:
     def test_positive_users_in_chat(chat: Chat,
                                     expected_users: list[User],
                                     ) -> None:
-        assert UserChatMatch.users_in_chat(chat.id) == expected_users
+        assert set(UserChatMatch.users_in_chat(chat.id)) == set(expected_users)
 
     @staticmethod
     @pytest.mark.parametrize(('user', 'expected_chats'), USER_CHATS_METHOD_ARGS_SETS)
@@ -211,3 +211,10 @@ class TestUserChatMatch:
                                                            ) -> None:
         with pytest.raises(ValueError):
             UserChatMatch.find_private_chat(first_user.id, second_user.id)
+
+    @staticmethod
+    @pytest.mark.parametrize(('user', 'expected_users'), FIND_ALL_INTERLOCUTORS_METHOD_ARGS_SETS)
+    def test_positive_find_all_interlocutors(user: User,
+                                             expected_users: list[User],
+                                             ) -> None:
+        assert set(UserChatMatch.find_all_interlocutors(user.id)) == set(expected_users)

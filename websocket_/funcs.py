@@ -32,22 +32,16 @@ def users_ids_of_chat_by_id(chat_id: int) -> list[UserID]:
     return [user.id for user in UserChatMatch.users_in_chat(chat_id=chat_id)]
 
 
-@raises(ValueError)
 def make_chat_message_and_add_to_session(text: str,
                                          user_id: int,
                                          chat_id: int,
                                          ) -> ChatMessage:
-    text = clear_text_message(text=text)
-    if not text:
-        raise ValueError
-
     chat_message: ChatMessage = ChatMessage(
         user_id=user_id,
         chat_id=chat_id,
         text=text,
     )
     session.add(chat_message)
-
     return chat_message
 
 
