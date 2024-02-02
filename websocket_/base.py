@@ -99,14 +99,12 @@ class WebSocketServer:
                                  ) -> None:
         users_ids = set(users_ids)
         for id_ in users_ids:
-            if id_ not in self._clients:
-                continue
             await self.send_to_one_user(id_, message)
 
     async def send_to_one_user(self, user_id: UserID,
                                message: MessageJSONDict,
                                ) -> None:
-        for client in self._clients[user_id]:
+        for client in self._clients.get(user_id, []):
             await self.send_to_one_client(client, message)
 
     @staticmethod
