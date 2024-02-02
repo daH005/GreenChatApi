@@ -22,9 +22,10 @@ from api.websocket_.funcs import (
     make_chat_message_and_add_to_session,
 )
 from api.websocket_.validation import (
+    NewInterlocutorOnlineStatusAdding,
     NewChat,
     NewChatMessage,
-    NewChatTypingMessage,
+    NewChatMessageTyping,
 )
 from api.config import HOST, WEBSOCKET_PORT
 from api.hinting import raises
@@ -34,10 +35,13 @@ server = WebSocketServer(
     port=WEBSOCKET_PORT,
 )
 
+potential_interlocutors = {}
+
 
 class MessageTypes:
 
     INTERLOCUTORS_ONLINE_INFO = 'interlocutorsOnlineInfo'
+    NEW_INTERLOCUTOR_ONLINE_STATUS_ADDING = 'newInterlocutorOnlineStatusAdding'
     NEW_CHAT = 'newChat'
     NEW_CHAT_MESSAGE = 'newChatMessage'
     NEW_CHAT_MESSAGE_TYPING = 'newChatMessageTyping'
@@ -48,6 +52,7 @@ async def first_connection_handler(user: User) -> None:
     # FixMe: think about dry...
     interlocutors: list[User] = UserChatMatch.find_all_interlocutors(user_id=user.id)
     ids = [interlocutor.id for interlocutor in interlocutors]
+    ids = [*ids, *potential_interlocutors.get(user.id, [])]  # FixMe: think about dry...
 
     await server.send_to_many_users(
         users_ids=ids,
@@ -78,6 +83,7 @@ async def full_disconnection_handler(user: User) -> None:
     # FixMe: think about dry...
     interlocutors: list[User] = UserChatMatch.find_all_interlocutors(user_id=user.id)
     ids = [interlocutor.id for interlocutor in interlocutors]
+    ids = [*ids, *potential_interlocutors.get(user.id, [])]  # FixMe: think about dry...
 
     await server.send_to_many_users(
         users_ids=ids,
@@ -85,6 +91,23 @@ async def full_disconnection_handler(user: User) -> None:
             TYPE_KEY: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
             DATA_KEY: {
                 user.id: False,
+            },
+        },
+    )
+
+
+@server.common_handler(MessageTypes.NEW_INTERLOCUTOR_ONLINE_STATUS_ADDING)
+@raises(ValidationError)
+async def new_interlocutor_online_status_adding(user: User, data: dict) -> None:
+    data: NewInterlocutorOnlineStatusAdding = NewInterlocutorOnlineStatusAdding(**data)
+    potential_interlocutors.setdefault(data.user_id, []).append(user.id)
+
+    await server.send_to_one_user(
+        user_id=user.id,
+        message={
+            TYPE_KEY: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            DATA_KEY: {
+                data.user_id: server.user_have_connections(used_id=data.user_id),
             },
         },
     )
@@ -187,7 +210,7 @@ async def new_chat_message(user: User, data: dict) -> None:
 @server.common_handler(MessageTypes.NEW_CHAT_MESSAGE_TYPING)
 @raises(ValidationError, PermissionError, ValueError)
 async def new_chat_message_typing(user: User, data: dict) -> None:
-    data: NewChatTypingMessage = NewChatTypingMessage(**data)
+    data: NewChatMessageTyping = NewChatMessageTyping(**data)
 
     # FixMe: think about dry...
     chat: Chat = UserChatMatch.chat_if_user_has_access(
