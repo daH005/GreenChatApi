@@ -142,6 +142,20 @@ async def new_chat(user: User, data: dict) -> None:
         },
     )
 
+    for user_id in data.users_ids:
+        cur_users_ids = [*data.users_ids]
+        cur_users_ids.remove(user_id)
+
+        await server.send_to_one_user(
+            user_id=user_id,
+            message={
+                TYPE_KEY: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+                DATA_KEY: {
+                    id_: True for id_ in cur_users_ids
+                },
+            }
+        )
+
 
 @server.common_handler(MessageTypes.NEW_CHAT_MESSAGE)
 @raises(ValidationError, PermissionError, ValueError)
