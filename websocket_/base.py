@@ -199,12 +199,13 @@ class WebSocketClientHandler:
                 continue
 
             session.remove()
-            logger.info(f'Message received and handled. UserID - {self.user.id} ({self.protocol.id}).')
 
     @raises(KeyError, Exception)
     async def _handle_message(self, message: MessageJSONDict) -> None:
         handler_func: CommonHandlerFuncT = self._get_handler_func(message[TYPE_KEY])
         await handler_func(self.user, message[DATA_KEY])
+        logger.info(f'Message with "{message[TYPE_KEY]}" type received and handled. '
+                    f'UserID - {self.user.id} ({self.protocol.id}).')
 
     @raises(KeyError)
     def _get_handler_func(self, type_: str) -> CommonHandlerFuncT:
