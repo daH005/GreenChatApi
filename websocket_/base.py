@@ -94,9 +94,10 @@ class WebSocketServer:
     def user_have_connections(self, used_id: int) -> bool:
         return len(self._clients.get(used_id, [])) != 0
 
-    async def send_to_many_users(self, users_ids: list[UserID],
+    async def send_to_many_users(self, users_ids: list[UserID] | set[UserID],
                                  message: MessageJSONDict,
                                  ) -> None:
+        users_ids = set(users_ids)
         for id_ in users_ids:
             if id_ not in self._clients:
                 continue
