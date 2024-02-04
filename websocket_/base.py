@@ -94,18 +94,17 @@ class WebSocketServer:
     def user_have_connections(self, used_id: int) -> bool:
         return len(self._clients.get(used_id, [])) != 0
 
-    async def send_to_many_users(self, users_ids: list[UserID],
+    async def send_to_many_users(self, users_ids: list[UserID] | set[UserID],
                                  message: MessageJSONDict,
                                  ) -> None:
+        users_ids = set(users_ids)
         for id_ in users_ids:
-            if id_ not in self._clients:
-                continue
             await self.send_to_one_user(id_, message)
 
     async def send_to_one_user(self, user_id: UserID,
                                message: MessageJSONDict,
                                ) -> None:
-        for client in self._clients[user_id]:
+        for client in self._clients.get(user_id, []):
             await self.send_to_one_client(client, message)
 
     @staticmethod
@@ -198,12 +197,13 @@ class WebSocketClientHandler:
                 continue
 
             session.remove()
-            logger.info(f'Message received and handled. UserID - {self.user.id} ({self.protocol.id}).')
 
     @raises(KeyError, Exception)
     async def _handle_message(self, message: MessageJSONDict) -> None:
         handler_func: CommonHandlerFuncT = self._get_handler_func(message[TYPE_KEY])
         await handler_func(self.user, message[DATA_KEY])
+        logger.info(f'\"{message[TYPE_KEY]}\". '
+                    f'UserID - {self.user.id} ({self.protocol.id}).')
 
     @raises(KeyError)
     def _get_handler_func(self, type_: str) -> CommonHandlerFuncT:
