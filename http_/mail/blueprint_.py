@@ -8,7 +8,6 @@ from api.http_.endpoints import EndpointName, Url
 from api.http_.mail.tasks import send_code_task
 from api.http_.redis_ import make_and_save_code, code_is_valid
 from api.http_.funcs import make_user_identify
-from api.config import DEBUG
 
 __all__ = (
     'bp',
@@ -40,12 +39,11 @@ def send_code() -> dict[str, int]:
     if User.email_is_already_taken(email_to_check=email):
         return abort(HTTPStatus.FORBIDDEN)
 
-    if not DEBUG:
-        try:
-            code: int = make_and_save_code(identify=make_user_identify())
-        except ValueError:
-            raise abort(HTTPStatus.CONFLICT)
-        send_code_task.delay(to=email, code=code)
+    try:
+        code: int = make_and_save_code(identify=make_user_identify())
+    except ValueError:
+        raise abort(HTTPStatus.CONFLICT)
+    send_code_task.delay(to=email, code=code)
 
     return dict(status=HTTPStatus.OK)
 
