@@ -52,16 +52,3 @@ class UserJSONValidator(RequestDataHandlerMixin):
     @classmethod
     def _validate_email(cls, data: str) -> str:
         return validate_email(data)[1]
-
-
-if __name__ == '__main__':
-    user = UserJSONValidator(
-        username='dan005',
-        password='sadasdsad12313',
-        firstName='danil',
-        lastName='yan',
-        email='dan@mail.ru',
-        code=123
-    )
-    from pprint import pprint
-    pprint(user.model_dump())
