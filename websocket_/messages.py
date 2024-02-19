@@ -2,10 +2,20 @@ from typing import TypedDict
 from enum import StrEnum
 
 __all__ = (
+    'MessageTypes',
     'JSONKey',
     'MessageJSONDict',
     'AddressedMessages',
 )
+
+
+class MessageTypes:
+
+    INTERLOCUTORS_ONLINE_INFO = 'interlocutorsOnlineInfo'
+    NEW_INTERLOCUTOR_ONLINE_STATUS_ADDING = 'newInterlocutorOnlineStatusAdding'
+    NEW_CHAT = 'newChat'
+    NEW_CHAT_MESSAGE = 'newChatMessage'
+    NEW_CHAT_MESSAGE_TYPING = 'newChatMessageTyping'
 
 
 class JSONKey(StrEnum):

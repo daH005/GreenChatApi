@@ -15,7 +15,7 @@ from api.db.models import (
 )
 from api.db.alembic_.init import make_migrations
 from api.websocket_.base import WebSocketServer
-from api.websocket_.messages import JSONKey
+from api.websocket_.messages import JSONKey, MessageTypes
 from api.websocket_.funcs import (
     users_ids_of_chat_by_id,
     make_chat_message_and_add_to_session,
@@ -33,15 +33,6 @@ server = WebSocketServer(
 )
 
 potential_interlocutors = {}
-
-
-class MessageTypes:
-
-    INTERLOCUTORS_ONLINE_INFO = 'interlocutorsOnlineInfo'
-    NEW_INTERLOCUTOR_ONLINE_STATUS_ADDING = 'newInterlocutorOnlineStatusAdding'
-    NEW_CHAT = 'newChat'
-    NEW_CHAT_MESSAGE = 'newChatMessage'
-    NEW_CHAT_MESSAGE_TYPING = 'newChatMessageTyping'
 
 
 @server.first_connection_handler
