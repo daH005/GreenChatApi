@@ -9,7 +9,6 @@ from jwt import decode  # pip install pyjwt
 from api.db.models import User, session
 from api.hinting import raises
 from api.config import JWT_SECRET_KEY, JWT_ALGORITHM
-from api.websocket_.funcs import UserID
 from api.websocket_.logs import logger, init_logs
 
 __all__ = (
@@ -40,7 +39,7 @@ class WebSocketServer:
                  ) -> None:
         self.host = host
         self.port = port
-        self._clients: dict[UserID, list[WebSocketClientHandler]] = {}
+        self._clients: dict[int, list[WebSocketClientHandler]] = {}
         self.common_handlers_funcs: dict[str, CommonHandlerFuncT] = {}
 
     def run(self) -> NoReturn:
@@ -94,14 +93,14 @@ class WebSocketServer:
     def user_have_connections(self, used_id: int) -> bool:
         return len(self._clients.get(used_id, [])) != 0
 
-    async def send_to_many_users(self, users_ids: list[UserID] | set[UserID],
+    async def send_to_many_users(self, users_ids: list[int] | set[int],
                                  message: MessageJSONDict,
                                  ) -> None:
         users_ids = set(users_ids)
         for id_ in users_ids:
             await self.send_to_one_user(id_, message)
 
-    async def send_to_one_user(self, user_id: UserID,
+    async def send_to_one_user(self, user_id: int,
                                message: MessageJSONDict,
                                ) -> None:
         for client in self._clients.get(user_id, []):

@@ -9,14 +9,12 @@ from api.db.models import (
 )
 
 __all__ = (
-    'UserID',
     'TEXT_MAX_LENGTH',
     'clear_text_message',
     'users_ids_of_chat_by_id',
     'make_chat_message_and_add_to_session',
 )
 
-UserID = int
 TEXT_MAX_LENGTH: Final[int] = 10_000
 
 
@@ -28,7 +26,7 @@ def clear_text_message(text: str) -> str:
     return text
 
 
-def users_ids_of_chat_by_id(chat_id: int) -> list[UserID]:
+def users_ids_of_chat_by_id(chat_id: int) -> list[int]:
     return [user.id for user in UserChatMatch.users_in_chat(chat_id=chat_id)]
 
 
