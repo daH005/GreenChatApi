@@ -11,6 +11,7 @@ from api.db.models import (
 
 __all__ = (
     'JSONKey',
+    'AbstractJSONDictMaker',
     'ChatHistoryJSONDictMaker',
     'ChatMessageJSONDictMaker',
     'ChatMessageTypingJSONDictMaker',
