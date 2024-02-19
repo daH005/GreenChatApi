@@ -194,7 +194,7 @@ class WebSocketClientHandler:
     @raises(KeyError, Exception)
     async def _handle_message(self, message: MessageJSONDictMaker.Dict) -> None:
         handler_func: CommonHandlerFuncT = self._get_handler_func(message[JSONKey.TYPE])  # type: ignore
-        handler_func(
+        await handler_func(
             user=self.user,  # type: ignore
             data=message[JSONKey.DATA],  # type: ignore
         )  # type: ignore
