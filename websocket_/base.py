@@ -11,7 +11,7 @@ from api.hinting import raises
 from api.config import JWT_SECRET_KEY, JWT_ALGORITHM
 from api.websocket_.logs import logger, init_logs
 from api.websocket_.messages import (
-    MessageJSONDict,
+    MessageJSONDictMaker,
     JSONKey,
 )
 
@@ -88,21 +88,21 @@ class WebSocketServer:
         return len(self._clients.get(used_id, [])) != 0
 
     async def send_to_many_users(self, users_ids: list[int] | set[int],
-                                 message: MessageJSONDict,
+                                 message: MessageJSONDictMaker.Dict,
                                  ) -> None:
         users_ids = set(users_ids)
         for id_ in users_ids:
             await self.send_to_one_user(id_, message)
 
     async def send_to_one_user(self, user_id: int,
-                               message: MessageJSONDict,
+                               message: MessageJSONDictMaker.Dict,
                                ) -> None:
         for client in self._clients.get(user_id, []):
             await self.send_to_one_client(client, message)
 
     @staticmethod
     async def send_to_one_client(client: WebSocketClientHandler,
-                                 message: MessageJSONDict,
+                                 message: MessageJSONDictMaker.Dict,
                                  ) -> None:
         try:
             await client.protocol.send(json.dumps(message))
@@ -168,14 +168,14 @@ class WebSocketClientHandler:
         return await self.protocol.recv()
 
     @raises(ConnectionClosed, JSONDecodeError)
-    async def _wait_json_dict(self) -> MessageJSONDict:
+    async def _wait_json_dict(self) -> MessageJSONDictMaker.Dict:
         return json.loads(await self._wait_str())
 
     @raises(ConnectionClosed)
     async def listen(self) -> None:
         while True:
             try:
-                message: MessageJSONDict = await self._wait_json_dict()
+                message: MessageJSONDictMaker.Dict = await self._wait_json_dict()
             except JSONDecodeError:
                 continue
 
@@ -192,7 +192,7 @@ class WebSocketClientHandler:
             session.remove()
 
     @raises(KeyError, Exception)
-    async def _handle_message(self, message: MessageJSONDict) -> None:
+    async def _handle_message(self, message: MessageJSONDictMaker.Dict) -> None:
         handler_func: CommonHandlerFuncT = self._get_handler_func(message[JSONKey.TYPE])  # type: ignore
         await handler_func(user=self.user, data=message[JSONKey.DATA])  # type: ignore
         logger.info(f'\"{message[JSONKey.TYPE]}\". '  # type: ignore

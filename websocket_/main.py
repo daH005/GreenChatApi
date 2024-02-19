@@ -15,7 +15,7 @@ from api.db.models import (
 )
 from api.db.alembic_.init import make_migrations
 from api.websocket_.base import WebSocketServer
-from api.websocket_.messages import JSONKey, MessageTypes
+from api.websocket_.messages import JSONKey, MessageType
 from api.websocket_.funcs import (
     users_ids_of_chat_by_id,
     make_chat_message_and_add_to_session,
@@ -45,7 +45,7 @@ async def first_connection_handler(user: User) -> None:
     await server.send_to_many_users(
         users_ids=ids,
         message={
-            JSONKey.TYPE: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            JSONKey.TYPE: MessageType.INTERLOCUTORS_ONLINE_INFO,
             JSONKey.DATA: {
                 user.id: True,
             },
@@ -60,7 +60,7 @@ async def first_connection_handler(user: User) -> None:
     await server.send_to_one_user(
         user_id=user.id,
         message={
-            JSONKey.TYPE: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            JSONKey.TYPE: MessageType.INTERLOCUTORS_ONLINE_INFO,
             JSONKey.DATA: result_data,
         }
     )
@@ -76,7 +76,7 @@ async def full_disconnection_handler(user: User) -> None:
     await server.send_to_many_users(
         users_ids=ids,
         message={
-            JSONKey.TYPE: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            JSONKey.TYPE: MessageType.INTERLOCUTORS_ONLINE_INFO,
             JSONKey.DATA: {
                 user.id: False,
             },
@@ -84,7 +84,7 @@ async def full_disconnection_handler(user: User) -> None:
     )
 
 
-@server.common_handler(MessageTypes.NEW_INTERLOCUTOR_ONLINE_STATUS_ADDING)
+@server.common_handler(MessageType.NEW_INTERLOCUTOR_ONLINE_STATUS_ADDING)
 @raises(ValidationError)
 async def new_interlocutor_online_status_adding(user: User, data: dict) -> None:
     data: NewInterlocutorOnlineStatusAdding = NewInterlocutorOnlineStatusAdding(**data)
@@ -93,7 +93,7 @@ async def new_interlocutor_online_status_adding(user: User, data: dict) -> None:
     await server.send_to_one_user(
         user_id=user.id,
         message={
-            JSONKey.TYPE: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            JSONKey.TYPE: MessageType.INTERLOCUTORS_ONLINE_INFO,
             JSONKey.DATA: {
                 data.user_id: server.user_have_connections(used_id=data.user_id),  # FixMe: think about dry...
             },
@@ -101,7 +101,7 @@ async def new_interlocutor_online_status_adding(user: User, data: dict) -> None:
     )
 
 
-@server.common_handler(MessageTypes.NEW_CHAT)
+@server.common_handler(MessageType.NEW_CHAT)
 @raises(ValidationError, ValueError)
 async def new_chat(user: User, data: dict) -> None:
     data: NewChat = NewChat(**data)
@@ -148,7 +148,7 @@ async def new_chat(user: User, data: dict) -> None:
     await server.send_to_many_users(
         users_ids=data.users_ids,
         message={
-            JSONKey.TYPE: MessageTypes.NEW_CHAT,
+            JSONKey.TYPE: MessageType.NEW_CHAT,
             JSONKey.DATA: result_data,
         },
     )
@@ -160,7 +160,7 @@ async def new_chat(user: User, data: dict) -> None:
         await server.send_to_one_user(
             user_id=user_id,
             message={
-                JSONKey.TYPE: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+                JSONKey.TYPE: MessageType.INTERLOCUTORS_ONLINE_INFO,
                 JSONKey.DATA: {
                     id_: server.user_have_connections(used_id=id_) for id_ in cur_users_ids  # FixMe: think about dry...
                 },
@@ -168,7 +168,7 @@ async def new_chat(user: User, data: dict) -> None:
         )
 
 
-@server.common_handler(MessageTypes.NEW_CHAT_MESSAGE)
+@server.common_handler(MessageType.NEW_CHAT_MESSAGE)
 @raises(ValidationError, PermissionError, ValueError)
 async def new_chat_message(user: User, data: dict) -> None:
     data: NewChatMessage = NewChatMessage(**data)
@@ -189,13 +189,13 @@ async def new_chat_message(user: User, data: dict) -> None:
     await server.send_to_many_users(
         users_ids=users_ids_of_chat_by_id(chat_id=chat.id),
         message={
-            JSONKey.TYPE: MessageTypes.NEW_CHAT_MESSAGE,
+            JSONKey.TYPE: MessageType.NEW_CHAT_MESSAGE,
             JSONKey.DATA: result_data,
         },
     )
 
 
-@server.common_handler(MessageTypes.NEW_CHAT_MESSAGE_TYPING)
+@server.common_handler(MessageType.NEW_CHAT_MESSAGE_TYPING)
 @raises(ValidationError, PermissionError, ValueError)
 async def new_chat_message_typing(user: User, data: dict) -> None:
     data: NewChatMessageTyping = NewChatMessageTyping(**data)
@@ -213,7 +213,7 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
     await server.send_to_many_users(
         users_ids=ids,
         message={
-            JSONKey.TYPE: MessageTypes.NEW_CHAT_MESSAGE_TYPING,
+            JSONKey.TYPE: MessageType.NEW_CHAT_MESSAGE_TYPING,
             JSONKey.DATA: result_data,
         },
     )

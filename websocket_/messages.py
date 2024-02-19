@@ -1,21 +1,15 @@
+from __future__ import annotations
 from typing import TypedDict
 from enum import StrEnum
 
+from api.json_ import AbstractJSONDictMaker
+
 __all__ = (
-    'MessageTypes',
+    'MessageType',
     'JSONKey',
-    'MessageJSONDict',
+    'MessageJSONDictMaker',
     'AddressedMessages',
 )
-
-
-class MessageTypes:
-
-    INTERLOCUTORS_ONLINE_INFO = 'interlocutorsOnlineInfo'
-    NEW_INTERLOCUTOR_ONLINE_STATUS_ADDING = 'newInterlocutorOnlineStatusAdding'
-    NEW_CHAT = 'newChat'
-    NEW_CHAT_MESSAGE = 'newChatMessage'
-    NEW_CHAT_MESSAGE_TYPING = 'newChatMessageTyping'
 
 
 class JSONKey(StrEnum):
@@ -23,10 +17,36 @@ class JSONKey(StrEnum):
     DATA = 'data'
 
 
-class MessageJSONDict(TypedDict):
+class MessageJSONDictMaker(AbstractJSONDictMaker):
 
-    type: str
-    data: dict
+    class Dict(TypedDict):
+
+        type: str
+        data: dict
+
+    @staticmethod
+    def make(type_: str,
+             data: dict,
+             ) -> Dict:
+        return {
+            JSONKey.TYPE: type_,
+            JSONKey.DATA: data,
+        }
+
+
+class MessageType(StrEnum):
+
+    INTERLOCUTORS_ONLINE_INFO = 'interlocutorsOnlineInfo'
+    NEW_INTERLOCUTOR_ONLINE_STATUS_ADDING = 'newInterlocutorOnlineStatusAdding'
+    NEW_CHAT = 'newChat'
+    NEW_CHAT_MESSAGE = 'newChatMessage'
+    NEW_CHAT_MESSAGE_TYPING = 'newChatMessageTyping'
+
+    def make_json_dict(self, data: dict) -> MessageJSONDictMaker.Dict:
+        return MessageJSONDictMaker.make(
+            type_=self.value(),
+            data=data,
+        )
 
 
 class AddressedMessages:
@@ -35,9 +55,9 @@ class AddressedMessages:
         self._data = {}
 
     def add(self, user_id: int,
-            message: MessageJSONDict,
+            message: MessageJSONDictMaker.Dict,
             ) -> None:
         self._data.setdefault(user_id, []).append(message)
 
-    def iter(self) -> dict[int, list[MessageJSONDict]]:
+    def iter(self) -> dict[int, list[MessageJSONDictMaker.Dict]]:
         return self._data
