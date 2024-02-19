@@ -15,6 +15,7 @@ __all__ = (
     'WebSocketServer',
     'WebSocketClientHandler',
     'CommonHandlerFuncT',
+    'ConnectAndDisconnectHandlerFuncT',
     'MessageJSONDict',
     'TYPE_KEY',
     'DATA_KEY'
