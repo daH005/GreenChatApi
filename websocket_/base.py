@@ -11,8 +11,8 @@ from api.hinting import raises
 from api.config import JWT_SECRET_KEY, JWT_ALGORITHM
 from api.websocket_.logs import logger, init_logs
 from api.websocket_.messages import (
-    MessageJSONDictMaker,
     JSONKey,
+    MessageJSONDictMaker,
 )
 
 __all__ = (
@@ -194,7 +194,11 @@ class WebSocketClientHandler:
     @raises(KeyError, Exception)
     async def _handle_message(self, message: MessageJSONDictMaker.Dict) -> None:
         handler_func: CommonHandlerFuncT = self._get_handler_func(message[JSONKey.TYPE])  # type: ignore
-        await handler_func(user=self.user, data=message[JSONKey.DATA])  # type: ignore
+        handler_func(
+            user=self.user,  # type: ignore
+            data=message[JSONKey.DATA],  # type: ignore
+        )  # type: ignore
+
         logger.info(f'\"{message[JSONKey.TYPE]}\". '  # type: ignore
                     f'UserID - {self.user.id} ({self.protocol.id}).')
 
