@@ -8,7 +8,6 @@ __all__ = (
     'MessageType',
     'JSONKey',
     'MessageJSONDictMaker',
-    'AddressedMessages',
 )
 
 
@@ -47,17 +46,3 @@ class MessageType(StrEnum):
             type_=self.value(),
             data=data,
         )
-
-
-class AddressedMessages:
-
-    def __init__(self) -> None:
-        self._data = {}
-
-    def add(self, user_id: int,
-            message: MessageJSONDictMaker.Dict,
-            ) -> None:
-        self._data.setdefault(user_id, []).append(message)
-
-    def iter(self) -> dict[int, list[MessageJSONDictMaker.Dict]]:
-        return self._data
