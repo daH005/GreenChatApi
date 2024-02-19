@@ -1,10 +1,7 @@
 from pydantic import ValidationError
 
-from api.websocket_.base import (
-    WebSocketServer,
-    TYPE_KEY,
-    DATA_KEY,
-)
+from api.config import HOST, WEBSOCKET_PORT
+from api.hinting import raises
 from api.json_ import (
     ChatInfoJSONDictMaker,
     ChatMessageJSONDictMaker,
@@ -17,6 +14,8 @@ from api.db.models import (
     UserChatMatch,
 )
 from api.db.alembic_.init import make_migrations
+from api.websocket_.base import WebSocketServer
+from api.websocket_.messages import JSONKey
 from api.websocket_.funcs import (
     users_ids_of_chat_by_id,
     make_chat_message_and_add_to_session,
@@ -27,8 +26,6 @@ from api.websocket_.validation import (
     NewChatMessage,
     NewChatMessageTyping,
 )
-from api.config import HOST, WEBSOCKET_PORT
-from api.hinting import raises
 
 server = WebSocketServer(
     host=HOST,
@@ -57,8 +54,8 @@ async def first_connection_handler(user: User) -> None:
     await server.send_to_many_users(
         users_ids=ids,
         message={
-            TYPE_KEY: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
-            DATA_KEY: {
+            JSONKey.TYPE: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            JSONKey.DATA: {
                 user.id: True,
             },
         },
@@ -72,8 +69,8 @@ async def first_connection_handler(user: User) -> None:
     await server.send_to_one_user(
         user_id=user.id,
         message={
-            TYPE_KEY: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
-            DATA_KEY: result_data,
+            JSONKey.TYPE: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            JSONKey.DATA: result_data,
         }
     )
 
@@ -88,8 +85,8 @@ async def full_disconnection_handler(user: User) -> None:
     await server.send_to_many_users(
         users_ids=ids,
         message={
-            TYPE_KEY: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
-            DATA_KEY: {
+            JSONKey.TYPE: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            JSONKey.DATA: {
                 user.id: False,
             },
         },
@@ -105,8 +102,8 @@ async def new_interlocutor_online_status_adding(user: User, data: dict) -> None:
     await server.send_to_one_user(
         user_id=user.id,
         message={
-            TYPE_KEY: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
-            DATA_KEY: {
+            JSONKey.TYPE: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+            JSONKey.DATA: {
                 data.user_id: server.user_have_connections(used_id=data.user_id),  # FixMe: think about dry...
             },
         },
@@ -160,8 +157,8 @@ async def new_chat(user: User, data: dict) -> None:
     await server.send_to_many_users(
         users_ids=data.users_ids,
         message={
-            TYPE_KEY: MessageTypes.NEW_CHAT,
-            DATA_KEY: result_data,
+            JSONKey.TYPE: MessageTypes.NEW_CHAT,
+            JSONKey.DATA: result_data,
         },
     )
 
@@ -172,8 +169,8 @@ async def new_chat(user: User, data: dict) -> None:
         await server.send_to_one_user(
             user_id=user_id,
             message={
-                TYPE_KEY: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
-                DATA_KEY: {
+                JSONKey.TYPE: MessageTypes.INTERLOCUTORS_ONLINE_INFO,
+                JSONKey.DATA: {
                     id_: server.user_have_connections(used_id=id_) for id_ in cur_users_ids  # FixMe: think about dry...
                 },
             }
@@ -201,8 +198,8 @@ async def new_chat_message(user: User, data: dict) -> None:
     await server.send_to_many_users(
         users_ids=users_ids_of_chat_by_id(chat_id=chat.id),
         message={
-            TYPE_KEY: MessageTypes.NEW_CHAT_MESSAGE,
-            DATA_KEY: result_data,
+            JSONKey.TYPE: MessageTypes.NEW_CHAT_MESSAGE,
+            JSONKey.DATA: result_data,
         },
     )
 
@@ -225,8 +222,8 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
     await server.send_to_many_users(
         users_ids=ids,
         message={
-            TYPE_KEY: MessageTypes.NEW_CHAT_MESSAGE_TYPING,
-            DATA_KEY: result_data,
+            JSONKey.TYPE: MessageTypes.NEW_CHAT_MESSAGE_TYPING,
+            JSONKey.DATA: result_data,
         },
     )
 

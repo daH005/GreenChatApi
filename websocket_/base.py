@@ -1,7 +1,7 @@
 from __future__ import annotations
 import asyncio
 from websockets import WebSocketServerProtocol, serve, ConnectionClosed  # pip install websockets
-from typing import NoReturn, Callable, TypedDict, Coroutine
+from typing import NoReturn, Callable, Coroutine
 import json
 from json import JSONDecodeError
 from jwt import decode  # pip install pyjwt
@@ -10,27 +10,20 @@ from api.db.models import User, session
 from api.hinting import raises
 from api.config import JWT_SECRET_KEY, JWT_ALGORITHM
 from api.websocket_.logs import logger, init_logs
+from api.websocket_.messages import (
+    MessageJSONDict,
+    JSONKey,
+)
 
 __all__ = (
     'WebSocketServer',
     'WebSocketClientHandler',
     'CommonHandlerFuncT',
     'ConnectAndDisconnectHandlerFuncT',
-    'MessageJSONDict',
-    'TYPE_KEY',
-    'DATA_KEY'
 )
 
 CommonHandlerFuncT = Callable[[User, dict], Coroutine]
 ConnectAndDisconnectHandlerFuncT = Callable[[User], Coroutine]
-TYPE_KEY = 'type'
-DATA_KEY = 'data'
-
-
-class MessageJSONDict(TypedDict):
-
-    type: str
-    data: dict
 
 
 class WebSocketServer:
@@ -200,9 +193,9 @@ class WebSocketClientHandler:
 
     @raises(KeyError, Exception)
     async def _handle_message(self, message: MessageJSONDict) -> None:
-        handler_func: CommonHandlerFuncT = self._get_handler_func(message[TYPE_KEY])
-        await handler_func(user=self.user, data=message[DATA_KEY])  # type: ignore
-        logger.info(f'\"{message[TYPE_KEY]}\". '
+        handler_func: CommonHandlerFuncT = self._get_handler_func(message[JSONKey.TYPE])  # type: ignore
+        await handler_func(user=self.user, data=message[JSONKey.DATA])  # type: ignore
+        logger.info(f'\"{message[JSONKey.TYPE]}\". '  # type: ignore
                     f'UserID - {self.user.id} ({self.protocol.id}).')
 
     @raises(KeyError)
