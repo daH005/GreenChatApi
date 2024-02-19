@@ -201,7 +201,7 @@ class WebSocketClientHandler:
     @raises(KeyError, Exception)
     async def _handle_message(self, message: MessageJSONDict) -> None:
         handler_func: CommonHandlerFuncT = self._get_handler_func(message[TYPE_KEY])
-        await handler_func(self.user, message[DATA_KEY])
+        await handler_func(user=self.user, data=message[DATA_KEY])  # type: ignore
         logger.info(f'\"{message[TYPE_KEY]}\". '
                     f'UserID - {self.user.id} ({self.protocol.id}).')
 
