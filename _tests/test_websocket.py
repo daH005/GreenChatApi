@@ -1,51 +1,41 @@
 import pytest
-from websockets import WebSocketServerProtocol
 
+from api._tests.websocket_test_data import *  # noqa
+from api.websocket_.main import *
 from api.websocket_.base import (
-    WebSocketServer,
-    WebSocketClientHandler,
+    ConnectAndDisconnectHandlerFuncT,
+    CommonHandlerFuncT,
 )
-from api.websocket_.main import new_chat_message, new_chat
-from api._tests.db_test_data import *  # noqa
+
+sendings = {}
 
 
-class WebSocketServerProtocolStub(WebSocketServerProtocol):
-
-    def __init__(self) -> None:  # noqa
-        pass
+def setup_module() -> None:
+    replace_send_to_one_user_method_for_check_data_to_send()
 
 
-class TestWebSocketServer:
-    server = WebSocketServer(
-        'localhost', 2220
-    )
+def replace_send_to_one_user_method_for_check_data_to_send() -> None:
 
-    @classmethod
-    @pytest.mark.parametrize('attr_name', [
-        'host',
-        'port',
-        'run',
-        '_handler',
-        '_add_client',
-        '_del_client',
-        'send_to_many_users',
-    ])
-    def test_positive_instance_has_attr(cls, attr_name: str) -> None:
-        assert hasattr(cls.server, attr_name)
+    async def send_to_one_user_method_for_test(user_id: int,
+                                               message: dict,
+                                               ) -> None:
+        sendings.setdefault(user_id, []).append(message)
+
+    server.send_to_one_user = send_to_one_user_method_for_test
 
 
-class TestWebSocketClientHandler:
-    client = WebSocketClientHandler(
-        TestWebSocketServer.server,
-        WebSocketServerProtocolStub(),
-    )
+async def _test_positive_handler_and_sendings(handler_func: ConnectAndDisconnectHandlerFuncT | CommonHandlerFuncT,
+                                              handler_kwargs: dict,
+                                              expected_sendings,
+                                              ) -> None:
+    sendings.clear()
+    await handler_func(**handler_kwargs)
+    assert sendings == expected_sendings
 
-    @classmethod
-    @pytest.mark.parametrize('attr_name', [
-        'server',
-        'protocol',
-        'auth',
-        'listen',
-    ])
-    def test_positive_instance_has_attr(cls, attr_name: str) -> None:
-        assert hasattr(cls.client, attr_name)
+
+@pytest.mark.parametrize(('handler_kwargs', 'expected_sendings'), FIRST_CONNECTION_HANDLER_ARGS_SETS)
+@pytest.mark.asyncio
+async def test_positive_first_connection_handler(handler_kwargs: dict,
+                                                 expected_sendings,
+                                                 ) -> None:
+    await _test_positive_handler_and_sendings(first_connection_handler, handler_kwargs, expected_sendings)
