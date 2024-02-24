@@ -1,7 +1,7 @@
 from api._tests.db_test_data import *  # noqa
 
 ONLINE_USERS_IDS = [
-    1, 2, 4,
+    1, 2, 3,
 ]
 
 FIRST_CONNECTION_HANDLER_SENT_DATA = [

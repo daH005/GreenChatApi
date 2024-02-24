@@ -11,11 +11,11 @@ sendings = {}
 
 
 def setup_module() -> None:
-    replace_send_to_one_user_method_for_check_data_to_send()
-    replace_user_have_one_connection_method_for_online_imitation()
+    _replace_send_to_one_user_method_for_check_data_to_send()
+    _replace_user_have_one_connection_method_for_online_imitation()
 
 
-def replace_send_to_one_user_method_for_check_data_to_send() -> None:
+def _replace_send_to_one_user_method_for_check_data_to_send() -> None:
 
     async def method(user_id: int,
                      message: dict,
@@ -25,9 +25,9 @@ def replace_send_to_one_user_method_for_check_data_to_send() -> None:
     server.send_to_one_user = method
 
 
-def replace_user_have_one_connection_method_for_online_imitation() -> None:
+def _replace_user_have_one_connection_method_for_online_imitation() -> None:
 
-    async def method(user_id: int) -> bool:
+    def method(user_id: int) -> bool:
         return user_id in ONLINE_USERS_IDS
 
     server.user_have_connections = method
