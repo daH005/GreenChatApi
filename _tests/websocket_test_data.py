@@ -194,7 +194,47 @@ NEW_CHAT_HANDLER_SENDINGS = [
 ]
 
 NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
-
+    (
+        dict(
+            user=USERS[1],
+            data={
+                'chatId': 1,
+                'text': 'Hello...',
+            }
+        ),
+        {
+            1: [
+                {'type': 'newChatMessage',
+                 'data': {
+                     'id': 6,
+                     'chatId': 1,
+                     'text': 'Hello...',
+                     'creatingDatetime': COMMON_CREATING_DATETIME.isoformat(),
+                     'user': {
+                         'id': 1,
+                         'firstName': USERS[1].first_name,
+                         'lastName': USERS[1].last_name,
+                     }
+                 }
+                 }
+            ],
+            2: [
+                {'type': 'newChatMessage',
+                 'data': {
+                     'id': 6,
+                     'chatId': 1,
+                     'text': 'Hello...',
+                     'creatingDatetime': COMMON_CREATING_DATETIME.isoformat(),
+                     'user': {
+                         'id': 1,
+                         'firstName': USERS[1].first_name,
+                         'lastName': USERS[1].last_name,
+                     }
+                 }
+                 }
+            ],
+        }
+    )
 ]
 
 NEW_CHAT_MESSAGE_TYPING_HANDLER_SENDINGS = [
