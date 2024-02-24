@@ -4,7 +4,7 @@ ONLINE_USERS_IDS = [
     1, 2, 3,
 ]
 
-FIRST_CONNECTION_HANDLER_SENT_DATA = [
+FIRST_CONNECTION_HANDLER_SENDINGS = [
     (
         dict(
             user=USERS[1],
