@@ -81,11 +81,11 @@ class WebSocketServer:
         except (KeyError, ValueError):
             return
 
-    def _user_have_only_one_connection(self, used_id: int) -> bool:
-        return len(self._clients.get(used_id, [])) == 1
+    def _user_have_only_one_connection(self, user_id: int) -> bool:
+        return len(self._clients.get(user_id, [])) == 1
 
-    def user_have_connections(self, used_id: int) -> bool:
-        return len(self._clients.get(used_id, [])) != 0
+    def user_have_connections(self, user_id: int) -> bool:
+        return len(self._clients.get(user_id, [])) != 0
 
     async def send_to_many_users(self, users_ids: list[int] | set[int],
                                  message: MessageJSONDictMaker.Dict,

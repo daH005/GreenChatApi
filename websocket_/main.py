@@ -95,7 +95,7 @@ async def new_interlocutor_online_status_adding(user: User, data: dict) -> None:
         message={
             JSONKey.TYPE: MessageType.INTERLOCUTORS_ONLINE_INFO,
             JSONKey.DATA: {
-                data.user_id: server.user_have_connections(used_id=data.user_id),  # FixMe: think about dry...
+                data.user_id: server.user_have_connections(user_id=data.user_id),  # FixMe: think about dry...
             },
         },
     )
@@ -162,7 +162,7 @@ async def new_chat(user: User, data: dict) -> None:
             message={
                 JSONKey.TYPE: MessageType.INTERLOCUTORS_ONLINE_INFO,
                 JSONKey.DATA: {
-                    id_: server.user_have_connections(used_id=id_) for id_ in cur_users_ids  # FixMe: think about dry...
+                    id_: server.user_have_connections(user_id=id_) for id_ in cur_users_ids  # FixMe: think about dry...
                 },
             }
         )
