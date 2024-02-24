@@ -145,6 +145,11 @@ NEW_CHAT_HANDLER_SENDINGS = [
                          },
                      ]
                  }
+                 },
+                {'type': 'interlocutorsOnlineInfo',
+                 'data': {
+                     5: True,
+                 }
                  }
             ],
             5: [
@@ -176,6 +181,11 @@ NEW_CHAT_HANDLER_SENDINGS = [
                              'lastName': USERS[5].last_name,
                          },
                      ]
+                 }
+                 },
+                {'type': 'interlocutorsOnlineInfo',
+                 'data': {
+                     1: True,
                  }
                  }
             ],
