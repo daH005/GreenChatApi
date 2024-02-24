@@ -1,5 +1,9 @@
 from api._tests.db_test_data import *  # noqa
 
+ONLINE_USERS_IDS = [
+    1, 2, 4,
+]
+
 FIRST_CONNECTION_HANDLER_SENT_DATA = [
     (
         dict(
@@ -8,7 +12,9 @@ FIRST_CONNECTION_HANDLER_SENT_DATA = [
         {
             1: [
                 {'type': 'interlocutorsOnlineInfo',
-                 'data': {}
+                 'data': {
+                     2: True,
+                 }
                  }
             ],
             2: [
