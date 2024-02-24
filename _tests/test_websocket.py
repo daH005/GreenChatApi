@@ -11,13 +11,23 @@ sendings = {}
 
 
 def setup_module() -> None:
-    _replace_send_to_one_user_method_for_check_data_to_send()
-    _replace_user_have_one_connection_method_for_online_imitation()
+    server.send_to_one_user_backup = server.send_to_one_user
+    server.user_have_connections_backup = server.user_have_connections
+
+    _replace_server_send_to_one_user_method_for_check_data_to_send()
+    _replace_server_user_have_one_connection_method_for_online_imitation()
 
     potential_interlocutors.update(POTENTIAL_INTERLOCUTORS)
 
 
-def _replace_send_to_one_user_method_for_check_data_to_send() -> None:
+def teardown_module() -> None:
+    server.send_to_one_user = server.send_to_one_user_backup
+    server.user_have_connections = server.user_have_connections_backup
+
+    potential_interlocutors.clear()
+
+
+def _replace_server_send_to_one_user_method_for_check_data_to_send() -> None:
 
     async def method(user_id: int,
                      message: dict,
@@ -27,7 +37,7 @@ def _replace_send_to_one_user_method_for_check_data_to_send() -> None:
     server.send_to_one_user = method
 
 
-def _replace_user_have_one_connection_method_for_online_imitation() -> None:
+def _replace_server_user_have_one_connection_method_for_online_imitation() -> None:
 
     def method(user_id: int) -> bool:
         return user_id in ONLINE_USERS_IDS
