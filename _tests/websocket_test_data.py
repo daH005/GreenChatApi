@@ -238,5 +238,48 @@ NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
 ]
 
 NEW_CHAT_MESSAGE_TYPING_HANDLER_SENDINGS = [
-
+    (
+        dict(
+            user=USERS[1],
+            data={
+                'chatId': 1,
+            }
+        ),
+        {
+            2: [
+                {'type': 'newChatMessageTyping',
+                 'data': {
+                     'chatId': 1,
+                     'user': {
+                         'id': 1,
+                         'firstName': USERS[1].first_name,
+                         'lastName': USERS[1].last_name
+                     }
+                 }
+                 }
+            ]
+        }
+    ),
+    (
+        dict(
+            user=USERS[2],
+            data={
+                'chatId': 1,
+            }
+        ),
+        {
+            1: [
+                {'type': 'newChatMessageTyping',
+                 'data': {
+                     'chatId': 1,
+                     'user': {
+                         'id': 2,
+                         'firstName': USERS[2].first_name,
+                         'lastName': USERS[2].last_name
+                     }
+                 }
+                 }
+            ]
+        }
+    ),
 ]
