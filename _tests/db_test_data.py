@@ -11,6 +11,7 @@ USERS_PASSWORDS = {
     2: 'test_pass__',
     3: 'test_pass__',
     4: 'test_pass__44',
+    5: 'new...213123'
 }
 
 USERS = {
@@ -42,6 +43,13 @@ USERS = {
         'first_name',
         'last_name',
     ),
+    5: User.new_by_password(
+        'dan',
+        USERS_PASSWORDS[5],
+        'pochta@yandex.ru',
+        'danil',
+        'shevelev',  # noqa
+    )
 }
 
 CHATS = {
