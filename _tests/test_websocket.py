@@ -14,6 +14,8 @@ def setup_module() -> None:
     _replace_send_to_one_user_method_for_check_data_to_send()
     _replace_user_have_one_connection_method_for_online_imitation()
 
+    potential_interlocutors.update(POTENTIAL_INTERLOCUTORS)
+
 
 def _replace_send_to_one_user_method_for_check_data_to_send() -> None:
 

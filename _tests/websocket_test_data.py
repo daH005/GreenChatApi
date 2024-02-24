@@ -1,8 +1,14 @@
 from api._tests.db_test_data import *  # noqa
 
 ONLINE_USERS_IDS = [
-    1, 2, 3,
+    1, 2, 3, 5
 ]
+
+POTENTIAL_INTERLOCUTORS = {
+    1: [
+        5,
+    ],
+}
 
 FIRST_CONNECTION_HANDLER_SENDINGS = [
     (
@@ -31,6 +37,13 @@ FIRST_CONNECTION_HANDLER_SENDINGS = [
                  }
                  }
             ],
+            5: [
+                {'type': 'interlocutorsOnlineInfo',
+                 'data': {
+                     1: True,
+                 }
+                 }
+            ],
         }
     )
 ]
@@ -49,6 +62,13 @@ FULL_DISCONNECTION_HANDLER_SENDINGS = [
                  }
             ],
             4: [
+                {'type': 'interlocutorsOnlineInfo',
+                 'data': {
+                     1: False,
+                 }
+                 }
+            ],
+            5: [
                 {'type': 'interlocutorsOnlineInfo',
                  'data': {
                      1: False,
