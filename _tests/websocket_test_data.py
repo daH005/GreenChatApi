@@ -1,4 +1,10 @@
+from datetime import datetime
+
 from api._tests.db_test_data import *  # noqa
+
+COMMON_CREATING_DATETIME: datetime = datetime(
+    year=2024, month=10, day=10,
+)
 
 ONLINE_USERS_IDS = [
     1, 2, 3, 5
@@ -119,7 +125,7 @@ NEW_CHAT_HANDLER_SENDINGS = [
                          'id': 5,
                          'chatId': 5,
                          'text': 'Hi!',
-                         'creatingDatetime': 0,
+                         'creatingDatetime': COMMON_CREATING_DATETIME.isoformat(),
                          'user': {
                              'id': 1,
                              'firstName': USERS[1].first_name,
@@ -151,7 +157,7 @@ NEW_CHAT_HANDLER_SENDINGS = [
                          'id': 5,
                          'chatId': 5,
                          'text': 'Hi!',
-                         'creatingDatetime': 0,
+                         'creatingDatetime': COMMON_CREATING_DATETIME.isoformat(),
                          'user': {
                              'id': 1,
                              'firstName': USERS[1].first_name,

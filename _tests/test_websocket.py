@@ -1,5 +1,7 @@
 import pytest
+from datetime import datetime  # noqa
 
+from api.db.models import ChatMessage  # noqa
 from api._tests.websocket_test_data import *  # noqa
 from api.websocket_.main import *
 from api.websocket_.base import (
@@ -11,20 +13,33 @@ sendings = {}
 
 
 def setup_module() -> None:
-    server.send_to_one_user_backup = server.send_to_one_user
-    server.user_have_connections_backup = server.user_have_connections
+    ChatMessage.__init__backup = ChatMessage.__init__
+    _replace_chat_message_init_for_creating_datetime_comparison()
 
+    server.send_to_one_user_backup = server.send_to_one_user
     _replace_server_send_to_one_user_method_for_check_data_to_send()
+
+    server.user_have_connections_backup = server.user_have_connections
     _replace_server_user_have_one_connection_method_for_online_imitation()
 
     potential_interlocutors.update(POTENTIAL_INTERLOCUTORS)
 
 
 def teardown_module() -> None:
+    ChatMessage.__init__ = ChatMessage.__init__backup  # noqa
     server.send_to_one_user = server.send_to_one_user_backup
     server.user_have_connections = server.user_have_connections_backup
 
     potential_interlocutors.clear()
+
+
+def _replace_chat_message_init_for_creating_datetime_comparison() -> None:
+
+    def method(*_args, **kwargs) -> ChatMessage:
+        kwargs['creating_datetime'] = COMMON_CREATING_DATETIME
+        return ChatMessage.__init__backup(*_args, **kwargs)  # noqa
+
+    ChatMessage.__init__ = method
 
 
 def _replace_server_send_to_one_user_method_for_check_data_to_send() -> None:
