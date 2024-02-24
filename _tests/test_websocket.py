@@ -12,16 +12,25 @@ sendings = {}
 
 def setup_module() -> None:
     replace_send_to_one_user_method_for_check_data_to_send()
+    replace_user_have_one_connection_method_for_online_imitation()
 
 
 def replace_send_to_one_user_method_for_check_data_to_send() -> None:
 
-    async def send_to_one_user_method_for_test(user_id: int,
-                                               message: dict,
-                                               ) -> None:
+    async def method(user_id: int,
+                     message: dict,
+                     ) -> None:
         sendings.setdefault(user_id, []).append(message)
 
-    server.send_to_one_user = send_to_one_user_method_for_test
+    server.send_to_one_user = method
+
+
+def replace_user_have_one_connection_method_for_online_imitation() -> None:
+
+    async def method(user_id: int) -> bool:
+        return user_id in ONLINE_USERS_IDS
+
+    server.user_have_connections = method
 
 
 async def _test_positive_handler_and_sendings(handler_func: ConnectAndDisconnectHandlerFuncT | CommonHandlerFuncT,
