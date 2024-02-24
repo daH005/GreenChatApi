@@ -33,7 +33,7 @@ async def _test_positive_handler_and_sendings(handler_func: ConnectAndDisconnect
     assert sendings == expected_sendings
 
 
-@pytest.mark.parametrize(('handler_kwargs', 'expected_sendings'), FIRST_CONNECTION_HANDLER_ARGS_SETS)
+@pytest.mark.parametrize(('handler_kwargs', 'expected_sendings'), FIRST_CONNECTION_HANDLER_SENT_DATA)
 @pytest.mark.asyncio
 async def test_positive_first_connection_handler(handler_kwargs: dict,
                                                  expected_sendings,

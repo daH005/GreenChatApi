@@ -1,6 +1,6 @@
 from api._tests.db_test_data import *  # noqa
 
-FIRST_CONNECTION_HANDLER_ARGS_SETS = [
+FIRST_CONNECTION_HANDLER_SENT_DATA = [
     (
         dict(
             user=USERS[1],
