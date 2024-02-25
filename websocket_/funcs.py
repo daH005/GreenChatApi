@@ -7,6 +7,7 @@ from api.db.models import (
     ChatMessage,
     User,
 )
+from api.websocket_.base import WebSocketServer
 
 __all__ = (
     'TEXT_MAX_LENGTH',
@@ -14,6 +15,7 @@ __all__ = (
     'users_ids_of_chat_by_id',
     'make_chat_message_and_add_to_session',
     'interlocutors_ids_for_user_by_id',
+    'make_online_statuses_data',
 )
 
 TEXT_MAX_LENGTH: Final[int] = 10_000
@@ -48,6 +50,17 @@ def interlocutors_ids_for_user_by_id(user_id: int) -> list[int]:
     interlocutors: list[User] = UserChatMatch.find_all_interlocutors(user_id=user_id)
     interlocutors_ids = [interlocutor.id for interlocutor in interlocutors]
     return interlocutors_ids
+
+
+def make_online_statuses_data(server: WebSocketServer,
+                              users_ids: list[int],
+                              ) -> dict[int, bool]:
+    result_data = {}
+    for user_id in users_ids:
+        if server.user_have_connections(user_id):
+            result_data[user_id] = True
+
+    return result_data
 
 
 if __name__ == "__main__":

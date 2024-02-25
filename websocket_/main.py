@@ -20,6 +20,7 @@ from api.websocket_.funcs import (
     users_ids_of_chat_by_id,
     make_chat_message_and_add_to_session,
     interlocutors_ids_for_user_by_id,
+    make_online_statuses_data,
 )
 from api.websocket_.validation import (
     UserIdInfo,
@@ -47,11 +48,10 @@ async def first_connection_handler(user: User) -> None:
         })
     )
 
-    result_data = {}
-    for interlocutor_id in interlocutors_ids:
-        if server.user_have_connections(interlocutor_id):
-            result_data[interlocutor_id] = True
-
+    result_data = make_online_statuses_data(
+        server=server,
+        users_ids=interlocutors_ids,
+    )
     await server.send_to_one_user(
         user_id=user.id,
         message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict(result_data)
@@ -111,9 +111,9 @@ async def new_chat(user: User, data: dict) -> None:
     session.flush()
 
     matches = []
-    for id_ in data.users_ids:
+    for user_id in data.users_ids:
         match = UserChatMatch(
-            user_id=id_,
+            user_id=user_id,
             chat_id=chat.id,
         )
         matches.append(match)
@@ -134,15 +134,17 @@ async def new_chat(user: User, data: dict) -> None:
         message=MessageType.NEW_CHAT.make_json_dict(result_data)
     )
 
+    result_data = make_online_statuses_data(
+        server=server,
+        users_ids=data.users_ids,
+    )
     for user_id in data.users_ids:
-        cur_users_ids = [*data.users_ids]
-        cur_users_ids.remove(user_id)
+        cur_result_data = {**result_data}
+        cur_result_data.pop(user_id)
 
         await server.send_to_one_user(
             user_id=user_id,
-            message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict({
-                id_: server.user_have_connections(user_id=id_) for id_ in cur_users_ids
-            })
+            message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict(cur_result_data)
         )
 
 
@@ -180,12 +182,12 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
         chat_id=data.chat_id,
     )
 
-    ids = users_ids_of_chat_by_id(chat_id=chat.id)
-    ids.remove(user.id)
+    users_ids = users_ids_of_chat_by_id(chat_id=chat.id)
+    users_ids.remove(user.id)
 
     result_data = ChatMessageTypingJSONDictMaker.make(chat_id=chat.id, user=user)
     await server.send_to_many_users(
-        users_ids=ids,
+        users_ids=users_ids,
         message=MessageType.NEW_CHAT_MESSAGE_TYPING.make_json_dict(result_data)
     )
 
