@@ -15,7 +15,7 @@ from api.db.models import (
 )
 from api.db.alembic_.init import make_migrations
 from api.websocket_.base import WebSocketServer
-from api.websocket_.messages import JSONKey, MessageType
+from api.websocket_.messages import MessageType
 from api.websocket_.funcs import (
     users_ids_of_chat_by_id,
     make_chat_message_and_add_to_session,
