@@ -5,6 +5,7 @@ from api.db.models import (
     session,
     UserChatMatch,
     ChatMessage,
+    User,
 )
 
 __all__ = (
@@ -12,6 +13,7 @@ __all__ = (
     'clear_text_message',
     'users_ids_of_chat_by_id',
     'make_chat_message_and_add_to_session',
+    'interlocutors_ids_for_user_by_id',
 )
 
 TEXT_MAX_LENGTH: Final[int] = 10_000
@@ -40,6 +42,12 @@ def make_chat_message_and_add_to_session(text: str,
     )
     session.add(chat_message)
     return chat_message
+
+
+def interlocutors_ids_for_user_by_id(user_id: int) -> list[int]:
+    interlocutors: list[User] = UserChatMatch.find_all_interlocutors(user_id=user_id)
+    interlocutors_ids = [interlocutor.id for interlocutor in interlocutors]
+    return interlocutors_ids
 
 
 if __name__ == "__main__":

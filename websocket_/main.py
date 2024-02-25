@@ -19,6 +19,7 @@ from api.websocket_.messages import MessageType
 from api.websocket_.funcs import (
     users_ids_of_chat_by_id,
     make_chat_message_and_add_to_session,
+    interlocutors_ids_for_user_by_id,
 )
 from api.websocket_.validation import (
     UserIdInfo,
@@ -37,22 +38,19 @@ users_ids_and_potential_interlocutors_ids = {}
 
 @server.first_connection_handler
 async def first_connection_handler(user: User) -> None:
-    # FixMe: think about dry...
-    interlocutors: list[User] = UserChatMatch.find_all_interlocutors(user_id=user.id)
-    ids = [interlocutor.id for interlocutor in interlocutors]
-    ids = [*ids, *users_ids_and_potential_interlocutors_ids.get(user.id, [])]  # FixMe: think about dry...
+    interlocutors_ids: list[int] = interlocutors_ids_for_user_by_id(user_id=user.id)
 
     await server.send_to_many_users(
-        users_ids=ids,
+        users_ids=interlocutors_ids + users_ids_and_potential_interlocutors_ids.get(user.id, []),
         message=MessageType.INTERLOCUTORS_ONLINE_INFO.make_json_dict({
             user.id: True,
         })
     )
 
     result_data = {}
-    for interlocutor in interlocutors:
-        if server.user_have_connections(interlocutor.id):
-            result_data[interlocutor.id] = True
+    for interlocutor_id in interlocutors_ids:
+        if server.user_have_connections(interlocutor_id):
+            result_data[interlocutor_id] = True
 
     await server.send_to_one_user(
         user_id=user.id,
@@ -62,13 +60,10 @@ async def first_connection_handler(user: User) -> None:
 
 @server.full_disconnection_handler
 async def full_disconnection_handler(user: User) -> None:
-    # FixMe: think about dry...
-    interlocutors: list[User] = UserChatMatch.find_all_interlocutors(user_id=user.id)
-    ids = [interlocutor.id for interlocutor in interlocutors]
-    ids = [*ids, *users_ids_and_potential_interlocutors_ids.get(user.id, [])]  # FixMe: think about dry...
+    interlocutors_ids: list[int] = interlocutors_ids_for_user_by_id(user_id=user.id)
 
     await server.send_to_many_users(
-        users_ids=ids,
+        users_ids=interlocutors_ids + users_ids_and_potential_interlocutors_ids.get(user.id, []),
         message=MessageType.INTERLOCUTORS_ONLINE_INFO.make_json_dict({
             user.id: False,
         })
@@ -179,7 +174,6 @@ async def new_chat_message(user: User, data: dict) -> None:
 async def new_chat_message_typing(user: User, data: dict) -> None:
     data: ChatIdInfo = ChatIdInfo(**data)
 
-    # FixMe: think about dry...
     chat: Chat = UserChatMatch.chat_if_user_has_access(
         user_id=user.id,
         chat_id=data.chat_id,
