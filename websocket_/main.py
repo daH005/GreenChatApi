@@ -96,7 +96,8 @@ async def new_chat(user: User, data: dict) -> None:
         raise ValueError
 
     try:
-        UserChatMatch.find_private_chat(*data.users_ids)
+        if len(data.users_ids) == 2:
+            UserChatMatch.find_private_chat(*data.users_ids)
     except ValueError:
         pass  # Чата нет, значит всё идёт по плану - создаём.
     else:
