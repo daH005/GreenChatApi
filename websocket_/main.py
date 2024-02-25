@@ -139,8 +139,14 @@ async def new_chat(user: User, data: dict) -> None:
         users_ids=data.users_ids,
     )
     for user_id in data.users_ids:
+        if user_id not in result_data:  # we are not online
+            continue
+
         cur_result_data = {**result_data}
         cur_result_data.pop(user_id)
+
+        if not cur_result_data:  # all interlocutors are not online
+            continue
 
         await server.send_to_one_user(
             user_id=user_id,
