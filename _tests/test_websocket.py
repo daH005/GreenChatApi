@@ -22,7 +22,7 @@ def setup_module() -> None:
     server.user_have_connections_backup = server.user_have_connections
     _replace_server_user_have_one_connection_method_for_online_imitation()
 
-    users_ids_and_potential_interlocutors_ids.update(POTENTIAL_INTERLOCUTORS)
+    users_ids_and_potential_interlocutors_ids.update(USERS_IDS_AND_POTENTIAL_INTERLOCUTORS_IDS)
 
 
 def teardown_module() -> None:
