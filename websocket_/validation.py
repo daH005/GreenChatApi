@@ -4,10 +4,10 @@ from api.json_ import JSONKey
 from api.websocket_.funcs import clear_text_message
 
 __all__ = (
-    'NewInterlocutorOnlineStatusAdding',
+    'UserIdInfo',
     'NewChat',
     'NewChatMessage',
-    'NewChatMessageTyping',
+    'ChatIdInfo',
 )
 
 
@@ -23,7 +23,7 @@ class BaseModelWithTextField(BaseModel):
         return text
 
 
-class NewInterlocutorOnlineStatusAdding(BaseModel):
+class UserIdInfo(BaseModel):
     user_id: int = Field(alias=JSONKey.USER_ID)
 
 
@@ -34,9 +34,9 @@ class NewChat(BaseModelWithTextField):
     is_group: bool = Field(alias=JSONKey.IS_GROUP, default=False)
 
 
-class NewChatMessage(BaseModelWithTextField):
+class ChatIdInfo(BaseModel):
     chat_id: int = Field(alias=JSONKey.CHAT_ID)
 
 
-class NewChatMessageTyping(BaseModel):
-    chat_id: int = Field(alias=JSONKey.CHAT_ID)
+class NewChatMessage(BaseModelWithTextField, ChatIdInfo):
+    pass

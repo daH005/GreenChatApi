@@ -21,10 +21,10 @@ from api.websocket_.funcs import (
     make_chat_message_and_add_to_session,
 )
 from api.websocket_.validation import (
-    NewInterlocutorOnlineStatusAdding,
+    UserIdInfo,
     NewChat,
     NewChatMessage,
-    NewChatMessageTyping,
+    ChatIdInfo,
 )
 
 server = WebSocketServer(
@@ -78,7 +78,7 @@ async def full_disconnection_handler(user: User) -> None:
 @server.common_handler(MessageType.NEW_INTERLOCUTOR_ONLINE_STATUS_ADDING)
 @raises(ValidationError)
 async def new_interlocutor_online_status_adding(user: User, data: dict) -> None:
-    data: NewInterlocutorOnlineStatusAdding = NewInterlocutorOnlineStatusAdding(**data)
+    data: UserIdInfo = UserIdInfo(**data)
     potential_interlocutors.setdefault(data.user_id, []).append(user.id)
 
     await server.send_to_one_user(
@@ -177,7 +177,7 @@ async def new_chat_message(user: User, data: dict) -> None:
 @server.common_handler(MessageType.NEW_CHAT_MESSAGE_TYPING)
 @raises(ValidationError, PermissionError, ValueError)
 async def new_chat_message_typing(user: User, data: dict) -> None:
-    data: NewChatMessageTyping = NewChatMessageTyping(**data)
+    data: ChatIdInfo = ChatIdInfo(**data)
 
     # FixMe: think about dry...
     chat: Chat = UserChatMatch.chat_if_user_has_access(
