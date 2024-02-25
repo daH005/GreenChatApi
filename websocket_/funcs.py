@@ -61,10 +61,3 @@ def make_online_statuses_data(server: WebSocketServer,
             result_data[user_id] = True
 
     return result_data
-
-
-if __name__ == "__main__":
-    print(clear_text_message(' string__    line-break\n\nnew-line\nnew-line-2\n'))
-    print(clear_text_message('    '))
-    print(clear_text_message(''))
-    print(clear_text_message(' '))
