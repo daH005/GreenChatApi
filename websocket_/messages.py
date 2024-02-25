@@ -35,8 +35,8 @@ class MessageJSONDictMaker(AbstractJSONDictMaker):
 
 class MessageType(StrEnum):
 
-    INTERLOCUTORS_ONLINE_INFO = 'interlocutorsOnlineInfo'
-    NEW_INTERLOCUTOR_ONLINE_STATUS_ADDING = 'newInterlocutorOnlineStatusAdding'
+    INTERLOCUTORS_ONLINE_STATUSES = 'interlocutorsOnlineStatuses'
+    ONLINE_STATUS_TRACING_ADDING = 'onlineStatusTracingAdding'
     NEW_CHAT = 'newChat'
     NEW_CHAT_MESSAGE = 'newChatMessage'
     NEW_CHAT_MESSAGE_TYPING = 'newChatMessageTyping'

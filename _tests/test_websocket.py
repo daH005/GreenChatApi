@@ -90,7 +90,7 @@ async def test_positive_full_disconnection_handler(handler_kwargs: dict,
 async def test_positive_online_status_tracing_adding_handler(handler_kwargs: dict,
                                                              expected_sendings,
                                                              ) -> None:
-    await _test_positive_handler_and_sendings(new_interlocutor_online_status_adding, handler_kwargs, expected_sendings)
+    await _test_positive_handler_and_sendings(online_status_tracing_adding, handler_kwargs, expected_sendings)
 
 
 @pytest.mark.parametrize(('handler_kwargs', 'expected_sendings'), NEW_CHAT_HANDLER_SENDINGS)

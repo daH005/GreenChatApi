@@ -23,28 +23,28 @@ FIRST_CONNECTION_HANDLER_SENDINGS = [
         ),
         {
             1: [
-                {'type': 'interlocutorsOnlineInfo',
+                {'type': 'interlocutorsOnlineStatuses',
                  'data': {
                      2: True,
                  }
                  }
             ],
             2: [
-                {'type': 'interlocutorsOnlineInfo',
+                {'type': 'interlocutorsOnlineStatuses',
                  'data': {
                      1: True,
                  }
                  }
             ],
             4: [
-                {'type': 'interlocutorsOnlineInfo',
+                {'type': 'interlocutorsOnlineStatuses',
                  'data': {
                      1: True,
                  }
                  }
             ],
             5: [
-                {'type': 'interlocutorsOnlineInfo',
+                {'type': 'interlocutorsOnlineStatuses',
                  'data': {
                      1: True,
                  }
@@ -61,21 +61,21 @@ FULL_DISCONNECTION_HANDLER_SENDINGS = [
         ),
         {
             2: [
-                {'type': 'interlocutorsOnlineInfo',
+                {'type': 'interlocutorsOnlineStatuses',
                  'data': {
                      1: False,
                  }
                  }
             ],
             4: [
-                {'type': 'interlocutorsOnlineInfo',
+                {'type': 'interlocutorsOnlineStatuses',
                  'data': {
                      1: False,
                  }
                  }
             ],
             5: [
-                {'type': 'interlocutorsOnlineInfo',
+                {'type': 'interlocutorsOnlineStatuses',
                  'data': {
                      1: False,
                  }
@@ -95,7 +95,7 @@ ONLINE_STATUS_TRACING_ADDING_HANDLER_SENDINGS = [
         ),
         {
             1: [
-                {'type': 'interlocutorsOnlineInfo',
+                {'type': 'interlocutorsOnlineStatuses',
                  'data': {
                      3: True,
                  }
@@ -146,7 +146,7 @@ NEW_CHAT_HANDLER_SENDINGS = [
                      ]
                  }
                  },
-                {'type': 'interlocutorsOnlineInfo',
+                {'type': 'interlocutorsOnlineStatuses',
                  'data': {
                      5: True,
                  }
@@ -183,7 +183,7 @@ NEW_CHAT_HANDLER_SENDINGS = [
                      ]
                  }
                  },
-                {'type': 'interlocutorsOnlineInfo',
+                {'type': 'interlocutorsOnlineStatuses',
                  'data': {
                      1: True,
                  }

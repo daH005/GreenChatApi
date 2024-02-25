@@ -42,7 +42,7 @@ async def first_connection_handler(user: User) -> None:
 
     await server.send_to_many_users(
         users_ids=interlocutors_ids + users_ids_and_potential_interlocutors_ids.get(user.id, []),
-        message=MessageType.INTERLOCUTORS_ONLINE_INFO.make_json_dict({
+        message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict({
             user.id: True,
         })
     )
@@ -54,7 +54,7 @@ async def first_connection_handler(user: User) -> None:
 
     await server.send_to_one_user(
         user_id=user.id,
-        message=MessageType.INTERLOCUTORS_ONLINE_INFO.make_json_dict(result_data)
+        message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict(result_data)
     )
 
 
@@ -64,21 +64,21 @@ async def full_disconnection_handler(user: User) -> None:
 
     await server.send_to_many_users(
         users_ids=interlocutors_ids + users_ids_and_potential_interlocutors_ids.get(user.id, []),
-        message=MessageType.INTERLOCUTORS_ONLINE_INFO.make_json_dict({
+        message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict({
             user.id: False,
         })
     )
 
 
-@server.common_handler(MessageType.NEW_INTERLOCUTOR_ONLINE_STATUS_ADDING)
+@server.common_handler(MessageType.ONLINE_STATUS_TRACING_ADDING)
 @raises(ValidationError)
-async def new_interlocutor_online_status_adding(user: User, data: dict) -> None:
+async def online_status_tracing_adding(user: User, data: dict) -> None:
     data: UserIdInfo = UserIdInfo(**data)
     users_ids_and_potential_interlocutors_ids.setdefault(data.user_id, []).append(user.id)
 
     await server.send_to_one_user(
         user_id=user.id,
-        message=MessageType.INTERLOCUTORS_ONLINE_INFO.make_json_dict({
+        message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict({
             data.user_id: server.user_have_connections(user_id=data.user_id)
         })
     )
@@ -139,7 +139,7 @@ async def new_chat(user: User, data: dict) -> None:
 
         await server.send_to_one_user(
             user_id=user_id,
-            message=MessageType.INTERLOCUTORS_ONLINE_INFO.make_json_dict({
+            message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict({
                 id_: server.user_have_connections(user_id=id_) for id_ in cur_users_ids
             })
         )
