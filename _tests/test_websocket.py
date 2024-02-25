@@ -8,6 +8,7 @@ from api.websocket_.base import (
     ConnectAndDisconnectHandlerFuncT,
     CommonHandlerFuncT,
 )
+from api.websocket_.funcs import clear_text_message
 
 sendings = {}
 
@@ -115,3 +116,10 @@ async def test_positive_new_chat_message_typing_handler(handler_kwargs: dict,
                                                         expected_sendings,
                                                         ) -> None:
     await _test_positive_handler_and_sendings(new_chat_message_typing, handler_kwargs, expected_sendings)
+
+
+@pytest.mark.parametrize(('raw_text', 'expected_text'), RAW_AND_HANDLED_MESSAGES_TEXTS)
+def test_positive_message_text_clearing(raw_text: str,
+                                        expected_text: str,
+                                        ) -> None:
+    assert clear_text_message(raw_text) == expected_text

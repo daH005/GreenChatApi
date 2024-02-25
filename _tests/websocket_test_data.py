@@ -283,3 +283,14 @@ NEW_CHAT_MESSAGE_TYPING_HANDLER_SENDINGS = [
         }
     ),
 ]
+
+RAW_AND_HANDLED_MESSAGES_TEXTS = [
+    (
+        'Hi! 1 2 3\n1 2 3',
+        'Hi! 1 2 3\n1 2 3',
+    ),
+    (
+        '   Hello!   How are u??\n  \n\n   My name is Danil!  \n',
+        'Hello! How are u??\nMy name is Danil!',
+    ),
+]
