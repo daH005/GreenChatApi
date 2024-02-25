@@ -44,12 +44,9 @@ async def first_connection_handler(user: User) -> None:
 
     await server.send_to_many_users(
         users_ids=ids,
-        message={
-            JSONKey.TYPE: MessageType.INTERLOCUTORS_ONLINE_INFO,
-            JSONKey.DATA: {
-                user.id: True,
-            },
-        },
+        message=MessageType.INTERLOCUTORS_ONLINE_INFO.make_json_dict({
+            user.id: True,
+        })
     )
 
     result_data = {}
@@ -59,10 +56,7 @@ async def first_connection_handler(user: User) -> None:
 
     await server.send_to_one_user(
         user_id=user.id,
-        message={
-            JSONKey.TYPE: MessageType.INTERLOCUTORS_ONLINE_INFO,
-            JSONKey.DATA: result_data,
-        }
+        message=MessageType.INTERLOCUTORS_ONLINE_INFO.make_json_dict(result_data)
     )
 
 
@@ -75,12 +69,9 @@ async def full_disconnection_handler(user: User) -> None:
 
     await server.send_to_many_users(
         users_ids=ids,
-        message={
-            JSONKey.TYPE: MessageType.INTERLOCUTORS_ONLINE_INFO,
-            JSONKey.DATA: {
-                user.id: False,
-            },
-        },
+        message=MessageType.INTERLOCUTORS_ONLINE_INFO.make_json_dict({
+            user.id: False,
+        })
     )
 
 
@@ -92,12 +83,9 @@ async def new_interlocutor_online_status_adding(user: User, data: dict) -> None:
 
     await server.send_to_one_user(
         user_id=user.id,
-        message={
-            JSONKey.TYPE: MessageType.INTERLOCUTORS_ONLINE_INFO,
-            JSONKey.DATA: {
-                data.user_id: server.user_have_connections(user_id=data.user_id),  # FixMe: think about dry...
-            },
-        },
+        message=MessageType.INTERLOCUTORS_ONLINE_INFO.make_json_dict({
+            data.user_id: server.user_have_connections(user_id=data.user_id)
+        })
     )
 
 
@@ -147,10 +135,7 @@ async def new_chat(user: User, data: dict) -> None:
     result_data = ChatInfoJSONDictMaker.make(chat=chat)
     await server.send_to_many_users(
         users_ids=data.users_ids,
-        message={
-            JSONKey.TYPE: MessageType.NEW_CHAT,
-            JSONKey.DATA: result_data,
-        },
+        message=MessageType.NEW_CHAT.make_json_dict(result_data)
     )
 
     for user_id in data.users_ids:
@@ -159,12 +144,9 @@ async def new_chat(user: User, data: dict) -> None:
 
         await server.send_to_one_user(
             user_id=user_id,
-            message={
-                JSONKey.TYPE: MessageType.INTERLOCUTORS_ONLINE_INFO,
-                JSONKey.DATA: {
-                    id_: server.user_have_connections(user_id=id_) for id_ in cur_users_ids  # FixMe: think about dry...
-                },
-            }
+            message=MessageType.INTERLOCUTORS_ONLINE_INFO.make_json_dict({
+                id_: server.user_have_connections(user_id=id_) for id_ in cur_users_ids
+            })
         )
 
 
@@ -188,10 +170,7 @@ async def new_chat_message(user: User, data: dict) -> None:
     result_data = ChatMessageJSONDictMaker.make(chat_message=chat_message)
     await server.send_to_many_users(
         users_ids=users_ids_of_chat_by_id(chat_id=chat.id),
-        message={
-            JSONKey.TYPE: MessageType.NEW_CHAT_MESSAGE,
-            JSONKey.DATA: result_data,
-        },
+        message=MessageType.NEW_CHAT_MESSAGE.make_json_dict(result_data)
     )
 
 
@@ -212,10 +191,7 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
     result_data = ChatMessageTypingJSONDictMaker.make(chat_id=chat.id, user=user)
     await server.send_to_many_users(
         users_ids=ids,
-        message={
-            JSONKey.TYPE: MessageType.NEW_CHAT_MESSAGE_TYPING,
-            JSONKey.DATA: result_data,
-        },
+        message=MessageType.NEW_CHAT_MESSAGE_TYPING.make_json_dict(result_data)
     )
 
 
