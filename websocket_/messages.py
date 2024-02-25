@@ -43,6 +43,6 @@ class MessageType(StrEnum):
 
     def make_json_dict(self, data: dict) -> MessageJSONDictMaker.Dict:
         return MessageJSONDictMaker.make(
-            type_=self.value(),
+            type_=self.value,  # noqa
             data=data,
         )
