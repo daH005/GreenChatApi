@@ -22,7 +22,7 @@ def setup_module() -> None:
     server.user_have_connections_backup = server.user_have_connections
     _replace_server_user_have_one_connection_method_for_online_imitation()
 
-    potential_interlocutors.update(POTENTIAL_INTERLOCUTORS)
+    users_ids_and_potential_interlocutors_ids.update(POTENTIAL_INTERLOCUTORS)
 
 
 def teardown_module() -> None:
@@ -30,7 +30,7 @@ def teardown_module() -> None:
     server.send_to_one_user = server.send_to_one_user_backup
     server.user_have_connections = server.user_have_connections_backup
 
-    potential_interlocutors.clear()
+    users_ids_and_potential_interlocutors_ids.clear()
 
 
 def _replace_chat_message_init_for_creating_datetime_comparison() -> None:

@@ -32,7 +32,7 @@ server = WebSocketServer(
     port=WEBSOCKET_PORT,
 )
 
-potential_interlocutors = {}
+users_ids_and_potential_interlocutors_ids = {}
 
 
 @server.first_connection_handler
@@ -40,7 +40,7 @@ async def first_connection_handler(user: User) -> None:
     # FixMe: think about dry...
     interlocutors: list[User] = UserChatMatch.find_all_interlocutors(user_id=user.id)
     ids = [interlocutor.id for interlocutor in interlocutors]
-    ids = [*ids, *potential_interlocutors.get(user.id, [])]  # FixMe: think about dry...
+    ids = [*ids, *users_ids_and_potential_interlocutors_ids.get(user.id, [])]  # FixMe: think about dry...
 
     await server.send_to_many_users(
         users_ids=ids,
@@ -65,7 +65,7 @@ async def full_disconnection_handler(user: User) -> None:
     # FixMe: think about dry...
     interlocutors: list[User] = UserChatMatch.find_all_interlocutors(user_id=user.id)
     ids = [interlocutor.id for interlocutor in interlocutors]
-    ids = [*ids, *potential_interlocutors.get(user.id, [])]  # FixMe: think about dry...
+    ids = [*ids, *users_ids_and_potential_interlocutors_ids.get(user.id, [])]  # FixMe: think about dry...
 
     await server.send_to_many_users(
         users_ids=ids,
@@ -79,7 +79,7 @@ async def full_disconnection_handler(user: User) -> None:
 @raises(ValidationError)
 async def new_interlocutor_online_status_adding(user: User, data: dict) -> None:
     data: UserIdInfo = UserIdInfo(**data)
-    potential_interlocutors.setdefault(data.user_id, []).append(user.id)
+    users_ids_and_potential_interlocutors_ids.setdefault(data.user_id, []).append(user.id)
 
     await server.send_to_one_user(
         user_id=user.id,
