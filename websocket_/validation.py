@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, field_validator
 
 from api.json_ import JSONKey
-from api.websocket_.funcs import clear_text_message
+from api.websocket_.funcs import clear_message_text
 
 __all__ = (
     'UserIdInfo',
@@ -17,7 +17,7 @@ class BaseModelWithTextField(BaseModel):
     @field_validator('text')  # noqa: from pydantic doc
     @classmethod
     def _validate_text(cls, text: str) -> str:
-        text = clear_text_message(text=text)
+        text = clear_message_text(text=text)
         if not text:
             raise AssertionError
         return text

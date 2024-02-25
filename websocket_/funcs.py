@@ -11,7 +11,7 @@ from api.websocket_.base import WebSocketServer
 
 __all__ = (
     'TEXT_MAX_LENGTH',
-    'clear_text_message',
+    'clear_message_text',
     'users_ids_of_chat_by_id',
     'make_chat_message_and_add_to_session',
     'interlocutors_ids_for_user_by_id',
@@ -21,7 +21,7 @@ __all__ = (
 TEXT_MAX_LENGTH: Final[int] = 10_000
 
 
-def clear_text_message(text: str) -> str:
+def clear_message_text(text: str) -> str:
     text = text[:TEXT_MAX_LENGTH]
     text = sub(r' {2,}', ' ', text)
     text = sub(r'( ?\n ?)+', '\n', text)
