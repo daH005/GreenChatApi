@@ -2,8 +2,8 @@ import pytest
 from datetime import datetime, timedelta
 
 from api.db.encryption import make_auth_token
-from api._tests.all_test_data.db_test_data import *  # noqa
 from api.db.models import *
+from api._tests.all_test_data.db_test_data import *  # noqa
 
 
 class TestUser:
