@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Callable
 
 from api.websocket_.main import server
-from api._tests.common import COMMON_DATETIME  # noqa
+from api._tests.common import COMMON_DATETIME, replace_creating_datetime  # noqa
 from api._tests.websocket_test_data import ONLINE_USERS_IDS  # noqa
 
 __all__ = (
@@ -53,6 +53,11 @@ class ServerSendToOneUserMethodReplacer(AbstractMethodReplacer):
     async def replacement_method(cls, user_id: int,
                                  message: dict,
                                  ) -> None:
+        if message['type'] == 'newChatMessage':
+            replace_creating_datetime(message['data'])
+        elif message['type'] == 'newChat':
+            replace_creating_datetime(message['data']['lastMessage'])
+
         cls.sendings.setdefault(user_id, []).append(message)
 
 
