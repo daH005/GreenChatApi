@@ -31,7 +31,7 @@ from api.config import (
 )
 from endpoints import EndpointName, Url
 from validation import UserJSONValidator
-from api.http_.mail.blueprint_ import (
+from api.http_.email.blueprint_ import (
     bp as mail_bp,
 )
 from api.http_.redis_ import (

@@ -5,7 +5,7 @@ from pydantic import validate_email  # pip install pydantic
 from api.db.models import User
 from api.json_ import JSONKey, CodeIsValidFlagJSONDictMaker
 from api.http_.endpoints import EndpointName, Url
-from api.http_.mail.tasks import send_code_task
+from api.http_.email.tasks import send_code_task
 from api.http_.redis_ import make_and_save_code, code_is_valid
 
 __all__ = (

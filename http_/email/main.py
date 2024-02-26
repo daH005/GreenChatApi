@@ -1,4 +1,4 @@
-from api.http_.mail.tasks import app
+from api.http_.email.tasks import app
 
 if __name__ == '__main__':
     argv = [
