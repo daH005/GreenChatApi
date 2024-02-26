@@ -126,7 +126,7 @@ class Chat(BaseModel):
 
     messages: Mapped[list['ChatMessage']] = relationship(
         back_populates='chat',
-        order_by='ChatMessage.creating_datetime',
+        order_by='-ChatMessage.id',
         cascade='all, delete',
     )
     users_chats_matches: Mapped[list['UserChatMatch']] = relationship(
@@ -137,7 +137,7 @@ class Chat(BaseModel):
     @property
     @raises(IndexError)
     def last_message(self) -> ChatMessage:
-        return self.messages[-1]  # type: ignore
+        return self.messages[0]  # type: ignore
 
     @raises(ValueError)
     def interlocutor(self, user_id: int) -> User:
