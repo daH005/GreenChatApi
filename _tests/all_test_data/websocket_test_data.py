@@ -46,7 +46,7 @@ FIRST_CONNECTION_HANDLER_SENDINGS = [
                  }
             ],
         }
-    )
+    ),
 ]
 
 FULL_DISCONNECTION_HANDLER_SENDINGS = [
@@ -77,7 +77,7 @@ FULL_DISCONNECTION_HANDLER_SENDINGS = [
                  }
             ],
         }
-    )
+    ),
 ]
 
 ONLINE_STATUS_TRACING_ADDING_HANDLER_SENDINGS = [
@@ -97,7 +97,7 @@ ONLINE_STATUS_TRACING_ADDING_HANDLER_SENDINGS = [
                  }
             ]
         }
-    )
+    ),
 ]
 
 NEW_CHAT_HANDLER_SENDINGS = [
@@ -155,7 +155,7 @@ NEW_CHAT_HANDLER_SENDINGS = [
                  }
             ],
         }
-    )
+    ),
 ]
 
 NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
@@ -191,7 +191,7 @@ NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
                  }
             ],
         }
-    )
+    ),
 ]
 
 NEW_CHAT_MESSAGE_TYPING_HANDLER_SENDINGS = [
