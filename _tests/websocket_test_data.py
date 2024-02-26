@@ -126,24 +126,9 @@ NEW_CHAT_HANDLER_SENDINGS = [
                          'chatId': 5,
                          'text': 'Hi!',
                          'creatingDatetime': COMMON_CREATING_DATETIME.isoformat(),
-                         'user': {
-                             'id': 1,
-                             'firstName': USERS[1].first_name,
-                             'lastName': USERS[1].last_name,
-                         }
+                         'userId': 1
                      },
-                     'users': [
-                         {
-                             'id': 1,
-                             'firstName': USERS[1].first_name,
-                             'lastName': USERS[1].last_name,
-                         },
-                         {
-                             'id': 5,
-                             'firstName': USERS[5].first_name,
-                             'lastName': USERS[5].last_name,
-                         },
-                     ]
+                     'usersIds': [1, 5]
                  }
                  },
                 {'type': 'interlocutorsOnlineStatuses',
@@ -163,24 +148,9 @@ NEW_CHAT_HANDLER_SENDINGS = [
                          'chatId': 5,
                          'text': 'Hi!',
                          'creatingDatetime': COMMON_CREATING_DATETIME.isoformat(),
-                         'user': {
-                             'id': 1,
-                             'firstName': USERS[1].first_name,
-                             'lastName': USERS[1].last_name,
-                         }
+                         'userId': 1
                      },
-                     'users': [
-                         {
-                             'id': 1,
-                             'firstName': USERS[1].first_name,
-                             'lastName': USERS[1].last_name,
-                         },
-                         {
-                             'id': 5,
-                             'firstName': USERS[5].first_name,
-                             'lastName': USERS[5].last_name,
-                         },
-                     ]
+                     'usersIds': [1, 5]
                  }
                  },
                 {'type': 'interlocutorsOnlineStatuses',
@@ -210,11 +180,7 @@ NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
                      'chatId': 1,
                      'text': 'Hello...',
                      'creatingDatetime': COMMON_CREATING_DATETIME.isoformat(),
-                     'user': {
-                         'id': 1,
-                         'firstName': USERS[1].first_name,
-                         'lastName': USERS[1].last_name,
-                     }
+                     'userId': 1
                  }
                  }
             ],
@@ -225,11 +191,7 @@ NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
                      'chatId': 1,
                      'text': 'Hello...',
                      'creatingDatetime': COMMON_CREATING_DATETIME.isoformat(),
-                     'user': {
-                         'id': 1,
-                         'firstName': USERS[1].first_name,
-                         'lastName': USERS[1].last_name,
-                     }
+                     'userId': 1
                  }
                  }
             ],
@@ -250,11 +212,7 @@ NEW_CHAT_MESSAGE_TYPING_HANDLER_SENDINGS = [
                 {'type': 'newChatMessageTyping',
                  'data': {
                      'chatId': 1,
-                     'user': {
-                         'id': 1,
-                         'firstName': USERS[1].first_name,
-                         'lastName': USERS[1].last_name
-                     }
+                     'userId': 1
                  }
                  }
             ]
@@ -272,11 +230,7 @@ NEW_CHAT_MESSAGE_TYPING_HANDLER_SENDINGS = [
                 {'type': 'newChatMessageTyping',
                  'data': {
                      'chatId': 1,
-                     'user': {
-                         'id': 2,
-                         'firstName': USERS[2].first_name,
-                         'lastName': USERS[2].last_name
-                     }
+                     'userId': 2
                  }
                  }
             ]
