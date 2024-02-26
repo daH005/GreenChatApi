@@ -2,58 +2,40 @@ import pytest
 from datetime import datetime  # noqa
 
 from api.db.models import ChatMessage  # noqa
-from api._tests.websocket_test_data import *  # noqa
 from api.websocket_.main import *
 from api.websocket_.base import (
     ConnectAndDisconnectHandlerFuncT,
     CommonHandlerFuncT,
 )
 from api.websocket_.funcs import clear_message_text
-
-sendings = {}
+from api._tests.websocket_test_data import *  # noqa
+from api._tests.replacing import (  # noqa
+    ServerSendToOneUserMethodReplacer,
+    ServerUserHaveConnectionsMethodReplacer,
+)
 
 
 def setup_module() -> None:
-    _replace_server_send_to_one_user_method_for_check_data_to_send()
-    _replace_server_user_have_one_connection_method_for_online_imitation()
+    ServerSendToOneUserMethodReplacer.replace()
+    ServerUserHaveConnectionsMethodReplacer.replace()
 
     users_ids_and_potential_interlocutors_ids.update(USERS_IDS_AND_POTENTIAL_INTERLOCUTORS_IDS)
 
 
 def teardown_module() -> None:
-    server.send_to_one_user = server.send_to_one_user_backup
-    server.user_have_connections = server.user_have_connections_backup
+    ServerSendToOneUserMethodReplacer.back()
+    ServerUserHaveConnectionsMethodReplacer.back()
 
     users_ids_and_potential_interlocutors_ids.clear()
-
-
-def _replace_server_send_to_one_user_method_for_check_data_to_send() -> None:
-    server.send_to_one_user_backup = server.send_to_one_user
-
-    async def method(user_id: int,
-                     message: dict,
-                     ) -> None:
-        sendings.setdefault(user_id, []).append(message)
-
-    server.send_to_one_user = method
-
-
-def _replace_server_user_have_one_connection_method_for_online_imitation() -> None:
-    server.user_have_connections_backup = server.user_have_connections
-
-    def method(user_id: int) -> bool:
-        return user_id in ONLINE_USERS_IDS
-
-    server.user_have_connections = method
 
 
 async def _test_positive_handler_and_sendings(handler_func: ConnectAndDisconnectHandlerFuncT | CommonHandlerFuncT,
                                               handler_kwargs: dict,
                                               expected_sendings,
                                               ) -> None:
-    sendings.clear()
+    ServerSendToOneUserMethodReplacer.sendings.clear()
     await handler_func(**handler_kwargs)
-    assert sendings == expected_sendings
+    assert ServerSendToOneUserMethodReplacer.sendings == expected_sendings
 
 
 @pytest.mark.parametrize(('handler_kwargs', 'expected_sendings'), FIRST_CONNECTION_HANDLER_SENDINGS)
