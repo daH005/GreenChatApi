@@ -2,11 +2,14 @@ from abc import ABC, abstractmethod
 from typing import Any, Callable
 
 from api.websocket_.main import server
+from api.json_ import ChatMessageJSONDictMaker, ChatInfoJSONDictMaker
 from api._tests.common import COMMON_DATETIME, replace_creating_datetime  # noqa
 from api._tests.all_test_data.websocket_test_data import ONLINE_USERS_IDS  # noqa
 
 __all__ = (
     'AbstractMethodReplacer',
+    'ChatMessageJSONDictMakeReplacer',
+    'ChatInfoJSONDictMakeReplacer',
     'ServerSendToOneUserMethodReplacer',
     'ServerUserHaveConnectionsMethodReplacer',
 )
@@ -43,6 +46,28 @@ class AbstractMethodReplacer(ABC):
         setattr(cls.object, cls.method_name, cls.backup_method())
 
 
+class ChatMessageJSONDictMakeReplacer(AbstractMethodReplacer):
+    object = ChatMessageJSONDictMaker
+    method_name = 'make'
+
+    @classmethod
+    def replacement_method(cls, *args, **kwargs) -> ChatMessageJSONDictMaker.Dict:
+        data = cls.backup_method()(*args, **kwargs)
+        replace_creating_datetime(data)
+        return data
+
+
+class ChatInfoJSONDictMakeReplacer(AbstractMethodReplacer):
+    object = ChatInfoJSONDictMaker
+    method_name = 'make'
+
+    @classmethod
+    def replacement_method(cls, *args, **kwargs) -> ChatInfoJSONDictMaker.Dict:
+        data = cls.backup_method()(*args, **kwargs)
+        replace_creating_datetime(data['lastMessage'])
+        return data
+
+
 class ServerSendToOneUserMethodReplacer(AbstractMethodReplacer):
     object = server
     method_name = 'send_to_one_user'
@@ -53,11 +78,6 @@ class ServerSendToOneUserMethodReplacer(AbstractMethodReplacer):
     async def replacement_method(cls, user_id: int,
                                  message: dict,
                                  ) -> None:
-        if message['type'] == 'newChatMessage':
-            replace_creating_datetime(message['data'])
-        elif message['type'] == 'newChat':
-            replace_creating_datetime(message['data']['lastMessage'])
-
         cls.sendings.setdefault(user_id, []).append(message)
 
 
