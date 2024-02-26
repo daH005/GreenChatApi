@@ -1,4 +1,4 @@
-from api._tests.db_test_data import *  # noqa
+from api._tests.all_test_data.db_test_data import *  # noqa
 from api._tests.common import COMMON_DATETIME  # noqa
 
 ONLINE_USERS_IDS = [

@@ -7,7 +7,7 @@ from api.websocket_.base import (
     CommonHandlerFuncT,
 )
 from api.websocket_.funcs import clear_message_text
-from api._tests.websocket_test_data import *  # noqa
+from api._tests.all_test_data.websocket_test_data import *  # noqa
 from api._tests.replacing import (  # noqa
     ServerSendToOneUserMethodReplacer,
     ServerUserHaveConnectionsMethodReplacer,
