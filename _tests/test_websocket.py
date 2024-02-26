@@ -14,36 +14,21 @@ sendings = {}
 
 
 def setup_module() -> None:
-    ChatMessage.__init__backup = ChatMessage.__init__
-    _replace_chat_message_init_for_creating_datetime_comparison()
-
-    server.send_to_one_user_backup = server.send_to_one_user
     _replace_server_send_to_one_user_method_for_check_data_to_send()
-
-    server.user_have_connections_backup = server.user_have_connections
     _replace_server_user_have_one_connection_method_for_online_imitation()
 
     users_ids_and_potential_interlocutors_ids.update(USERS_IDS_AND_POTENTIAL_INTERLOCUTORS_IDS)
 
 
 def teardown_module() -> None:
-    ChatMessage.__init__ = ChatMessage.__init__backup  # noqa
     server.send_to_one_user = server.send_to_one_user_backup
     server.user_have_connections = server.user_have_connections_backup
 
     users_ids_and_potential_interlocutors_ids.clear()
 
 
-def _replace_chat_message_init_for_creating_datetime_comparison() -> None:
-
-    def method(*_args, **kwargs) -> ChatMessage:
-        kwargs['creating_datetime'] = COMMON_CREATING_DATETIME
-        return ChatMessage.__init__backup(*_args, **kwargs)  # noqa
-
-    ChatMessage.__init__ = method
-
-
 def _replace_server_send_to_one_user_method_for_check_data_to_send() -> None:
+    server.send_to_one_user_backup = server.send_to_one_user
 
     async def method(user_id: int,
                      message: dict,
@@ -54,6 +39,7 @@ def _replace_server_send_to_one_user_method_for_check_data_to_send() -> None:
 
 
 def _replace_server_user_have_one_connection_method_for_online_imitation() -> None:
+    server.user_have_connections_backup = server.user_have_connections
 
     def method(user_id: int) -> bool:
         return user_id in ONLINE_USERS_IDS
