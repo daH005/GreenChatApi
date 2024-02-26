@@ -1,10 +1,4 @@
-from datetime import datetime
-
 from api._tests.db_test_data import *  # noqa
-
-COMMON_CREATING_DATETIME: datetime = datetime(
-    year=2024, month=10, day=10,
-)
 
 ONLINE_USERS_IDS = [
     1, 2, 3, 5
