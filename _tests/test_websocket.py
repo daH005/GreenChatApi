@@ -1,7 +1,6 @@
 import pytest
 from datetime import datetime  # noqa
 
-from api.db.models import ChatMessage  # noqa
 from api.websocket_.main import *
 from api.websocket_.base import (
     ConnectAndDisconnectHandlerFuncT,
