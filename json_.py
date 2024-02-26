@@ -95,7 +95,7 @@ class AlreadyTakenFlagJSONDictMaker(AbstractJSONDictMaker):
         return {JSONKey.IS_ALREADY_TAKEN: flag}
 
 
-class CodeIsValidFlagJSONDictMaker(AbstractJSONDictMaker):  # FixMe
+class CodeIsValidFlagJSONDictMaker(AbstractJSONDictMaker):
 
     class Dict(TypedDict):
         codeIsValid: bool
@@ -118,7 +118,7 @@ class UserInfoJSONDictMaker(AbstractJSONDictMaker):
     @staticmethod
     def make(user: User,
              exclude_important_info: bool = True,
-             ) -> Dict:  # FixMe
+             ) -> Dict:
         user_info = {
             JSONKey.ID: user.id,
             JSONKey.FIRST_NAME: user.first_name,
@@ -172,11 +172,11 @@ class ChatMessageTypingJSONDictMaker(AbstractJSONDictMaker):
 
     @staticmethod
     def make(chat_id: int,
-             user: User,
+             user_id: int,
              ) -> Dict:
         return {
             JSONKey.CHAT_ID: chat_id,
-            JSONKey.USER_ID: user.id,  # FixMe
+            JSONKey.USER_ID: user_id,
         }
 
 

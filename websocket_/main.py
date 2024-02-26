@@ -194,7 +194,7 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
     users_ids = users_ids_of_chat_by_id(chat_id=chat.id)
     users_ids.remove(user.id)
 
-    result_data = ChatMessageTypingJSONDictMaker.make(chat_id=chat.id, user=user)
+    result_data = ChatMessageTypingJSONDictMaker.make(chat_id=chat.id, user_id=user.id)
     await server.send_to_many_users(
         users_ids=users_ids,
         message=MessageType.NEW_CHAT_MESSAGE_TYPING.make_json_dict(result_data)
