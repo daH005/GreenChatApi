@@ -3,7 +3,7 @@ from sqlalchemy.orm import create_session, Session
 
 from api.db import models
 from api.db.models import *
-from common import make_random_string
+from api._tests.common import make_random_string  # noqa
 
 USERS_PASSWORDS = {
     1: 'test_pass123',
