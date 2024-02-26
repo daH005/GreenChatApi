@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime, timedelta
 
 from api.db.encryption import make_auth_token
 from api._tests.db_test_data import *  # noqa
@@ -124,6 +125,21 @@ class TestChatMessage:
     ])
     def test_positive_chat_message_has_required_attrs(attr_name: str) -> None:
         assert hasattr(ChatMessage, attr_name)
+
+    @staticmethod
+    @pytest.mark.parametrize('text', TEXT_MESSAGES)
+    def test_positive_creating_datetime_is_current_datetime(text: str) -> None:
+        chat_message = ChatMessage(
+            user_id=1,
+            chat_id=1,
+            text=text,
+        )
+        session.add(chat_message)
+        session.flush()
+        max_datetime = datetime.utcnow() + timedelta(milliseconds=10)
+        min_datetime = datetime.utcnow() - timedelta(milliseconds=10)
+        assert max_datetime >= chat_message.creating_datetime >= min_datetime
+        session.rollback()
 
 
 class TestUserChatMatch:
