@@ -34,7 +34,6 @@ from validation import UserJSONValidator
 from api.http_.mail.blueprint_ import (
     bp as mail_bp,
 )
-from api.http_.funcs import make_user_identify
 from api.http_.redis_ import (
     code_is_valid,
     delete_code,
@@ -107,9 +106,8 @@ def create_new_user() -> tuple[JWTTokenJSONDictMaker.Dict, HTTPStatus.CREATED]:
     """
     user_data: UserJSONValidator = UserJSONValidator.from_json()
 
-    identify: str = make_user_identify()
-    if code_is_valid(identify=identify, code=user_data.code):
-        delete_code(identify=identify)
+    if code_is_valid(identify=user_data.email, code=user_data.code):
+        delete_code(identify=user_data.email)
     else:
         return abort(HTTPStatus.BAD_REQUEST)
 
