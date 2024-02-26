@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Callable
 
 from api.websocket_.main import server
-from api._tests.db_test_data import COMMON_CREATING_DATETIME  # noqa
+from api._tests.common import COMMON_CREATING_DATETIME  # noqa
 from api._tests.websocket_test_data import ONLINE_USERS_IDS  # noqa
 
 __all__ = (

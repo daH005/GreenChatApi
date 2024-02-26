@@ -1,14 +1,9 @@
 from sqlalchemy import create_engine, Engine
 from sqlalchemy.orm import create_session, Session
-from datetime import datetime
 
 from api.db import models
 from api.db.models import *
 from common import make_random_string
-
-COMMON_CREATING_DATETIME: datetime = datetime(
-    year=2024, month=10, day=10,
-)
 
 USERS_PASSWORDS = {
     1: 'test_pass123',
