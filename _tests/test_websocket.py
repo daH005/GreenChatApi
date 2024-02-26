@@ -10,7 +10,6 @@ from api.websocket_.funcs import clear_message_text
 from api._tests.all_test_data.websocket_test_data import *  # noqa
 from api._tests.replacing import (  # noqa
     ChatMessageJSONDictMakeReplacer,
-    ChatInfoJSONDictMakeReplacer,
     ServerSendToOneUserMethodReplacer,
     ServerUserHaveConnectionsMethodReplacer,
 )
@@ -18,7 +17,6 @@ from api._tests.replacing import (  # noqa
 
 def setup_module() -> None:
     ChatMessageJSONDictMakeReplacer.replace()
-    ChatInfoJSONDictMakeReplacer.replace()
     ServerSendToOneUserMethodReplacer.replace()
     ServerUserHaveConnectionsMethodReplacer.replace()
 
@@ -27,7 +25,6 @@ def setup_module() -> None:
 
 def teardown_module() -> None:
     ChatMessageJSONDictMakeReplacer.back()
-    ChatInfoJSONDictMakeReplacer.back()
     ServerSendToOneUserMethodReplacer.back()
     ServerUserHaveConnectionsMethodReplacer.back()
 

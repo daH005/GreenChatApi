@@ -9,7 +9,6 @@ from api._tests.all_test_data.websocket_test_data import ONLINE_USERS_IDS  # noq
 __all__ = (
     'AbstractMethodReplacer',
     'ChatMessageJSONDictMakeReplacer',
-    'ChatInfoJSONDictMakeReplacer',
     'ServerSendToOneUserMethodReplacer',
     'ServerUserHaveConnectionsMethodReplacer',
 )
@@ -54,17 +53,6 @@ class ChatMessageJSONDictMakeReplacer(AbstractMethodReplacer):
     def replacement_method(cls, *args, **kwargs) -> ChatMessageJSONDictMaker.Dict:
         data = cls.backup_method()(*args, **kwargs)
         replace_creating_datetime(data)
-        return data
-
-
-class ChatInfoJSONDictMakeReplacer(AbstractMethodReplacer):
-    object = ChatInfoJSONDictMaker
-    method_name = 'make'
-
-    @classmethod
-    def replacement_method(cls, *args, **kwargs) -> ChatInfoJSONDictMaker.Dict:
-        data = cls.backup_method()(*args, **kwargs)
-        replace_creating_datetime(data['lastMessage'])
         return data
 
 
