@@ -1,5 +1,5 @@
 from api._tests.db_test_data import *  # noqa
-from api._tests.common import COMMON_CREATING_DATETIME  # noqa
+from api._tests.common import COMMON_DATETIME  # noqa
 
 ONLINE_USERS_IDS = [
     1, 2, 3, 5
@@ -120,7 +120,7 @@ NEW_CHAT_HANDLER_SENDINGS = [
                          'id': 5,
                          'chatId': 5,
                          'text': 'Hi!',
-                         'creatingDatetime': COMMON_CREATING_DATETIME.isoformat(),
+                         'creatingDatetime': COMMON_DATETIME.isoformat(),
                          'userId': 1
                      },
                      'usersIds': [1, 5]
@@ -142,7 +142,7 @@ NEW_CHAT_HANDLER_SENDINGS = [
                          'id': 5,
                          'chatId': 5,
                          'text': 'Hi!',
-                         'creatingDatetime': COMMON_CREATING_DATETIME.isoformat(),
+                         'creatingDatetime': COMMON_DATETIME.isoformat(),
                          'userId': 1
                      },
                      'usersIds': [1, 5]
@@ -174,7 +174,7 @@ NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
                      'id': 6,
                      'chatId': 1,
                      'text': 'Hello...',
-                     'creatingDatetime': COMMON_CREATING_DATETIME.isoformat(),
+                     'creatingDatetime': COMMON_DATETIME.isoformat(),
                      'userId': 1
                  }
                  }
@@ -185,7 +185,7 @@ NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
                      'id': 6,
                      'chatId': 1,
                      'text': 'Hello...',
-                     'creatingDatetime': COMMON_CREATING_DATETIME.isoformat(),
+                     'creatingDatetime': COMMON_DATETIME.isoformat(),
                      'userId': 1
                  }
                  }

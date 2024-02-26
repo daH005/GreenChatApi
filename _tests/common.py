@@ -3,11 +3,11 @@ from string import ascii_uppercase
 from datetime import datetime
 
 __all__ = (
-    'COMMON_CREATING_DATETIME',
+    'COMMON_DATETIME',
     'make_random_string',
 )
 
-COMMON_CREATING_DATETIME: datetime = datetime(
+COMMON_DATETIME: datetime = datetime(
     year=2024, month=10, day=10,
 )
 
