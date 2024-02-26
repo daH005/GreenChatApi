@@ -313,7 +313,7 @@ def user_chats() -> UserChatsJSONDictMaker.Dict:
 @app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])
 @jwt_required()
 def chat_history(chat_id: int) -> ChatHistoryJSONDictMaker.Dict:
-    """Сообщения отсортированы по `ChatMessage.creating_datetime` (первое - позднее).
+    """Сообщения отсортированы по `ChatMessage.creating_datetime` (первое - новейшее).
 
     Headers:
     Authorization: Bearer <JWT-Token>
@@ -343,7 +343,7 @@ def chat_history(chat_id: int) -> ChatHistoryJSONDictMaker.Dict:
     """
     offset_from_end: int | None
     try:
-        offset_from_end = -int(request.args[JSONKey.OFFSET_FROM_END])
+        offset_from_end = int(request.args[JSONKey.OFFSET_FROM_END])
     except KeyError:
         offset_from_end = None
     except ValueError:
@@ -351,8 +351,7 @@ def chat_history(chat_id: int) -> ChatHistoryJSONDictMaker.Dict:
 
     try:
         chat_messages = UserChatMatch.chat_if_user_has_access(user_id=current_user.id,
-                                                              chat_id=chat_id).messages[:offset_from_end]
-        chat_messages = sorted(chat_messages, key=lambda x: -x.creating_datetime.timestamp())
+                                                              chat_id=chat_id).messages[offset_from_end:]
         return ChatHistoryJSONDictMaker.make(
             chat_messages=chat_messages,
         )
