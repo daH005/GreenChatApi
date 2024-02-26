@@ -57,6 +57,8 @@ class JSONKey(StrEnum):
     USERS_IDS = 'usersIds'
 
     IS_ALREADY_TAKEN = 'isAlreadyTaken'
+
+    CODE_KEY = 'codeKey'
     CODE = 'code'
     CODE_IS_VALID = 'codeIsValid'
 
