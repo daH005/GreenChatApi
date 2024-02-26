@@ -38,7 +38,6 @@ class JSONKey(StrEnum):
 
     TEXT = 'text'
     CREATING_DATETIME = 'creatingDatetime'
-    USER = 'user'
 
     USERNAME = 'username'
     PASSWORD = 'password'
@@ -53,7 +52,6 @@ class JSONKey(StrEnum):
     MESSAGES = 'messages'
 
     NAME = 'name'
-    USERS = 'users'
     IS_GROUP = 'isGroup'
     LAST_CHAT_MESSAGE = 'lastMessage'
     USERS_IDS = 'usersIds'
@@ -97,7 +95,7 @@ class AlreadyTakenFlagJSONDictMaker(AbstractJSONDictMaker):
         return {JSONKey.IS_ALREADY_TAKEN: flag}
 
 
-class CodeIsValidFlagJSONDictMaker(AbstractJSONDictMaker):
+class CodeIsValidFlagJSONDictMaker(AbstractJSONDictMaker):  # FixMe
 
     class Dict(TypedDict):
         codeIsValid: bool
@@ -120,7 +118,7 @@ class UserInfoJSONDictMaker(AbstractJSONDictMaker):
     @staticmethod
     def make(user: User,
              exclude_important_info: bool = True,
-             ) -> Dict:
+             ) -> Dict:  # FixMe
         user_info = {
             JSONKey.ID: user.id,
             JSONKey.FIRST_NAME: user.first_name,
@@ -152,7 +150,7 @@ class ChatMessageJSONDictMaker(AbstractJSONDictMaker):
         chatId: int
         text: str
         creatingDatetime: str
-        user: UserInfoJSONDictMaker.Dict
+        userId: int
 
     @staticmethod
     def make(chat_message: ChatMessage) -> Dict:
@@ -161,7 +159,7 @@ class ChatMessageJSONDictMaker(AbstractJSONDictMaker):
             JSONKey.CHAT_ID: chat_message.chat_id,
             JSONKey.TEXT: chat_message.text,
             JSONKey.CREATING_DATETIME: chat_message.creating_datetime.isoformat(),
-            JSONKey.USER: UserInfoJSONDictMaker.make(chat_message.user),
+            JSONKey.USER_ID: chat_message.user_id,
         }
 
 
@@ -170,13 +168,15 @@ class ChatMessageTypingJSONDictMaker(AbstractJSONDictMaker):
     class Dict(TypedDict):
 
         chatId: int
-        user: UserInfoJSONDictMaker.Dict
+        userId: int
 
     @staticmethod
-    def make(chat_id: int, user: User) -> Dict:
+    def make(chat_id: int,
+             user: User,
+             ) -> Dict:
         return {
             JSONKey.CHAT_ID: chat_id,
-            JSONKey.USER: UserInfoJSONDictMaker.make(user),
+            JSONKey.USER_ID: user.id,  # FixMe
         }
 
 
@@ -201,7 +201,7 @@ class ChatInfoJSONDictMaker(AbstractJSONDictMaker):
         name: str
         isGroup: bool
         lastMessage: ChatMessageJSONDictMaker.Dict | None
-        users: list[UserInfoJSONDictMaker.Dict]
+        usersIds: list[int]
 
     @staticmethod
     def make(chat: Chat) -> Dict:
@@ -214,5 +214,5 @@ class ChatInfoJSONDictMaker(AbstractJSONDictMaker):
             JSONKey.NAME: chat.name,
             JSONKey.IS_GROUP: chat.is_group,
             JSONKey.LAST_CHAT_MESSAGE: last_message,
-            JSONKey.USERS: [UserInfoJSONDictMaker.make(user) for user in chat.users()],
+            JSONKey.USERS_IDS: [user.id for user in chat.users()],
         }
