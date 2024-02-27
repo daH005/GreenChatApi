@@ -237,6 +237,45 @@ NEW_CHAT_MESSAGE_TYPING_HANDLER_SENDINGS = [
     ),
 ]
 
+CHAT_MESSAGE_WAS_READ_HANDLER_SENDINGS = [
+    (
+        dict(
+            user=USERS[1],
+            data={
+                'chatMessageId': 1,
+            }
+        ),
+        {
+            1: [
+                {'type': 'chatMessageWasRead',
+                 'data': {
+                    'chatId': 1,
+                    'chatMessageId': 1,
+                 }
+                 },
+            ]
+        }
+    ),
+    (
+        dict(
+            user=USERS[1],
+            data={
+                'chatMessageId': 2,
+            }
+        ),
+        {
+            2: [
+                {'type': 'chatMessageWasRead',
+                 'data': {
+                    'chatId': 1,
+                    'chatMessageId': 2,
+                 }
+                 },
+            ]
+        }
+    ),
+]
+
 RAW_AND_HANDLED_MESSAGES_TEXTS = [
     (
         'Hi! 1 2 3\n1 2 3',

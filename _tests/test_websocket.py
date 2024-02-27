@@ -88,6 +88,14 @@ async def test_positive_new_chat_message_typing_handler(handler_kwargs: dict,
     await _test_positive_handler_and_sendings(new_chat_message_typing, handler_kwargs, expected_sendings)
 
 
+@pytest.mark.parametrize(('handler_kwargs', 'expected_sendings'), CHAT_MESSAGE_WAS_READ_HANDLER_SENDINGS)
+@pytest.mark.asyncio
+async def test_positive_chat_message_was_read_handler(handler_kwargs: dict,
+                                                      expected_sendings,
+                                                      ) -> None:
+    await _test_positive_handler_and_sendings(chat_message_was_read, handler_kwargs, expected_sendings)
+
+
 @pytest.mark.parametrize(('raw_text', 'expected_text'), RAW_AND_HANDLED_MESSAGES_TEXTS)
 def test_positive_message_text_clearing(raw_text: str,
                                         expected_text: str,

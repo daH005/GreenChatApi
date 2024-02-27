@@ -5,12 +5,14 @@ from api.hinting import raises
 from api.json_ import (
     ChatInfoJSONDictMaker,
     ChatMessageJSONDictMaker,
+    ChatMessageWasReadJSONDictMaker,
     ChatMessageTypingJSONDictMaker,
 )
 from api.db.models import (
     session,
     User,
     Chat,
+    ChatMessage,
     UserChatMatch,
 )
 from api.db.alembic_.init import make_migrations
@@ -27,6 +29,7 @@ from api.websocket_.validation import (
     NewChat,
     NewChatMessage,
     ChatIdInfo,
+    ChatMessageWasReadData,
 )
 
 server = WebSocketServer(
@@ -194,6 +197,30 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
     await server.send_to_many_users(
         users_ids=users_ids,
         message=MessageType.NEW_CHAT_MESSAGE_TYPING.make_json_dict(result_data)
+    )
+
+
+@server.common_handler(MessageType.CHAT_MESSAGE_WAS_READ)
+async def chat_message_was_read(user: User, data: dict) -> None:
+    data: ChatMessageWasReadData = ChatMessageWasReadData(**data)
+
+    chat_message: ChatMessage = session.query(ChatMessage).get(data.chat_message_id)
+
+    UserChatMatch.chat_if_user_has_access(
+        user_id=user.id,
+        chat_id=chat_message.chat_id,
+    )
+
+    chat_message.is_read = True
+    session.commit()
+
+    result_data = ChatMessageWasReadJSONDictMaker.make(
+        chat_id=chat_message.chat_id,
+        chat_message_id=chat_message.id,
+    )
+    await server.send_to_one_user(
+        user_id=chat_message.user_id,
+        message=MessageType.CHAT_MESSAGE_WAS_READ.make_json_dict(result_data),
     )
 
 
