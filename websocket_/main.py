@@ -53,13 +53,11 @@ async def first_connection_handler(user: User) -> None:
         server=server,
         users_ids=interlocutors_ids,
     )
-    if not result_data:
-        return
-
-    await server.send_to_one_user(
-        user_id=user.id,
-        message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict(result_data)
-    )
+    if result_data:
+        await server.send_to_one_user(
+            user_id=user.id,
+            message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict(result_data)
+        )
 
 
 @server.full_disconnection_handler
