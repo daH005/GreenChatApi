@@ -28,8 +28,9 @@ __all__ = (
     'BaseModel',
     'User',
     'Chat',
-    'UserChatMatch',
     'ChatMessage',
+    'UserChatMatch',
+    'UnreadCount',
 )
 
 engine: Engine = create_engine(url=DB_URL)
