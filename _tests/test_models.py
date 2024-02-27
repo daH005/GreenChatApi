@@ -122,6 +122,7 @@ class TestChatMessage:
         'user',
         'text',
         'creating_datetime',
+        'is_read',
     ])
     def test_positive_chat_message_has_required_attrs(attr_name: str) -> None:
         assert hasattr(ChatMessage, attr_name)
