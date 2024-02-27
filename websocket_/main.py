@@ -12,6 +12,7 @@ from api.db.models import (
     User,
     Chat,
     UserChatMatch,
+    UnreadCount,
 )
 from api.db.alembic_.init import make_migrations
 from api.websocket_.base import WebSocketServer
@@ -113,15 +114,23 @@ async def new_chat(user: User, data: dict) -> None:
     session.add(chat)
     session.flush()
 
-    matches = []
     for user_id in data.users_ids:
-        match = UserChatMatch(
+        match: UserChatMatch = UserChatMatch(
             user_id=user_id,
             chat_id=chat.id,
         )
-        matches.append(match)
+        session.add(match)
+        session.flush()
 
-    session.add_all(matches)
+        value = 1
+        if user_id == user.id:
+            value = 0
+
+        unread_count: UnreadCount = UnreadCount(
+            user_chat_match_id=match.id,
+            value=value,
+        )
+        session.add(unread_count)
 
     make_chat_message_and_add_to_session(
         text=data.text,
@@ -172,6 +181,12 @@ async def new_chat_message(user: User, data: dict) -> None:
         user_id=user.id,
         chat_id=chat.id,
     )
+
+    for cur_user in chat.users():
+        if cur_user.id == user.id:
+            continue
+        chat.unread_count_for_user(user_id=cur_user.id).value += 1
+
     session.commit()
 
     result_data = ChatMessageJSONDictMaker.make(chat_message=chat_message)
