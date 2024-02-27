@@ -197,6 +197,19 @@ CHAT_MESSAGE_KWARGS_AND_JSON_DICTS = [
     ),
 ]
 
+CHAT_MESSAGE_WAD_READ_KWARGS_AND_JSON_DICTS = [
+    (
+        dict(
+            chat_id=1,
+            chat_message_id=2,
+        ),
+        {
+            'chatId': 1,
+            'chatMessageId': 2,
+        }
+    )
+]
+
 CHAT_MESSAGE_TYPING_KWARGS_AND_JSON_DICTS = [
     (
         dict(
