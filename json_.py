@@ -57,8 +57,6 @@ class JSONKey(StrEnum):
     LAST_CHAT_MESSAGE = 'lastMessage'
     USERS_IDS = 'usersIds'
 
-    UNREAD_COUNT = 'unreadCount'
-
     IS_ALREADY_TAKEN = 'isAlreadyTaken'
 
     CODE_KEY = 'codeKey'
@@ -165,6 +163,7 @@ class ChatMessageJSONDictMaker(AbstractJSONDictMaker):
             JSONKey.TEXT: chat_message.text,
             JSONKey.CREATING_DATETIME: chat_message.creating_datetime.isoformat(),
             JSONKey.USER_ID: chat_message.user_id,
+            JSONKey.IS_READ: chat_message.is_read,
         }
 
 

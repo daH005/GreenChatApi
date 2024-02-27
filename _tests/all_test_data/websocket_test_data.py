@@ -121,7 +121,8 @@ NEW_CHAT_HANDLER_SENDINGS = [
                          'chatId': 5,
                          'text': 'Hi!',
                          'creatingDatetime': COMMON_DATETIME.isoformat(),
-                         'userId': 1
+                         'userId': 1,
+                         'isRead': False,
                      },
                      'usersIds': [1, 5]
                  }
@@ -143,7 +144,8 @@ NEW_CHAT_HANDLER_SENDINGS = [
                          'chatId': 5,
                          'text': 'Hi!',
                          'creatingDatetime': COMMON_DATETIME.isoformat(),
-                         'userId': 1
+                         'userId': 1,
+                         'isRead': False,
                      },
                      'usersIds': [1, 5]
                  }
@@ -175,7 +177,8 @@ NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
                      'chatId': 1,
                      'text': 'Hello...',
                      'creatingDatetime': COMMON_DATETIME.isoformat(),
-                     'userId': 1
+                     'userId': 1,
+                     'isRead': False,
                  }
                  }
             ],
@@ -186,7 +189,8 @@ NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
                      'chatId': 1,
                      'text': 'Hello...',
                      'creatingDatetime': COMMON_DATETIME.isoformat(),
-                     'userId': 1
+                     'userId': 1,
+                     'isRead': False,
                  }
                  }
             ],

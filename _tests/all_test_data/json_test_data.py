@@ -67,7 +67,8 @@ USER_CHATS_KWARGS_AND_JSON_DICTS = [
                         'chatId': 3,
                         'creatingDatetime': COMMON_DATETIME.isoformat(),
                         'userId': 1,
-                        'text': 'And?..'
+                        'text': 'And?..',
+                        'isRead': False,
                     }
                 },
                 {
@@ -80,7 +81,8 @@ USER_CHATS_KWARGS_AND_JSON_DICTS = [
                         'chatId': 2,
                         'creatingDatetime': COMMON_DATETIME.isoformat(),
                         'userId': 1,
-                        'text': 'Yup.'
+                        'text': 'Yup.',
+                        'isRead': False,
                     }
                 },
                 {
@@ -93,7 +95,8 @@ USER_CHATS_KWARGS_AND_JSON_DICTS = [
                         'chatId': 1,
                         'creatingDatetime': COMMON_DATETIME.isoformat(),
                         'userId': 2,
-                        'text': 'Hello! How are u?'
+                        'text': 'Hello! How are u?',
+                        'isRead': False,
                     }
                 },
             ]
@@ -116,7 +119,8 @@ CHAT_INFO_KWARGS_AND_JSON_DICTS = [
                 'chatId': 1,
                 'creatingDatetime': COMMON_DATETIME.isoformat(),
                 'userId': 2,
-                'text': 'Hello! How are u?'
+                'text': 'Hello! How are u?',
+                'isRead': False,
             }
         },
     ),
@@ -162,6 +166,7 @@ CHAT_HISTORY_KWARGS_AND_JSON_DICTS = [
                     'creatingDatetime': COMMON_DATETIME.isoformat(),
                     'userId': 2,
                     'text': 'Hello! How are u?',
+                    'isRead': False,
                 },
                 {
                     'id': 1,
@@ -169,6 +174,7 @@ CHAT_HISTORY_KWARGS_AND_JSON_DICTS = [
                     'creatingDatetime': COMMON_DATETIME.isoformat(),
                     'userId': 1,
                     'text': 'Hi!',
+                    'isRead': False,
                 },
             ]
         }
@@ -186,6 +192,7 @@ CHAT_MESSAGE_KWARGS_AND_JSON_DICTS = [
             'creatingDatetime': COMMON_DATETIME.isoformat(),
             'userId': 2,
             'text': 'Hello! How are u?',
+            'isRead': False,
         },
     ),
 ]
