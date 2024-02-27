@@ -1,13 +1,13 @@
 import pytest
 from datetime import datetime  # noqa
 
+from api._tests.all_test_data.websocket_test_data import *  # noqa: must be first!
 from api.websocket_.main import *
 from api.websocket_.base import (
     ConnectAndDisconnectHandlerFuncT,
     CommonHandlerFuncT,
 )
 from api.websocket_.funcs import clear_message_text
-from api._tests.all_test_data.websocket_test_data import *  # noqa
 from api._tests.replacing import (  # noqa
     ChatMessageJSONDictMakeReplacer,
     ServerSendToOneUserMethodReplacer,

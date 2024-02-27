@@ -1,8 +1,8 @@
 import pytest
 
+from api._tests.all_test_data.json_test_data import *  # noqa: must be first!
 from api.json_ import *
 from api._tests.common import make_random_string  # noqa
-from api._tests.all_test_data.json_test_data import *  # noqa
 from api._tests.replacing import ChatMessageJSONDictMakeReplacer  # noqa
 
 
