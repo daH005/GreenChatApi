@@ -37,6 +37,8 @@ class MessageType(StrEnum):
 
     INTERLOCUTORS_ONLINE_STATUSES = 'interlocutorsOnlineStatuses'
     ONLINE_STATUS_TRACING_ADDING = 'onlineStatusTracingAdding'
+    SELF_UNREAD_COUNT = 'selfUnreadCount'
+    INTERLOCUTOR_UNREAD_COUNT = 'interlocutorUnreadCount'
     NEW_CHAT = 'newChat'
     NEW_CHAT_MESSAGE = 'newChatMessage'
     NEW_CHAT_MESSAGE_TYPING = 'newChatMessageTyping'
