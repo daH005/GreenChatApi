@@ -203,6 +203,11 @@ ALL_INTERLOCUTORS_OF_USERS = [
     (USERS[3], []),
 ]
 
+UNREAD_COUNTS_FROM_USERS = [
+    (CHATS[1], USERS[1], 1),
+    (CHATS[2], USERS[1], 2),
+]
+
 RANDOM_STRINGS = [make_random_string() for _ in range(10)]
 
 TEXT_MESSAGES = [
