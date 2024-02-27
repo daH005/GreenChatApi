@@ -240,7 +240,7 @@ NEW_CHAT_MESSAGE_TYPING_HANDLER_SENDINGS = [
 CHAT_MESSAGE_WAS_READ_HANDLER_SENDINGS = [
     (
         dict(
-            user=USERS[1],
+            user=USERS[2],
             data={
                 'chatMessageId': 1,
             }
