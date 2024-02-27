@@ -38,6 +38,7 @@ class JSONKey(StrEnum):
 
     TEXT = 'text'
     CREATING_DATETIME = 'creatingDatetime'
+    IS_READ = 'isRead'
 
     USERNAME = 'username'
     PASSWORD = 'password'
