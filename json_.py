@@ -55,7 +55,9 @@ class JSONKey(StrEnum):
     IS_GROUP = 'isGroup'
     LAST_CHAT_MESSAGE = 'lastMessage'
     USERS_IDS = 'usersIds'
+
     UNREAD_COUNT = 'unreadCount'
+    READ_COUNT = 'readCount'
 
     IS_ALREADY_TAKEN = 'isAlreadyTaken'
 
