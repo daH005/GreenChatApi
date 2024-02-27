@@ -32,6 +32,7 @@ class JSONKey(StrEnum):
     ID = 'id'
     USER_ID = 'userId'
     CHAT_ID = 'chatId'
+    CHAT_MESSAGE_ID = 'chatMessageId'
 
     FIRST_NAME = 'firstName'
     LAST_NAME = 'lastName'
