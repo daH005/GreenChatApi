@@ -165,12 +165,17 @@ class UserChatMatch(BaseModel):
 
     __tablename__ = 'users_chats'
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
     chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id'), nullable=False)
 
     user: Mapped['User'] = relationship(back_populates='user_chats_matches', uselist=False)
     chat: Mapped['Chat'] = relationship(back_populates='users_chats_matches', uselist=False)
+    unread_count: Mapped['UnreadCount'] = relationship(
+        back_populates='user_chat_match',
+        cascade='all, delete',
+        uselist=False,
+    )
 
     @classmethod
     @raises(PermissionError)
@@ -247,3 +252,14 @@ class UserChatMatch(BaseModel):
             interlocutors.remove(self_user)
 
         return list(interlocutors)
+
+
+class UnreadCount(BaseModel):
+
+    __tablename__ = 'unread_counts'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_chat_match_id: Mapped[int] = mapped_column(ForeignKey('users_chats.id'), nullable=False)
+    value: Mapped[int] = mapped_column(Integer, default=0)
+
+    user_chat_match: Mapped['UserChatMatch'] = relationship(back_populates='unread_count', uselist=False)
