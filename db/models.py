@@ -205,7 +205,7 @@ class UserChatMatch(BaseModel):
     @raises(ValueError)
     def interlocutor(cls, user_id: int,
                      chat_id: int,
-                     ) -> User | None:
+                     ) -> User:
         interlocutor_match: cls | None = session.query(cls).filter(cls.user_id != user_id,
                                                                    cls.chat_id == chat_id,
                                                                    ).first()  # type: ignore
