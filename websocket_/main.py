@@ -211,6 +211,9 @@ async def chat_message_was_read(user: User, data: dict) -> None:
         chat_id=chat_message.chat_id,
     )
 
+    if chat_message.user_id == user.id:
+        raise ValueError
+
     chat_message.is_read = True
     session.commit()
 
