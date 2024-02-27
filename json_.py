@@ -57,7 +57,6 @@ class JSONKey(StrEnum):
     USERS_IDS = 'usersIds'
 
     UNREAD_COUNT = 'unreadCount'
-    READ_COUNT = 'readCount'
 
     IS_ALREADY_TAKEN = 'isAlreadyTaken'
 
