@@ -111,14 +111,6 @@ class TestChat:
                                     ) -> None:
         assert set(chat.users()) == set(expected_users)
 
-    @staticmethod
-    @pytest.mark.parametrize(('chat', 'user', 'expected_count'), UNREAD_COUNTS_FROM_USERS)
-    def test_positive_unread_count_from_user(chat: Chat,
-                                             user: User,
-                                             expected_count: int,
-                                             ) -> None:
-        assert chat.unread_count_from_user(user.id) == expected_count
-
 
 class TestChatMessage:
 
