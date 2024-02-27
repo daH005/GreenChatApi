@@ -202,3 +202,16 @@ CHAT_MESSAGE_TYPING_KWARGS_AND_JSON_DICTS = [
         }
     ),
 ]
+
+UNREAD_COUNT_KWARGS_AND_JSON_DICTS =[
+    (
+        dict(
+            chat_id=1,
+            unread_count=0,
+        ),
+        {
+            'chatId': 1,
+            'unreadCount': 0,
+        }
+    )
+]

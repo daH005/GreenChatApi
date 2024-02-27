@@ -75,3 +75,10 @@ def test_positive_chat_message_typing(maker_kwargs: dict,
                                       expected_dict: dict,
                                       ) -> None:
     assert ChatMessageTypingJSONDictMaker.make(**maker_kwargs) == expected_dict
+
+
+@pytest.mark.parametrize(('maker_kwargs', 'expected_dict'), UNREAD_COUNT_KWARGS_AND_JSON_DICTS)
+def test_positive_unread_count(maker_kwargs: dict,
+                               expected_dict: dict,
+                               ) -> None:
+    assert UnreadCountJSONDictMaker.make(**maker_kwargs) == expected_dict
