@@ -112,30 +112,6 @@ USERS_CHATS_MATCHES = [
     ),
 ]
 
-UNREAD_COUNTS = [
-    UnreadCount(
-        user_chat_match_id=1,
-    ),
-    UnreadCount(
-        user_chat_match_id=2,
-    ),
-    UnreadCount(
-        user_chat_match_id=3,
-    ),
-    UnreadCount(
-        user_chat_match_id=4,
-    ),
-    UnreadCount(
-        user_chat_match_id=5,
-    ),
-    UnreadCount(
-        user_chat_match_id=6,
-    ),
-    UnreadCount(
-        user_chat_match_id=7,
-    ),
-]
-
 CHATS_INTERLOCUTORS = [
     (CHATS[1], USERS[1], USERS[2]),
     (CHATS[2], USERS[4], USERS[1]),
@@ -247,7 +223,7 @@ def _prepare_test_db() -> None:
     models.session = session_for_test
 
     BaseModel.metadata.create_all(bind=engine_for_test)
-    models.session.add_all([*USERS.values(), *CHATS.values(), *USERS_CHATS_MATCHES, *UNREAD_COUNTS])  # type: ignore
+    models.session.add_all([*USERS.values(), *CHATS.values(), *USERS_CHATS_MATCHES])  # type: ignore
     models.session.commit()
 
     # for exact `creating_datetime`:

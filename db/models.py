@@ -1,7 +1,6 @@
 from __future__ import annotations
 from sqlalchemy import (  # pip install sqlalchemy
     create_engine,
-    Integer,
     String,
     Text,
     Boolean,
@@ -30,7 +29,6 @@ __all__ = (
     'Chat',
     'ChatMessage',
     'UserChatMatch',
-    'UnreadCount',
 )
 
 engine: Engine = create_engine(url=DB_URL)
@@ -147,9 +145,6 @@ class Chat(BaseModel):
     def users(self) -> list[User]:
         return UserChatMatch.users_in_chat(chat_id=self.id)
 
-    def unread_count_for_user(self, user_id: int) -> UnreadCount:
-        return UserChatMatch.unread_count_for_user_in_chat(user_id=user_id, chat_id=self.id)
-
 
 class ChatMessage(BaseModel):
 
@@ -175,11 +170,6 @@ class UserChatMatch(BaseModel):
 
     user: Mapped['User'] = relationship(back_populates='user_chats_matches', uselist=False)
     chat: Mapped['Chat'] = relationship(back_populates='users_chats_matches', uselist=False)
-    unread_count: Mapped['UnreadCount'] = relationship(
-        back_populates='user_chat_match',
-        cascade='all, delete',
-        uselist=False,
-    )
 
     @classmethod
     @raises(PermissionError)
@@ -256,23 +246,3 @@ class UserChatMatch(BaseModel):
             interlocutors.remove(self_user)
 
         return list(interlocutors)
-
-    @classmethod
-    def unread_count_for_user_in_chat(cls, user_id: int,
-                                      chat_id: int,
-                                      ) -> UnreadCount:
-        match: cls | None = session.query(cls).filter(cls.user_id == user_id,
-                                                      cls.chat_id == chat_id,
-                                                      ).first()  # type: ignore
-        return match.unread_count
-
-
-class UnreadCount(BaseModel):
-
-    __tablename__ = 'unread_counts'
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    user_chat_match_id: Mapped[int] = mapped_column(ForeignKey('users_chats.id'), nullable=False)
-    value: Mapped[int] = mapped_column(Integer, default=0)
-
-    user_chat_match: Mapped['UserChatMatch'] = relationship(back_populates='unread_count', uselist=False)

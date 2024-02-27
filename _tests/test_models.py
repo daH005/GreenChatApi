@@ -218,16 +218,3 @@ class TestUserChatMatch:
                                              expected_users: list[User],
                                              ) -> None:
         assert set(UserChatMatch.find_all_interlocutors(user.id)) == set(expected_users)
-
-
-class TestUnreadCount:
-
-    @staticmethod
-    @pytest.mark.parametrize('attr_name', [
-        'id',
-        'user_chat_match_id',
-        'value',
-        'user_chat_match',
-    ])
-    def test_positive_model_has_required_attrs(attr_name: str) -> None:
-        assert hasattr(UnreadCount, attr_name)
