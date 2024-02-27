@@ -147,6 +147,9 @@ class Chat(BaseModel):
     def users(self) -> list[User]:
         return UserChatMatch.users_in_chat(chat_id=self.id)
 
+    def unread_count_for_user(self, user_id: int) -> int:
+        return UserChatMatch.unread_count_for_user_in_chat(user_id=user_id, chat_id=self.id)
+
 
 class ChatMessage(BaseModel):
 
@@ -253,6 +256,15 @@ class UserChatMatch(BaseModel):
             interlocutors.remove(self_user)
 
         return list(interlocutors)
+
+    @classmethod
+    def unread_count_for_user_in_chat(cls, user_id: int,
+                                      chat_id: int,
+                                      ) -> int:
+        match: cls | None = session.query(cls).filter(cls.user_id == user_id,
+                                                      cls.chat_id == chat_id,
+                                                      ).first()  # type: ignore
+        return match.unread_count.value  # type: ignore
 
 
 class UnreadCount(BaseModel):
