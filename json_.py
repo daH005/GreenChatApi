@@ -21,6 +21,7 @@ __all__ = (
     'UserInfoJSONDictMaker',
     'AlreadyTakenFlagJSONDictMaker',
     'CodeIsValidFlagJSONDictMaker',
+    'UnreadCountJSONDictMaker',
 )
 
 
@@ -219,4 +220,21 @@ class ChatInfoJSONDictMaker(AbstractJSONDictMaker):
             JSONKey.IS_GROUP: chat.is_group,
             JSONKey.LAST_CHAT_MESSAGE: last_message,
             JSONKey.USERS_IDS: [user.id for user in chat.users()],
+        }
+
+
+class UnreadCountJSONDictMaker(AbstractJSONDictMaker):
+
+    class Dict(TypedDict):
+
+        chatId: int
+        unreadCount: int
+
+    @staticmethod
+    def make(chat_id: int,
+             unread_count: int,
+             ) -> Dict:
+        return {
+            JSONKey.CHAT_ID: chat_id,
+            JSONKey.UNREAD_COUNT: unread_count,
         }
