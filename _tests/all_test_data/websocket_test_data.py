@@ -244,35 +244,26 @@ CHAT_MESSAGE_WAS_READ_HANDLER_SENDINGS = [
         dict(
             user=USERS[2],
             data={
-                'chatMessageId': 1,
+                'chatId': 1,
+                'chatMessageId': 6,
             }
         ),
         {
             1: [
-                {'type': 'chatMessageWasRead',
+                {'type': 'readChatMessages',
                  'data': {
-                    'chatId': 1,
-                    'chatMessageId': 1,
+                     'chatId': 1,
+                     'chatMessagesIds': [6],
                  }
                  },
-            ]
-        }
-    ),
-    (
-        dict(
-            user=USERS[1],
-            data={
-                'chatMessageId': 2,
-            }
-        ),
-        {
+            ],
             2: [
-                {'type': 'chatMessageWasRead',
+                {'type': 'newUnreadCount',
                  'data': {
-                    'chatId': 1,
-                    'chatMessageId': 2,
+                     'chatId': 1,
+                     'unreadCount': 0,
                  }
-                 },
+                 }
             ]
         }
     ),
