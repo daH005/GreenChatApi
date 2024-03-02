@@ -43,5 +43,5 @@ class NewChatMessage(BaseModelWithTextField, ChatIdInfo):
     pass
 
 
-class ChatMessageWasReadData(BaseModel):
+class ChatMessageWasReadData(ChatIdInfo):
     chat_message_id: int = Field(alias=JSONKey.CHAT_MESSAGE_ID)
