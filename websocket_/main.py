@@ -10,7 +10,7 @@ from api.json_ import (
     ReadChatMessagesJSONDictMaker,
 )
 from api.db.models import (
-    session,
+    DBBuilder,
     User,
     Chat,
     ChatMessage,
@@ -113,16 +113,16 @@ async def new_chat(user: User, data: dict) -> None:
         name=data.name,
         is_group=data.is_group,
     )
-    session.add(chat)
-    session.flush()
+    DBBuilder.session.add(chat)
+    DBBuilder.session.flush()
 
     for user_id in data.users_ids:
         match: UserChatMatch = UserChatMatch(
             user_id=user_id,
             chat_id=chat.id,
         )
-        session.add(match)
-        session.flush()
+        DBBuilder.session.add(match)
+        DBBuilder.session.flush()
 
         value = 1
         if user_id == user.id:
@@ -131,7 +131,7 @@ async def new_chat(user: User, data: dict) -> None:
             user_chat_match_id=match.id,
             value=value,
         )
-        session.add(unread_count)
+        DBBuilder.session.add(unread_count)
 
     make_chat_message_and_add_to_session(
         text=data.text,
@@ -139,7 +139,7 @@ async def new_chat(user: User, data: dict) -> None:
         chat_id=chat.id,
     )
 
-    session.commit()
+    DBBuilder.session.commit()
 
     for user_id in data.users_ids:
         result_data = ChatInfoJSONDictMaker.make(chat=chat, user_id=user_id)
@@ -191,7 +191,7 @@ async def new_chat_message(user: User, data: dict) -> None:
         unread_count: UnreadCount = chat.unread_count_for_user(user_id=chat_user.id)
         unread_count.value += 1
 
-    session.commit()
+    DBBuilder.session.commit()
 
     result_data = ChatMessageJSONDictMaker.make(chat_message=chat_message)
     await server.send_to_many_users(
@@ -246,7 +246,7 @@ async def chat_message_was_read(user: User, data: dict) -> None:
         if chat_message.id == data.chat_message_id:
             break
 
-    session.commit()
+    DBBuilder.session.commit()
 
     result_data = NewUnreadCountJSONDictMaker.make(
         chat_id=chat.id,

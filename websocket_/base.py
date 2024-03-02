@@ -6,7 +6,7 @@ import json
 from json import JSONDecodeError
 from jwt import decode  # pip install pyjwt
 
-from api.db.models import User, session
+from api.db.models import User, DBBuilder
 from api.hinting import raises
 from api.config import JWT_SECRET_KEY, JWT_ALGORITHM
 from api.websocket_.logs import logger, init_logs
@@ -160,7 +160,7 @@ class WebSocketClientHandler:
 
     @raises(ValueError)
     def _try_auth_user(self, auth_token: str) -> None:
-        session.remove()  # for session updating
+        DBBuilder.session.remove()  # for session updating
         self.user = User.auth_by_token(auth_token=auth_token)
 
     @raises(ConnectionClosed)
@@ -189,7 +189,7 @@ class WebSocketClientHandler:
                 logger.info(msg)
                 continue
 
-            session.remove()
+            DBBuilder.session.remove()
 
     @raises(KeyError, Exception)
     async def _handle_message(self, message: MessageJSONDictMaker.Dict) -> None:

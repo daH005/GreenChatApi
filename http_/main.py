@@ -10,7 +10,7 @@ from flask_jwt_extended import (  # pip install flask-jwt-extended
     JWTManager,
 )
 
-from api.db.models import User, UserChatMatch, session
+from api.db.models import User, UserChatMatch, DBBuilder
 from api.db.alembic_.init import make_migrations
 from api.json_ import (
     JSONKey,
@@ -73,7 +73,7 @@ def user_lookup_callback(_jwt_header, jwt_data) -> User | None:
 def shutdown_db_session(exception=None) -> None:
     if exception:
         print(exception)
-    session.remove()
+    DBBuilder.session.remove()
 
 
 @app.errorhandler(HTTPException)
@@ -123,8 +123,8 @@ def create_new_user() -> tuple[JWTTokenJSONDictMaker.Dict, HTTPStatus.CREATED]:
         last_name=user_data.last_name,
         email=user_data.email,
     )
-    session.add(new_user)
-    session.commit()
+    DBBuilder.session.add(new_user)
+    DBBuilder.session.commit()
 
     return JWTTokenJSONDictMaker.make(jwt_token=create_access_token(identity=new_user)), HTTPStatus.CREATED
 
@@ -254,7 +254,7 @@ def user_info() -> UserInfoJSONDictMaker.Dict:
         return UserInfoJSONDictMaker.make(user=current_user, exclude_important_info=False)
 
     try:
-        user: User | None = session.get(User, int(user_id_as_str))
+        user: User | None = DBBuilder.session.get(User, int(user_id_as_str))
     except ValueError:
         return abort(HTTPStatus.BAD_REQUEST)
 

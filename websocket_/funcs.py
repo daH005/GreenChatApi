@@ -2,7 +2,7 @@ from re import sub
 from typing import Final
 
 from api.db.models import (
-    session,
+    DBBuilder,
     UserChatMatch,
     ChatMessage,
     User,
@@ -42,7 +42,7 @@ def make_chat_message_and_add_to_session(text: str,
         chat_id=chat_id,
         text=text,
     )
-    session.add(chat_message)
+    DBBuilder.session.add(chat_message)
     return chat_message
 
 

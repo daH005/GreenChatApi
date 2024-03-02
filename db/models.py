@@ -20,11 +20,11 @@ from sqlalchemy.orm import (
 from datetime import datetime
 
 from api.hinting import raises
-from api.config import DB_URL
 from api.db.encryption import make_auth_token
+from api.db.alembic_.init import make_migrations
 
 __all__ = (
-    'session',
+    'DBBuilder',
     'BaseModel',
     'User',
     'Chat',
@@ -33,13 +33,24 @@ __all__ = (
     'UnreadCount',
 )
 
-engine: Engine = create_engine(url=DB_URL)
-session: scoped_session = scoped_session(
-    sessionmaker(autocommit=False,
-                 autoflush=False,
-                 bind=engine,
-                 )
-)
+
+class DBBuilder:
+    engine: Engine
+    session: scoped_session
+
+    @classmethod
+    def init_session(cls, url: str) -> None:
+        cls.engine = create_engine(url=url)
+        cls.session = scoped_session(
+            sessionmaker(autocommit=False,
+                         autoflush=False,
+                         bind=cls.engine,
+                         )
+        )
+
+    @classmethod
+    def make_migrations(cls) -> None:
+        make_migrations()
 
 
 class BaseModel(DeclarativeBase):
@@ -50,7 +61,6 @@ class BaseModel(DeclarativeBase):
 
 
 class User(BaseModel):
-
     __tablename__ = 'users'
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -96,7 +106,7 @@ class User(BaseModel):
     @classmethod
     @raises(ValueError)
     def auth_by_token(cls, auth_token: str) -> User:
-        user: User | None = session.query(cls).filter(cls.auth_token == auth_token).first()
+        user: User | None = DBBuilder.session.query(cls).filter(cls.auth_token == auth_token).first()
         if user is not None:
             return user
         raise ValueError
@@ -105,7 +115,7 @@ class User(BaseModel):
     def _data_is_already_taken(cls, field_name: str,
                                value: str,
                                ) -> bool:
-        user: User | None = session.query(cls).filter(getattr(cls, field_name) == value).first()
+        user: User | None = DBBuilder.session.query(cls).filter(getattr(cls, field_name) == value).first()
         return user is not None
 
     @classmethod
@@ -118,7 +128,6 @@ class User(BaseModel):
 
 
 class Chat(BaseModel):
-
     __tablename__ = 'chats'
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -152,7 +161,6 @@ class Chat(BaseModel):
 
 
 class ChatMessage(BaseModel):
-
     __tablename__ = 'chats_messages'
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -167,7 +175,6 @@ class ChatMessage(BaseModel):
 
 
 class UserChatMatch(BaseModel):
-
     __tablename__ = 'users_chats'
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -187,7 +194,7 @@ class UserChatMatch(BaseModel):
     def chat_if_user_has_access(cls, user_id: int,
                                 chat_id: int,
                                 ) -> Chat:
-        match: UserChatMatch | None = session.query(cls).filter(
+        match: UserChatMatch | None = DBBuilder.session.query(cls).filter(
             cls.user_id == user_id, cls.chat_id == chat_id
         ).first()
         if match is not None:
@@ -196,12 +203,12 @@ class UserChatMatch(BaseModel):
 
     @classmethod
     def users_in_chat(cls, chat_id: int) -> list[User]:
-        matches: list[cls] = session.query(cls).filter(cls.chat_id == chat_id).all()  # type: ignore
+        matches: list[cls] = DBBuilder.session.query(cls).filter(cls.chat_id == chat_id).all()  # type: ignore
         return [match.user for match in matches]
 
     @classmethod
     def user_chats(cls, user_id: int) -> list[Chat]:
-        matches: list[cls] = session.query(cls).filter(cls.user_id == user_id).all()  # type: ignore
+        matches: list[cls] = DBBuilder.session.query(cls).filter(cls.user_id == user_id).all()  # type: ignore
         return sorted([match.chat for match in matches], key=cls._value_for_user_chats_sort, reverse=True)
 
     @staticmethod
@@ -216,9 +223,9 @@ class UserChatMatch(BaseModel):
     def interlocutor(cls, user_id: int,
                      chat_id: int,
                      ) -> User:
-        interlocutor_match: cls | None = session.query(cls).filter(cls.user_id != user_id,
-                                                                   cls.chat_id == chat_id,
-                                                                   ).first()  # type: ignore
+        interlocutor_match: cls | None = DBBuilder.session.query(cls).filter(cls.user_id != user_id,
+                                                                             cls.chat_id == chat_id,
+                                                                             ).first()  # type: ignore
         if interlocutor_match is not None:
             return interlocutor_match.user
         raise ValueError
@@ -231,7 +238,7 @@ class UserChatMatch(BaseModel):
         # FixMe: Улучшить, если появятся идеи о лучшей реализации, вероятно, с использованием более лучших SQL-запросов.
         chats_ids = []
 
-        matches: list[cls] = session.query(cls).filter(  # type: ignore
+        matches: list[cls] = DBBuilder.session.query(cls).filter(  # type: ignore
             (cls.user_id == first_user_id) | (cls.user_id == second_user_id),
         ).all()
         for match in matches:
@@ -252,7 +259,7 @@ class UserChatMatch(BaseModel):
             users = cls.users_in_chat(chat.id)
             interlocutors.update(users)
 
-        self_user: User = session.get(User, user_id)  # noqa
+        self_user: User = DBBuilder.session.get(User, user_id)  # noqa
         if self_user in interlocutors:
             interlocutors.remove(self_user)
 
@@ -262,14 +269,13 @@ class UserChatMatch(BaseModel):
     def unread_count_for_user_in_chat(cls, user_id: int,
                                       chat_id: int,
                                       ) -> UnreadCount:
-        match: cls | None = session.query(cls).filter(cls.user_id == user_id,
-                                                      cls.chat_id == chat_id,
-                                                      ).first()  # type: ignore
+        match: cls | None = DBBuilder.session.query(cls).filter(cls.user_id == user_id,
+                                                                cls.chat_id == chat_id,
+                                                                ).first()  # type: ignore
         return match.unread_count
 
 
 class UnreadCount(BaseModel):
-
     __tablename__ = 'unread_counts'
 
     id: Mapped[int] = mapped_column(primary_key=True)
