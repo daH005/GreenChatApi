@@ -252,8 +252,5 @@ def prepare_test_db() -> None:
         DBBuilder.session.add(message)
         DBBuilder.session.commit()
 
-    for model in [User, Chat, UserChatMatch, ChatMessage, UnreadCount]:
-        print(DBBuilder.session.query(model).all())
-
 
 prepare_test_db()
