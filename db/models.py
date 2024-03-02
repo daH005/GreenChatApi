@@ -17,6 +17,7 @@ from sqlalchemy.orm import (
     sessionmaker,
     scoped_session,
 )
+from sqlalchemy.engine.url import URL
 from datetime import datetime
 
 from api.hinting import raises
@@ -39,7 +40,7 @@ class DBBuilder:
     session: scoped_session
 
     @classmethod
-    def init_session(cls, url: str) -> None:
+    def init_session(cls, url: str | URL) -> None:
         cls.engine = create_engine(url=url)
         cls.session = scoped_session(
             sessionmaker(autocommit=False,
