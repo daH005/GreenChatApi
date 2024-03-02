@@ -4,15 +4,15 @@ from api.json_ import JSONKey
 from api.websocket_.funcs import clear_message_text
 
 __all__ = (
-    'UserIdInfo',
+    'UserIdData',
     'NewChat',
     'NewChatMessage',
-    'ChatIdInfo',
+    'ChatIdData',
     'ChatMessageWasReadData',
 )
 
 
-class BaseModelWithTextField(BaseModel):
+class TextData(BaseModel):
     text: str
 
     @field_validator('text')  # noqa: from pydantic doc
@@ -24,24 +24,24 @@ class BaseModelWithTextField(BaseModel):
         return text
 
 
-class UserIdInfo(BaseModel):
+class UserIdData(BaseModel):
     user_id: int = Field(alias=JSONKey.USER_ID)
 
 
-class NewChat(BaseModelWithTextField):
+class NewChat(TextData):
 
     users_ids: list[int] = Field(alias=JSONKey.USERS_IDS)
     name: str | None = Field(default=None)
     is_group: bool = Field(alias=JSONKey.IS_GROUP, default=False)
 
 
-class ChatIdInfo(BaseModel):
+class ChatIdData(BaseModel):
     chat_id: int = Field(alias=JSONKey.CHAT_ID)
 
 
-class NewChatMessage(BaseModelWithTextField, ChatIdInfo):
+class NewChatMessage(TextData, ChatIdData):
     pass
 
 
-class ChatMessageWasReadData(ChatIdInfo):
+class ChatMessageWasReadData(ChatIdData):
     chat_message_id: int = Field(alias=JSONKey.CHAT_MESSAGE_ID)

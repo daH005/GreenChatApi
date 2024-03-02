@@ -26,10 +26,10 @@ from api.websocket_.funcs import (
     make_online_statuses_data,
 )
 from api.websocket_.validation import (
-    UserIdInfo,
+    UserIdData,
     NewChat,
     NewChatMessage,
-    ChatIdInfo,
+    ChatIdData,
     ChatMessageWasReadData,
 )
 
@@ -78,7 +78,7 @@ async def full_disconnection_handler(user: User) -> None:
 @server.common_handler(MessageType.ONLINE_STATUS_TRACING_ADDING)
 @raises(ValidationError)
 async def online_status_tracing_adding(user: User, data: dict) -> None:
-    data: UserIdInfo = UserIdInfo(**data)
+    data: UserIdData = UserIdData(**data)
     users_ids_and_potential_interlocutors_ids.setdefault(data.user_id, []).append(user.id)
 
     await server.send_to_one_user(
@@ -195,7 +195,7 @@ async def new_chat_message(user: User, data: dict) -> None:
 @server.common_handler(MessageType.NEW_CHAT_MESSAGE_TYPING)
 @raises(ValidationError, PermissionError, ValueError)
 async def new_chat_message_typing(user: User, data: dict) -> None:
-    data: ChatIdInfo = ChatIdInfo(**data)
+    data: ChatIdData = ChatIdData(**data)
 
     chat: Chat = UserChatMatch.chat_if_user_has_access(
         user_id=user.id,
