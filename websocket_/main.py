@@ -5,8 +5,9 @@ from api.hinting import raises
 from api.json_ import (
     ChatInfoJSONDictMaker,
     ChatMessageJSONDictMaker,
-    ChatMessageWasReadJSONDictMaker,
     ChatMessageTypingJSONDictMaker,
+    NewUnreadCountJSONDictMaker,
+    ReadChatMessagesJSONDictMaker,
 )
 from api.db.models import (
     session,
@@ -216,27 +217,48 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
 async def chat_message_was_read(user: User, data: dict) -> None:
     data: ChatMessageWasReadData = ChatMessageWasReadData(**data)
 
-    chat_message: ChatMessage = session.query(ChatMessage).get(data.chat_message_id)
-
-    UserChatMatch.chat_if_user_has_access(
+    chat: Chat = UserChatMatch.chat_if_user_has_access(
         user_id=user.id,
-        chat_id=chat_message.chat_id,
+        chat_id=data.chat_id,
     )
 
-    if chat_message.user_id == user.id:
-        raise ValueError
+    unread_count: UnreadCount = chat.unread_count_for_user(user_id=user.id)
 
-    chat_message.is_read = True
+    chat_messages: list[ChatMessage] = chat.messages[:unread_count.value]
+    chat_messages.reverse()
+
+    read_chat_messages_ids: list[int] = []
+    senders_ids: list[int] = []
+    for chat_message in chat.messages:
+        read_chat_messages_ids.append(chat_message.id)
+        senders_ids.append(chat_message.user_id)
+
+        chat_message.is_read = True
+        unread_count.value -= 1
+
+        if chat_message.id == data.chat_message_id:
+            break
+
     session.commit()
 
-    result_data = ChatMessageWasReadJSONDictMaker.make(
-        chat_id=chat_message.chat_id,
-        chat_message_id=chat_message.id,
+    result_data = NewUnreadCountJSONDictMaker.make(
+        chat_id=chat.id,
+        unread_count=unread_count.value,
     )
     await server.send_to_one_user(
-        user_id=chat_message.user_id,
-        message=MessageType.CHAT_MESSAGE_WAS_READ.make_json_dict(result_data),
+        user_id=user.id,
+        message=MessageType.NEW_UNREAD_COUNT.make_json_dict(result_data),
     )
+
+    for sender_id in senders_ids:
+        result_data = ReadChatMessagesJSONDictMaker.make(
+            chat_id=chat.id,
+            chat_messages_ids=read_chat_messages_ids,
+        )
+        await server.send_to_one_user(
+            user_id=sender_id,
+            message=MessageType.READ_CHAT_MESSAGES.make_json_dict(result_data),
+        )
 
 
 if __name__ == '__main__':
