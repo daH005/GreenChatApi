@@ -20,7 +20,7 @@ class TestUser:
         'auth_by_username_and_password',
         'auth_by_token',
     ])
-    def test_positive_user_has_required_attrs(attr_name: str) -> None:
+    def test_positive_model_has_required_attrs(attr_name: str) -> None:
         assert hasattr(User, attr_name)
 
     @staticmethod
@@ -78,7 +78,7 @@ class TestChat:
         'interlocutor',
         'users',
     ])
-    def test_positive_chat_has_required_attrs(attr_name: str) -> None:
+    def test_positive_model_has_required_attrs(attr_name: str) -> None:
         assert hasattr(Chat, attr_name)
 
     @staticmethod
@@ -124,7 +124,7 @@ class TestChatMessage:
         'creating_datetime',
         'is_read',
     ])
-    def test_positive_chat_message_has_required_attrs(attr_name: str) -> None:
+    def test_positive_model_has_required_attrs(attr_name: str) -> None:
         assert hasattr(ChatMessage, attr_name)
 
     @staticmethod
@@ -157,7 +157,7 @@ class TestUserChatMatch:
         'user_chats',
         'interlocutor',
     ])
-    def test_positive_user_chat_match_has_required_attrs(attr_name: str) -> None:
+    def test_positive_model_has_required_attrs(attr_name: str) -> None:
         assert hasattr(UserChatMatch, attr_name)
 
     @staticmethod
