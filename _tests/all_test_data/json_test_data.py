@@ -203,17 +203,30 @@ CHAT_MESSAGE_KWARGS_AND_JSON_DICTS = [
     ),
 ]
 
-CHAT_MESSAGE_WAD_READ_KWARGS_AND_JSON_DICTS = [
+NEW_UNREAD_COUNT_KWARGS_AND_JSON_DICTS = [
     (
         dict(
             chat_id=1,
-            chat_message_id=2,
+            unread_count=5,
         ),
         {
             'chatId': 1,
-            'chatMessageId': 2,
+            'unreadCount': 5,
         }
-    )
+    ),
+]
+
+READ_CHAT_MESSAGES_KWARGS_AND_JSON_DICTS = [
+    (
+        dict(
+            chat_id=1,
+            chat_messages_ids=[1, 2, 3],
+        ),
+        {
+            'chatId': 1,
+            'chatMessagesIds': [1, 2, 3],
+        }
+    ),
 ]
 
 CHAT_MESSAGE_TYPING_KWARGS_AND_JSON_DICTS = [

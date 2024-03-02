@@ -77,8 +77,15 @@ def test_positive_chat_message_typing(maker_kwargs: dict,
     assert ChatMessageTypingJSONDictMaker.make(**maker_kwargs) == expected_dict
 
 
-@pytest.mark.parametrize(('maker_kwargs', 'expected_dict'), CHAT_MESSAGE_WAD_READ_KWARGS_AND_JSON_DICTS)
-def test_positive_chat_message_was_read(maker_kwargs: dict,
-                                        expected_dict: dict,
-                                        ) -> None:
-    assert ChatMessageWasReadJSONDictMaker.make(**maker_kwargs) == expected_dict
+@pytest.mark.parametrize(('maker_kwargs', 'expected_dict'), NEW_UNREAD_COUNT_KWARGS_AND_JSON_DICTS)
+def test_positive_new_unread_count(maker_kwargs: dict,
+                                   expected_dict: dict,
+                                   ) -> None:
+    assert NewUnreadCountJSONDictMaker.make(**maker_kwargs) == expected_dict
+
+
+@pytest.mark.parametrize(('maker_kwargs', 'expected_dict'), READ_CHAT_MESSAGES_KWARGS_AND_JSON_DICTS)
+def test_positive_read_chat_messages(maker_kwargs: dict,
+                                     expected_dict: dict,
+                                     ) -> None:
+    assert ReadChatMessagesJSONDictMaker.make(**maker_kwargs) == expected_dict
