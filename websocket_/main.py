@@ -184,6 +184,13 @@ async def new_chat_message(user: User, data: dict) -> None:
         chat_id=chat.id,
     )
 
+    for chat_user in chat.users():
+        if chat_user == user:
+            continue
+
+        unread_count: UnreadCount = chat.unread_count_for_user(user_id=chat_user.id)
+        unread_count.value += 1
+
     session.commit()
 
     result_data = ChatMessageJSONDictMaker.make(chat_message=chat_message)
