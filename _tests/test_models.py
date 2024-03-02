@@ -90,12 +90,12 @@ class TestChat:
             chat_id=chat.id,
             text='Hi!',
         )
-        session.add(chat_message)
-        session.commit()
-        session.refresh(chat)  # important
+        DBBuilder.session.add(chat_message)
+        DBBuilder.session.commit()
+        DBBuilder.session.refresh(chat)  # important
         assert chat.last_message == chat_message
-        session.delete(chat_message)
-        session.commit()
+        DBBuilder.session.delete(chat_message)
+        DBBuilder.session.commit()
 
     @staticmethod
     @pytest.mark.parametrize(('chat', 'user', 'expected_user'), CHATS_INTERLOCUTORS)
@@ -136,12 +136,12 @@ class TestChatMessage:
             chat_id=1,
             text=text,
         )
-        session.add(chat_message)
-        session.flush()
+        DBBuilder.session.add(chat_message)
+        DBBuilder.session.flush()
         max_datetime = datetime.utcnow() + timedelta(milliseconds=10)
         min_datetime = datetime.utcnow() - timedelta(milliseconds=10)
         assert max_datetime >= chat_message.creating_datetime >= min_datetime
-        session.rollback()
+        DBBuilder.session.rollback()
 
 
 class TestUserChatMatch:

@@ -1,7 +1,3 @@
-from sqlalchemy import create_engine, Engine
-from sqlalchemy.orm import create_session, Session
-
-from api.db import models
 from api.db.models import *
 from api._tests.common import make_random_string  # noqa
 
@@ -239,22 +235,25 @@ TEXT_MESSAGES = [
 ]
 
 
-def _prepare_test_db() -> None:
-    engine_for_test: Engine = create_engine('sqlite:///:memory:')
+def prepare_test_db() -> None:
+    DBBuilder.init_session('sqlite:///:memory:')
 
-    session_for_test: Session = create_session(bind=engine_for_test)
-    globals()['session'] = session_for_test
-    models.session = session_for_test
-
-    BaseModel.metadata.create_all(bind=engine_for_test)
-    models.session.add_all([*USERS.values(), *CHATS.values(), *USERS_CHATS_MATCHES, *UNREAD_COUNTS])  # type: ignore
-    models.session.commit()
+    BaseModel.metadata.create_all(bind=DBBuilder.engine)
+    DBBuilder.session.add_all([
+        *USERS.values(),
+        *CHATS.values(),
+        *USERS_CHATS_MATCHES,
+        *UNREAD_COUNTS,
+    ])
+    DBBuilder.session.commit()
 
     # for exact `creating_datetime`:
     for message in CHATS_MESSAGES:
-        models.session.add(message)
-        models.session.commit()
+        DBBuilder.session.add(message)
+        DBBuilder.session.commit()
+
+    for model in [User, Chat, UserChatMatch, ChatMessage, UnreadCount]:
+        print(DBBuilder.session.query(model).all())
 
 
-# DB FULLING!
-_prepare_test_db()
+prepare_test_db()
