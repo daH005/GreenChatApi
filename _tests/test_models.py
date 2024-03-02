@@ -77,6 +77,7 @@ class TestChat:
         'last_message',
         'interlocutor',
         'users',
+        'unread_count_for_user',
     ])
     def test_positive_model_has_required_attrs(attr_name: str) -> None:
         assert hasattr(Chat, attr_name)
@@ -156,6 +157,9 @@ class TestUserChatMatch:
         'users_in_chat',
         'user_chats',
         'interlocutor',
+        'find_private_chat',
+        'find_all_interlocutors',
+        'unread_count_for_user_in_chat',
     ])
     def test_positive_model_has_required_attrs(attr_name: str) -> None:
         assert hasattr(UserChatMatch, attr_name)
