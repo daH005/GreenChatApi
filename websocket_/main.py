@@ -14,6 +14,7 @@ from api.db.models import (
     Chat,
     ChatMessage,
     UserChatMatch,
+    UnreadCount,
 )
 from api.db.alembic_.init import make_migrations
 from api.websocket_.base import WebSocketServer
@@ -120,6 +121,12 @@ async def new_chat(user: User, data: dict) -> None:
             chat_id=chat.id,
         )
         session.add(match)
+        session.flush()
+
+        unread_count: UnreadCount = UnreadCount(
+            user_chat_match_id=match.id,
+        )
+        session.add(unread_count)
 
     make_chat_message_and_add_to_session(
         text=data.text,
