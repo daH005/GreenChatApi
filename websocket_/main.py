@@ -185,7 +185,7 @@ async def new_chat_message(user: User, data: dict) -> None:
 
     chat_users: list[User] = chat.users()
     for chat_user in chat_users:
-        if chat_user == user:
+        if chat_user.id == user.id:
             continue
 
         unread_count: UnreadCount = chat.unread_count_for_user(user_id=chat_user.id)
