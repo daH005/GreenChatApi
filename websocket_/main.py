@@ -183,18 +183,26 @@ async def new_chat_message(user: User, data: dict) -> None:
         chat_id=chat.id,
     )
 
-    for chat_user in chat.users():
+    chat_users: list[User] = chat.users()
+    for chat_user in chat_users:
         if chat_user == user:
             continue
 
         unread_count: UnreadCount = chat.unread_count_for_user(user_id=chat_user.id)
         unread_count.value += 1
 
+        result_data = NewUnreadCountJSONDictMaker.make(chat_id=chat.id, unread_count=unread_count.value)
+        await server.send_to_one_user(
+            user_id=chat_user.id,
+            message=MessageType.NEW_UNREAD_COUNT.make_json_dict(result_data)
+        )
+
     DBBuilder.session.commit()
 
+    chat_users_ids: list[int] = [chat_user.id for chat_user in chat_users]
     result_data = ChatMessageJSONDictMaker.make(chat_message=chat_message)
     await server.send_to_many_users(
-        users_ids=users_ids_of_chat_by_id(chat_id=chat.id),
+        users_ids=chat_users_ids,
         message=MessageType.NEW_CHAT_MESSAGE.make_json_dict(result_data)
     )
 

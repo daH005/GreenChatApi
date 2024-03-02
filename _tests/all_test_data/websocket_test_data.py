@@ -185,6 +185,12 @@ NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
                  }
             ],
             5: [
+                {'type': 'newUnreadCount',
+                 'data': {
+                     'chatId': 5,
+                     'unreadCount': 2,
+                 }
+                 },
                 {'type': 'newChatMessage',
                  'data': {
                      'id': 6,
@@ -194,7 +200,7 @@ NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
                      'userId': 1,
                      'isRead': False,
                  }
-                 }
+                 },
             ],
         }
     ),
