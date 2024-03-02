@@ -235,10 +235,10 @@ async def chat_message_was_read(user: User, data: dict) -> None:
     chat_messages.reverse()
 
     read_chat_messages_ids: list[int] = []
-    senders_ids: list[int] = []
-    for chat_message in chat.messages:
+    senders_ids: set[int] = set()
+    for chat_message in chat_messages:
         read_chat_messages_ids.append(chat_message.id)
-        senders_ids.append(chat_message.user_id)
+        senders_ids.add(chat_message.user_id)
 
         chat_message.is_read = True
         unread_count.value -= 1
