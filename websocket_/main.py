@@ -246,7 +246,7 @@ async def chat_message_was_read(user: User, data: dict) -> None:
     senders_ids: set[int] = set()
     for chat_message in chat_messages:
         if chat_message.user_id == user.id:
-            break
+            continue
 
         read_chat_messages_ids.append(chat_message.id)
         senders_ids.add(chat_message.user_id)
