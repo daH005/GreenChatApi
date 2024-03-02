@@ -281,24 +281,15 @@ def user_chats() -> UserChatsJSONDictMaker.Dict:
                 id,
                 name,
                 isGroup,
-                users: [
-                    {
-                        id,
-                        firstName,
-                        lastName,
-                    },
-                    ...
-                ],
+                unreadCount,
+                usersIds: [...],
                 lastMessage: {
                     id,
                     chatId,
                     text,
                     creatingDatetime,
-                    user: {
-                        id,
-                        firstName,
-                        lastName,
-                    },
+                    userId,
+                    isRead,
                 }
             },
             ...
@@ -307,6 +298,7 @@ def user_chats() -> UserChatsJSONDictMaker.Dict:
     """
     return UserChatsJSONDictMaker.make(
         user_chats=UserChatMatch.user_chats(user_id=current_user.id),
+        user_id=current_user.id,
     )
 
 
@@ -331,11 +323,8 @@ def chat_history(chat_id: int) -> ChatHistoryJSONDictMaker.Dict:
                 chatId,
                 text,
                 creatingDatetime,
-                user: {
-                    id,
-                    firstName,
-                    lastName,
-                },
+                userId,
+                isRead,
             },
             ...
         ],

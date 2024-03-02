@@ -116,6 +116,7 @@ NEW_CHAT_HANDLER_SENDINGS = [
                      'id': 5,
                      'name': None,
                      'isGroup': False,
+                     'unreadCount': 0,
                      'lastMessage': {
                          'id': 5,
                          'chatId': 5,
@@ -139,6 +140,7 @@ NEW_CHAT_HANDLER_SENDINGS = [
                      'id': 5,
                      'name': None,
                      'isGroup': False,
+                     'unreadCount': 1,
                      'lastMessage': {
                          'id': 5,
                          'chatId': 5,

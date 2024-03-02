@@ -123,8 +123,12 @@ async def new_chat(user: User, data: dict) -> None:
         session.add(match)
         session.flush()
 
+        value = 1
+        if user_id == user.id:
+            value = 0
         unread_count: UnreadCount = UnreadCount(
             user_chat_match_id=match.id,
+            value=value,
         )
         session.add(unread_count)
 
@@ -136,11 +140,12 @@ async def new_chat(user: User, data: dict) -> None:
 
     session.commit()
 
-    result_data = ChatInfoJSONDictMaker.make(chat=chat)
-    await server.send_to_many_users(
-        users_ids=data.users_ids,
-        message=MessageType.NEW_CHAT.make_json_dict(result_data)
-    )
+    for user_id in data.users_ids:
+        result_data = ChatInfoJSONDictMaker.make(chat=chat, user_id=user_id)
+        await server.send_to_one_user(
+            user_id=user_id,
+            message=MessageType.NEW_CHAT.make_json_dict(result_data)
+        )
 
     result_data = make_online_statuses_data(
         server=server,

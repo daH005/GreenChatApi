@@ -58,6 +58,7 @@ class JSONKey(StrEnum):
     IS_GROUP = 'isGroup'
     LAST_CHAT_MESSAGE = 'lastMessage'
     USERS_IDS = 'usersIds'
+    UNREAD_COUNT = 'unreadCount'
 
     IS_ALREADY_TAKEN = 'isAlreadyTaken'
 
@@ -209,10 +210,12 @@ class UserChatsJSONDictMaker(AbstractJSONDictMaker):
         chats: list[ChatInfoJSONDictMaker.Dict]
 
     @staticmethod
-    def make(user_chats: list[Chat]) -> Dict:
+    def make(user_chats: list[Chat],
+             user_id: int,
+             ) -> Dict:
         chats_for_json = []
         for chat in user_chats:
-            chats_for_json.append(ChatInfoJSONDictMaker.make(chat))
+            chats_for_json.append(ChatInfoJSONDictMaker.make(chat=chat, user_id=user_id))
         return {JSONKey.CHATS: chats_for_json}
 
 
@@ -227,7 +230,9 @@ class ChatInfoJSONDictMaker(AbstractJSONDictMaker):
         usersIds: list[int]
 
     @staticmethod
-    def make(chat: Chat) -> Dict:
+    def make(chat: Chat,
+             user_id: int,
+             ) -> Dict:
         try:
             last_message = ChatMessageJSONDictMaker.make(chat.last_message)
         except IndexError:
@@ -238,4 +243,5 @@ class ChatInfoJSONDictMaker(AbstractJSONDictMaker):
             JSONKey.IS_GROUP: chat.is_group,
             JSONKey.LAST_CHAT_MESSAGE: last_message,
             JSONKey.USERS_IDS: [user.id for user in chat.users()],
+            JSONKey.UNREAD_COUNT: chat.unread_count_for_user(user_id=user_id).value,
         }

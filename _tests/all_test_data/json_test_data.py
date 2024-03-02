@@ -54,6 +54,7 @@ USER_CHATS_KWARGS_AND_JSON_DICTS = [
     (
         dict(
             user_chats=USERS_CHATS[0][1],
+            user_id=1,
         ),
         {
             'chats': [
@@ -62,6 +63,7 @@ USER_CHATS_KWARGS_AND_JSON_DICTS = [
                     'isGroup': True,
                     'name': 'Беседа',
                     'usersIds': [1, 2, 4],
+                    'unreadCount': 0,
                     'lastMessage': {
                         'id': 4,
                         'chatId': 3,
@@ -76,6 +78,7 @@ USER_CHATS_KWARGS_AND_JSON_DICTS = [
                     'isGroup': False,
                     'name': None,
                     'usersIds': [1, 4],
+                    'unreadCount': 0,
                     'lastMessage': {
                         'id': 3,
                         'chatId': 2,
@@ -90,6 +93,7 @@ USER_CHATS_KWARGS_AND_JSON_DICTS = [
                     'isGroup': False,
                     'name': None,
                     'usersIds': [1, 2],
+                    'unreadCount': 0,
                     'lastMessage': {
                         'id': 2,
                         'chatId': 1,
@@ -108,12 +112,14 @@ CHAT_INFO_KWARGS_AND_JSON_DICTS = [
     (
         dict(
             chat=CHATS[1],
+            user_id=1,
         ),
         {
             'id': 1,
             'isGroup': False,
             'name': None,
             'usersIds': [1, 2],
+            'unreadCount': 0,
             'lastMessage': {
                 'id': 2,
                 'chatId': 1,
