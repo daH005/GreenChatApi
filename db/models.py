@@ -145,17 +145,6 @@ class Chat(BaseModel):
     def users(self) -> list[User]:
         return UserChatMatch.users_in_chat(chat_id=self.id)
 
-    def unread_count_from_user(self, user_id: int) -> int:
-        count: int = 0
-        for message in self.messages:
-            if message.user_id != user_id:
-                break
-
-            if not message.is_read:
-                count += 1
-
-        return count
-
 
 class ChatMessage(BaseModel):
 
