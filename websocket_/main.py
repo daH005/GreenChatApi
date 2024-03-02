@@ -220,6 +220,7 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
 
 
 @server.common_handler(MessageType.CHAT_MESSAGE_WAS_READ)
+@raises(ValidationError, ValueError)
 async def chat_message_was_read(user: User, data: dict) -> None:
     data: ChatMessageWasReadData = ChatMessageWasReadData(**data)
 
