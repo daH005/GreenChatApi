@@ -165,7 +165,7 @@ class UserChatMatch(BaseModel):
 
     __tablename__ = 'users_chats'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
     chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id'), nullable=False)
 
