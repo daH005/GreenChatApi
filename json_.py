@@ -14,7 +14,6 @@ __all__ = (
     'AbstractJSONDictMaker',
     'ChatHistoryJSONDictMaker',
     'ChatMessageJSONDictMaker',
-    'ChatMessageWasReadJSONDictMaker',
     'ChatMessageTypingJSONDictMaker',
     'UserChatsJSONDictMaker',
     'ChatInfoJSONDictMaker',
@@ -22,6 +21,8 @@ __all__ = (
     'UserInfoJSONDictMaker',
     'AlreadyTakenFlagJSONDictMaker',
     'CodeIsValidFlagJSONDictMaker',
+    'NewUnreadCountJSONDictMaker',
+    'ReadChatMessagesJSONDictMaker',
 )
 
 
@@ -172,23 +173,6 @@ class ChatMessageJSONDictMaker(AbstractJSONDictMaker):
         }
 
 
-class ChatMessageWasReadJSONDictMaker(AbstractJSONDictMaker):
-
-    class Dict(TypedDict):
-
-        chatId: int
-        chatMessageId: int
-
-    @staticmethod
-    def make(chat_id: int,
-             chat_message_id: int,
-             ) -> Dict:
-        return {
-            JSONKey.CHAT_ID: chat_id,
-            JSONKey.CHAT_MESSAGE_ID: chat_message_id,
-        }
-
-
 class ChatMessageTypingJSONDictMaker(AbstractJSONDictMaker):
 
     class Dict(TypedDict):
@@ -246,4 +230,36 @@ class ChatInfoJSONDictMaker(AbstractJSONDictMaker):
             JSONKey.LAST_CHAT_MESSAGE: last_message,
             JSONKey.USERS_IDS: [user.id for user in chat.users()],
             JSONKey.UNREAD_COUNT: chat.unread_count_for_user(user_id=user_id).value,
+        }
+
+
+class NewUnreadCountJSONDictMaker(AbstractJSONDictMaker):
+
+    class Dict(TypedDict):
+
+        chatId: int
+        unreadCount: int
+
+    @staticmethod
+    def make(chat_id: int,
+             unread_count: int,
+             ) -> Dict:
+        return {
+            JSONKey.CHAT_ID: chat_id,
+            JSONKey.UNREAD_COUNT: unread_count,
+        }
+
+
+class ReadChatMessagesJSONDictMaker(AbstractJSONDictMaker):
+    class Dict(TypedDict):
+        chatId: int
+        chatMessagesIds: list[int]
+
+    @staticmethod
+    def make(chat_id: int,
+             chat_messages_ids: list[int],
+             ) -> Dict:
+        return {
+            JSONKey.CHAT_ID: chat_id,
+            JSONKey.CHAT_MESSAGES_IDS: chat_messages_ids,
         }
