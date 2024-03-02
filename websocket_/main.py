@@ -1,6 +1,6 @@
 from pydantic import ValidationError
 
-from api.config import HOST, WEBSOCKET_PORT
+from api.config import HOST, WEBSOCKET_PORT, DB_URL
 from api.hinting import raises
 from api.json_ import (
     ChatInfoJSONDictMaker,
@@ -17,7 +17,6 @@ from api.db.models import (
     UserChatMatch,
     UnreadCount,
 )
-from api.db.alembic_.init import make_migrations
 from api.websocket_.base import WebSocketServer
 from api.websocket_.messages import MessageType
 from api.websocket_.funcs import (
@@ -269,5 +268,6 @@ async def chat_message_was_read(user: User, data: dict) -> None:
 
 
 if __name__ == '__main__':
-    make_migrations()
+    DBBuilder.init_session(url=DB_URL)
+    DBBuilder.make_migrations()
     server.run()

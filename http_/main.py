@@ -11,7 +11,6 @@ from flask_jwt_extended import (  # pip install flask-jwt-extended
 )
 
 from api.db.models import User, UserChatMatch, DBBuilder
-from api.db.alembic_.init import make_migrations
 from api.json_ import (
     JSONKey,
     ChatHistoryJSONDictMaker,
@@ -28,6 +27,7 @@ from api.config import (
     JWT_SECRET_KEY,
     JWT_ALGORITHM,
     JWT_ACCESS_TOKEN_EXPIRES,
+    DB_URL,
 )
 from endpoints import EndpointName, Url
 from validation import UserJSONValidator
@@ -349,5 +349,6 @@ def chat_history(chat_id: int) -> ChatHistoryJSONDictMaker.Dict:
 
 
 if __name__ == '__main__':
-    make_migrations()
+    DBBuilder.init_session(url=DB_URL)
+    DBBuilder.make_migrations()
     app.run(HOST, PORT, debug=DEBUG)
