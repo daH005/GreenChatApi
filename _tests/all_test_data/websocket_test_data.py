@@ -167,7 +167,7 @@ NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
         dict(
             user=USERS[1],
             data={
-                'chatId': 1,
+                'chatId': 5,
                 'text': 'Hello...',
             }
         ),
@@ -176,7 +176,7 @@ NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
                 {'type': 'newChatMessage',
                  'data': {
                      'id': 6,
-                     'chatId': 1,
+                     'chatId': 5,
                      'text': 'Hello...',
                      'creatingDatetime': COMMON_DATETIME.isoformat(),
                      'userId': 1,
@@ -184,11 +184,11 @@ NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
                  }
                  }
             ],
-            2: [
+            5: [
                 {'type': 'newChatMessage',
                  'data': {
                      'id': 6,
-                     'chatId': 1,
+                     'chatId': 5,
                      'text': 'Hello...',
                      'creatingDatetime': COMMON_DATETIME.isoformat(),
                      'userId': 1,
@@ -242,9 +242,9 @@ NEW_CHAT_MESSAGE_TYPING_HANDLER_SENDINGS = [
 CHAT_MESSAGE_WAS_READ_HANDLER_SENDINGS = [
     (
         dict(
-            user=USERS[2],
+            user=USERS[5],
             data={
-                'chatId': 1,
+                'chatId': 5,
                 'chatMessageId': 6,
             }
         ),
@@ -252,15 +252,15 @@ CHAT_MESSAGE_WAS_READ_HANDLER_SENDINGS = [
             1: [
                 {'type': 'readChatMessages',
                  'data': {
-                     'chatId': 1,
-                     'chatMessagesIds': [6],
+                     'chatId': 5,
+                     'chatMessagesIds': [5, 6],
                  }
                  },
             ],
-            2: [
+            5: [
                 {'type': 'newUnreadCount',
                  'data': {
-                     'chatId': 1,
+                     'chatId': 5,
                      'unreadCount': 0,
                  }
                  }
