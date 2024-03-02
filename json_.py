@@ -60,6 +60,8 @@ class JSONKey(StrEnum):
     USERS_IDS = 'usersIds'
     UNREAD_COUNT = 'unreadCount'
 
+    CHAT_MESSAGES_IDS = 'chatMessagesIds'
+
     IS_ALREADY_TAKEN = 'isAlreadyTaken'
 
     CODE_KEY = 'codeKey'
