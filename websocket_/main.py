@@ -248,11 +248,15 @@ async def chat_message_was_read(user: User, data: dict) -> None:
         read_chat_messages_ids.append(chat_message.id)
         senders_ids.add(chat_message.user_id)
 
+        if not chat_message.is_read:
+            unread_count.value -= 1
         chat_message.is_read = True
-        unread_count.value -= 1
 
         if chat_message.id == data.chat_message_id:
             break
+
+    if unread_count.value < 0:
+        unread_count.value = 0
 
     if not read_chat_messages_ids:
         return
