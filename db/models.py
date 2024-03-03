@@ -139,6 +139,7 @@ class Chat(BaseModel):
         back_populates='chat',
         order_by='-ChatMessage.id',
         cascade='all, delete',
+        lazy='dynamic',
     )
     users_chats_matches: Mapped[list['UserChatMatch']] = relationship(
         back_populates='chat',
@@ -149,6 +150,9 @@ class Chat(BaseModel):
     @raises(IndexError)
     def last_message(self) -> ChatMessage:
         return self.messages[0]  # type: ignore
+
+    def unread_messages_for_user(self, user_id: int) -> list[ChatMessage]:
+        return self.messages.filter(ChatMessage.is_read == False, ChatMessage.user_id != user_id).all()  # noqa
 
     @raises(ValueError)
     def interlocutor(self, user_id: int) -> User:
