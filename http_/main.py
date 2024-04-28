@@ -17,7 +17,6 @@ from api.json_ import (
     UserChatsJSONDictMaker,
     JWTTokenJSONDictMaker,
     UserInfoJSONDictMaker,
-    AlreadyTakenFlagJSONDictMaker,
 )
 from api.config import (
     DEBUG,
@@ -55,16 +54,11 @@ jwt: JWTManager = JWTManager(app)
 app.register_blueprint(mail_bp)
 
 
-@jwt.user_identity_loader
-def user_identity_lookup(user: User) -> str:
-    return user.auth_token
-
-
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data) -> User | None:
-    identity: str = jwt_data['sub']
+    email: str = jwt_data['sub']
     try:
-        return User.auth_by_token(auth_token=identity)
+        return User.find_by_email(email=email)
     except ValueError:
         return None
 
@@ -84,20 +78,16 @@ def handle_exception(exception: HTTPException) -> Response:
     return response
 
 
-@app.route(Url.REG, endpoint=EndpointName.REG, methods=[HTTPMethod.POST])
-def create_new_user() -> tuple[JWTTokenJSONDictMaker.Dict, HTTPStatus.CREATED]:
+@app.route(Url.AUTH, endpoint=EndpointName.AUTH, methods=[HTTPMethod.POST])
+def auth() -> tuple[JWTTokenJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREATED]:
     """
     Payload JSON:
     {
-        username,
-        password,
-        firstName,
-        lastName,
         email,
         code
     }
 
-    Statuses - 201, 400, 409
+    Statuses - 200, 201, 400
 
     Returns:
     {
@@ -111,98 +101,19 @@ def create_new_user() -> tuple[JWTTokenJSONDictMaker.Dict, HTTPStatus.CREATED]:
     else:
         return abort(HTTPStatus.BAD_REQUEST)
 
-    if User.username_is_already_taken(username_to_check=user_data.username):
-        return abort(HTTPStatus.CONFLICT)
-    if User.email_is_already_taken(email_to_check=user_data.email):
-        return abort(HTTPStatus.CONFLICT)
-
-    new_user: User = User.new_by_password(
-        username=user_data.username,
-        password=user_data.password,
-        first_name=user_data.first_name,
-        last_name=user_data.last_name,
-        email=user_data.email,
-    )
-    DBBuilder.session.add(new_user)
-    DBBuilder.session.commit()
-
-    return JWTTokenJSONDictMaker.make(jwt_token=create_access_token(identity=new_user)), HTTPStatus.CREATED
-
-
-@app.route(Url.CHECK_USERNAME, endpoint=EndpointName.CHECK_USERNAME, methods=[HTTPMethod.GET])
-def check_username() -> AlreadyTakenFlagJSONDictMaker.Dict:
-    """
-    Query-params:
-    - username
-
-    Statuses - 200, 400
-
-    Returns:
-    {
-        isAlreadyTaken,
-    }
-    """
+    status_code: HTTPStatus
     try:
-        username: str = str(request.args[JSONKey.USERNAME])
-    except KeyError:
-        return abort(HTTPStatus.BAD_REQUEST)
-
-    return AlreadyTakenFlagJSONDictMaker.make(
-        flag=User.username_is_already_taken(username_to_check=username),
-    )
-
-
-@app.route(Url.CHECK_EMAIL, endpoint=EndpointName.CHECK_EMAIL, methods=[HTTPMethod.GET])
-def check_email() -> AlreadyTakenFlagJSONDictMaker.Dict:
-    """
-    Query-params:
-    - email
-
-    Statuses - 200, 400
-
-    Returns:
-    {
-        isAlreadyTaken,
-    }
-    """
-    try:
-        email: str = str(request.args[JSONKey.EMAIL])
-    except KeyError:
-        return abort(HTTPStatus.BAD_REQUEST)
-
-    return AlreadyTakenFlagJSONDictMaker.make(
-        flag=User.email_is_already_taken(email_to_check=email),
-    )
-
-
-@app.route(Url.AUTH, endpoint=EndpointName.AUTH, methods=[HTTPMethod.POST])
-def auth_by_username_and_password() -> JWTTokenJSONDictMaker.Dict:
-    """
-    Payload JSON:
-    {
-        username,
-        password,
-    }
-
-    Statuses - 201, 400, 403
-
-    Returns:
-    {
-        JWTToken,
-    }
-    """
-    try:
-        username: str = str(request.json[JSONKey.USERNAME])
-        password: str = str(request.json[JSONKey.PASSWORD])
-    except KeyError:
-        return abort(HTTPStatus.BAD_REQUEST)
-
-    try:
-        auth_user: User = User.auth_by_username_and_password(username, password)
+        user: User = User.find_by_email(email=user_data.email)
+        status_code = HTTPStatus.OK
     except ValueError:
-        return abort(HTTPStatus.FORBIDDEN)
+        user: User = User(
+            email=user_data.email,
+        )
+        DBBuilder.session.add(user)
+        DBBuilder.session.commit()
+        status_code = HTTPStatus.CREATED
 
-    return JWTTokenJSONDictMaker.make(jwt_token=create_access_token(identity=auth_user))
+    return JWTTokenJSONDictMaker.make(jwt_token=create_access_token(identity=user.email)), status_code
 
 
 @app.route(Url.REFRESH_TOKEN, endpoint=EndpointName.REFRESH_TOKEN, methods=[HTTPMethod.POST])
