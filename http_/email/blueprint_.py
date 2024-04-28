@@ -35,9 +35,6 @@ def send_code() -> dict[str, int]:
     except (ValueError, KeyError):
         return abort(HTTPStatus.BAD_REQUEST)
 
-    if User.email_is_already_taken(email=email):
-        return abort(HTTPStatus.FORBIDDEN)
-
     try:
         code: int = make_and_save_code(identify=email)
     except ValueError:
