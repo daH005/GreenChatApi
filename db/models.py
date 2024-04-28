@@ -68,8 +68,8 @@ class User(BaseModel):
     username: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
     auth_token: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     email: Mapped[str] = mapped_column(String(200), nullable=False, unique=True)
-    first_name: Mapped[str] = mapped_column(String(100), nullable=False)
-    last_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    first_name: Mapped[str] = mapped_column(String(100), nullable=False, default='New')
+    last_name: Mapped[str] = mapped_column(String(100), nullable=False, default='User')
 
     chats_messages: Mapped[list['ChatMessage']] = relationship(
         back_populates='user',
