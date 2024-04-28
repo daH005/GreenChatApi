@@ -19,7 +19,6 @@ __all__ = (
     'ChatInfoJSONDictMaker',
     'JWTTokenJSONDictMaker',
     'UserInfoJSONDictMaker',
-    'AlreadyTakenFlagJSONDictMaker',
     'CodeIsValidFlagJSONDictMaker',
     'NewUnreadCountJSONDictMaker',
     'ReadChatMessagesJSONDictMaker',
@@ -36,16 +35,13 @@ class JSONKey(StrEnum):
     CHAT_ID = 'chatId'
     CHAT_MESSAGE_ID = 'chatMessageId'
 
+    EMAIL = 'email'
     FIRST_NAME = 'firstName'
     LAST_NAME = 'lastName'
 
     TEXT = 'text'
     CREATING_DATETIME = 'creatingDatetime'
     IS_READ = 'isRead'
-
-    USERNAME = 'username'
-    PASSWORD = 'password'
-    EMAIL = 'email'
 
     JWT_TOKEN = 'JWTToken'
 
@@ -62,8 +58,6 @@ class JSONKey(StrEnum):
     UNREAD_COUNT = 'unreadCount'
 
     CHAT_MESSAGES_IDS = 'chatMessagesIds'
-
-    IS_ALREADY_TAKEN = 'isAlreadyTaken'
 
     CODE_KEY = 'codeKey'
     CODE = 'code'
@@ -94,16 +88,6 @@ class JWTTokenJSONDictMaker(AbstractJSONDictMaker):
         return {JSONKey.JWT_TOKEN: jwt_token}
 
 
-class AlreadyTakenFlagJSONDictMaker(AbstractJSONDictMaker):
-
-    class Dict(TypedDict):
-        isAlreadyTaken: bool
-
-    @staticmethod
-    def make(flag: bool) -> Dict:
-        return {JSONKey.IS_ALREADY_TAKEN: flag}
-
-
 class CodeIsValidFlagJSONDictMaker(AbstractJSONDictMaker):
 
     class Dict(TypedDict):
@@ -121,7 +105,6 @@ class UserInfoJSONDictMaker(AbstractJSONDictMaker):
         id: int
         firstName: str
         lastName: str
-        username: NotRequired[str]
         email: NotRequired[str]
 
     @staticmethod
@@ -135,7 +118,6 @@ class UserInfoJSONDictMaker(AbstractJSONDictMaker):
         }
         if not exclude_important_info:
             user_info[JSONKey.EMAIL] = user.email
-            user_info[JSONKey.USERNAME] = user.username
         return user_info
 
 
