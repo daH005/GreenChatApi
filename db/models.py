@@ -82,6 +82,14 @@ class User(BaseModel):
     )
 
     @classmethod
+    @raises(ValueError)
+    def find_by_username(cls, username: str) -> User:
+        user: User | None = DBBuilder.session.query(cls).filter(cls.username == username).first()
+        if user is None:
+            raise ValueError
+        return user
+
+    @classmethod
     def new_by_password(cls, username: str,
                         password: str,
                         email: str,
