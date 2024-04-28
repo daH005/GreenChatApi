@@ -87,52 +87,6 @@ class User(BaseModel):
             raise ValueError
         return user
 
-    @classmethod
-    def new_by_password(cls, username: str,
-                        password: str,
-                        email: str,
-                        first_name: str,
-                        last_name: str,
-                        ) -> User:
-        return User(
-            username=username,
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            auth_token=make_auth_token(username=username, password=password),
-        )
-
-    @classmethod
-    @raises(ValueError)
-    def auth_by_username_and_password(cls, username: str,
-                                      password: str,
-                                      ) -> User:
-        auth_token: str = make_auth_token(username=username, password=password)
-        return cls.auth_by_token(auth_token=auth_token)
-
-    @classmethod
-    @raises(ValueError)
-    def auth_by_token(cls, auth_token: str) -> User:
-        user: User | None = DBBuilder.session.query(cls).filter(cls.auth_token == auth_token).first()
-        if user is not None:
-            return user
-        raise ValueError
-
-    @classmethod
-    def _data_is_already_taken(cls, field_name: str,
-                               value: str,
-                               ) -> bool:
-        user: User | None = DBBuilder.session.query(cls).filter(getattr(cls, field_name) == value).first()
-        return user is not None
-
-    @classmethod
-    def username_is_already_taken(cls, username_to_check: str) -> bool:
-        return cls._data_is_already_taken('username', username_to_check)
-
-    @classmethod
-    def email_is_already_taken(cls, email_to_check: str) -> bool:
-        return cls._data_is_already_taken('email', email_to_check)
-
 
 class Chat(BaseModel):
     __tablename__ = 'chats'
