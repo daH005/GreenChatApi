@@ -17,6 +17,7 @@ from api.json_ import (
     UserChatsJSONDictMaker,
     JWTTokenJSONDictMaker,
     UserInfoJSONDictMaker,
+    AlreadyTakenFlagJSONDictMaker,
 )
 from api.config import (
     DEBUG,
@@ -76,6 +77,29 @@ def handle_exception(exception: HTTPException) -> Response:
     response.content_type = 'application/json'
     response.data = json_dumps(dict(status=exception.code))
     return response
+
+
+@app.route(Url.CHECK_EMAIL, endpoint=EndpointName.CHECK_EMAIL, methods=[HTTPMethod.GET])
+def check_email() -> AlreadyTakenFlagJSONDictMaker.Dict:
+    """
+    Query-params:
+    - email
+
+    Statuses - 200, 400
+
+    Returns:
+    {
+        isAlreadyTaken,
+    }
+    """
+    try:
+        email: str = str(request.args[JSONKey.EMAIL])
+    except KeyError:
+        return abort(HTTPStatus.BAD_REQUEST)
+
+    return AlreadyTakenFlagJSONDictMaker.make(
+        flag=User.email_is_already_taken(email=email),
+    )
 
 
 @app.route(Url.AUTH, endpoint=EndpointName.AUTH, methods=[HTTPMethod.POST])

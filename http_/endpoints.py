@@ -7,6 +7,7 @@ __all__ = (
 
 
 class EndpointName(StrEnum):
+    CHECK_EMAIL = 'check_email'
     SEND_CODE = 'send_code'
     CHECK_CODE = 'check_code'
     AUTH = 'auth'
@@ -17,6 +18,7 @@ class EndpointName(StrEnum):
 
 
 class Url(StrEnum):
+    CHECK_EMAIL = '/user/new/check/email'
     SEND_CODE = '/user/new/code/send'
     CHECK_CODE = '/user/new/code/check'
     AUTH = '/user/auth'

@@ -86,6 +86,17 @@ class User(BaseModel):
             raise ValueError
         return user
 
+    @classmethod
+    def email_is_already_taken(cls, email: str) -> bool:
+        return cls._data_is_already_taken('email', email)
+
+    @classmethod
+    def _data_is_already_taken(cls, field_name: str,
+                               value: str,
+                               ) -> bool:
+        user: User | None = DBBuilder.session.query(cls).filter(getattr(cls, field_name) == value).first()
+        return user is not None
+
 
 class Chat(BaseModel):
     __tablename__ = 'chats'
