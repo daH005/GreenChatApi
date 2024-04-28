@@ -1,49 +1,31 @@
 from api.db.models import *
 from api._tests.common import make_random_string  # noqa
 
-USERS_PASSWORDS = {
-    1: 'test_pass123',
-    2: 'test_pass__',
-    3: 'test_pass__',
-    4: 'test_pass__44',
-    5: 'new...213123'
-}
-
 USERS = {
-    1: User.new_by_password(
-        'user1',
-        USERS_PASSWORDS[1],
-        'dan@mail.ru',
-        'first_name',
-        'last_name',
+    1: User(
+        email='dan@mail.ru',
+        first_name='first_name',
+        last_name='last_name',
     ),
-    2: User.new_by_password(
-        'user2',
-        USERS_PASSWORDS[2],
-        'dan123@mail.ru',
-        'first_name',
-        'last_name',
+    2: User(
+        email='dan123@mail.ru',
+        first_name='first_name',
+        last_name='last_name',
     ),
-    3: User.new_by_password(
-        'dan005',
-        USERS_PASSWORDS[3],
-        'dan228@mail.ru',
-        'first_name',
-        'last_name',
+    3: User(
+        email='dan228@mail.ru',
+        first_name='first_name',
+        last_name='last_name',
     ),
-    4: User.new_by_password(
-        'new',
-        USERS_PASSWORDS[4],
-        'dan22811@mail.ru',
-        'first_name',
-        'last_name',
+    4: User(
+        email='dan22811@mail.ru',
+        first_name='first_name',
+        last_name='last_name',
     ),
-    5: User.new_by_password(
-        'dan',
-        USERS_PASSWORDS[5],
-        'pochta@yandex.ru',
-        'danil',
-        'shevelev',  # noqa
+    5: User(
+        email='pochta@yandex.ru',
+        first_name='danil',
+        last_name='shevelev',  # noqa
     )
 }
 
@@ -176,24 +158,6 @@ CHATS_NO_ACCESS_FOR_USERS = [
     (USERS[3], CHATS[2]),
     (USERS[3], CHATS[3]),
     (USERS[3], CHATS[4]),
-]
-
-ALREADY_TAKEN_AND_NOT_USERNAMES = [
-    ('hi!111111111', False),
-    (USERS[1].username, True),
-    (USERS[2].username, True),
-    (USERS[3].username, True),
-    (USERS[4].username, True),
-    ('new11', False),
-]
-
-ALREADY_TAKEN_AND_NOT_EMAILS = [
-    ('hi!111111111@mail.ru', False),
-    (USERS[1].email, True),
-    (USERS[2].email, True),
-    (USERS[3].email, True),
-    (USERS[4].email, True),
-    ('new11@yandex.ru', False),
 ]
 
 PRIVATE_CHATS_USERS = [

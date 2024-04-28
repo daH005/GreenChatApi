@@ -12,25 +12,6 @@ JWT_TOKEN_KWARGS_AND_JSON_DICTS = [
     )
 ]
 
-ALREADY_TAKEN_FLAG_KWARGS_AND_JSON_DICTS = [
-    (
-        dict(
-            flag=False,
-        ),
-        {
-            'isAlreadyTaken': False,
-        }
-    ),
-    (
-        dict(
-            flag=True,
-        ),
-        {
-            'isAlreadyTaken': True,
-        }
-    ),
-]
-
 CODE_IS_VALID_FLAG_KWARGS_AND_JSON_DICTS = [
     (
         dict(
@@ -154,7 +135,6 @@ USER_INFO_KWARGS_AND_JSON_DICTS = [
             'firstName': 'first_name',
             'lastName': 'last_name',
             'email': 'dan@mail.ru',
-            'username': 'user1',
         }
     ),
 ]

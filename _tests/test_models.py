@@ -2,7 +2,6 @@ import pytest
 from datetime import datetime, timedelta
 
 from api._tests.all_test_data.db_test_data import *  # noqa: must be first!
-from api.db.encryption import make_auth_token
 from api.db.models import *  # noqa
 
 
@@ -11,60 +10,13 @@ class TestUser:
     @staticmethod
     @pytest.mark.parametrize('attr_name', [
         'id',
-        'username',
+        'email',
         'first_name',
         'last_name',
-        'email',
-        'auth_token',
-        'new_by_password',
-        'auth_by_username_and_password',
-        'auth_by_token',
+        'find_by_email',
     ])
     def test_positive_model_has_required_attrs(attr_name: str) -> None:
         assert hasattr(User, attr_name)
-
-    @staticmethod
-    @pytest.mark.parametrize('user', USERS.values())
-    def test_positive_user_has_encrypted_auth_token(user: User) -> None:
-        assert user.auth_token == make_auth_token(user.username, USERS_PASSWORDS[user.id])
-
-    @staticmethod
-    @pytest.mark.parametrize('user', USERS.values())
-    def test_positive_user_auth_by_username_and_password(user: User) -> None:
-        assert User.auth_by_username_and_password(user.username, USERS_PASSWORDS[user.id]) == user
-
-    @staticmethod
-    @pytest.mark.parametrize(('username', 'password'), [(x, x) for x in RANDOM_STRINGS])
-    def test_negative_user_auth_by_username_and_password_with_invalid_data_raises_value_error(username: str,
-                                                                                              password: str,
-                                                                                              ) -> None:
-        with pytest.raises(ValueError):
-            User.auth_by_username_and_password(username, password)
-
-    @staticmethod
-    @pytest.mark.parametrize('user', USERS.values())
-    def test_positive_user_auth_by_token(user: User) -> None:
-        assert User.auth_by_token(user.auth_token) == user
-
-    @staticmethod
-    @pytest.mark.parametrize('auth_token', RANDOM_STRINGS)
-    def test_negative_user_auth_by_token_with_invalid_data_raises_value_error(auth_token: str) -> None:
-        with pytest.raises(ValueError):
-            User.auth_by_token(auth_token)
-
-    @staticmethod
-    @pytest.mark.parametrize(('username', 'flag'), ALREADY_TAKEN_AND_NOT_USERNAMES)
-    def test_positive_username_is_already_taken_flag(username: str,
-                                                     flag: bool,
-                                                     ) -> None:
-        assert User.username_is_already_taken(username) == flag
-
-    @staticmethod
-    @pytest.mark.parametrize(('email', 'flag'), ALREADY_TAKEN_AND_NOT_EMAILS)
-    def test_positive_email_is_already_taken_flag(email: str,
-                                                  flag: bool,
-                                                  ) -> None:
-        assert User.email_is_already_taken(email) == flag
 
 
 class TestChat:
