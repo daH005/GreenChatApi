@@ -21,7 +21,6 @@ from sqlalchemy.engine.url import URL
 from datetime import datetime
 
 from api.hinting import raises
-from api.db.encryption import make_auth_token
 from api.db.alembic_.init import make_migrations
 
 __all__ = (
