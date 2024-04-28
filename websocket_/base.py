@@ -144,9 +144,9 @@ class WebSocketClientHandler:
     @raises(ConnectionClosed)
     async def auth(self) -> None:
         jwt_token: str = await self._wait_str()
-        auth_token: str = self._decode_jwt(encoded=jwt_token)
+        email: str = self._decode_jwt(encoded=jwt_token)
         try:
-            self._try_auth_user(auth_token=auth_token)
+            self._try_auth_user(email=email)
         except ValueError:
             await self.auth()
 
@@ -159,9 +159,9 @@ class WebSocketClientHandler:
         )['sub']
 
     @raises(ValueError)
-    def _try_auth_user(self, auth_token: str) -> None:
+    def _try_auth_user(self, email: str) -> None:
         DBBuilder.session.remove()  # for session updating
-        self.user = User.auth_by_token(auth_token=auth_token)
+        self.user = User.find_by_email(email=email)
 
     @raises(ConnectionClosed)
     async def _wait_str(self) -> str:
