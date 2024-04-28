@@ -160,7 +160,7 @@ def refresh_token() -> JWTTokenJSONDictMaker.Dict:
         JWTToken,
     }
     """
-    return JWTTokenJSONDictMaker.make(jwt_token=create_access_token(identity=current_user))
+    return JWTTokenJSONDictMaker.make(jwt_token=create_access_token(identity=current_user.email))
 
 
 @app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])
