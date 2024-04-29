@@ -30,7 +30,7 @@ from api.config import (
     DB_URL,
 )
 from endpoints import EndpointName, Url
-from validation import UserJSONValidator
+from validation import EmailAndCodeJSONValidator
 from api.http_.email.blueprint_ import (
     bp as mail_bp,
 )
@@ -118,7 +118,7 @@ def auth() -> tuple[JWTTokenJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREAT
         JWTToken,
     }
     """
-    user_data: UserJSONValidator = UserJSONValidator.from_json()
+    user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_json()
 
     if code_is_valid(identify=user_data.email, code=user_data.code):
         delete_code(identify=user_data.email)
