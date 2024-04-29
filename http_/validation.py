@@ -12,7 +12,7 @@ from http import HTTPStatus
 
 __all__ = (
     'RequestDataHandlerMixin',
-    'UserJSONValidator',
+    'EmailAndCodeJSONValidator',
 )
 
 
@@ -26,10 +26,10 @@ class RequestDataHandlerMixin(BaseModel):
             abort(HTTPStatus.BAD_REQUEST)
 
 
-class UserJSONValidator(RequestDataHandlerMixin):
+class EmailAndCodeJSONValidator(RequestDataHandlerMixin):
 
     email: constr(min_length=1, max_length=200)
-    code: conint(ge=1000)
+    code: conint(ge=1000, le=9999)
 
     @field_validator('email')  # noqa: from pydantic doc
     @classmethod
