@@ -11,22 +11,30 @@ from flask import request, abort
 from http import HTTPStatus
 
 __all__ = (
-    'RequestDataHandlerMixin',
+    'BaseValidator',
     'EmailAndCodeJSONValidator',
 )
 
 
-class RequestDataHandlerMixin(BaseModel):
+class BaseValidator(BaseModel):
 
     @classmethod
-    def from_json(cls) -> RequestDataHandlerMixin | None:
+    def from_json(cls) -> BaseValidator | None:
+        return cls._from('json')
+
+    @classmethod
+    def from_args(cls) -> BaseValidator | None:
+        return cls._from('args')
+
+    @classmethod
+    def _from(cls, attr_name: str) -> BaseValidator | None:
         try:
-            return cls(**request.json)
+            return cls(**getattr(request, attr_name))
         except ValidationError:
             abort(HTTPStatus.BAD_REQUEST)
 
 
-class EmailAndCodeJSONValidator(RequestDataHandlerMixin):
+class EmailAndCodeJSONValidator(BaseValidator):
 
     email: constr(min_length=1, max_length=200)
     code: conint(ge=1000, le=9999)
