@@ -2,11 +2,11 @@ from flask import Blueprint, request, abort  # pip install flask
 from http import HTTPMethod, HTTPStatus
 from pydantic import validate_email  # pip install pydantic
 
-from api.db.models import User
 from api.json_ import JSONKey, CodeIsValidFlagJSONDictMaker
 from api.http_.endpoints import EndpointName, Url
 from api.http_.email.tasks import send_code_task
 from api.http_.redis_ import make_and_save_code, code_is_valid
+from api.http_.validation import EmailAndCodeJSONValidator
 
 __all__ = (
     'bp',
@@ -58,11 +58,7 @@ def check_code() -> CodeIsValidFlagJSONDictMaker.Dict:
         codeIsValid,
     }
     """
-    try:
-        email: str = str(request.args[JSONKey.EMAIL])
-        code: int = int(request.args[JSONKey.CODE])
-    except (ValueError, KeyError):
-        return abort(HTTPStatus.BAD_REQUEST)
+    user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_args()
 
-    flag: bool = code_is_valid(identify=email, code=code)
+    flag: bool = code_is_valid(identify=user_data.email, code=user_data.code)
     return CodeIsValidFlagJSONDictMaker.make(flag=flag)
