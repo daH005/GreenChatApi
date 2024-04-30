@@ -24,7 +24,7 @@ __all__ = (
     'EMAIL',
     'EMAIL_PASSWORD',
     'TEST_PASS_EMAIL_CODE',
-    'MAX_ATTEMPTS_TO_CHECK_CODE',
+    'MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE',
 )
 
 load_dotenv()
