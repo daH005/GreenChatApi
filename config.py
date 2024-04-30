@@ -24,6 +24,7 @@ __all__ = (
     'EMAIL',
     'EMAIL_PASSWORD',
     'TEST_PASS_EMAIL_CODE',
+    'MAX_ATTEMPTS_TO_CHECK_CODE',
 )
 
 load_dotenv()
@@ -62,6 +63,7 @@ SMTP_PORT: Final[int] = int(environ['SMTP_PORT'])
 EMAIL: Final[str] = environ['EMAIL']
 EMAIL_PASSWORD: Final[str] = environ['EMAIL_PASSWORD']
 TEST_PASS_EMAIL_CODE: Final[int] = int(environ['TEST_PASS_EMAIL_CODE'])
+MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE: Final[int] = int(environ['MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE'])
 
 if __name__ == '__main__':
     print(BASE_DIR)
