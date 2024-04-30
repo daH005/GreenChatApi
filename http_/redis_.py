@@ -1,6 +1,6 @@
-from typing import Final
 from redis import Redis  # pip install redis
 from random import randint
+from enum import StrEnum
 
 from api.hinting import raises
 from api.config import (
@@ -9,6 +9,7 @@ from api.config import (
     REDIS_CODES_EXPIRES,
     DEBUG,
     TEST_PASS_EMAIL_CODE,
+    MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE,
 )
 
 __all__ = (
@@ -18,18 +19,42 @@ __all__ = (
     'delete_code',
 )
 
-app: Redis = Redis(host=REDIS_HOST, port=REDIS_PORT)
-_KEY_PREFIX: Final[str] = 'greenchat_mail_codes'
-_ENCODING: Final[str] = 'utf-8'
+app: Redis = Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    decode_responses=True,
+)
+
+
+class KeyPrefix(StrEnum):
+    EMAIL_CODE = 'greenchat_email_code_'
+    EMAIL_CODE_COUNT = 'greenchat_email_code_count_'
+
+    def get(self, identify: str) -> str:
+        return app.get(self + identify)
+
+    def set(self, identify: str,
+            value: str | int,
+            expires: float | None = None,
+            ) -> None:
+        app.set(self + identify, value, ex=expires)
+
+    def delete(self, identify: str) -> None:
+        app.delete(self + identify)
+
+    def exists(self, identify: str) -> bool:
+        return app.exists(self + identify)
 
 
 @raises(ValueError)
 def make_and_save_code(identify: str) -> int:
-    code: int = _make_random_code()
-    key: str = _make_key(identify)
-    if app.exists(key):
+    if KeyPrefix.EMAIL_CODE.exists(identify):
         raise ValueError
-    app.set(key, code, ex=REDIS_CODES_EXPIRES)
+
+    code: int = _make_random_code()
+    KeyPrefix.EMAIL_CODE.set(identify, code, REDIS_CODES_EXPIRES)
+    KeyPrefix.EMAIL_CODE_COUNT.set(identify, 0)
+
     return code
 
 
@@ -40,19 +65,28 @@ def _make_random_code() -> int:
 def code_is_valid(identify: str,
                   code: int,
                   ) -> bool:
-    existed_code: bytes | None = app.get(_make_key(identify))
-    if existed_code is not None:
-        return existed_code.decode(_ENCODING) == str(code)
-
     if DEBUG and code == TEST_PASS_EMAIL_CODE:
         return True
 
-    return False
+    if not KeyPrefix.EMAIL_CODE.exists(identify):
+        return False
+
+    try:
+        cur_count: int = int(KeyPrefix.EMAIL_CODE_COUNT.get(identify))
+    except ValueError:
+        return False
+
+    if cur_count > MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE:
+        delete_code(identify)
+        return False
+
+    KeyPrefix.EMAIL_CODE_COUNT.set(
+        identify,
+        cur_count + 1,
+    )
+    return KeyPrefix.EMAIL_CODE.get(identify) == str(code)
 
 
 def delete_code(identify: str) -> None:
-    app.delete(_make_key(identify))
-
-
-def _make_key(identify: str) -> str:
-    return _KEY_PREFIX + identify
+    KeyPrefix.EMAIL_CODE.delete(identify)
+    KeyPrefix.EMAIL_CODE_COUNT.delete(identify)
