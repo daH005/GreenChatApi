@@ -1,5 +1,5 @@
 from os import environ
-from dotenv import load_dotenv  # pip install python-dotenv
+from dotenv import load_dotenv
 from typing import Final
 from pathlib import Path
 from sqlalchemy.engine.url import URL

@@ -1,9 +1,9 @@
-from flask import Flask, request, abort, Response  # pip install flask
+from flask import Flask, request, abort, Response
 from werkzeug.exceptions import HTTPException
-from flask_cors import CORS  # pip install -U flask-cors
+from flask_cors import CORS
 from http import HTTPMethod, HTTPStatus
 from json import dumps as json_dumps
-from flask_jwt_extended import (  # pip install flask-jwt-extended
+from flask_jwt_extended import (
     create_access_token,
     current_user,
     jwt_required,
@@ -11,7 +11,7 @@ from flask_jwt_extended import (  # pip install flask-jwt-extended
 )
 
 from api.db.models import User, UserChatMatch, DBBuilder
-from api.json_ import (
+from api.common.json_ import (
     JSONKey,
     ChatHistoryJSONDictMaker,
     UserChatsJSONDictMaker,

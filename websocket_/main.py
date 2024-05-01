@@ -1,8 +1,8 @@
 from pydantic import ValidationError
 
 from api.config import HOST, WEBSOCKET_PORT, DB_URL
-from api.hinting import raises
-from api.json_ import (
+from api.common.hinting import raises
+from api.common.json_ import (
     ChatInfoJSONDictMaker,
     ChatMessageJSONDictMaker,
     ChatMessageTypingJSONDictMaker,

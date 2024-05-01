@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, field_validator
 
-from api.json_ import JSONKey
+from api.common.json_ import JSONKey
 from api.websocket_.funcs import clear_message_text
 
 __all__ = (

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from sqlalchemy import (  # pip install sqlalchemy
+from sqlalchemy import (
     create_engine,
     Integer,
     String,
@@ -20,7 +20,7 @@ from sqlalchemy.orm import (
 from sqlalchemy.engine.url import URL
 from datetime import datetime
 
-from api.hinting import raises
+from api.common.hinting import raises
 from api.db.alembic_.init import make_migrations
 
 __all__ = (

@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TypedDict
 from enum import StrEnum
 
-from api.json_ import AbstractJSONDictMaker
+from api.common.json_ import AbstractJSONDictMaker
 
 __all__ = (
     'MessageType',

@@ -1,13 +1,13 @@
 from __future__ import annotations
 import asyncio
-from websockets import WebSocketServerProtocol, serve, ConnectionClosed  # pip install websockets
+from websockets import WebSocketServerProtocol, serve, ConnectionClosed
 from typing import NoReturn, Callable, Coroutine
 import json
 from json import JSONDecodeError
-from jwt import decode  # pip install pyjwt
+from jwt import decode
 
 from api.db.models import User, DBBuilder
-from api.hinting import raises
+from api.common.hinting import raises
 from api.config import JWT_SECRET_KEY, JWT_ALGORITHM
 from api.websocket_.logs import logger, init_logs
 from api.websocket_.messages import (

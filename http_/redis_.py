@@ -1,8 +1,8 @@
-from redis import Redis  # pip install redis
+from redis import Redis
 from random import randint
 from enum import StrEnum
 
-from api.hinting import raises
+from api.common.hinting import raises
 from api.config import (
     REDIS_HOST,
     REDIS_PORT,

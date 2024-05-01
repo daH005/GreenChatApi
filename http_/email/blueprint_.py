@@ -1,8 +1,8 @@
-from flask import Blueprint, request, abort  # pip install flask
+from flask import Blueprint, request, abort
 from http import HTTPMethod, HTTPStatus
-from pydantic import validate_email  # pip install pydantic
+from pydantic import validate_email
 
-from api.json_ import JSONKey, CodeIsValidFlagJSONDictMaker
+from api.common.json_ import JSONKey, CodeIsValidFlagJSONDictMaker
 from api.http_.endpoints import EndpointName, Url
 from api.http_.email.tasks import send_code_task
 from api.http_.redis_ import make_and_save_code, code_is_valid

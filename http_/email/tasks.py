@@ -1,7 +1,7 @@
 from smtplib import SMTP_SSL
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from celery import Celery  # pip install celery
+from celery import Celery
 
 from api.config import REDIS_URL
 from api.config import (
