@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Callable
 
 from api.websocket_.main import server
-from api.json_ import ChatMessageJSONDictMaker, ChatInfoJSONDictMaker
+from api.json_ import ChatMessageJSONDictMaker
 from api._tests.common import COMMON_DATETIME, replace_creating_datetime  # noqa
 from api._tests.all_test_data.websocket_test_data import ONLINE_USERS_IDS  # noqa
 
