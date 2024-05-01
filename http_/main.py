@@ -9,6 +9,7 @@ from flask_jwt_extended import (
     jwt_required,
     JWTManager,
 )
+from flasgger import Swagger, swag_from
 
 from api.db.models import User, UserChatMatch, DBBuilder
 from api.common.json_ import (
@@ -38,6 +39,15 @@ from api.http_.redis_ import (
     code_is_valid,
     delete_code,
 )
+from api.http_.flasgger_constants import (
+    CHECK_EMAIL_SPECS,
+    AUTH_SPECS,
+    REFRESH_TOKEN_SPECS,
+    USER_INFO_SPECS,
+    USER_CHATS_SPECS,
+    CHAT_HISTORY_SPECS,
+)
+
 current_user: User
 
 app: Flask = Flask(__name__)
@@ -51,6 +61,8 @@ app.json.ensure_ascii = False
 
 CORS(app, origins=CORS_ORIGINS)
 jwt: JWTManager = JWTManager(app)
+
+Swagger(app)
 
 app.register_blueprint(mail_bp)
 
@@ -80,18 +92,8 @@ def handle_exception(exception: HTTPException) -> Response:
 
 
 @app.route(Url.CHECK_EMAIL, endpoint=EndpointName.CHECK_EMAIL, methods=[HTTPMethod.GET])
+@swag_from(CHECK_EMAIL_SPECS)
 def check_email() -> AlreadyTakenFlagJSONDictMaker.Dict:
-    """
-    Query-params:
-    - email
-
-    Statuses - 200, 400
-
-    Returns:
-    {
-        isAlreadyTaken,
-    }
-    """
     try:
         email: str = str(request.args[JSONKey.EMAIL])
     except KeyError:
@@ -103,21 +105,8 @@ def check_email() -> AlreadyTakenFlagJSONDictMaker.Dict:
 
 
 @app.route(Url.AUTH, endpoint=EndpointName.AUTH, methods=[HTTPMethod.POST])
+@swag_from(AUTH_SPECS)
 def auth() -> tuple[JWTTokenJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREATED]:
-    """
-    Payload JSON:
-    {
-        email,
-        code
-    }
-
-    Statuses - 200, 201, 400
-
-    Returns:
-    {
-        JWTToken,
-    }
-    """
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_json()
 
     if code_is_valid(identify=user_data.email, code=user_data.code):
@@ -142,48 +131,15 @@ def auth() -> tuple[JWTTokenJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREAT
 
 @app.route(Url.REFRESH_TOKEN, endpoint=EndpointName.REFRESH_TOKEN, methods=[HTTPMethod.POST])
 @jwt_required()
+@swag_from(REFRESH_TOKEN_SPECS)
 def refresh_token() -> JWTTokenJSONDictMaker.Dict:
-    """
-    Headers:
-    Authorization: Bearer <JWT-Token>
-
-    Payload JSON:
-    {
-        username,
-        password,
-    }
-
-    Statuses - 200, 401
-
-    Returns:
-    {
-        JWTToken,
-    }
-    """
     return JWTTokenJSONDictMaker.make(jwt_token=create_access_token(identity=current_user.email))
 
 
 @app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])
 @jwt_required()
+@swag_from(USER_INFO_SPECS)
 def user_info() -> UserInfoJSONDictMaker.Dict:
-    """
-    Headers:
-    Authorization: Bearer <JWT-Token>
-
-    Query-params:
-    - id
-
-    Statuses - 200, 400, 401, 404
-
-    Returns:
-    {
-        id,
-        firstName,
-        lastName,
-        ?email,
-        ?username,
-    }
-    """
     user_id_as_str: str | None = request.args.get(JSONKey.ID)
     if user_id_as_str is None:
         return UserInfoJSONDictMaker.make(user=current_user, exclude_important_info=False)
@@ -201,36 +157,8 @@ def user_info() -> UserInfoJSONDictMaker.Dict:
 
 @app.route(Url.USER_CHATS, endpoint=EndpointName.USER_CHATS, methods=[HTTPMethod.GET])
 @jwt_required()
+@swag_from(USER_CHATS_SPECS)
 def user_chats() -> UserChatsJSONDictMaker.Dict:
-    """ Чаты отсортированы по `ChatMessage.creating_datetime` (первый - поздний).
-
-    Headers:
-    Authorization: Bearer <JWT-Token>
-
-    Statuses - 200, 401
-
-    Returns:
-    {
-        chats: [
-            {
-                id,
-                name,
-                isGroup,
-                unreadCount,
-                usersIds: [...],
-                lastMessage: {
-                    id,
-                    chatId,
-                    text,
-                    creatingDatetime,
-                    userId,
-                    isRead,
-                }
-            },
-            ...
-        ],
-    }
-    """
     return UserChatsJSONDictMaker.make(
         user_chats=UserChatMatch.user_chats(user_id=current_user.id),
         user_id=current_user.id,
@@ -239,32 +167,8 @@ def user_chats() -> UserChatsJSONDictMaker.Dict:
 
 @app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])
 @jwt_required()
+@swag_from(CHAT_HISTORY_SPECS)
 def chat_history(chat_id: int) -> ChatHistoryJSONDictMaker.Dict:
-    """Сообщения отсортированы по `ChatMessage.creating_datetime` (первое - новейшее).
-
-    Headers:
-    Authorization: Bearer <JWT-Token>
-
-    Query-params:
-    - offsetFromEnd (optional)
-
-    Statuses - 200, 400, 401, 403
-
-    Returns:
-    {
-        messages: [
-            {
-                id,
-                chatId,
-                text,
-                creatingDatetime,
-                userId,
-                isRead,
-            },
-            ...
-        ],
-    }
-    """
     offset_from_end: int | None
     try:
         offset_from_end = int(request.args[JSONKey.OFFSET_FROM_END])
