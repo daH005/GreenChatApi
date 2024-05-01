@@ -18,7 +18,7 @@ def teardown_module() -> None:
 def test_positive_jwt_token(maker_kwargs: dict,
                             expected_dict: dict,
                             ) -> None:
-    assert JWTTokenJSONDictMaker.make(**maker_kwargs) == expected_dict
+    assert JWTJSONDictMaker.make(**maker_kwargs) == expected_dict
 
 
 @pytest.mark.parametrize(('maker_kwargs', 'expected_dict'), CODE_IS_VALID_FLAG_KWARGS_AND_JSON_DICTS)

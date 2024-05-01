@@ -16,7 +16,7 @@ from api.common.json_ import (
     JSONKey,
     ChatHistoryJSONDictMaker,
     UserChatsJSONDictMaker,
-    JWTTokenJSONDictMaker,
+    JWTJSONDictMaker,
     UserInfoJSONDictMaker,
     AlreadyTakenFlagJSONDictMaker,
 )
@@ -106,7 +106,7 @@ def check_email() -> AlreadyTakenFlagJSONDictMaker.Dict:
 
 @app.route(Url.AUTH, endpoint=EndpointName.AUTH, methods=[HTTPMethod.POST])
 @swag_from(AUTH_SPECS)
-def auth() -> tuple[JWTTokenJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREATED]:
+def auth() -> tuple[JWTJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREATED]:
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_json()
 
     if code_is_valid(identify=user_data.email, code=user_data.code):
@@ -126,14 +126,14 @@ def auth() -> tuple[JWTTokenJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREAT
         DBBuilder.session.commit()
         status_code = HTTPStatus.CREATED
 
-    return JWTTokenJSONDictMaker.make(jwt_token=create_access_token(identity=user.email)), status_code
+    return JWTJSONDictMaker.make(jwt_token=create_access_token(identity=user.email)), status_code
 
 
 @app.route(Url.REFRESH_TOKEN, endpoint=EndpointName.REFRESH_TOKEN, methods=[HTTPMethod.POST])
 @jwt_required()
 @swag_from(REFRESH_TOKEN_SPECS)
-def refresh_token() -> JWTTokenJSONDictMaker.Dict:
-    return JWTTokenJSONDictMaker.make(jwt_token=create_access_token(identity=current_user.email))
+def refresh_token() -> JWTJSONDictMaker.Dict:
+    return JWTJSONDictMaker.make(jwt_token=create_access_token(identity=current_user.email))
 
 
 @app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])

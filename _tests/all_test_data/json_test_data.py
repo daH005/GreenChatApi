@@ -7,7 +7,7 @@ JWT_TOKEN_KWARGS_AND_JSON_DICTS = [
             jwt_token='TOKEN',
         ),
         {
-            'JWTToken': 'TOKEN',
+            'JWT': 'TOKEN',
         }
     )
 ]

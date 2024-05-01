@@ -17,7 +17,7 @@ __all__ = (
     'ChatMessageTypingJSONDictMaker',
     'UserChatsJSONDictMaker',
     'ChatInfoJSONDictMaker',
-    'JWTTokenJSONDictMaker',
+    'JWTJSONDictMaker',
     'UserInfoJSONDictMaker',
     'AlreadyTakenFlagJSONDictMaker',
     'CodeIsValidFlagJSONDictMaker',
@@ -47,7 +47,7 @@ class JSONKey(StrEnum):
     PASSWORD = 'password'
     EMAIL = 'email'
 
-    JWT_TOKEN = 'JWTToken'
+    JWT_TOKEN = 'JWT'
 
     OFFSET_FROM_END = 'offsetFromEnd'
 
@@ -84,10 +84,10 @@ class AbstractJSONDictMaker(ABC):
         raise NotImplementedError
 
 
-class JWTTokenJSONDictMaker(AbstractJSONDictMaker):
+class JWTJSONDictMaker(AbstractJSONDictMaker):
 
     class Dict(TypedDict):
-        JWTToken: str
+        JWT: str
 
     @staticmethod
     def make(jwt_token: str) -> Dict:
