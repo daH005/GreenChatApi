@@ -106,7 +106,7 @@ class WebSocketServer:
                                  message: MessageJSONDictMaker.Dict,
                                  ) -> None:
         try:
-            await client.protocol.send(json.dumps(message))
+            await client._protocol.send(json.dumps(message))
         except ConnectionClosed:
             return
 
@@ -138,8 +138,8 @@ class WebSocketClientHandler:
     def __init__(self, server: WebSocketServer,
                  protocol: WebSocketServerProtocol,
                  ) -> None:
-        self.server = server
-        self.protocol = protocol
+        self._server = server
+        self._protocol = protocol
         self.user: User | None = None
 
     @raises(ConnectionClosed)
@@ -166,7 +166,7 @@ class WebSocketClientHandler:
 
     @raises(ConnectionClosed)
     async def _wait_str(self) -> str:
-        return await self.protocol.recv()
+        return await self._protocol.recv()
 
     @raises(ConnectionClosed, JSONDecodeError)
     async def _wait_json_dict(self) -> MessageJSONDictMaker.Dict:
@@ -186,7 +186,7 @@ class WebSocketClientHandler:
                 msg = (f'Handling error ({type(e).__name__}):\n'
                        f'- Message:\n'
                        f'{json.dumps(message, indent=4)}\n'
-                       f'- UserID: {self.user.id} ({self.protocol.id})')
+                       f'- UserID: {self.user.id} ({self._protocol.id})')
                 logger.info(msg)
                 print_exc()
                 continue
@@ -202,8 +202,8 @@ class WebSocketClientHandler:
         )  # type: ignore
 
         logger.info(f'\"{message[JSONKey.TYPE]}\". '  # type: ignore
-                    f'UserID - {self.user.id} ({self.protocol.id}).')
+                    f'UserID - {self.user.id} ({self._protocol.id}).')
 
     @raises(KeyError)
     def _get_handler_func(self, type_: str) -> CommonHandlerFuncT:
-        return self.server.common_handlers_funcs[type_]
+        return self._server.common_handlers_funcs[type_]
