@@ -15,6 +15,10 @@ from api.config import STATIC_FOLDER, MEDIA_FOLDER
 from api.common.json_ import JSONKey, SimpleStatusResponseJSONDictMaker
 from api.db.models import User
 from api.http_.endpoints import Url, EndpointName
+from api.http_.flasgger_constants import (
+    USER_AVATAR_SPECS,
+    USER_EDIT_AVATAR_SPECS,
+)
 
 __all__ = (
     'bp',
@@ -31,7 +35,7 @@ AVATARS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('avatars')
 
 @bp.route(Url.USER_AVATAR, endpoint=EndpointName.USER_AVATAR, methods=[HTTPMethod.GET])
 @jwt_required()
-@swag_from()
+@swag_from(USER_AVATAR_SPECS)
 def user_avatar() -> Response | None:
     try:
         user_id_as_str: str = request.args[JSONKey.USER_ID]
@@ -47,7 +51,7 @@ def user_avatar() -> Response | None:
 
 @bp.route(Url.USER_EDIT_AVATAR, endpoint=EndpointName.USER_EDIT_AVATAR, methods=[HTTPMethod.PUT])
 @jwt_required()
-@swag_from()
+@swag_from(USER_EDIT_AVATAR_SPECS)
 def user_edit_avatar() -> SimpleStatusResponseJSONDictMaker.Dict:
     avatar_path: Path = _make_avatar_path(user_id_as_str=str(current_user.id))
     with open(avatar_path, 'wb') as f:

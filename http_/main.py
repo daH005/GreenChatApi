@@ -53,6 +53,7 @@ from api.http_.flasgger_constants import (
     AUTH_SPECS,
     REFRESH_TOKEN_SPECS,
     USER_INFO_SPECS,
+    USER_EDIT_INFO_SPECS,
     USER_CHATS_SPECS,
     CHAT_HISTORY_SPECS,
 )
@@ -167,7 +168,7 @@ def user_info() -> UserInfoJSONDictMaker.Dict:
 
 @app.route(Url.USER_EDIT_INFO, endpoint=EndpointName.USER_EDIT_INFO, methods=[HTTPMethod.PUT])
 @jwt_required()
-@swag_from()
+@swag_from(USER_EDIT_INFO_SPECS)
 def user_edit_info() -> SimpleStatusResponseJSONDictMaker.Dict:
     data: UserInfoJSONValidator = UserInfoJSONValidator.from_json()
 
