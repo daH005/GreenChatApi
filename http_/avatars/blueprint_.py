@@ -5,16 +5,15 @@ from flask import (
     abort,
     Response,
 )
-from werkzeug.utils import secure_filename
 from http import HTTPMethod, HTTPStatus
 from flask_jwt_extended import jwt_required, current_user
 from flasgger import swag_from
 from typing import Final
 from pathlib import Path
 
-from api.common.json_ import JSONKey
-from api.db.models import User
 from api.config import STATIC_FOLDER, MEDIA_FOLDER
+from api.common.json_ import JSONKey, SimpleStatusResponseJSONDictMaker
+from api.db.models import User
 from api.http_.endpoints import Url, EndpointName
 
 __all__ = (
@@ -24,6 +23,7 @@ __all__ = (
 current_user: User
 
 bp: Blueprint = Blueprint('avatars', __name__)
+
 AVATARS_EXTENSION: Final[str] = '.jpg'
 DEFAULT_AVATAR_PATH: Final[Path] = STATIC_FOLDER.joinpath('default_avatar.jpg')
 AVATARS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('avatars')
@@ -34,13 +34,29 @@ AVATARS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('avatars')
 @swag_from()
 def user_avatar() -> Response | None:
     try:
-        user_id: str = request.args[JSONKey.USER_ID]
+        user_id_as_str: str = request.args[JSONKey.USER_ID]
     except KeyError:
         return abort(HTTPStatus.BAD_REQUEST)
 
-    avatar_filename: str = user_id + AVATARS_EXTENSION
-    avatar_path: Path = AVATARS_PATH.joinpath(avatar_filename)
+    avatar_path: Path = _make_avatar_path(user_id_as_str=user_id_as_str)
     if avatar_path.exists():
         return send_file(avatar_path)
 
     return send_file(DEFAULT_AVATAR_PATH)
+
+
+@bp.route(Url.USER_EDIT_AVATAR, endpoint=EndpointName.USER_EDIT_AVATAR, methods=[HTTPMethod.PUT])
+@jwt_required()
+@swag_from()
+def user_edit_avatar() -> SimpleStatusResponseJSONDictMaker.Dict:
+    avatar_path: Path = _make_avatar_path(user_id_as_str=str(current_user.id))
+    with open(avatar_path, 'wb') as f:
+        f.write(request.data)
+
+    return SimpleStatusResponseJSONDictMaker.make(status=HTTPStatus.OK)
+
+
+def _make_avatar_path(user_id_as_str: str) -> Path:
+    avatar_filename: str = user_id_as_str + AVATARS_EXTENSION
+    avatar_path: Path = AVATARS_PATH.joinpath(avatar_filename)
+    return avatar_path
