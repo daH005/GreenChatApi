@@ -19,6 +19,7 @@ from flasgger import Swagger, swag_from
 from api.db.models import User, UserChatMatch, DBBuilder
 from api.common.json_ import (
     JSONKey,
+    SimpleStatusResponseJSONDictMaker,
     ChatHistoryJSONDictMaker,
     UserChatsJSONDictMaker,
     JWTJSONDictMaker,
@@ -36,7 +37,7 @@ from api.config import (
     DB_URL,
 )
 from endpoints import EndpointName, Url
-from validation import EmailAndCodeJSONValidator
+from validation import EmailAndCodeJSONValidator, UserInfoJSONValidator
 from api.http_.email.blueprint_ import (
     bp as email_bp,
 )
@@ -162,6 +163,19 @@ def user_info() -> UserInfoJSONDictMaker.Dict:
         return abort(HTTPStatus.NOT_FOUND)
 
     return UserInfoJSONDictMaker.make(user=user)
+
+
+@app.route(Url.USER_EDIT_INFO, endpoint=EndpointName.USER_EDIT_INFO, methods=[HTTPMethod.PUT])
+@jwt_required()
+@swag_from()
+def user_edit_info() -> SimpleStatusResponseJSONDictMaker.Dict:
+    data: UserInfoJSONValidator = UserInfoJSONValidator.from_json()
+
+    current_user.first_name = data.first_name
+    current_user.last_name = data.last_name
+    DBBuilder.session.commit()
+
+    return SimpleStatusResponseJSONDictMaker.make(status=HTTPStatus.OK)
 
 
 @app.route(Url.USER_CHATS, endpoint=EndpointName.USER_CHATS, methods=[HTTPMethod.GET])
