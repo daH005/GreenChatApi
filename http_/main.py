@@ -1,4 +1,9 @@
-from flask import Flask, request, abort, Response
+from flask import (
+    Flask,
+    request,
+    abort,
+    Response,
+)
 from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
 from http import HTTPMethod, HTTPStatus
@@ -33,7 +38,10 @@ from api.config import (
 from endpoints import EndpointName, Url
 from validation import EmailAndCodeJSONValidator
 from api.http_.email.blueprint_ import (
-    bp as mail_bp,
+    bp as email_bp,
+)
+from api.http_.avatars.blueprint_ import (
+    bp as avatars_bp,
 )
 from api.http_.redis_ import (
     code_is_valid,
@@ -64,7 +72,8 @@ jwt: JWTManager = JWTManager(app)
 
 Swagger(app)
 
-app.register_blueprint(mail_bp)
+for bp in (email_bp, avatars_bp):
+    app.register_blueprint(bp)
 
 
 @jwt.user_lookup_loader
