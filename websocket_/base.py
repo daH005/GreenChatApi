@@ -37,7 +37,7 @@ class WebSocketServer:
         self.common_handlers_funcs: dict[str, CommonHandlerFuncT] = {}
 
     def run(self) -> NoReturn:
-        init_logs()  # Решено остановиться здесь из-за мерзкой реализации логов `alembic`
+        init_logs()  # The place chosen by experience way
         asyncio.run(self._run())
 
     async def _run(self) -> NoReturn:
