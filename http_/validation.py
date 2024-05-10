@@ -6,13 +6,17 @@ from pydantic import (
     validate_email,
     field_validator,
     ValidationError,
+    Field,
 )
 from flask import request, abort
 from http import HTTPStatus
 
+from api.common.json_ import JSONKey
+
 __all__ = (
     'BaseValidator',
     'EmailAndCodeJSONValidator',
+    'UserInfoJSONValidator',
 )
 
 
@@ -43,3 +47,9 @@ class EmailAndCodeJSONValidator(BaseValidator):
     @classmethod
     def _validate_email(cls, data: str) -> str:
         return validate_email(data)[1]
+
+
+class UserInfoJSONValidator(BaseValidator):
+
+    first_name: constr(min_length=1, max_length=100) = Field(alias=JSONKey.FIRST_NAME)
+    last_name: constr(min_length=1, max_length=100) = Field(alias=JSONKey.LAST_NAME)
