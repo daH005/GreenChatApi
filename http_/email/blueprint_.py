@@ -17,7 +17,7 @@ __all__ = (
     'bp',
 )
 
-bp: Blueprint = Blueprint('mail', __name__)
+bp: Blueprint = Blueprint('email', __name__)
 
 
 @bp.route(Url.SEND_CODE, endpoint=EndpointName.SEND_CODE, methods=[HTTPMethod.POST])
