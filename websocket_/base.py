@@ -5,6 +5,7 @@ from typing import NoReturn, Callable, Coroutine
 import json
 from json import JSONDecodeError
 from jwt import decode
+from traceback import print_exc
 
 from api.db.models import User, DBBuilder
 from api.common.hinting import raises
@@ -180,7 +181,6 @@ class WebSocketClientHandler:
                 continue
 
             try:
-                DBBuilder.session.refresh(self.user)
                 await self._handle_message(message)
             except Exception as e:
                 msg = (f'Handling error ({type(e).__name__}):\n'
@@ -188,6 +188,7 @@ class WebSocketClientHandler:
                        f'{json.dumps(message, indent=4)}\n'
                        f'- UserID: {self.user.id} ({self.protocol.id})')
                 logger.info(msg)
+                print_exc()
                 continue
 
             DBBuilder.session.remove()
