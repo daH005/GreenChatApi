@@ -6,6 +6,8 @@ from sqlalchemy.engine.url import URL
 
 __all__ = (
     'BASE_DIR',
+    'STATIC_FOLDER',
+    'MEDIA_FOLDER',
     'DEBUG',
     'HOST',
     'HTTP_PORT',
@@ -30,6 +32,8 @@ __all__ = (
 load_dotenv()
 
 BASE_DIR: Path = Path(__file__).resolve().parent  # '.../api'
+STATIC_FOLDER: Path = BASE_DIR.joinpath('static')
+MEDIA_FOLDER: Path = BASE_DIR.joinpath('media')
 
 DEBUG: Final[bool] = False if environ['DEBUG'].lower() == 'false' else bool(environ['DEBUG'])
 
