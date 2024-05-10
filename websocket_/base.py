@@ -106,7 +106,7 @@ class WebSocketServer:
                                  message: MessageJSONDictMaker.Dict,
                                  ) -> None:
         try:
-            await client._protocol.send(json.dumps(message))
+            await client.send(message)
         except ConnectionClosed:
             return
 
@@ -207,3 +207,6 @@ class WebSocketClientHandler:
     @raises(KeyError)
     def _get_handler_func(self, type_: str) -> CommonHandlerFuncT:
         return self._server.common_handlers_funcs[type_]
+
+    async def send(self, message: MessageJSONDictMaker.Dict) -> None:
+        await self._protocol.send(json.dumps(message))
