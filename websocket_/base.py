@@ -180,6 +180,9 @@ class WebSocketClientHandler:
                 continue
 
             try:
+                DBBuilder.session.remove()
+                DBBuilder.session.refresh(self.user)
+
                 await self._handle_message(message)
             except Exception as e:
                 msg = (f'Handling error ({type(e).__name__}):\n'
@@ -188,8 +191,6 @@ class WebSocketClientHandler:
                        f'- UserID: {self.user.id} ({self.protocol.id})')
                 logger.info(msg)
                 continue
-
-            DBBuilder.session.remove()
 
     @raises(KeyError, Exception)
     async def _handle_message(self, message: MessageJSONDictMaker.Dict) -> None:
