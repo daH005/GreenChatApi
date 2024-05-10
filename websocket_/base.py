@@ -206,5 +206,6 @@ class WebSocketClientHandler:
     def _get_handler_func(self, type_: str) -> CommonHandlerFuncT:
         return self._server.common_handlers_funcs[type_]
 
+    @raises(ConnectionClosed)
     async def send(self, message: MessageJSONDictMaker.Dict) -> None:
         await self._protocol.send(json.dumps(message))
