@@ -61,8 +61,7 @@ class WebSocketServer:
         logger.info(f'[{client.user.id}] Client was authorized.')
 
         self._add_client(client)
-        if self._user_have_only_one_connection(client.user.id):
-            await self._first_connection_handler(client.user)
+        await self._each_connection_handler(client.user)
 
         try:
             await client.listen()
@@ -81,9 +80,6 @@ class WebSocketServer:
             self._clients[client.user.id].remove(client)
         except (KeyError, ValueError):
             return
-
-    def _user_have_only_one_connection(self, user_id: int) -> bool:
-        return len(self._clients.get(user_id, [])) == 1
 
     def user_have_connections(self, user_id: int) -> bool:
         return len(self._clients.get(user_id, [])) != 0
@@ -116,12 +112,12 @@ class WebSocketServer:
             return func
         return func_decorator
 
-    def first_connection_handler(self, func: ConnectAndDisconnectHandlerFuncT) -> ConnectAndDisconnectHandlerFuncT:
-        self._first_connection_handler = func  # noqa
+    def each_connection_handler(self, func: ConnectAndDisconnectHandlerFuncT) -> ConnectAndDisconnectHandlerFuncT:
+        self._each_connection_handler = func  # noqa
         return func
 
     @staticmethod
-    async def _first_connection_handler(user: User) -> None:
+    async def _each_connection_handler(user: User) -> None:
         pass
 
     def full_disconnection_handler(self, func: ConnectAndDisconnectHandlerFuncT) -> ConnectAndDisconnectHandlerFuncT:

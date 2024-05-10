@@ -41,8 +41,8 @@ server = WebSocketServer(
 users_ids_and_potential_interlocutors_ids = {}
 
 
-@server.first_connection_handler
-async def first_connection_handler(user: User) -> None:
+@server.each_connection_handler
+async def each_connection_handler(user: User) -> None:
     interlocutors_ids: list[int] = interlocutors_ids_for_user_by_id(user_id=user.id)
 
     await server.send_to_many_users(
