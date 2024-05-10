@@ -3,7 +3,11 @@ from http import HTTPMethod, HTTPStatus
 from pydantic import validate_email
 from flasgger import swag_from
 
-from api.common.json_ import JSONKey, CodeIsValidFlagJSONDictMaker
+from api.common.json_ import (
+    JSONKey,
+    CodeIsValidFlagJSONDictMaker,
+    SimpleStatusResponseJSONDictMaker,
+)
 from api.http_.endpoints import EndpointName, Url
 from api.http_.email.tasks import send_code_task
 from api.http_.redis_ import make_and_save_code, code_is_valid
@@ -22,7 +26,7 @@ bp: Blueprint = Blueprint('email', __name__)
 
 @bp.route(Url.SEND_CODE, endpoint=EndpointName.SEND_CODE, methods=[HTTPMethod.POST])
 @swag_from(SEND_CODE_SPECS)
-def send_code() -> dict[str, int]:
+def send_code() -> SimpleStatusResponseJSONDictMaker.Dict:
     try:
         email: str = validate_email(request.json[JSONKey.EMAIL])[1]
     except (ValueError, KeyError):
@@ -34,7 +38,7 @@ def send_code() -> dict[str, int]:
         raise abort(HTTPStatus.CONFLICT)
     send_code_task.delay(to=email, code=code)
 
-    return dict(status=HTTPStatus.OK)
+    return SimpleStatusResponseJSONDictMaker.make(status=HTTPStatus.OK)
 
 
 @bp.route(Url.CHECK_CODE, endpoint=EndpointName.CHECK_CODE, methods=[HTTPMethod.GET])

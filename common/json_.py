@@ -12,6 +12,7 @@ from api.db.models import (
 __all__ = (
     'JSONKey',
     'AbstractJSONDictMaker',
+    'SimpleStatusResponseJSONDictMaker',
     'ChatHistoryJSONDictMaker',
     'ChatMessageJSONDictMaker',
     'ChatMessageTypingJSONDictMaker',
@@ -30,6 +31,8 @@ class JSONKey(StrEnum):
     """Набор унифицированных имён, используемых в структурах данных,
     передаваемых по сети (http, сокет).
     """
+
+    STATUS = 'status'
 
     ID = 'id'
     USER_ID = 'userId'
@@ -82,6 +85,18 @@ class AbstractJSONDictMaker(ABC):
     @abstractmethod
     def make(*args, **kwargs) -> Dict:
         raise NotImplementedError
+
+
+class SimpleStatusResponseJSONDictMaker(AbstractJSONDictMaker):
+
+    class Dict(TypedDict):
+        status: int
+
+    @staticmethod
+    def make(status: int) -> Dict:
+        return {
+            JSONKey.STATUS: status,
+        }
 
 
 class JWTJSONDictMaker(AbstractJSONDictMaker):
