@@ -47,18 +47,18 @@ class WebSocketServer:
             await asyncio.Future()  # run forever
 
     async def _handler(self, protocol: WebSocketServerProtocol) -> None:
-        logger.info(f'New client connected - {protocol.id}. Waiting authorization...')
+        logger.info(f'New client connected. Waiting authorization...')
         try:
             await self._handle_protocol(protocol)
         except ConnectionClosed:
             pass
-        logger.info(f'Client disconnected ({protocol.id}).')
+        logger.info(f'Client disconnected.')
 
     @raises(ConnectionClosed)
     async def _handle_protocol(self, protocol: WebSocketServerProtocol) -> None:
         client = WebSocketClientHandler(self, protocol)
         await client.auth()
-        logger.info(f'Client was auth ({protocol.id}). UserID - {client.user.id}.')
+        logger.info(f'[{client.user.id}] Client was authorized.')
 
         self._add_client(client)
         if self._user_have_only_one_connection(client.user.id):
@@ -183,10 +183,9 @@ class WebSocketClientHandler:
             try:
                 await self._handle_message(message)
             except Exception as e:
-                msg = (f'Handling error ({type(e).__name__}):\n'
+                msg = (f'[{self.user.id}] Handling error ({type(e).__name__}):\n'
                        f'- Message:\n'
-                       f'{json.dumps(message, indent=4)}\n'
-                       f'- UserID: {self.user.id} ({self._protocol.id})')
+                       f'{json.dumps(message, indent=4)}\n')
                 logger.info(msg)
                 print_exc()
                 continue
@@ -201,8 +200,7 @@ class WebSocketClientHandler:
             data=message[JSONKey.DATA],  # type: ignore
         )  # type: ignore
 
-        logger.info(f'\"{message[JSONKey.TYPE]}\". '  # type: ignore
-                    f'UserID - {self.user.id} ({self._protocol.id}).')
+        logger.info(f'[{self.user.id}] \"{message[JSONKey.TYPE]}\".')  # noqa
 
     @raises(KeyError)
     def _get_handler_func(self, type_: str) -> CommonHandlerFuncT:
