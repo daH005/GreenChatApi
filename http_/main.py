@@ -151,7 +151,7 @@ def refresh_token() -> JWTJSONDictMaker.Dict:
 @jwt_required()
 @swag_from(USER_INFO_SPECS)
 def user_info() -> UserInfoJSONDictMaker.Dict:
-    user_id_as_str: str | None = request.args.get(JSONKey.ID)
+    user_id_as_str: str | None = request.args.get(JSONKey.USER_ID)
     if user_id_as_str is None:
         return UserInfoJSONDictMaker.make(user=current_user, exclude_important_info=False)
 

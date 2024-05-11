@@ -171,7 +171,7 @@ USER_INFO_SPECS = {
     'parameters': [
         JWT_HEADER_PARAM,
         {
-            'name': 'id',
+            'name': 'userId',
             'in': 'query',
             'type': 'integer',
             'required': False,
