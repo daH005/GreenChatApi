@@ -31,4 +31,4 @@ class Url(StrEnum):
     USER_EDIT_INFO = '/user/edit/info'
     USER_EDIT_AVATAR = '/user/edit/avatar'
     USER_CHATS = '/user/chats'
-    CHAT_HISTORY = '/chats/<int:chat_id>/history'
+    CHAT_HISTORY = '/chat/history'

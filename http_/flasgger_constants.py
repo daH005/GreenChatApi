@@ -347,7 +347,7 @@ CHAT_HISTORY_SPECS = {
         JWT_HEADER_PARAM,
         {
             'name': 'chatId',
-            'in': 'url',
+            'in': 'query',
             'type': 'integer',
             'required': True,
         },

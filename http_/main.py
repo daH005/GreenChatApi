@@ -192,7 +192,12 @@ def user_chats() -> UserChatsJSONDictMaker.Dict:
 @app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(CHAT_HISTORY_SPECS)
-def chat_history(chat_id: int) -> ChatHistoryJSONDictMaker.Dict:
+def chat_history() -> ChatHistoryJSONDictMaker.Dict:
+    try:
+        chat_id: int = int(request.args[JSONKey.CHAT_ID])
+    except (ValueError, KeyError):
+        return abort(HTTPStatus.BAD_REQUEST)
+
     offset_from_end: int | None
     try:
         offset_from_end = int(request.args[JSONKey.OFFSET_FROM_END])
