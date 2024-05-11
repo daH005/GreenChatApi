@@ -57,7 +57,7 @@ class WebSocketServer:
     @raises(ConnectionClosed)
     async def _handle_protocol(self, protocol: WebSocketServerProtocol) -> None:
         client = WebSocketClientHandler(self, protocol)
-        await client.auth()
+        await client.wait_authorization()
         logger.info(f'[{client.user.id}] Client was authorized.')
 
         self._add_client(client)
@@ -139,13 +139,13 @@ class WebSocketClientHandler:
         self.user: User | None = None
 
     @raises(ConnectionClosed)
-    async def auth(self) -> None:
+    async def wait_authorization(self) -> None:
         jwt_token: str = await self._wait_str()
         email: str = self._decode_jwt(encoded=jwt_token)
         try:
-            self._try_auth_user(email=email)
+            self._try_to_authorize_user(email=email)
         except ValueError:
-            await self.auth()
+            await self.wait_authorization()
 
     @staticmethod
     def _decode_jwt(encoded: str) -> str:
@@ -156,7 +156,7 @@ class WebSocketClientHandler:
         )['sub']
 
     @raises(ValueError)
-    def _try_auth_user(self, email: str) -> None:
+    def _try_to_authorize_user(self, email: str) -> None:
         DBBuilder.session.remove()  # for session updating
         self.user = User.find_by_email(email=email)
 

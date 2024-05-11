@@ -1,6 +1,6 @@
 __all__ = (
     'CHECK_EMAIL_SPECS',
-    'AUTH_SPECS',
+    'LOGIN_SPECS',
     'REFRESH_TOKEN_SPECS',
     'USER_INFO_SPECS',
     'USER_AVATAR_SPECS',
@@ -128,7 +128,7 @@ CHECK_EMAIL_SPECS = {
     },
 }
 
-AUTH_SPECS = {
+LOGIN_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
         {

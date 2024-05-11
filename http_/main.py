@@ -50,7 +50,7 @@ from api.http_.redis_ import (
 )
 from api.http_.flasgger_constants import (
     CHECK_EMAIL_SPECS,
-    AUTH_SPECS,
+    LOGIN_SPECS,
     REFRESH_TOKEN_SPECS,
     USER_INFO_SPECS,
     USER_EDIT_INFO_SPECS,
@@ -115,9 +115,9 @@ def check_email() -> AlreadyTakenFlagJSONDictMaker.Dict:
     )
 
 
-@app.route(Url.AUTH, endpoint=EndpointName.AUTH, methods=[HTTPMethod.POST])
-@swag_from(AUTH_SPECS)
-def auth() -> tuple[JWTJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREATED]:
+@app.route(Url.LOGIN, endpoint=EndpointName.LOGIN, methods=[HTTPMethod.POST])
+@swag_from(LOGIN_SPECS)
+def login() -> tuple[JWTJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREATED]:
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_json()
 
     if code_is_valid(identify=user_data.email, code=user_data.code):
