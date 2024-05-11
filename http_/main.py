@@ -201,6 +201,8 @@ def chat_history() -> ChatHistoryJSONDictMaker.Dict:
     offset_from_end: int | None
     try:
         offset_from_end = int(request.args[JSONKey.OFFSET_FROM_END])
+        if offset_from_end < 0:
+            raise ValueError
     except KeyError:
         offset_from_end = None
     except ValueError:
