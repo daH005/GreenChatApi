@@ -51,5 +51,5 @@ class EmailAndCodeJSONValidator(BaseValidator):
 
 class UserInfoJSONValidator(BaseValidator):
 
-    first_name: constr(min_length=1, max_length=100) = Field(alias=JSONKey.FIRST_NAME)
-    last_name: constr(min_length=1, max_length=100) = Field(alias=JSONKey.LAST_NAME)
+    first_name: constr(min_length=1, max_length=20) = Field(alias=JSONKey.FIRST_NAME)
+    last_name: constr(min_length=1, max_length=20) = Field(alias=JSONKey.LAST_NAME)
