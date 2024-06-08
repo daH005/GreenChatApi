@@ -54,7 +54,7 @@ class DBBuilder:
 
 
 class BaseModel(DeclarativeBase):
-    id: int
+    id: Mapped[int] = mapped_column(primary_key=True)
 
     def __repr__(self) -> str:
         return type(self).__name__ + f'<{self.id}>'
@@ -63,7 +63,6 @@ class BaseModel(DeclarativeBase):
 class User(BaseModel):
     __tablename__ = 'users'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(200), nullable=False, unique=True)
     first_name: Mapped[str] = mapped_column(String(100), nullable=False, default='New')
     last_name: Mapped[str] = mapped_column(String(100), nullable=False, default='User')
@@ -101,7 +100,6 @@ class User(BaseModel):
 class Chat(BaseModel):
     __tablename__ = 'chats'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=True)
     is_group: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
@@ -138,7 +136,6 @@ class Chat(BaseModel):
 class ChatMessage(BaseModel):
     __tablename__ = 'chats_messages'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
     chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id'), nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
@@ -152,7 +149,6 @@ class ChatMessage(BaseModel):
 class UserChatMatch(BaseModel):
     __tablename__ = 'users_chats'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
     chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id'), nullable=False)
 
@@ -253,7 +249,6 @@ class UserChatMatch(BaseModel):
 class UnreadCount(BaseModel):
     __tablename__ = 'unread_counts'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
     user_chat_match_id: Mapped[int] = mapped_column(ForeignKey('users_chats.id'), nullable=False)
     value: Mapped[int] = mapped_column(Integer, default=0)
 
