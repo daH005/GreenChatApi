@@ -162,33 +162,42 @@ NEW_CHAT_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
     ),
 ]
 
-NEGATIVE_NEW_CHAT_HANDLER_RAISES_VALUE_ERROR_DATA = [
-    dict(
-        user=USERS[1],
-        data={
-            'text': 'Hi!',
-            'usersIds': [2],
-            'name': None,
-            'isGroup': False,
-        },
+NEW_CHAT_HANDLER_KWARGS_AND_EXCEPTIONS = [
+    (
+        dict(
+            user=USERS[1],
+            data={
+                'text': 'Hi!',
+                'usersIds': [2],
+                'name': None,
+                'isGroup': False,
+            }
+        ),
+        ValueError
     ),
-    dict(
-        user=USERS[1],
-        data={
-            'text': 'Hi!',
-            'usersIds': [1, 5, 7],
-            'name': None,
-            'isGroup': False,
-        },
+    (
+        dict(
+            user=USERS[1],
+            data={
+                'text': 'Hi!',
+                'usersIds': [1, 5, 7],
+                'name': None,
+                'isGroup': False,
+            }
+        ),
+        ValueError
     ),
-    dict(
-        user=USERS[1],
-        data={
-            'text': 'Hi!',
-            'usersIds': [1, 5],
-            'name': None,
-            'isGroup': False,
-        },
+    (
+        dict(
+            user=USERS[1],
+            data={
+                'text': 'Hi!',
+                'usersIds': [1, 5],
+                'name': None,
+                'isGroup': False,
+            }
+        ),
+        ValueError
     ),
 ]
 
@@ -236,13 +245,16 @@ NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
     ),
 ]
 
-NEGATIVE_NEW_CHAT_MESSAGE_HANDLER_RAISES_VALUE_ERROR_DATA = [
-    dict(
-        user=USERS[1],
-        data={
-            'chatId': 5,
-            'text': 'Hi!',
-        },
+NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_EXCEPTIONS = [
+    (
+        dict(
+            user=USERS[2],
+            data={
+                'chatId': 5,
+                'text': 'Hi!',
+            }
+        ),
+        PermissionError
     ),
 ]
 
@@ -285,6 +297,18 @@ NEW_CHAT_MESSAGE_TYPING_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
     ),
 ]
 
+NEW_CHAT_MESSAGE_TYPING_HANDLER_KWARGS_AND_EXCEPTIONS = [
+    (
+        dict(
+            user=USERS[2],
+            data={
+                'chatId': 5,
+            }
+        ),
+        PermissionError
+    ),
+]
+
 CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
     (
         dict(
@@ -312,6 +336,19 @@ CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                  }
             ]
         }
+    ),
+]
+
+CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_EXCEPTIONS = [
+    (
+        dict(
+            user=USERS[2],
+            data={
+                'chatId': 5,
+                'chatMessageId': 5,
+            }
+        ),
+        PermissionError
     ),
 ]
 
