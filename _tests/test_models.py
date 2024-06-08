@@ -33,21 +33,6 @@ class TestChat(AbstractTestModel):
         'messages',
     )
 
-    @staticmethod
-    @pytest.mark.parametrize(('chat', 'user', 'expected_user'), CHATS_INTERLOCUTORS)
-    def test_positive_interlocutor_definition(chat: Chat,
-                                              user: User,
-                                              expected_user: User,
-                                              ) -> None:
-        assert chat.interlocutor(user.id) == expected_user
-
-    @staticmethod
-    @pytest.mark.parametrize(('chat', 'expected_users'), USERS_IN_CHATS)
-    def test_positive_users_in_chat(chat: Chat,
-                                    expected_users: list[User],
-                                    ) -> None:
-        assert set(chat.users()) == set(expected_users)
-
 
 class TestChatMessage(AbstractTestModel):
     Model = ChatMessage
@@ -94,14 +79,14 @@ class TestUserChatMatch(AbstractTestModel):
     def test_positive_users_in_chat(chat: Chat,
                                     expected_users: list[User],
                                     ) -> None:
-        assert set(UserChatMatch.users_in_chat(chat.id)) == set(expected_users)
+        assert set(UserChatMatch.users_of_chat(chat.id)) == set(expected_users)
 
     @staticmethod
     @pytest.mark.parametrize(('user', 'expected_chats'), USERS_CHATS)
     def test_positive_user_chats(user: User,
                                  expected_chats: list[Chat],
                                  ) -> None:
-        assert UserChatMatch.user_chats(user.id) == expected_chats
+        assert UserChatMatch.chats_of_user(user.id) == expected_chats
 
     @staticmethod
     @pytest.mark.parametrize(('chat', 'user', 'expected_user'), CHATS_INTERLOCUTORS)
@@ -109,7 +94,7 @@ class TestUserChatMatch(AbstractTestModel):
                                               user: User,
                                               expected_user: User,
                                               ) -> None:
-        assert UserChatMatch.interlocutor(user.id, chat.id) == expected_user
+        assert UserChatMatch.interlocutor_of_user_of_chat(user.id, chat.id) == expected_user
 
     @staticmethod
     @pytest.mark.parametrize(('first_user', 'second_user', 'expected_chat'), PRIVATE_CHATS_USERS)
@@ -117,7 +102,7 @@ class TestUserChatMatch(AbstractTestModel):
                                         second_user: User,
                                         expected_chat: Chat,
                                         ) -> None:
-        assert UserChatMatch.find_private_chat(first_user.id, second_user.id) == expected_chat
+        assert UserChatMatch.private_chat_between_users(first_user.id, second_user.id) == expected_chat
 
     @staticmethod
     @pytest.mark.parametrize(('first_user', 'second_user'), USERS_WITHOUT_PRIVATE_CHAT)
@@ -125,14 +110,14 @@ class TestUserChatMatch(AbstractTestModel):
                                                            second_user: User,
                                                            ) -> None:
         with pytest.raises(ValueError):
-            UserChatMatch.find_private_chat(first_user.id, second_user.id)
+            UserChatMatch.private_chat_between_users(first_user.id, second_user.id)
 
     @staticmethod
     @pytest.mark.parametrize(('user', 'expected_users'), ALL_INTERLOCUTORS_OF_USERS)
     def test_positive_find_all_interlocutors(user: User,
                                              expected_users: list[User],
                                              ) -> None:
-        assert set(UserChatMatch.find_all_interlocutors(user.id)) == set(expected_users)
+        assert set(UserChatMatch.all_interlocutors_of_user(user.id)) == set(expected_users)
 
 
 class TestUnreadCount(AbstractTestModel):
