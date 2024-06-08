@@ -9,24 +9,24 @@ from api.websocket_.base import (
 )
 from api.websocket_.funcs import clear_message_text
 from api._tests.replacing import (  # noqa
-    ChatMessageJSONDictMakerMakeMethodReplacer,
-    ServerSendToOneUserMethodReplacer,
-    ServerUserHaveConnectionsMethodReplacer,
+    ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime,
+    ServerSendToOneUserMethodReplacerForServerMessagesStorage,
+    ServerUserHaveConnectionsMethodReplacerForOnlineImitation,
 )
 
 
 def setup_module() -> None:
-    ChatMessageJSONDictMakerMakeMethodReplacer.replace()
-    ServerSendToOneUserMethodReplacer.replace()
-    ServerUserHaveConnectionsMethodReplacer.replace()
+    ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime.replace()
+    ServerSendToOneUserMethodReplacerForServerMessagesStorage.replace()
+    ServerUserHaveConnectionsMethodReplacerForOnlineImitation.replace()
 
     users_ids_and_potential_interlocutors_ids.update(USERS_IDS_AND_POTENTIAL_INTERLOCUTORS_IDS)
 
 
 def teardown_module() -> None:
-    ChatMessageJSONDictMakerMakeMethodReplacer.back()
-    ServerSendToOneUserMethodReplacer.back()
-    ServerUserHaveConnectionsMethodReplacer.back()
+    ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime.back()
+    ServerSendToOneUserMethodReplacerForServerMessagesStorage.back()
+    ServerUserHaveConnectionsMethodReplacerForOnlineImitation.back()
 
     users_ids_and_potential_interlocutors_ids.clear()
 
@@ -35,9 +35,9 @@ async def _test_positive_handler_and_sendings(handler_func: ConnectAndDisconnect
                                               handler_kwargs: dict,
                                               expected_sendings,
                                               ) -> None:
-    ServerSendToOneUserMethodReplacer.sendings.clear()
+    ServerSendToOneUserMethodReplacerForServerMessagesStorage.sendings.clear()
     await handler_func(**handler_kwargs)
-    assert ServerSendToOneUserMethodReplacer.sendings == expected_sendings
+    assert ServerSendToOneUserMethodReplacerForServerMessagesStorage.sendings == expected_sendings
 
 
 @pytest.mark.parametrize(('handler_kwargs', 'expected_sendings'), EACH_CONNECTION_HANDLER_SENDINGS)

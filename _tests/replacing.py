@@ -8,9 +8,9 @@ from api._tests.all_test_data.websocket_test_data import ONLINE_USERS_IDS  # noq
 
 __all__ = (
     'AbstractMethodReplacer',
-    'ChatMessageJSONDictMakerMakeMethodReplacer',
-    'ServerSendToOneUserMethodReplacer',
-    'ServerUserHaveConnectionsMethodReplacer',
+    'ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime',
+    'ServerSendToOneUserMethodReplacerForServerMessagesStorage',
+    'ServerUserHaveConnectionsMethodReplacerForOnlineImitation',
 )
 
 
@@ -45,7 +45,7 @@ class AbstractMethodReplacer(ABC):
         setattr(cls.object, cls.method_name, cls.backup_method())
 
 
-class ChatMessageJSONDictMakerMakeMethodReplacer(AbstractMethodReplacer):
+class ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime(AbstractMethodReplacer):
     object = ChatMessageJSONDictMaker
     method_name = 'make'
 
@@ -56,7 +56,7 @@ class ChatMessageJSONDictMakerMakeMethodReplacer(AbstractMethodReplacer):
         return data
 
 
-class ServerSendToOneUserMethodReplacer(AbstractMethodReplacer):
+class ServerSendToOneUserMethodReplacerForServerMessagesStorage(AbstractMethodReplacer):
     object = server
     method_name = 'send_to_one_user'
 
@@ -69,7 +69,7 @@ class ServerSendToOneUserMethodReplacer(AbstractMethodReplacer):
         cls.sendings.setdefault(user_id, []).append(message)
 
 
-class ServerUserHaveConnectionsMethodReplacer(AbstractMethodReplacer):
+class ServerUserHaveConnectionsMethodReplacerForOnlineImitation(AbstractMethodReplacer):
     object = server
     method_name = 'user_have_connections'
 
