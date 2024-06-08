@@ -4,6 +4,7 @@ from typing import TypeAlias
 __all__ = (
     'COMMON_DATETIME',
     'JsonDictType',
+    'HeadersType',
 )
 
 COMMON_DATETIME: datetime = datetime(
@@ -11,3 +12,4 @@ COMMON_DATETIME: datetime = datetime(
 )
 
 JsonDictType: TypeAlias = dict[str, str | int | bool]
+HeadersType: TypeAlias = dict[str, str]
