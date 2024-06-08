@@ -1,6 +1,5 @@
 from api.db.db_builder import DBBuilder
 from api.db.models import *
-from api._tests.common import make_random_string  # noqa
 
 USERS = {
     1: User(
@@ -189,22 +188,11 @@ ALL_INTERLOCUTORS_OF_USERS = [
     (USERS[3], []),
 ]
 
-RANDOM_STRINGS = [make_random_string() for _ in range(10)]
 
-TEXT_MESSAGES = [
-    'hi!',
-    'how are u?',
-    '123123',
-    '----',
-    'Hi, my dear friend!\n'
-    'It my letter for u....'
-]
-
-
-def prepare_test_db() -> None:
+def _prepare_test_db() -> None:
     DBBuilder.init_session('sqlite:///:memory:')
-
     BaseModel.metadata.create_all(bind=DBBuilder.engine)
+
     DBBuilder.session.add_all([
         *USERS.values(),
         *CHATS.values(),
@@ -213,10 +201,10 @@ def prepare_test_db() -> None:
     ])
     DBBuilder.session.commit()
 
-    # for exact `creating_datetime`:
+    # For correct `creating_datetime`:
     for message in CHATS_MESSAGES:
         DBBuilder.session.add(message)
         DBBuilder.session.commit()
 
 
-prepare_test_db()
+_prepare_test_db()
