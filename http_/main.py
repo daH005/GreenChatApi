@@ -37,8 +37,8 @@ from api.config import (
     JWT_ACCESS_TOKEN_EXPIRES,
     DB_URL,
 )
-from endpoints import EndpointName, Url
-from validation import EmailAndCodeJSONValidator, UserInfoJSONValidator
+from api.http_.endpoints import EndpointName, Url
+from api.http_.validation import EmailAndCodeJSONValidator, UserInfoJSONValidator
 from api.http_.email.blueprint_ import (
     bp as email_bp,
 )
