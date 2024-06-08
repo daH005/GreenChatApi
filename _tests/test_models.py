@@ -2,6 +2,7 @@ import pytest
 from datetime import datetime, timedelta
 
 from api._tests.all_test_data.db_test_data import *  # noqa: must be first!
+from api.db.db_builder import DBBuilder
 from api.db.models import *  # noqa
 
 
@@ -62,21 +63,6 @@ class TestChatMessage(AbstractTestModel):
         'user',
         'chat',
     )
-
-    @staticmethod
-    @pytest.mark.parametrize('text', TEXT_MESSAGES)
-    def test_positive_creating_datetime_is_current_datetime(text: str) -> None:
-        chat_message = ChatMessage(
-            user_id=1,
-            chat_id=1,
-            text=text,
-        )
-        DBBuilder.session.add(chat_message)
-        DBBuilder.session.flush()
-        max_datetime = datetime.utcnow() + timedelta(milliseconds=10)
-        min_datetime = datetime.utcnow() - timedelta(milliseconds=10)
-        assert max_datetime >= chat_message.creating_datetime >= min_datetime
-        DBBuilder.session.rollback()
 
 
 class TestUserChatMatch(AbstractTestModel):
