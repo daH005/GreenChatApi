@@ -2,9 +2,10 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from api.http_.main import app
+from api.http_.email import tasks
 from api.websocket_.main import server
-from api.common.json_ import ChatMessageJSONDictMaker
-from api._tests.common import COMMON_DATETIME
+from api.common.json_ import ChatMessageJSONDictMaker, JWTJSONDictMaker
+from api._tests.common import COMMON_DATETIME, COMMON_JWT
 from api._tests.data.websocket_ import ONLINE_USERS_IDS
 
 __all__ = (
@@ -13,6 +14,8 @@ __all__ = (
     'WebsocketServerSendToOneUserMethodDoubleMakerForServerMessagesStorage',
     'WebsocketServerUserHaveConnectionsMethodDoubleMakerForOnlineImitation',
     'HttpAppTeardownContextFunctionsListDoubleMakerForNoSessionConflictException',
+    'JWTJSONDictMakerMakeMethodDoubleMakerForCommonJWT',
+    'HttpSendCodeTaskFunctionDoubleMakerForNoEmailSendings',
 )
 
 
@@ -84,3 +87,23 @@ class HttpAppTeardownContextFunctionsListDoubleMakerForNoSessionConflictExceptio
     object = app
     attr_name = 'teardown_appcontext_funcs'
     replacement_attr = []
+
+
+class JWTJSONDictMakerMakeMethodDoubleMakerForCommonJWT(AbstractDoubleMaker):
+    object = JWTJSONDictMaker
+    attr_name = 'make'
+
+    @classmethod
+    def replacement_attr(cls, *args, **kwargs) -> JWTJSONDictMaker.Dict:
+        return {
+            'JWT': COMMON_JWT,
+        }
+
+
+class HttpSendCodeTaskFunctionDoubleMakerForNoEmailSendings(AbstractDoubleMaker):
+    object = tasks
+    attr_name = 'send_code_task'
+
+    @classmethod
+    def replacement_attr(cls, *args, **kwargs) -> None:
+        pass
