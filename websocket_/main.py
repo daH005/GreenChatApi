@@ -168,7 +168,7 @@ async def new_chat(user: User, data: dict) -> None:
 
 
 @server.common_handler(MessageType.NEW_CHAT_MESSAGE)
-@raises(ValidationError, PermissionError, ValueError)
+@raises(ValidationError, PermissionError)
 async def new_chat_message(user: User, data: dict) -> None:
     data: NewChatMessage = NewChatMessage(**data)
 
