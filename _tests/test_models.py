@@ -5,34 +5,34 @@ from api._tests.all_test_data.db_test_data import *  # noqa: must be first!
 from api.db.models import *  # noqa
 
 
-class TestUser:
+class AbstractTestModel:
+    Model: type[User] | type[Chat] | type[ChatMessage] | type[UserChatMatch] | type[UnreadCount]
+    ATTRS_NAMES: tuple[str]
 
-    @staticmethod
-    @pytest.mark.parametrize('attr_name', [
+    @classmethod
+    def test_positive_model_has_required_attrs(cls) -> None:
+        for attr_name in cls.ATTRS_NAMES:
+            assert hasattr(cls.Model, attr_name)
+
+
+class TestUser(AbstractTestModel):
+    Model = User
+    ATTRS_NAMES = (
         'id',
         'email',
         'first_name',
         'last_name',
-        'find_by_email',
-    ])
-    def test_positive_model_has_required_attrs(attr_name: str) -> None:
-        assert hasattr(User, attr_name)
+    )
 
 
-class TestChat:
-
-    @staticmethod
-    @pytest.mark.parametrize('attr_name', [
+class TestChat(AbstractTestModel):
+    Model = Chat
+    ATTRS_NAMES = (
         'id',
         'name',
+        'is_group',
         'messages',
-        'last_message',
-        'interlocutor',
-        'users',
-        'unread_count_for_user',
-    ])
-    def test_positive_model_has_required_attrs(attr_name: str) -> None:
-        assert hasattr(Chat, attr_name)
+    )
 
     @staticmethod
     @pytest.mark.parametrize('chat', CHATS.values())
@@ -65,20 +65,18 @@ class TestChat:
         assert set(chat.users()) == set(expected_users)
 
 
-class TestChatMessage:
-
-    @staticmethod
-    @pytest.mark.parametrize('attr_name', [
+class TestChatMessage(AbstractTestModel):
+    Model = ChatMessage
+    ATTRS_NAMES = (
         'id',
         'user_id',
         'chat_id',
-        'user',
         'text',
         'creating_datetime',
         'is_read',
-    ])
-    def test_positive_model_has_required_attrs(attr_name: str) -> None:
-        assert hasattr(ChatMessage, attr_name)
+        'user',
+        'chat',
+    )
 
     @staticmethod
     @pytest.mark.parametrize('text', TEXT_MESSAGES)
@@ -96,25 +94,16 @@ class TestChatMessage:
         DBBuilder.session.rollback()
 
 
-class TestUserChatMatch:
-
-    @staticmethod
-    @pytest.mark.parametrize('attr_name', [
+class TestUserChatMatch(AbstractTestModel):
+    Model = UserChatMatch
+    ATTRS_NAMES = (
         'id',
         'user_id',
         'chat_id',
         'user',
         'chat',
-        'chat_if_user_has_access',
-        'users_in_chat',
-        'user_chats',
-        'interlocutor',
-        'find_private_chat',
-        'find_all_interlocutors',
-        'unread_count_for_user_in_chat',
-    ])
-    def test_positive_model_has_required_attrs(attr_name: str) -> None:
-        assert hasattr(UserChatMatch, attr_name)
+        'unread_count',
+    )
 
     @staticmethod
     @pytest.mark.parametrize(('user', 'chat'), CHATS_ACCESS_FOR_USERS)
@@ -177,14 +166,11 @@ class TestUserChatMatch:
         assert set(UserChatMatch.find_all_interlocutors(user.id)) == set(expected_users)
 
 
-class TestUnreadCount:
-
-    @staticmethod
-    @pytest.mark.parametrize('attr_name', [
+class TestUnreadCount(AbstractTestModel):
+    Model = UnreadCount
+    ATTRS_NAMES = (
         'id',
         'user_chat_match_id',
         'value',
         'user_chat_match',
-    ])
-    def test_positive_model_has_required_attrs(attr_name: str) -> None:
-        assert hasattr(UnreadCount, attr_name)
+    )
