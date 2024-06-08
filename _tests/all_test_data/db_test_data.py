@@ -138,6 +138,7 @@ USERS_CHATS = [
 
 USERS_IN_CHATS = [
     (CHATS[1], [USERS[1], USERS[2]]),
+    (CHATS[2], [USERS[1], USERS[4]]),
     (CHATS[3], [USERS[1], USERS[2], USERS[4]]),
     (CHATS[4], [])
 ]
