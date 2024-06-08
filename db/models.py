@@ -1,12 +1,10 @@
 from __future__ import annotations
 from sqlalchemy import (
-    create_engine,
     Integer,
     String,
     Text,
     Boolean,
     ForeignKey,
-    Engine,
 )
 from sqlalchemy.dialects.mysql import DATETIME
 from sqlalchemy.orm import (
@@ -14,17 +12,12 @@ from sqlalchemy.orm import (
     mapped_column,
     Mapped,
     relationship,
-    sessionmaker,
-    scoped_session,
 )
-from sqlalchemy.engine.url import URL
 from datetime import datetime
 
 from api.common.hinting import raises
-from api.db.alembic_.init import make_migrations
 
 __all__ = (
-    'DBBuilder',
     'BaseModel',
     'User',
     'Chat',
@@ -33,24 +26,7 @@ __all__ = (
     'UnreadCount',
 )
 
-
-class DBBuilder:
-    engine: Engine
-    session: scoped_session
-
-    @classmethod
-    def init_session(cls, url: str | URL) -> None:
-        cls.engine = create_engine(url=url)
-        cls.session = scoped_session(
-            sessionmaker(autocommit=False,
-                         autoflush=False,
-                         bind=cls.engine,
-                         )
-        )
-
-    @classmethod
-    def make_migrations(cls) -> None:
-        make_migrations()
+from api.db.db_builder import DBBuilder
 
 
 class BaseModel(DeclarativeBase):

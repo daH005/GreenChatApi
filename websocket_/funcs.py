@@ -2,11 +2,11 @@ from re import sub
 from typing import Final
 
 from api.db.models import (
-    DBBuilder,
     UserChatMatch,
     ChatMessage,
     User,
 )
+from api.db.db_builder import DBBuilder
 from api.websocket_.base import WebSocketServer
 
 __all__ = (

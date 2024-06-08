@@ -7,7 +7,8 @@ from json import JSONDecodeError
 from jwt import decode
 from traceback import print_exc
 
-from api.db.models import User, DBBuilder
+from api.db.models import User
+from api.db.db_builder import DBBuilder
 from api.common.hinting import raises
 from api.config import JWT_SECRET_KEY, JWT_ALGORITHM
 from api.websocket_.logs import logger, init_logs

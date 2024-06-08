@@ -16,7 +16,8 @@ from flask_jwt_extended import (
 )
 from flasgger import Swagger, swag_from
 
-from api.db.models import User, UserChatMatch, DBBuilder
+from api.db.models import User, UserChatMatch
+from api.db.db_builder import DBBuilder
 from api.common.json_ import (
     JSONKey,
     SimpleStatusResponseJSONDictMaker,

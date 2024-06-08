@@ -1,3 +1,4 @@
+from api.db.db_builder import DBBuilder
 from api.db.models import *
 from api._tests.common import make_random_string  # noqa
 

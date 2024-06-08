@@ -10,13 +10,13 @@ from api.common.json_ import (
     ReadChatMessagesJSONDictMaker,
 )
 from api.db.models import (
-    DBBuilder,
     User,
     Chat,
     ChatMessage,
     UserChatMatch,
     UnreadCount,
 )
+from api.db.db_builder import DBBuilder
 from api.websocket_.base import WebSocketServer
 from api.websocket_.messages import MessageType
 from api.websocket_.funcs import (
