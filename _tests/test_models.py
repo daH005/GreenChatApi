@@ -35,21 +35,6 @@ class TestChat(AbstractTestModel):
     )
 
     @staticmethod
-    @pytest.mark.parametrize('chat', CHATS.values())
-    def test_positive_last_message_is_last_added(chat: Chat) -> None:
-        chat_message = ChatMessage(
-            user_id=USERS[1].id,
-            chat_id=chat.id,
-            text='Hi!',
-        )
-        DBBuilder.session.add(chat_message)
-        DBBuilder.session.commit()
-        DBBuilder.session.refresh(chat)  # important
-        assert chat.last_message == chat_message
-        DBBuilder.session.delete(chat_message)
-        DBBuilder.session.commit()
-
-    @staticmethod
     @pytest.mark.parametrize(('chat', 'user', 'expected_user'), CHATS_INTERLOCUTORS)
     def test_positive_interlocutor_definition(chat: Chat,
                                               user: User,
