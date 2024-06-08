@@ -60,13 +60,13 @@ class ServerSendToOneUserMethodReplacerForServerMessagesStorage(AbstractMethodRe
     object = server
     method_name = 'send_to_one_user'
 
-    sendings = {}
+    saved_server_messages = {}
 
     @classmethod
     async def replacement_method(cls, user_id: int,
                                  message: dict,
                                  ) -> None:
-        cls.sendings.setdefault(user_id, []).append(message)
+        cls.saved_server_messages.setdefault(user_id, []).append(message)
 
 
 class ServerUserHaveConnectionsMethodReplacerForOnlineImitation(AbstractMethodReplacer):
