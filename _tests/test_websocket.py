@@ -8,24 +8,24 @@ from api.websocket_.base import (
 )
 from api.websocket_.funcs import clear_message_text
 from api._tests.doubles import (
-    ChatMessageJSONDictMakerMakeDoubleMakerForCommonDatetime,
-    ServerSendToOneUserDoubleMakerForServerMessagesStorage,
-    ServerUserHaveConnectionsDoubleMakerForOnlineImitation,
+    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime,
+    WebsocketServerSendToOneUserMethodDoubleMakerForServerMessagesStorage,
+    WebsocketServerUserHaveConnectionsMethodDoubleMakerForOnlineImitation,
 )
 
 
 def setup_module() -> None:
-    ChatMessageJSONDictMakerMakeDoubleMakerForCommonDatetime.replace()
-    ServerSendToOneUserDoubleMakerForServerMessagesStorage.replace()
-    ServerUserHaveConnectionsDoubleMakerForOnlineImitation.replace()
+    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime.replace()
+    WebsocketServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.replace()
+    WebsocketServerUserHaveConnectionsMethodDoubleMakerForOnlineImitation.replace()
 
     users_ids_and_potential_interlocutors_ids.update(USERS_IDS_AND_POTENTIAL_INTERLOCUTORS_IDS)
 
 
 def teardown_module() -> None:
-    ChatMessageJSONDictMakerMakeDoubleMakerForCommonDatetime.back()
-    ServerSendToOneUserDoubleMakerForServerMessagesStorage.back()
-    ServerUserHaveConnectionsDoubleMakerForOnlineImitation.back()
+    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime.back()
+    WebsocketServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.back()
+    WebsocketServerUserHaveConnectionsMethodDoubleMakerForOnlineImitation.back()
 
     users_ids_and_potential_interlocutors_ids.clear()
 
@@ -142,6 +142,6 @@ async def _test_positive_handler_and_server_messages(
         handler_kwargs: dict,
         expected_server_messages,
         ) -> None:
-    ServerSendToOneUserDoubleMakerForServerMessagesStorage.saved_server_messages.clear()
+    WebsocketServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.saved_server_messages.clear()
     await handler_func(**handler_kwargs)
-    assert ServerSendToOneUserDoubleMakerForServerMessagesStorage.saved_server_messages == expected_server_messages
+    assert WebsocketServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.saved_server_messages == expected_server_messages

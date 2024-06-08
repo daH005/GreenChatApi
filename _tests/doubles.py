@@ -9,9 +9,9 @@ from api._tests.data.websocket_ import ONLINE_USERS_IDS
 
 __all__ = (
     'AbstractDoubleMaker',
-    'ChatMessageJSONDictMakerMakeDoubleMakerForCommonDatetime',
-    'ServerSendToOneUserDoubleMakerForServerMessagesStorage',
-    'ServerUserHaveConnectionsDoubleMakerForOnlineImitation',
+    'ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime',
+    'WebsocketServerSendToOneUserMethodDoubleMakerForServerMessagesStorage',
+    'WebsocketServerUserHaveConnectionsMethodDoubleMakerForOnlineImitation',
     'HttpAppTeardownContextFunctionsListDoubleMakerForNoSessionConflictException',
 )
 
@@ -47,7 +47,7 @@ class AbstractDoubleMaker(ABC):
         setattr(cls.object, cls.attr_name, cls.backup_attr())
 
 
-class ChatMessageJSONDictMakerMakeDoubleMakerForCommonDatetime(AbstractDoubleMaker):
+class ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime(AbstractDoubleMaker):
     object = ChatMessageJSONDictMaker
     attr_name = 'make'
 
@@ -58,7 +58,7 @@ class ChatMessageJSONDictMakerMakeDoubleMakerForCommonDatetime(AbstractDoubleMak
         return data
 
 
-class ServerSendToOneUserDoubleMakerForServerMessagesStorage(AbstractDoubleMaker):
+class WebsocketServerSendToOneUserMethodDoubleMakerForServerMessagesStorage(AbstractDoubleMaker):
     object = server
     attr_name = 'send_to_one_user'
 
@@ -71,7 +71,7 @@ class ServerSendToOneUserDoubleMakerForServerMessagesStorage(AbstractDoubleMaker
         cls.saved_server_messages.setdefault(user_id, []).append(message)
 
 
-class ServerUserHaveConnectionsDoubleMakerForOnlineImitation(AbstractDoubleMaker):
+class WebsocketServerUserHaveConnectionsMethodDoubleMakerForOnlineImitation(AbstractDoubleMaker):
     object = server
     attr_name = 'user_have_connections'
 
