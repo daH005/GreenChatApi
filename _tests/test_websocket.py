@@ -9,14 +9,14 @@ from api.websocket_.base import (
 )
 from api.websocket_.funcs import clear_message_text
 from api._tests.replacing import (  # noqa
-    ChatMessageJSONDictMakerReplacer,
+    ChatMessageJSONDictMakerMakeMethodReplacer,
     ServerSendToOneUserMethodReplacer,
     ServerUserHaveConnectionsMethodReplacer,
 )
 
 
 def setup_module() -> None:
-    ChatMessageJSONDictMakerReplacer.replace()
+    ChatMessageJSONDictMakerMakeMethodReplacer.replace()
     ServerSendToOneUserMethodReplacer.replace()
     ServerUserHaveConnectionsMethodReplacer.replace()
 
@@ -24,7 +24,7 @@ def setup_module() -> None:
 
 
 def teardown_module() -> None:
-    ChatMessageJSONDictMakerReplacer.back()
+    ChatMessageJSONDictMakerMakeMethodReplacer.back()
     ServerSendToOneUserMethodReplacer.back()
     ServerUserHaveConnectionsMethodReplacer.back()
 
