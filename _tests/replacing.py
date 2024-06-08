@@ -3,7 +3,7 @@ from typing import Any, Callable
 
 from api.websocket_.main import server
 from api.common.json_ import ChatMessageJSONDictMaker
-from api._tests.common import COMMON_DATETIME, replace_creating_datetime
+from api._tests.common import COMMON_DATETIME
 from api._tests.data.websocket_ import ONLINE_USERS_IDS
 
 __all__ = (
@@ -52,7 +52,7 @@ class ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime(AbstractMethod
     @classmethod
     def replacement_method(cls, *args, **kwargs) -> ChatMessageJSONDictMaker.Dict:
         data = cls.backup_method()(*args, **kwargs)
-        replace_creating_datetime(data)
+        data['creatingDatetime'] = COMMON_DATETIME.isoformat()
         return data
 
 
