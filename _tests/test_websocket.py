@@ -1,5 +1,4 @@
 import pytest
-from datetime import datetime  # noqa
 
 from api._tests.data.websocket_ import *  # must be first!
 from api.websocket_.main import *
