@@ -30,7 +30,7 @@ def clear_message_text(text: str) -> str:
 
 
 def users_ids_of_chat_by_id(chat_id: int) -> list[int]:
-    return [user.id for user in UserChatMatch.users_in_chat(chat_id=chat_id)]
+    return [user.id for user in UserChatMatch.users_of_chat(chat_id=chat_id)]
 
 
 def make_chat_message_and_add_to_session(text: str,
@@ -47,7 +47,7 @@ def make_chat_message_and_add_to_session(text: str,
 
 
 def interlocutors_ids_for_user_by_id(user_id: int) -> list[int]:
-    interlocutors: list[User] = UserChatMatch.find_all_interlocutors(user_id=user_id)
+    interlocutors: list[User] = UserChatMatch.all_interlocutors_of_user(user_id=user_id)
     interlocutors_ids = [interlocutor.id for interlocutor in interlocutors]
     return interlocutors_ids
 

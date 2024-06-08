@@ -1,9 +1,8 @@
 import pytest
 
-from api._tests.all_test_data.json_test_data import *  # noqa: must be first!
+from api._tests.data.json_ import *  # must be first!
 from api.common.json_ import *
-from api._tests.common import make_random_string  # noqa
-from api._tests.replacing import ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime  # noqa
+from api._tests.replacing import ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime
 
 
 def setup_module() -> None:

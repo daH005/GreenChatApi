@@ -1,6 +1,6 @@
 import pytest
 
-from api._tests.all_test_data.db_test_data import *  # noqa: must be first!
+from api._tests.data.db import *  # must be first
 from api.db.models import *
 
 
@@ -60,63 +60,63 @@ class TestUserChatMatch(AbstractTestModel):
     )
 
     @staticmethod
-    @pytest.mark.parametrize(('user', 'chat'), CHATS_ACCESS_FOR_USERS)
-    def test_positive_chat_access(user: User,
-                                  chat: Chat,
-                                  ) -> None:
+    @pytest.mark.parametrize(('user', 'chat'), USERS_AND_CHATS_AVAILABLE_FOR_THEM)
+    def test_positive_chat_if_user_has_access(user: User,
+                                              chat: Chat,
+                                              ) -> None:
         assert UserChatMatch.chat_if_user_has_access(user.id, chat.id) == chat
 
     @staticmethod
-    @pytest.mark.parametrize(('user', 'chat'), CHATS_NO_ACCESS_FOR_USERS)
-    def test_negative_chat_not_access_and_raises_permission_error(user: User,
-                                                                  chat: Chat,
-                                                                  ) -> None:
+    @pytest.mark.parametrize(('user', 'chat'), USERS_AND_CHATS_NOT_AVAILABLE_FOR_THEM)
+    def test_negative_chat_if_user_has_access_raises_permission_error_if_user_has_not_access_to_chat(user: User,
+                                                                                                     chat: Chat,
+                                                                                                     ) -> None:
         with pytest.raises(PermissionError):
             UserChatMatch.chat_if_user_has_access(user.id, chat.id)
 
     @staticmethod
-    @pytest.mark.parametrize(('chat', 'expected_users'), USERS_IN_CHATS)
-    def test_positive_users_in_chat(chat: Chat,
+    @pytest.mark.parametrize(('chat', 'expected_users'), CHATS_USERS)
+    def test_positive_users_of_chat(chat: Chat,
                                     expected_users: list[User],
                                     ) -> None:
         assert set(UserChatMatch.users_of_chat(chat.id)) == set(expected_users)
 
     @staticmethod
     @pytest.mark.parametrize(('user', 'expected_chats'), USERS_CHATS)
-    def test_positive_user_chats(user: User,
-                                 expected_chats: list[Chat],
-                                 ) -> None:
+    def test_positive_chats_of_user(user: User,
+                                    expected_chats: list[Chat],
+                                    ) -> None:
         assert UserChatMatch.chats_of_user(user.id) == expected_chats
 
     @staticmethod
     @pytest.mark.parametrize(('chat', 'user', 'expected_user'), CHATS_INTERLOCUTORS)
-    def test_positive_interlocutor_definition(chat: Chat,
-                                              user: User,
-                                              expected_user: User,
-                                              ) -> None:
+    def test_positive_interlocutor_of_user_of_chat(chat: Chat,
+                                                   user: User,
+                                                   expected_user: User,
+                                                   ) -> None:
         assert UserChatMatch.interlocutor_of_user_of_chat(user.id, chat.id) == expected_user
 
     @staticmethod
-    @pytest.mark.parametrize(('first_user', 'second_user', 'expected_chat'), PRIVATE_CHATS_USERS)
-    def test_positive_find_private_chat(first_user: User,
-                                        second_user: User,
-                                        expected_chat: Chat,
-                                        ) -> None:
+    @pytest.mark.parametrize(('first_user', 'second_user', 'expected_chat'), USERS_PAIRS_AND_THEIR_PRIVATE_CHATS)
+    def test_positive_private_chat_between_users(first_user: User,
+                                                 second_user: User,
+                                                 expected_chat: Chat,
+                                                 ) -> None:
         assert UserChatMatch.private_chat_between_users(first_user.id, second_user.id) == expected_chat
 
     @staticmethod
-    @pytest.mark.parametrize(('first_user', 'second_user'), USERS_WITHOUT_PRIVATE_CHAT)
-    def test_negative_find_private_chat_raises_value_error(first_user: User,
-                                                           second_user: User,
-                                                           ) -> None:
+    @pytest.mark.parametrize(('first_user', 'second_user'), USERS_PAIRS_WITHOUT_PRIVATE_CHAT)
+    def test_negative_private_chat_between_users_raises_value_error_if_chat_not_found(first_user: User,
+                                                                                      second_user: User,
+                                                                                      ) -> None:
         with pytest.raises(ValueError):
             UserChatMatch.private_chat_between_users(first_user.id, second_user.id)
 
     @staticmethod
-    @pytest.mark.parametrize(('user', 'expected_users'), ALL_INTERLOCUTORS_OF_USERS)
-    def test_positive_find_all_interlocutors(user: User,
-                                             expected_users: list[User],
-                                             ) -> None:
+    @pytest.mark.parametrize(('user', 'expected_users'), USERS_ALL_INTERLOCUTORS)
+    def test_positive_all_interlocutors_of_user(user: User,
+                                                expected_users: list[User],
+                                                ) -> None:
         assert set(UserChatMatch.all_interlocutors_of_user(user.id)) == set(expected_users)
 
 

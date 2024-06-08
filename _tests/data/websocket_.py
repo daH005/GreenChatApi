@@ -1,5 +1,5 @@
-from api._tests.all_test_data.db_test_data import *  # noqa
-from api._tests.common import COMMON_DATETIME  # noqa
+from api._tests.data.db import *
+from api._tests.common import COMMON_DATETIME
 
 ONLINE_USERS_IDS = [
     1, 2, 3, 5
@@ -162,6 +162,36 @@ NEW_CHAT_HANDLER_SENDINGS = [
     ),
 ]
 
+NEGATIVE_NEW_CHAT_HANDLER_RAISES_VALUE_ERROR_DATA = [
+    dict(
+        user=USERS[1],
+        data={
+            'text': 'Hi!',
+            'usersIds': [2],
+            'name': None,
+            'isGroup': False,
+        },
+    ),
+    dict(
+        user=USERS[1],
+        data={
+            'text': 'Hi!',
+            'usersIds': [1, 5, 7],
+            'name': None,
+            'isGroup': False,
+        },
+    ),
+    dict(
+        user=USERS[1],
+        data={
+            'text': 'Hi!',
+            'usersIds': [1, 5],
+            'name': None,
+            'isGroup': False,
+        },
+    ),
+]
+
 NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
     (
         dict(
@@ -203,6 +233,16 @@ NEW_CHAT_MESSAGE_HANDLER_SENDINGS = [
                  },
             ],
         }
+    ),
+]
+
+NEGATIVE_NEW_CHAT_MESSAGE_HANDLER_RAISES_VALUE_ERROR_DATA = [
+    dict(
+        user=USERS[1],
+        data={
+            'chatId': 5,
+            'text': 'Hi!',
+        },
     ),
 ]
 

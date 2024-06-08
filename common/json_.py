@@ -242,7 +242,7 @@ class ChatInfoJSONDictMaker(AbstractJSONDictMaker):
             JSONKey.IS_GROUP: chat.is_group,
             JSONKey.LAST_CHAT_MESSAGE: last_message,
             JSONKey.USERS_IDS: [user.id for user in chat.users()],
-            JSONKey.UNREAD_COUNT: chat.unread_count_for_user(user_id=user_id).value,
+            JSONKey.UNREAD_COUNT: chat.unread_count_of_user(user_id=user_id).value,
         }
 
 

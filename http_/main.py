@@ -83,7 +83,7 @@ for bp in (email_bp, avatars_bp):
 def user_lookup_callback(_jwt_header, jwt_data) -> User | None:
     email: str = jwt_data['sub']
     try:
-        return User.find_by_email(email=email)
+        return User.by_email(email=email)
     except ValueError:
         return None
 
@@ -128,7 +128,7 @@ def login() -> tuple[JWTJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREATED]:
 
     status_code: HTTPStatus
     try:
-        user: User = User.find_by_email(email=user_data.email)
+        user: User = User.by_email(email=user_data.email)
         status_code = HTTPStatus.OK
     except ValueError:
         user: User = User(
@@ -185,7 +185,7 @@ def user_edit_info() -> SimpleStatusResponseJSONDictMaker.Dict:
 @swag_from(USER_CHATS_SPECS)
 def user_chats() -> UserChatsJSONDictMaker.Dict:
     return UserChatsJSONDictMaker.make(
-        user_chats=UserChatMatch.user_chats(user_id=current_user.id),
+        user_chats=UserChatMatch.chats_of_user(user_id=current_user.id),
         user_id=current_user.id,
     )
 

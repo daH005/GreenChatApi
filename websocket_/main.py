@@ -102,7 +102,7 @@ async def new_chat(user: User, data: dict) -> None:
 
     if len(data.users_ids) == 2:
         try:
-            UserChatMatch.find_private_chat(*data.users_ids)
+            UserChatMatch.private_chat_between_users(*data.users_ids)
         except ValueError:
             pass  # Чата нет, значит всё идёт по плану - создаём.
         else:
@@ -188,7 +188,7 @@ async def new_chat_message(user: User, data: dict) -> None:
         if chat_user.id == user.id:
             continue
 
-        unread_count: UnreadCount = chat.unread_count_for_user(user_id=chat_user.id)
+        unread_count: UnreadCount = chat.unread_count_of_user(user_id=chat_user.id)
         unread_count.value += 1
 
         result_data = NewUnreadCountJSONDictMaker.make(chat_id=chat.id, unread_count=unread_count.value)
@@ -237,9 +237,9 @@ async def chat_message_was_read(user: User, data: dict) -> None:
         chat_id=data.chat_id,
     )
 
-    unread_count: UnreadCount = chat.unread_count_for_user(user_id=user.id)
+    unread_count: UnreadCount = chat.unread_count_of_user(user_id=user.id)
 
-    chat_messages: list[ChatMessage] = chat.unread_messages_for_user(user_id=user.id)
+    chat_messages: list[ChatMessage] = chat.unread_messages_of_user(user_id=user.id)
     chat_messages.reverse()
 
     read_chat_messages_ids: list[int] = []

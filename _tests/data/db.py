@@ -136,14 +136,24 @@ USERS_CHATS = [
     (USERS[3], []),
 ]
 
-USERS_IN_CHATS = [
-    (CHATS[1], [USERS[1], USERS[2]]),
-    (CHATS[2], [USERS[1], USERS[4]]),
-    (CHATS[3], [USERS[1], USERS[2], USERS[4]]),
+CHATS_USERS = [
+    (CHATS[1], [
+        USERS[1], 
+        USERS[2],
+    ]),
+    (CHATS[2], [
+        USERS[1], 
+        USERS[4],
+    ]),
+    (CHATS[3], [
+        USERS[1], 
+        USERS[2], 
+        USERS[4],
+    ]),
     (CHATS[4], [])
 ]
 
-CHATS_ACCESS_FOR_USERS = [
+USERS_AND_CHATS_AVAILABLE_FOR_THEM = [
     (USERS[1], CHATS[1]),
     (USERS[1], CHATS[2]),
     (USERS[1], CHATS[3]),
@@ -151,7 +161,7 @@ CHATS_ACCESS_FOR_USERS = [
     (USERS[4], CHATS[2]),
 ]
 
-CHATS_NO_ACCESS_FOR_USERS = [
+USERS_AND_CHATS_NOT_AVAILABLE_FOR_THEM = [
     (USERS[1], CHATS[4]),
     (USERS[2], CHATS[4]),
     (USERS[2], CHATS[2]),
@@ -161,18 +171,18 @@ CHATS_NO_ACCESS_FOR_USERS = [
     (USERS[3], CHATS[4]),
 ]
 
-PRIVATE_CHATS_USERS = [
+USERS_PAIRS_AND_THEIR_PRIVATE_CHATS = [
     (USERS[1], USERS[2], CHATS[1]),
     (USERS[1], USERS[4], CHATS[2]),
 ]
 
-USERS_WITHOUT_PRIVATE_CHAT = [
+USERS_PAIRS_WITHOUT_PRIVATE_CHAT = [
     (USERS[1], USERS[3]),
     (USERS[2], USERS[3]),
     (USERS[2], USERS[4]),
 ]
 
-ALL_INTERLOCUTORS_OF_USERS = [
+USERS_ALL_INTERLOCUTORS = [
     (USERS[1], [
         USERS[2],
         USERS[4],

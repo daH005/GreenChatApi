@@ -1,5 +1,5 @@
-from api._tests.all_test_data.db_test_data import *  # noqa
-from api._tests.common import COMMON_DATETIME  # noqa
+from api._tests.data.db import *
+from api._tests.common import COMMON_DATETIME
 
 JWT_TOKEN_KWARGS_AND_JSON_DICTS = [
     (

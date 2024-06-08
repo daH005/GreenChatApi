@@ -159,7 +159,7 @@ class WebSocketClientHandler:
     @raises(ValueError)
     def _try_to_authorize_user(self, email: str) -> None:
         DBBuilder.session.remove()  # for session updating
-        self.user = User.find_by_email(email=email)
+        self.user = User.by_email(email=email)
 
     @raises(ConnectionClosed)
     async def _wait_str(self) -> str:
