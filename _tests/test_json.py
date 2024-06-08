@@ -3,15 +3,15 @@ import pytest
 from api._tests.all_test_data.json_test_data import *  # noqa: must be first!
 from api.common.json_ import *
 from api._tests.common import make_random_string  # noqa
-from api._tests.replacing import ChatMessageJSONDictMakeReplacer  # noqa
+from api._tests.replacing import ChatMessageJSONDictMakerReplacer  # noqa
 
 
 def setup_module() -> None:
-    ChatMessageJSONDictMakeReplacer.replace()
+    ChatMessageJSONDictMakerReplacer.replace()
 
 
 def teardown_module() -> None:
-    ChatMessageJSONDictMakeReplacer.back()
+    ChatMessageJSONDictMakerReplacer.back()
 
 
 @pytest.mark.parametrize(('maker_kwargs', 'expected_dict'), JWT_TOKEN_KWARGS_AND_JSON_DICTS)

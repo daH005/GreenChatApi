@@ -8,7 +8,7 @@ from api._tests.all_test_data.websocket_test_data import ONLINE_USERS_IDS  # noq
 
 __all__ = (
     'AbstractMethodReplacer',
-    'ChatMessageJSONDictMakeReplacer',
+    'ChatMessageJSONDictMakerReplacer',
     'ServerSendToOneUserMethodReplacer',
     'ServerUserHaveConnectionsMethodReplacer',
 )
@@ -45,7 +45,7 @@ class AbstractMethodReplacer(ABC):
         setattr(cls.object, cls.method_name, cls.backup_method())
 
 
-class ChatMessageJSONDictMakeReplacer(AbstractMethodReplacer):
+class ChatMessageJSONDictMakerReplacer(AbstractMethodReplacer):
     object = ChatMessageJSONDictMaker
     method_name = 'make'
 
