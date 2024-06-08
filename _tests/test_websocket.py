@@ -30,16 +30,6 @@ def teardown_module() -> None:
     users_ids_and_potential_interlocutors_ids.clear()
 
 
-async def _test_positive_handler_and_server_messages(
-        handler_func: ConnectAndDisconnectHandlerFuncT | CommonHandlerFuncT,
-        handler_kwargs: dict,
-        expected_server_messages,
-        ) -> None:
-    ServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.saved_server_messages.clear()
-    await handler_func(**handler_kwargs)
-    assert ServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.saved_server_messages == expected_server_messages
-
-
 @pytest.mark.parametrize(('handler_kwargs', 'expected_server_messages'),
                          EACH_CONNECTION_HANDLER_KWARGS_AND_SERVER_MESSAGES)
 @pytest.mark.asyncio
@@ -145,3 +135,13 @@ def test_positive_message_text_clearing(raw_text: str,
                                         expected_text: str,
                                         ) -> None:
     assert clear_message_text(raw_text) == expected_text
+
+
+async def _test_positive_handler_and_server_messages(
+        handler_func: ConnectAndDisconnectHandlerFuncT | CommonHandlerFuncT,
+        handler_kwargs: dict,
+        expected_server_messages,
+        ) -> None:
+    ServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.saved_server_messages.clear()
+    await handler_func(**handler_kwargs)
+    assert ServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.saved_server_messages == expected_server_messages
