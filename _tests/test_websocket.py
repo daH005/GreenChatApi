@@ -7,25 +7,25 @@ from api.websocket_.base import (
     CommonHandlerFuncT,
 )
 from api.websocket_.funcs import clear_message_text
-from api._tests.replacing import (
-    ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime,
-    ServerSendToOneUserMethodReplacerForServerMessagesStorage,
-    ServerUserHaveConnectionsMethodReplacerForOnlineImitation,
+from api._tests.methods_doubles import (
+    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime,
+    ServerSendToOneUserMethodDoubleMakerForServerMessagesStorage,
+    ServerUserHaveConnectionsMethodDoubleMakerForOnlineImitation,
 )
 
 
 def setup_module() -> None:
-    ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime.replace()
-    ServerSendToOneUserMethodReplacerForServerMessagesStorage.replace()
-    ServerUserHaveConnectionsMethodReplacerForOnlineImitation.replace()
+    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime.replace()
+    ServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.replace()
+    ServerUserHaveConnectionsMethodDoubleMakerForOnlineImitation.replace()
 
     users_ids_and_potential_interlocutors_ids.update(USERS_IDS_AND_POTENTIAL_INTERLOCUTORS_IDS)
 
 
 def teardown_module() -> None:
-    ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime.back()
-    ServerSendToOneUserMethodReplacerForServerMessagesStorage.back()
-    ServerUserHaveConnectionsMethodReplacerForOnlineImitation.back()
+    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime.back()
+    ServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.back()
+    ServerUserHaveConnectionsMethodDoubleMakerForOnlineImitation.back()
 
     users_ids_and_potential_interlocutors_ids.clear()
 
@@ -35,9 +35,9 @@ async def _test_positive_handler_and_server_messages(
         handler_kwargs: dict,
         expected_server_messages,
         ) -> None:
-    ServerSendToOneUserMethodReplacerForServerMessagesStorage.saved_server_messages.clear()
+    ServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.saved_server_messages.clear()
     await handler_func(**handler_kwargs)
-    assert ServerSendToOneUserMethodReplacerForServerMessagesStorage.saved_server_messages == expected_server_messages
+    assert ServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.saved_server_messages == expected_server_messages
 
 
 @pytest.mark.parametrize(('handler_kwargs', 'expected_server_messages'),

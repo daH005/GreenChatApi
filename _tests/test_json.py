@@ -2,15 +2,15 @@ import pytest
 
 from api._tests.data.json_ import *  # must be first!
 from api.common.json_ import *
-from api._tests.replacing import ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime
+from api._tests.methods_doubles import ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime
 
 
 def setup_module() -> None:
-    ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime.replace()
+    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime.replace()
 
 
 def teardown_module() -> None:
-    ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime.back()
+    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime.back()
 
 
 @pytest.mark.parametrize(('maker_kwargs', 'expected_dict'), JWT_TOKEN_KWARGS_AND_JSON_DICTS)

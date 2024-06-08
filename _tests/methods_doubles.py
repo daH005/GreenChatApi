@@ -7,14 +7,14 @@ from api._tests.common import COMMON_DATETIME
 from api._tests.data.websocket_ import ONLINE_USERS_IDS
 
 __all__ = (
-    'AbstractMethodReplacer',
-    'ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime',
-    'ServerSendToOneUserMethodReplacerForServerMessagesStorage',
-    'ServerUserHaveConnectionsMethodReplacerForOnlineImitation',
+    'AbstractMethodDoubleMaker',
+    'ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime',
+    'ServerSendToOneUserMethodDoubleMakerForServerMessagesStorage',
+    'ServerUserHaveConnectionsMethodDoubleMakerForOnlineImitation',
 )
 
 
-class AbstractMethodReplacer(ABC):
+class AbstractMethodDoubleMaker(ABC):
     object: object
     method_name: str
 
@@ -45,7 +45,7 @@ class AbstractMethodReplacer(ABC):
         setattr(cls.object, cls.method_name, cls.backup_method())
 
 
-class ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime(AbstractMethodReplacer):
+class ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime(AbstractMethodDoubleMaker):
     object = ChatMessageJSONDictMaker
     method_name = 'make'
 
@@ -56,7 +56,7 @@ class ChatMessageJSONDictMakerMakeMethodReplacerForCommonDatetime(AbstractMethod
         return data
 
 
-class ServerSendToOneUserMethodReplacerForServerMessagesStorage(AbstractMethodReplacer):
+class ServerSendToOneUserMethodDoubleMakerForServerMessagesStorage(AbstractMethodDoubleMaker):
     object = server
     method_name = 'send_to_one_user'
 
@@ -69,7 +69,7 @@ class ServerSendToOneUserMethodReplacerForServerMessagesStorage(AbstractMethodRe
         cls.saved_server_messages.setdefault(user_id, []).append(message)
 
 
-class ServerUserHaveConnectionsMethodReplacerForOnlineImitation(AbstractMethodReplacer):
+class ServerUserHaveConnectionsMethodDoubleMakerForOnlineImitation(AbstractMethodDoubleMaker):
     object = server
     method_name = 'user_have_connections'
 
