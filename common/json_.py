@@ -28,10 +28,6 @@ __all__ = (
 
 
 class JSONKey(StrEnum):
-    """Набор унифицированных имён, используемых в структурах данных,
-    передаваемых по сети (http, сокет).
-    """
-
     STATUS = 'status'
 
     ID = 'id'
@@ -74,11 +70,6 @@ class JSONKey(StrEnum):
 
 
 class AbstractJSONDictMaker(ABC):
-    """Интерфейс класса для формирования JSON-словарей.
-    P.S. `TypedDict` не позволяет определять в нём методы. Если бы это было возможно,
-    то решение оказалось бы проще - метод `make` был бы помещен прямо в `TypedDict`.
-    """
-
     Dict: TypedDict
 
     @staticmethod
