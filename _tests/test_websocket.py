@@ -2,11 +2,8 @@ import pytest
 
 from api._tests.data.websocket_ import *  # must be first!
 from api.websocket_.main import *
-from api.websocket_.base import (
-    ConnectAndDisconnectHandlerFuncT,
-    CommonHandlerFuncT,
-)
-from api.websocket_.funcs import clear_message_text
+from api.websocket_.base.typing_ import CommonHandlerFuncT, ConnectAndDisconnectHandlerFuncT
+from api.websocket_.common import clear_message_text
 from api._tests.doubles import (
     ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime,
     WebsocketServerSendToOneUserMethodDoubleMakerForServerMessagesStorage,

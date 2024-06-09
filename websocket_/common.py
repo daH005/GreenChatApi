@@ -7,7 +7,7 @@ from api.db.models import (
     User,
 )
 from api.db.db_builder import DBBuilder
-from api.websocket_.base import WebSocketServer
+from api.websocket_.base.server import WebSocketServer
 
 __all__ = (
     'TEXT_MAX_LENGTH',

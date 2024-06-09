@@ -24,6 +24,7 @@ __all__ = (
     'CodeIsValidFlagJSONDictMaker',
     'NewUnreadCountJSONDictMaker',
     'ReadChatMessagesJSONDictMaker',
+    'WebsocketMessageJSONDictMaker',
 )
 
 
@@ -67,6 +68,9 @@ class JSONKey(StrEnum):
     CODE_KEY = 'codeKey'
     CODE = 'code'
     CODE_IS_VALID = 'codeIsValid'
+
+    TYPE = 'type'
+    DATA = 'data'
 
 
 class AbstractJSONDictMaker(ABC):
@@ -255,6 +259,7 @@ class NewUnreadCountJSONDictMaker(AbstractJSONDictMaker):
 
 
 class ReadChatMessagesJSONDictMaker(AbstractJSONDictMaker):
+
     class Dict(TypedDict):
         chatId: int
         chatMessagesIds: list[int]
@@ -266,4 +271,20 @@ class ReadChatMessagesJSONDictMaker(AbstractJSONDictMaker):
         return {
             JSONKey.CHAT_ID: chat_id,
             JSONKey.CHAT_MESSAGES_IDS: chat_messages_ids,
+        }
+
+
+class WebsocketMessageJSONDictMaker(AbstractJSONDictMaker):
+
+    class Dict(TypedDict):
+        type: str
+        data: dict
+
+    @staticmethod
+    def make(type_: str,
+             data: dict,
+             ) -> Dict:
+        return {
+            JSONKey.TYPE: type_,
+            JSONKey.DATA: data,
         }

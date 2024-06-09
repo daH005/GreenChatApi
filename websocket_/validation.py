@@ -1,18 +1,19 @@
 from pydantic import BaseModel, Field, field_validator
 
 from api.common.json_ import JSONKey
-from api.websocket_.funcs import clear_message_text
+from api.websocket_.common import clear_message_text
 
 __all__ = (
-    'UserIdData',
-    'NewChat',
-    'NewChatMessage',
-    'ChatIdData',
-    'ChatMessageWasReadData',
+    'TextJSONValidator',
+    'UserIdJSONValidator',
+    'NewChatJSONValidator',
+    'NewChatMessageJSONValidator',
+    'ChatIdJSONValidator',
+    'ChatMessageWasReadJSONValidator',
 )
 
 
-class TextData(BaseModel):
+class TextJSONValidator(BaseModel):
     text: str
 
     @field_validator('text')  # noqa: from pydantic doc
@@ -24,24 +25,24 @@ class TextData(BaseModel):
         return text
 
 
-class UserIdData(BaseModel):
+class UserIdJSONValidator(BaseModel):
     user_id: int = Field(alias=JSONKey.USER_ID)
 
 
-class NewChat(TextData):
+class NewChatJSONValidator(TextJSONValidator):
 
     users_ids: list[int] = Field(alias=JSONKey.USERS_IDS)
     name: str | None = Field(default=None)
     is_group: bool = Field(alias=JSONKey.IS_GROUP, default=False)
 
 
-class ChatIdData(BaseModel):
+class ChatIdJSONValidator(BaseModel):
     chat_id: int = Field(alias=JSONKey.CHAT_ID)
 
 
-class NewChatMessage(TextData, ChatIdData):
+class NewChatMessageJSONValidator(TextJSONValidator, ChatIdJSONValidator):
     pass
 
 
-class ChatMessageWasReadData(ChatIdData):
+class ChatMessageWasReadJSONValidator(ChatIdJSONValidator):
     chat_message_id: int = Field(alias=JSONKey.CHAT_MESSAGE_ID)
