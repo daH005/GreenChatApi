@@ -10,9 +10,9 @@ from api.common.json_ import (
 )
 from api.http_.endpoints import EndpointName, Url
 from api.http_.email.tasks import send_code_task
-from api.http_.redis_ import make_and_save_code, code_is_valid
+from api.http_.email_codes import make_and_save_code, code_is_valid
 from api.http_.validation import EmailAndCodeJSONValidator
-from api.http_.flasgger_constants import (
+from api.http_.apidocs_constants import (
     SEND_CODE_SPECS,
     CHECK_CODE_SPECS,
 )

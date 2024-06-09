@@ -45,11 +45,11 @@ from api.http_.email.blueprint_ import (
 from api.http_.avatars.blueprint_ import (
     bp as avatars_bp,
 )
-from api.http_.redis_ import (
+from api.http_.email_codes import (
     code_is_valid,
     delete_code,
 )
-from api.http_.flasgger_constants import (
+from api.http_.apidocs_constants import (
     CHECK_EMAIL_SPECS,
     LOGIN_SPECS,
     REFRESH_TOKEN_SPECS,

@@ -15,7 +15,7 @@ from api.config import STATIC_FOLDER, MEDIA_FOLDER
 from api.common.json_ import JSONKey, SimpleStatusResponseJSONDictMaker
 from api.db.models import User
 from api.http_.endpoints import Url, EndpointName
-from api.http_.flasgger_constants import (
+from api.http_.apidocs_constants import (
     USER_AVATAR_SPECS,
     USER_EDIT_AVATAR_SPECS,
 )
