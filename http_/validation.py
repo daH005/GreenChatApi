@@ -16,7 +16,7 @@ from api.common.json_ import JSONKey
 __all__ = (
     'BaseValidator',
     'EmailAndCodeJSONValidator',
-    'UserInfoJSONValidator',
+    'UserJSONValidator',
 )
 
 
@@ -49,7 +49,7 @@ class EmailAndCodeJSONValidator(BaseValidator):
         return validate_email(data)[1]
 
 
-class UserInfoJSONValidator(BaseValidator):
+class UserJSONValidator(BaseValidator):
 
     first_name: constr(min_length=1, max_length=20) = Field(alias=JSONKey.FIRST_NAME)
     last_name: constr(min_length=1, max_length=20) = Field(alias=JSONKey.LAST_NAME)

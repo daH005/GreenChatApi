@@ -5,7 +5,7 @@ from jwt import decode
 from websockets import WebSocketServerProtocol, ConnectionClosed
 
 from api.common.hinting import raises
-from api.common.json_ import WebsocketMessageJSONDictMaker, JSONKey
+from api.common.json_ import WebSocketMessageJSONDictMaker, JSONKey
 from api.db.db_builder import DBBuilder
 from api.db.models import User
 from api.websocket_.base.typing_ import CommonHandlerFuncT
@@ -58,14 +58,14 @@ class WebSocketClientHandler:
         return await self._protocol.recv()
 
     @raises(ConnectionClosed, JSONDecodeError)
-    async def _wait_json_dict(self) -> WebsocketMessageJSONDictMaker.Dict:
+    async def _wait_json_dict(self) -> WebSocketMessageJSONDictMaker.Dict:
         return json.loads(await self._wait_str())
 
     @raises(ConnectionClosed)
     async def listen(self) -> None:
         while True:
             try:
-                message: WebsocketMessageJSONDictMaker.Dict = await self._wait_json_dict()
+                message: WebSocketMessageJSONDictMaker.Dict = await self._wait_json_dict()
             except JSONDecodeError:
                 continue
 
@@ -82,7 +82,7 @@ class WebSocketClientHandler:
             DBBuilder.session.remove()
 
     @raises(KeyError, Exception)
-    async def _handle_message(self, message: WebsocketMessageJSONDictMaker.Dict) -> None:
+    async def _handle_message(self, message: WebSocketMessageJSONDictMaker.Dict) -> None:
         handler_func: CommonHandlerFuncT = self._get_handler_func(message[JSONKey.TYPE])  # type: ignore
         await handler_func(
             user=self.user,  # type: ignore
@@ -96,5 +96,5 @@ class WebSocketClientHandler:
         return self._common_handlers_funcs[type_]
 
     @raises(ConnectionClosed)
-    async def send(self, message: WebsocketMessageJSONDictMaker.Dict) -> None:
+    async def send(self, message: WebSocketMessageJSONDictMaker.Dict) -> None:
         await self._protocol.send(json.dumps(message))

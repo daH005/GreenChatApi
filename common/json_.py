@@ -12,19 +12,19 @@ from api.db.models import (
 __all__ = (
     'JSONKey',
     'AbstractJSONDictMaker',
-    'SimpleStatusResponseJSONDictMaker',
+    'SimpleResponseStatusJSONDictMaker',
     'ChatHistoryJSONDictMaker',
     'ChatMessageJSONDictMaker',
     'ChatMessageTypingJSONDictMaker',
     'UserChatsJSONDictMaker',
-    'ChatInfoJSONDictMaker',
+    'ChatJSONDictMaker',
     'JWTJSONDictMaker',
-    'UserInfoJSONDictMaker',
+    'UserJSONDictMaker',
     'AlreadyTakenFlagJSONDictMaker',
     'CodeIsValidFlagJSONDictMaker',
     'NewUnreadCountJSONDictMaker',
-    'ReadChatMessagesJSONDictMaker',
-    'WebsocketMessageJSONDictMaker',
+    'ReadChatMessagesIdsJSONDictMaker',
+    'WebSocketMessageJSONDictMaker',
 )
 
 
@@ -82,7 +82,7 @@ class AbstractJSONDictMaker(ABC):
         raise NotImplementedError
 
 
-class SimpleStatusResponseJSONDictMaker(AbstractJSONDictMaker):
+class SimpleResponseStatusJSONDictMaker(AbstractJSONDictMaker):
 
     class Dict(TypedDict):
         status: int
@@ -124,10 +124,9 @@ class CodeIsValidFlagJSONDictMaker(AbstractJSONDictMaker):
         return {JSONKey.CODE_IS_VALID: flag}
 
 
-class UserInfoJSONDictMaker(AbstractJSONDictMaker):
+class UserJSONDictMaker(AbstractJSONDictMaker):
 
     class Dict(TypedDict):
-
         id: int
         firstName: str
         lastName: str
@@ -162,7 +161,6 @@ class ChatHistoryJSONDictMaker(AbstractJSONDictMaker):
 class ChatMessageJSONDictMaker(AbstractJSONDictMaker):
 
     class Dict(TypedDict):
-
         id: int
         chatId: int
         userId: int
@@ -185,7 +183,6 @@ class ChatMessageJSONDictMaker(AbstractJSONDictMaker):
 class ChatMessageTypingJSONDictMaker(AbstractJSONDictMaker):
 
     class Dict(TypedDict):
-
         chatId: int
         userId: int
 
@@ -202,7 +199,7 @@ class ChatMessageTypingJSONDictMaker(AbstractJSONDictMaker):
 class UserChatsJSONDictMaker(AbstractJSONDictMaker):
 
     class Dict(TypedDict):
-        chats: list[ChatInfoJSONDictMaker.Dict]
+        chats: list[ChatJSONDictMaker.Dict]
 
     @staticmethod
     def make(user_chats: list[Chat],
@@ -210,14 +207,13 @@ class UserChatsJSONDictMaker(AbstractJSONDictMaker):
              ) -> Dict:
         chats_for_json = []
         for chat in user_chats:
-            chats_for_json.append(ChatInfoJSONDictMaker.make(chat=chat, user_id=user_id))
+            chats_for_json.append(ChatJSONDictMaker.make(chat=chat, user_id=user_id))
         return {JSONKey.CHATS: chats_for_json}
 
 
-class ChatInfoJSONDictMaker(AbstractJSONDictMaker):
+class ChatJSONDictMaker(AbstractJSONDictMaker):
 
     class Dict(TypedDict):
-
         id: int
         name: str
         isGroup: bool
@@ -246,7 +242,6 @@ class ChatInfoJSONDictMaker(AbstractJSONDictMaker):
 class NewUnreadCountJSONDictMaker(AbstractJSONDictMaker):
 
     class Dict(TypedDict):
-
         chatId: int
         unreadCount: int
 
@@ -260,7 +255,7 @@ class NewUnreadCountJSONDictMaker(AbstractJSONDictMaker):
         }
 
 
-class ReadChatMessagesJSONDictMaker(AbstractJSONDictMaker):
+class ReadChatMessagesIdsJSONDictMaker(AbstractJSONDictMaker):
 
     class Dict(TypedDict):
         chatId: int
@@ -276,7 +271,7 @@ class ReadChatMessagesJSONDictMaker(AbstractJSONDictMaker):
         }
 
 
-class WebsocketMessageJSONDictMaker(AbstractJSONDictMaker):
+class WebSocketMessageJSONDictMaker(AbstractJSONDictMaker):
 
     class Dict(TypedDict):
         type: str

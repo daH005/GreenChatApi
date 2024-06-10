@@ -20,11 +20,11 @@ from api.db.models import User, UserChatMatch
 from api.db.db_builder import DBBuilder
 from api.common.json_ import (
     JSONKey,
-    SimpleStatusResponseJSONDictMaker,
+    SimpleResponseStatusJSONDictMaker,
     ChatHistoryJSONDictMaker,
     UserChatsJSONDictMaker,
     JWTJSONDictMaker,
-    UserInfoJSONDictMaker,
+    UserJSONDictMaker,
     AlreadyTakenFlagJSONDictMaker,
 )
 from api.config import (
@@ -38,7 +38,7 @@ from api.config import (
     DB_URL,
 )
 from api.http_.endpoints import EndpointName, Url
-from api.http_.validation import EmailAndCodeJSONValidator, UserInfoJSONValidator
+from api.http_.validation import EmailAndCodeJSONValidator, UserJSONValidator
 from api.http_.email.blueprint_ import (
     bp as email_bp,
 )
@@ -151,10 +151,10 @@ def refresh_token() -> JWTJSONDictMaker.Dict:
 @app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_INFO_SPECS)
-def user_info() -> UserInfoJSONDictMaker.Dict:
+def user_info() -> UserJSONDictMaker.Dict:
     user_id_as_str: str | None = request.args.get(JSONKey.USER_ID)
     if user_id_as_str is None:
-        return UserInfoJSONDictMaker.make(user=current_user, exclude_important_info=False)
+        return UserJSONDictMaker.make(user=current_user, exclude_important_info=False)
 
     try:
         user: User | None = DBBuilder.session.get(User, int(user_id_as_str))
@@ -164,20 +164,20 @@ def user_info() -> UserInfoJSONDictMaker.Dict:
     if user is None:
         return abort(HTTPStatus.NOT_FOUND)
 
-    return UserInfoJSONDictMaker.make(user=user)
+    return UserJSONDictMaker.make(user=user)
 
 
 @app.route(Url.USER_EDIT_INFO, endpoint=EndpointName.USER_EDIT_INFO, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_EDIT_INFO_SPECS)
-def user_edit_info() -> SimpleStatusResponseJSONDictMaker.Dict:
-    data: UserInfoJSONValidator = UserInfoJSONValidator.from_json()
+def user_edit_info() -> SimpleResponseStatusJSONDictMaker.Dict:
+    data: UserJSONValidator = UserJSONValidator.from_json()
 
     current_user.first_name = data.first_name
     current_user.last_name = data.last_name
     DBBuilder.session.commit()
 
-    return SimpleStatusResponseJSONDictMaker.make(status=HTTPStatus.OK)
+    return SimpleResponseStatusJSONDictMaker.make(status=HTTPStatus.OK)
 
 
 @app.route(Url.USER_CHATS, endpoint=EndpointName.USER_CHATS, methods=[HTTPMethod.GET])

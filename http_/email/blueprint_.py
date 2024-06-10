@@ -6,7 +6,7 @@ from flasgger import swag_from
 from api.common.json_ import (
     JSONKey,
     CodeIsValidFlagJSONDictMaker,
-    SimpleStatusResponseJSONDictMaker,
+    SimpleResponseStatusJSONDictMaker,
 )
 from api.http_.endpoints import EndpointName, Url
 from api.http_.email.tasks import send_code_task
@@ -26,7 +26,7 @@ bp: Blueprint = Blueprint('email', __name__)
 
 @bp.route(Url.SEND_CODE, endpoint=EndpointName.SEND_CODE, methods=[HTTPMethod.POST])
 @swag_from(SEND_CODE_SPECS)
-def send_code() -> SimpleStatusResponseJSONDictMaker.Dict:
+def send_code() -> SimpleResponseStatusJSONDictMaker.Dict:
     try:
         email: str = validate_email(request.json[JSONKey.EMAIL])[1]
     except (ValueError, KeyError):
@@ -38,7 +38,7 @@ def send_code() -> SimpleStatusResponseJSONDictMaker.Dict:
         raise abort(HTTPStatus.CONFLICT)
     send_code_task.delay(to=email, code=code)
 
-    return SimpleStatusResponseJSONDictMaker.make(status=HTTPStatus.OK)
+    return SimpleResponseStatusJSONDictMaker.make(status=HTTPStatus.OK)
 
 
 @bp.route(Url.CHECK_CODE, endpoint=EndpointName.CHECK_CODE, methods=[HTTPMethod.GET])

@@ -3,7 +3,7 @@ from typing import NoReturn, Callable
 from websockets import serve, WebSocketServerProtocol, ConnectionClosed
 
 from api.common.hinting import raises
-from api.common.json_ import WebsocketMessageJSONDictMaker
+from api.common.json_ import WebSocketMessageJSONDictMaker
 from api.db.models import User
 from api.websocket_.base.typing_ import CommonHandlerFuncT, ConnectAndDisconnectHandlerFuncT
 from api.websocket_.base.client_handler import WebSocketClientHandler
@@ -80,21 +80,21 @@ class WebSocketServer:
         return len(self._clients.get(user_id, [])) != 0
 
     async def send_to_many_users(self, users_ids: list[int] | set[int],
-                                 message: WebsocketMessageJSONDictMaker.Dict,
+                                 message: WebSocketMessageJSONDictMaker.Dict,
                                  ) -> None:
         users_ids = set(users_ids)
         for id_ in users_ids:
             await self.send_to_one_user(id_, message)
 
     async def send_to_one_user(self, user_id: int,
-                               message: WebsocketMessageJSONDictMaker.Dict,
+                               message: WebSocketMessageJSONDictMaker.Dict,
                                ) -> None:
         for client in self._clients.get(user_id, []):
             await self.send_to_one_client(client, message)
 
     @staticmethod
     async def send_to_one_client(client: WebSocketClientHandler,
-                                 message: WebsocketMessageJSONDictMaker.Dict,
+                                 message: WebSocketMessageJSONDictMaker.Dict,
                                  ) -> None:
         try:
             await client.send(message)

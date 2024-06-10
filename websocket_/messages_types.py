@@ -1,7 +1,7 @@
 from __future__ import annotations
 from enum import StrEnum
 
-from api.common.json_ import WebsocketMessageJSONDictMaker
+from api.common.json_ import WebSocketMessageJSONDictMaker
 
 __all__ = (
     'MessageType',
@@ -19,8 +19,8 @@ class MessageType(StrEnum):
     NEW_CHAT_MESSAGE = 'newChatMessage'
     NEW_CHAT_MESSAGE_TYPING = 'newChatMessageTyping'
 
-    def make_json_dict(self, data: dict) -> WebsocketMessageJSONDictMaker.Dict:
-        return WebsocketMessageJSONDictMaker.make(
+    def make_json_dict(self, data: dict) -> WebSocketMessageJSONDictMaker.Dict:
+        return WebSocketMessageJSONDictMaker.make(
             type_=self.value,  # noqa
             data=data,
         )

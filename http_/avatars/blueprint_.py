@@ -12,7 +12,7 @@ from typing import Final
 from pathlib import Path
 
 from api.config import STATIC_FOLDER, MEDIA_FOLDER
-from api.common.json_ import JSONKey, SimpleStatusResponseJSONDictMaker
+from api.common.json_ import JSONKey, SimpleResponseStatusJSONDictMaker
 from api.db.models import User
 from api.http_.endpoints import Url, EndpointName
 from api.http_.apidocs_constants import (
@@ -52,12 +52,12 @@ def user_avatar() -> Response | None:
 @bp.route(Url.USER_EDIT_AVATAR, endpoint=EndpointName.USER_EDIT_AVATAR, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_EDIT_AVATAR_SPECS)
-def user_edit_avatar() -> SimpleStatusResponseJSONDictMaker.Dict:
+def user_edit_avatar() -> SimpleResponseStatusJSONDictMaker.Dict:
     avatar_path: Path = _make_avatar_path(user_id_as_str=str(current_user.id))
     with open(avatar_path, 'wb') as f:
         f.write(request.data)
 
-    return SimpleStatusResponseJSONDictMaker.make(status=HTTPStatus.OK)
+    return SimpleResponseStatusJSONDictMaker.make(status=HTTPStatus.OK)
 
 
 def _make_avatar_path(user_id_as_str: str) -> Path:

@@ -38,14 +38,14 @@ def test_positive_user_chats(maker_kwargs: dict,
 def test_positive_chat_info(maker_kwargs: dict,
                             expected_dict: dict,
                             ) -> None:
-    assert ChatInfoJSONDictMaker.make(**maker_kwargs) == expected_dict
+    assert ChatJSONDictMaker.make(**maker_kwargs) == expected_dict
 
 
 @pytest.mark.parametrize(('maker_kwargs', 'expected_dict'), USER_INFO_KWARGS_AND_JSON_DICTS)
 def test_positive_user_info(maker_kwargs: dict,
                             expected_dict: dict,
                             ) -> None:
-    assert UserInfoJSONDictMaker.make(**maker_kwargs) == expected_dict
+    assert UserJSONDictMaker.make(**maker_kwargs) == expected_dict
 
 
 @pytest.mark.parametrize(('maker_kwargs', 'expected_dict'), CHAT_HISTORY_KWARGS_AND_JSON_DICTS)
@@ -80,4 +80,4 @@ def test_positive_new_unread_count(maker_kwargs: dict,
 def test_positive_read_chat_messages(maker_kwargs: dict,
                                      expected_dict: dict,
                                      ) -> None:
-    assert ReadChatMessagesJSONDictMaker.make(**maker_kwargs) == expected_dict
+    assert ReadChatMessagesIdsJSONDictMaker.make(**maker_kwargs) == expected_dict

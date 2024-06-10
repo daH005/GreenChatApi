@@ -3,11 +3,11 @@ from pydantic import ValidationError
 from api.config import HOST, WEBSOCKET_PORT, DB_URL, JWT_SECRET_KEY, JWT_ALGORITHM
 from api.common.hinting import raises
 from api.common.json_ import (
-    ChatInfoJSONDictMaker,
+    ChatJSONDictMaker,
     ChatMessageJSONDictMaker,
     ChatMessageTypingJSONDictMaker,
     NewUnreadCountJSONDictMaker,
-    ReadChatMessagesJSONDictMaker,
+    ReadChatMessagesIdsJSONDictMaker,
 )
 from api.db.models import (
     User,
@@ -143,7 +143,7 @@ async def new_chat(user: User, data: dict) -> None:
     DBBuilder.session.commit()
 
     for user_id in data.users_ids:
-        result_data = ChatInfoJSONDictMaker.make(chat=chat, user_id=user_id)
+        result_data = ChatJSONDictMaker.make(chat=chat, user_id=user_id)
         await server.send_to_one_user(
             user_id=user_id,
             message=MessageType.NEW_CHAT.make_json_dict(result_data)
@@ -275,7 +275,7 @@ async def chat_message_was_read(user: User, data: dict) -> None:
     )
 
     for sender_id in senders_ids:
-        result_data = ReadChatMessagesJSONDictMaker.make(
+        result_data = ReadChatMessagesIdsJSONDictMaker.make(
             chat_id=chat.id,
             chat_messages_ids=read_chat_messages_ids,
         )
