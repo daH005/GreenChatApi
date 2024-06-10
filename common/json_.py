@@ -165,9 +165,10 @@ class ChatMessageJSONDictMaker(AbstractJSONDictMaker):
 
         id: int
         chatId: int
+        userId: int
         text: str
         creatingDatetime: str
-        userId: int
+        isRead: bool
 
     @staticmethod
     def make(chat_message: ChatMessage) -> Dict:
