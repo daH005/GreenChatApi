@@ -223,6 +223,7 @@ class ChatInfoJSONDictMaker(AbstractJSONDictMaker):
         isGroup: bool
         lastMessage: ChatMessageJSONDictMaker.Dict | None
         usersIds: list[int]
+        unreadCount: int
 
     @staticmethod
     def make(chat: Chat,
