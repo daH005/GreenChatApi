@@ -22,8 +22,8 @@ class EndpointName(StrEnum):
 
 class Url(StrEnum):
     CHECK_EMAIL = '/user/login/email/check'
-    SEND_CODE = '/user/login/code/send'
-    CHECK_CODE = '/user/login/code/check'
+    SEND_CODE = '/user/login/email/code/send'
+    CHECK_CODE = '/user/login/email/code/check'
     LOGIN = '/user/login'
     REFRESH_TOKEN = '/user/refreshToken'
     USER_INFO = '/user/info'

@@ -6,7 +6,7 @@ from api.common.hinting import raises
 from api.config import (
     REDIS_HOST,
     REDIS_PORT,
-    REDIS_CODES_EXPIRES,
+    REDIS_EMAIL_CODES_EXPIRES,
     DEBUG,
     TEST_PASS_EMAIL_CODE,
     MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE,
@@ -14,9 +14,9 @@ from api.config import (
 
 __all__ = (
     'app',
-    'make_and_save_code',
-    'code_is_valid',
-    'delete_code',
+    'make_and_save_email_code',
+    'email_code_is_valid',
+    'delete_email_code',
 )
 
 app: Redis = Redis(
@@ -47,24 +47,24 @@ class KeyPrefix(StrEnum):
 
 
 @raises(ValueError)
-def make_and_save_code(identify: str) -> int:
+def make_and_save_email_code(identify: str) -> int:
     if KeyPrefix.EMAIL_CODE.exists(identify):
         raise ValueError
 
-    code: int = _make_random_code()
-    KeyPrefix.EMAIL_CODE.set(identify, code, REDIS_CODES_EXPIRES)
+    code: int = _make_random_four_digit_number()
+    KeyPrefix.EMAIL_CODE.set(identify, code, REDIS_EMAIL_CODES_EXPIRES)
     KeyPrefix.EMAIL_CODE_COUNT.set(identify, 0)
 
     return code
 
 
-def _make_random_code() -> int:
+def _make_random_four_digit_number() -> int:
     return randint(1000, 9999)
 
 
-def code_is_valid(identify: str,
-                  code: int,
-                  ) -> bool:
+def email_code_is_valid(identify: str,
+                        code: int,
+                        ) -> bool:
     if DEBUG and code == TEST_PASS_EMAIL_CODE:
         return True
 
@@ -77,7 +77,7 @@ def code_is_valid(identify: str,
         return False
 
     if cur_count > MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE:
-        delete_code(identify)
+        delete_email_code(identify)
         return False
 
     KeyPrefix.EMAIL_CODE_COUNT.set(
@@ -87,6 +87,6 @@ def code_is_valid(identify: str,
     return KeyPrefix.EMAIL_CODE.get(identify) == str(code)
 
 
-def delete_code(identify: str) -> None:
+def delete_email_code(identify: str) -> None:
     KeyPrefix.EMAIL_CODE.delete(identify)
     KeyPrefix.EMAIL_CODE_COUNT.delete(identify)

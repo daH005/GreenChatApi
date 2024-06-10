@@ -46,8 +46,8 @@ from api.http_.avatars.blueprint_ import (
     bp as avatars_bp,
 )
 from api.http_.email_codes import (
-    code_is_valid,
-    delete_code,
+    email_code_is_valid,
+    delete_email_code,
 )
 from api.http_.apidocs_constants import (
     CHECK_EMAIL_SPECS,
@@ -121,8 +121,8 @@ def check_email() -> AlreadyTakenFlagJSONDictMaker.Dict:
 def login() -> tuple[JWTJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREATED]:
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_json()
 
-    if code_is_valid(identify=user_data.email, code=user_data.code):
-        delete_code(identify=user_data.email)
+    if email_code_is_valid(identify=user_data.email, code=user_data.code):
+        delete_email_code(identify=user_data.email)
     else:
         return abort(HTTPStatus.BAD_REQUEST)
 

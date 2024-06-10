@@ -10,7 +10,7 @@ from api.common.json_ import (
 )
 from api.http_.endpoints import EndpointName, Url
 from api.http_.email.tasks import send_code_task
-from api.http_.email_codes import make_and_save_code, code_is_valid
+from api.http_.email_codes import make_and_save_email_code, email_code_is_valid
 from api.http_.validation import EmailAndCodeJSONValidator
 from api.http_.apidocs_constants import (
     SEND_CODE_SPECS,
@@ -33,7 +33,7 @@ def send_code() -> SimpleResponseStatusJSONDictMaker.Dict:
         return abort(HTTPStatus.BAD_REQUEST)
 
     try:
-        code: int = make_and_save_code(identify=email)
+        code: int = make_and_save_email_code(identify=email)
     except ValueError:
         raise abort(HTTPStatus.CONFLICT)
     send_code_task.delay(to=email, code=code)
@@ -46,5 +46,5 @@ def send_code() -> SimpleResponseStatusJSONDictMaker.Dict:
 def check_code() -> CodeIsValidFlagJSONDictMaker.Dict:
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_args()
 
-    flag: bool = code_is_valid(identify=user_data.email, code=user_data.code)
+    flag: bool = email_code_is_valid(identify=user_data.email, code=user_data.code)
     return CodeIsValidFlagJSONDictMaker.make(flag=flag)
