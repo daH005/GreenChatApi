@@ -248,10 +248,10 @@ async def chat_message_was_read(user: User, data: dict) -> None:
     if message_was_read_earlier:
         return
 
-    read_chat_messages_ids: list[int] = []
+    read_messages_ids: list[int] = []
     senders_ids: set[int] = set()
     for chat_message in unread_messages_in_ascending_order_by_id:
-        read_chat_messages_ids.append(chat_message.id)
+        read_messages_ids.append(chat_message.id)
         senders_ids.add(chat_message.user_id)
 
         if not chat_message.is_read:
@@ -264,7 +264,7 @@ async def chat_message_was_read(user: User, data: dict) -> None:
     if unread_count.value < 0:
         unread_count.value = 0
 
-    if not read_chat_messages_ids:
+    if not read_messages_ids:
         return
 
     DBBuilder.session.commit()
@@ -281,7 +281,7 @@ async def chat_message_was_read(user: User, data: dict) -> None:
     for sender_id in senders_ids:
         result_data = ReadChatMessagesIdsJSONDictMaker.make(
             chat_id=chat.id,
-            chat_messages_ids=read_chat_messages_ids,
+            chat_messages_ids=read_messages_ids,
         )
         await server.send_to_one_user(
             user_id=sender_id,
