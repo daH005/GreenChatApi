@@ -241,12 +241,16 @@ async def chat_message_was_read(user: User, data: dict) -> None:
 
     unread_count: UnreadCount = chat.unread_count_of_user(user_id=user.id)
 
-    chat_messages: list[ChatMessage] = chat.unread_messages_of_user(user_id=user.id)
-    chat_messages.reverse()
+    unread_messages_in_ascending_order_by_id: list[ChatMessage] = chat.unread_messages_of_user(user_id=user.id)
+    unread_messages_in_ascending_order_by_id.reverse()
+
+    message_was_read_earlier: bool = data.chat_message_id < unread_messages_in_ascending_order_by_id[0].id
+    if message_was_read_earlier:
+        return
 
     read_chat_messages_ids: list[int] = []
     senders_ids: set[int] = set()
-    for chat_message in chat_messages:
+    for chat_message in unread_messages_in_ascending_order_by_id:
         read_chat_messages_ids.append(chat_message.id)
         senders_ids.add(chat_message.user_id)
 
