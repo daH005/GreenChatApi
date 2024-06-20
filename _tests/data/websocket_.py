@@ -243,6 +243,47 @@ NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
             ],
         }
     ),
+    (
+        dict(
+            user=USERS[1],
+            data={
+                'chatId': 5,
+                'text': 'Hello 2...',
+            }
+        ),
+        {
+            1: [
+                {'type': 'newChatMessage',
+                 'data': {
+                     'id': 7,
+                     'chatId': 5,
+                     'text': 'Hello 2...',
+                     'creatingDatetime': COMMON_DATETIME.isoformat(),
+                     'userId': 1,
+                     'isRead': False,
+                 }
+                 }
+            ],
+            5: [
+                {'type': 'newUnreadCount',
+                 'data': {
+                     'chatId': 5,
+                     'unreadCount': 3,
+                 }
+                 },
+                {'type': 'newChatMessage',
+                 'data': {
+                     'id': 7,
+                     'chatId': 5,
+                     'text': 'Hello 2...',
+                     'creatingDatetime': COMMON_DATETIME.isoformat(),
+                     'userId': 1,
+                     'isRead': False,
+                 }
+                 },
+            ],
+        }
+    ),
 ]
 
 NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_EXCEPTIONS = [
@@ -315,7 +356,17 @@ CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
             user=USERS[5],
             data={
                 'chatId': 5,
-                'chatMessageId': 6,
+                'chatMessageId': 1,
+            }
+        ),
+        {}
+    ),
+    (
+        dict(
+            user=USERS[5],
+            data={
+                'chatId': 5,
+                'chatMessageId': 5,
             }
         ),
         {
@@ -323,7 +374,34 @@ CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                 {'type': 'readChatMessages',
                  'data': {
                      'chatId': 5,
-                     'chatMessagesIds': [5, 6],
+                     'chatMessagesIds': [5],
+                 }
+                 },
+            ],
+            5: [
+                {'type': 'newUnreadCount',
+                 'data': {
+                     'chatId': 5,
+                     'unreadCount': 2,
+                 }
+                 }
+            ]
+        }
+    ),
+    (
+        dict(
+            user=USERS[5],
+            data={
+                'chatId': 5,
+                'chatMessageId': 7,
+            }
+        ),
+        {
+            1: [
+                {'type': 'readChatMessages',
+                 'data': {
+                     'chatId': 5,
+                     'chatMessagesIds': [6, 7],
                  }
                  },
             ],
