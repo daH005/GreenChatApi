@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from sqlalchemy import Engine, URL, create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -11,19 +9,30 @@ __all__ = (
 
 
 class DBBuilder:
-    engine: Engine
-    session: scoped_session
+    _engine: Engine
+    _session: scoped_session
 
     @classmethod
     def init_session(cls, url: str | URL) -> None:
-        cls.engine = create_engine(url=url)
-        cls.session = scoped_session(
+        cls._engine = create_engine(url=url)
+        cls._session = scoped_session(
             sessionmaker(autocommit=False,
                          autoflush=False,
-                         bind=cls.engine,
+                         expire_on_commit=False,
+                         bind=cls._engine,
                          )
         )
 
     @classmethod
     def make_migrations(cls) -> None:
         make_migrations()
+
+    @classmethod
+    @property
+    def engine(cls) -> Engine:
+        return cls._engine
+
+    @classmethod
+    @property
+    def session(cls) -> scoped_session:
+        return cls._session
