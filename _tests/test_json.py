@@ -27,7 +27,7 @@ from api._tests.data.json_ import (
 
 
 @pytest.mark.parametrize(('maker_kwargs', 'expected_dict'), JWT_TOKEN_KWARGS_AND_JSON_DICTS)
-def test_positive_jwt_token(maker_kwargs: dict,
+def test_positive_jwt(maker_kwargs: dict,
                             expected_dict: dict,
                             ) -> None:
     assert JWTJSONDictMaker.make(**maker_kwargs) == expected_dict

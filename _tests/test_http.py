@@ -20,7 +20,7 @@ _test_client = app.test_client()
 
 def setup_module() -> None:
 
-    def common_jwt_json_dict_maker_make_method_mock(jwt_token: str) -> dict:
+    def common_jwt_json_dict_maker_make_method_mock(jwt: str) -> dict:
         return {
             'JWT': COMMON_JWT,
         }

@@ -34,8 +34,8 @@ class WebSocketClientHandler:
 
     @raises(ConnectionClosed)
     async def wait_authorization(self) -> None:
-        jwt_token: str = await self._wait_str()
-        email: str = self._decode_jwt(encoded=jwt_token)
+        jwt: str = await self._wait_str()
+        email: str = self._decode_jwt(encoded=jwt)
         try:
             self._try_to_authorize_user(email=email)
         except ValueError:

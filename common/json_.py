@@ -100,8 +100,8 @@ class JWTJSONDictMaker(AbstractJSONDictMaker):
         JWT: str
 
     @staticmethod
-    def make(jwt_token: str) -> Dict:
-        return {JSONKey.JWT_TOKEN: jwt_token}
+    def make(jwt: str) -> Dict:
+        return {JSONKey.JWT_TOKEN: jwt}
 
 
 class AlreadyTakenFlagJSONDictMaker(AbstractJSONDictMaker):

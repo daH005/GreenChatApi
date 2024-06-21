@@ -138,14 +138,14 @@ def login() -> tuple[JWTJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREATED]:
         DBBuilder.session.commit()
         status_code = HTTPStatus.CREATED
 
-    return JWTJSONDictMaker.make(jwt_token=create_access_token(identity=user.email)), status_code
+    return JWTJSONDictMaker.make(jwt=create_access_token(identity=user.email)), status_code
 
 
 @app.route(Url.REFRESH_TOKEN, endpoint=EndpointName.REFRESH_TOKEN, methods=[HTTPMethod.POST])
 @jwt_required()
 @swag_from(REFRESH_TOKEN_SPECS)
 def refresh_token() -> JWTJSONDictMaker.Dict:
-    return JWTJSONDictMaker.make(jwt_token=create_access_token(identity=current_user.email))
+    return JWTJSONDictMaker.make(jwt=create_access_token(identity=current_user.email))
 
 
 @app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])

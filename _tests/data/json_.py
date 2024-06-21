@@ -22,7 +22,7 @@ __all__ = (
 JWT_TOKEN_KWARGS_AND_JSON_DICTS = [
     (
         dict(
-            jwt_token=COMMON_JWT,
+            jwt=COMMON_JWT,
         ),
         {
             'JWT': COMMON_JWT,
