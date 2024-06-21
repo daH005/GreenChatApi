@@ -1,16 +1,29 @@
 import pytest
 
-from api._tests.data.json_ import *  # must be first!
-from api.common.json_ import *
-from api._tests.doubles import ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime
-
-
-def setup_module() -> None:
-    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime.replace()
-
-
-def teardown_module() -> None:
-    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime.back()
+from api.common.json_ import (
+    ChatHistoryJSONDictMaker,
+    ChatMessageJSONDictMaker,
+    ChatMessageTypingJSONDictMaker,
+    UserChatsJSONDictMaker,
+    ChatJSONDictMaker,
+    JWTJSONDictMaker,
+    UserJSONDictMaker,
+    CodeIsValidFlagJSONDictMaker,
+    NewUnreadCountJSONDictMaker,
+    ReadChatMessagesIdsJSONDictMaker,
+)
+from api._tests.data.json_ import (
+    JWT_TOKEN_KWARGS_AND_JSON_DICTS,
+    CODE_IS_VALID_FLAG_KWARGS_AND_JSON_DICTS,
+    USER_CHATS_KWARGS_AND_JSON_DICTS,
+    CHAT_INFO_KWARGS_AND_JSON_DICTS,
+    USER_INFO_KWARGS_AND_JSON_DICTS,
+    CHAT_HISTORY_KWARGS_AND_JSON_DICTS,
+    CHAT_MESSAGE_KWARGS_AND_JSON_DICTS,
+    NEW_UNREAD_COUNT_KWARGS_AND_JSON_DICTS,
+    READ_CHAT_MESSAGES_KWARGS_AND_JSON_DICTS,
+    CHAT_MESSAGE_TYPING_KWARGS_AND_JSON_DICTS,
+)
 
 
 @pytest.mark.parametrize(('maker_kwargs', 'expected_dict'), JWT_TOKEN_KWARGS_AND_JSON_DICTS)

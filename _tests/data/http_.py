@@ -1,13 +1,23 @@
 from jwt import encode
 
 from api.config import JWT_SECRET_KEY, JWT_ALGORITHM
-from api._tests.data.db import *
+from api.db.models import User
+from api._tests.data.db import USERS
 from api._tests.common import COMMON_JWT
 from api._tests.data.json_ import (
     USER_CHATS_KWARGS_AND_JSON_DICTS,
     CHAT_HISTORY_KWARGS_AND_JSON_DICTS,
 )
-from api.db.models import User
+
+__all__ = (
+    'CHECK_EMAIL_TEST_ENDPOINT_KWARGS',
+    'LOGIN_TEST_ENDPOINT_KWARGS',
+    'REFRESH_TOKEN_TEST_ENDPOINT_KWARGS',
+    'USER_INFO_TEST_ENDPOINT_KWARGS',
+    'USER_INFO_EDIT_TEST_ENDPOINT_KWARGS',
+    'USER_CHATS_TEST_ENDPOINT_KWARGS',
+    'CHAT_HISTORY_TEST_ENDPOINT_KWARGS',
+)
 
 
 def _make_jwt(email: str) -> str:

@@ -1,32 +1,33 @@
 import pytest
 from http import HTTPStatus
 from werkzeug.test import TestResponse
+from unittest.mock import patch
 
-from api._tests.data.http_ import *  # must be first
 from api.http_.main import app
-from api._tests.common import JsonDictType, HeadersOrQueryArgsType
-from api._tests.doubles import (
-    HttpAppTeardownContextFunctionsListDoubleMakerForNoSessionConflictException,
-    JWTJSONDictMakerMakeMethodDoubleMakerForCommonJWT,
-    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime,
-    HttpSendCodeTaskFunctionDoubleMakerForNoEmailSendings,
+from api._tests.common import JsonDictType, HeadersOrQueryArgsType, COMMON_JWT
+from api._tests.data.http_ import (
+    CHECK_EMAIL_TEST_ENDPOINT_KWARGS,
+    LOGIN_TEST_ENDPOINT_KWARGS,
+    REFRESH_TOKEN_TEST_ENDPOINT_KWARGS,
+    USER_INFO_TEST_ENDPOINT_KWARGS,
+    USER_INFO_EDIT_TEST_ENDPOINT_KWARGS,
+    USER_CHATS_TEST_ENDPOINT_KWARGS,
+    CHAT_HISTORY_TEST_ENDPOINT_KWARGS,
 )
 
 _test_client = app.test_client()
 
 
 def setup_module() -> None:
-    HttpAppTeardownContextFunctionsListDoubleMakerForNoSessionConflictException.replace()
-    JWTJSONDictMakerMakeMethodDoubleMakerForCommonJWT.replace()
-    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime.replace()
-    HttpSendCodeTaskFunctionDoubleMakerForNoEmailSendings.replace()
 
+    def common_jwt_json_dict_maker_make_method_mock(jwt_token: str) -> dict:
+        return {
+            'JWT': COMMON_JWT,
+        }
 
-def teardown_module() -> None:
-    HttpAppTeardownContextFunctionsListDoubleMakerForNoSessionConflictException.back()
-    JWTJSONDictMakerMakeMethodDoubleMakerForCommonJWT.back()
-    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime.back()
-    HttpSendCodeTaskFunctionDoubleMakerForNoEmailSendings.back()
+    patch('api.common.json_.JWTJSONDictMaker.make', common_jwt_json_dict_maker_make_method_mock).start()
+    patch('api.http_.email.tasks.send_code_task').start()
+    app.teardown_appcontext_funcs.clear()
 
 
 @pytest.mark.parametrize('test_endpoint_kwargs', CHECK_EMAIL_TEST_ENDPOINT_KWARGS)
@@ -84,7 +85,12 @@ def _test_endpoint(urn: str,
                    json_dict: JsonDictType | None = None,
                    expected_response_json_dict: JsonDictType | None = None,
                    ) -> None:
-    response: TestResponse = _test_client.open(urn, method=method,
-                                               query_string=query_args, headers=headers, json=json_dict)
+    response: TestResponse = _test_client.open(
+        urn,
+        method=method,
+        query_string=query_args,
+        headers=headers,
+        json=json_dict,
+    )
     assert response.status_code == expected_response_status_code
     assert response.json == expected_response_json_dict

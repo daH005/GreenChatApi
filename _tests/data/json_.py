@@ -1,13 +1,31 @@
-from api._tests.data.db import *
-from api._tests.common import COMMON_DATETIME
+from api._tests.data.db import (
+    USERS_CHATS,
+    CHATS,
+    USERS,
+    CHATS_MESSAGES,
+)
+from api._tests.common import COMMON_DATETIME, COMMON_JWT
+
+__all__ = (
+    'JWT_TOKEN_KWARGS_AND_JSON_DICTS',
+    'CODE_IS_VALID_FLAG_KWARGS_AND_JSON_DICTS',
+    'USER_CHATS_KWARGS_AND_JSON_DICTS',
+    'CHAT_INFO_KWARGS_AND_JSON_DICTS',
+    'USER_INFO_KWARGS_AND_JSON_DICTS',
+    'CHAT_HISTORY_KWARGS_AND_JSON_DICTS',
+    'CHAT_MESSAGE_KWARGS_AND_JSON_DICTS',
+    'NEW_UNREAD_COUNT_KWARGS_AND_JSON_DICTS',
+    'READ_CHAT_MESSAGES_KWARGS_AND_JSON_DICTS',
+    'CHAT_MESSAGE_TYPING_KWARGS_AND_JSON_DICTS',
+)
 
 JWT_TOKEN_KWARGS_AND_JSON_DICTS = [
     (
         dict(
-            jwt_token='TOKEN',
+            jwt_token=COMMON_JWT,
         ),
         {
-            'JWT': 'TOKEN',
+            'JWT': COMMON_JWT,
         }
     )
 ]

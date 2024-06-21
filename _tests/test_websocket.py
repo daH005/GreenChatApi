@@ -1,30 +1,51 @@
 import pytest
+from unittest.mock import patch
 
-from api._tests.data.websocket_ import *  # must be first!
-from api.websocket_.main import *
 from api.websocket_.base.typing_ import CommonHandlerFuncT, ConnectAndDisconnectHandlerFuncT
 from api.websocket_.common import clear_message_text
-from api._tests.doubles import (
-    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime,
-    WebsocketServerSendToOneUserMethodDoubleMakerForServerMessagesStorage,
-    WebsocketServerUserHaveConnectionsMethodDoubleMakerForOnlineImitation,
+from api.websocket_.main import (
+    users_ids_and_potential_interlocutors_ids,
+    each_connection_handler,
+    full_disconnection_handler,
+    online_status_tracing_adding,
+    new_chat,
+    new_chat_message,
+    new_chat_message_typing,
+    chat_message_was_read,
 )
+from api._tests.data.websocket_ import (
+    ONLINE_USERS_IDS,
+    USERS_IDS_AND_POTENTIAL_INTERLOCUTORS_IDS,
+    EACH_CONNECTION_HANDLER_KWARGS_AND_SERVER_MESSAGES,
+    FULL_DISCONNECTION_HANDLER_KWARGS_AND_SERVER_MESSAGES,
+    ONLINE_STATUS_TRACING_ADDING_HANDLER_KWARGS_AND_SERVER_MESSAGES,
+    NEW_CHAT_HANDLER_KWARGS_AND_SERVER_MESSAGES,
+    NEW_CHAT_HANDLER_KWARGS_AND_EXCEPTIONS,
+    NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES,
+    NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_EXCEPTIONS,
+    NEW_CHAT_MESSAGE_TYPING_HANDLER_KWARGS_AND_SERVER_MESSAGES,
+    NEW_CHAT_MESSAGE_TYPING_HANDLER_KWARGS_AND_EXCEPTIONS,
+    CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_SERVER_MESSAGES,
+    CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_EXCEPTIONS,
+    RAW_AND_HANDLED_MESSAGES_TEXTS,
+)
+
+saved_server_messages = {}
 
 
 def setup_module() -> None:
-    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime.replace()
-    WebsocketServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.replace()
-    WebsocketServerUserHaveConnectionsMethodDoubleMakerForOnlineImitation.replace()
 
+    def websocket_server_user_have_connections_method_mock(self, user_id: int) -> bool:
+        return user_id in ONLINE_USERS_IDS
+
+    async def websocket_server_send_to_one_user_method_mock(self, user_id: int,
+                                                            message: dict,
+                                                            ) -> None:
+        saved_server_messages.setdefault(user_id, []).append(message)
+
+    patch('api.websocket_.base.server.WebSocketServer.user_have_connections', websocket_server_user_have_connections_method_mock).start()
+    patch('api.websocket_.base.server.WebSocketServer.send_to_one_user', websocket_server_send_to_one_user_method_mock).start()
     users_ids_and_potential_interlocutors_ids.update(USERS_IDS_AND_POTENTIAL_INTERLOCUTORS_IDS)
-
-
-def teardown_module() -> None:
-    ChatMessageJSONDictMakerMakeMethodDoubleMakerForCommonDatetime.back()
-    WebsocketServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.back()
-    WebsocketServerUserHaveConnectionsMethodDoubleMakerForOnlineImitation.back()
-
-    users_ids_and_potential_interlocutors_ids.clear()
 
 
 @pytest.mark.parametrize(('handler_kwargs', 'expected_server_messages'),
@@ -139,6 +160,6 @@ async def _test_positive_handler_and_server_messages(
         handler_kwargs: dict,
         expected_server_messages,
         ) -> None:
-    WebsocketServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.saved_server_messages.clear()
+    saved_server_messages.clear()
     await handler_func(**handler_kwargs)
-    assert WebsocketServerSendToOneUserMethodDoubleMakerForServerMessagesStorage.saved_server_messages == expected_server_messages
+    assert saved_server_messages == expected_server_messages

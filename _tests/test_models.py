@@ -1,7 +1,22 @@
 import pytest
 
-from api._tests.data.db import *  # must be first
-from api.db.models import *
+from api.db.models import (
+    User,
+    Chat,
+    ChatMessage,
+    UserChatMatch,
+    UnreadCount,
+)
+from api._tests.data.db import (
+    CHATS_INTERLOCUTORS,
+    USERS_CHATS,
+    CHATS_USERS,
+    USERS_AND_CHATS_AVAILABLE_FOR_THEM,
+    USERS_AND_CHATS_NOT_AVAILABLE_FOR_THEM,
+    USERS_PAIRS_AND_THEIR_PRIVATE_CHATS,
+    USERS_PAIRS_WITHOUT_PRIVATE_CHAT,
+    USERS_ALL_INTERLOCUTORS,
+)
 
 
 class AbstractTestModel:

@@ -1,5 +1,26 @@
-from api.db.db_builder import DBBuilder
-from api.db.models import *
+from api.db.models import (
+    User,
+    Chat,
+    ChatMessage,
+    UserChatMatch,
+    UnreadCount,
+)
+
+__all__ = (
+    'USERS',
+    'CHATS',
+    'CHATS_MESSAGES',
+    'USERS_CHATS_MATCHES',
+    'UNREAD_COUNTS',
+    'CHATS_INTERLOCUTORS',
+    'USERS_CHATS',
+    'CHATS_USERS',
+    'USERS_AND_CHATS_AVAILABLE_FOR_THEM',
+    'USERS_AND_CHATS_NOT_AVAILABLE_FOR_THEM',
+    'USERS_PAIRS_AND_THEIR_PRIVATE_CHATS',
+    'USERS_PAIRS_WITHOUT_PRIVATE_CHAT',
+    'USERS_ALL_INTERLOCUTORS',
+)
 
 USERS = {
     1: User(
@@ -197,24 +218,3 @@ USERS_ALL_INTERLOCUTORS = [
     ]),
     (USERS[3], []),
 ]
-
-
-def _prepare_test_db() -> None:
-    DBBuilder.init_session('sqlite:///:memory:')
-    BaseModel.metadata.create_all(bind=DBBuilder.engine)
-
-    DBBuilder.session.add_all([
-        *USERS.values(),
-        *CHATS.values(),
-        *USERS_CHATS_MATCHES,
-        *UNREAD_COUNTS,
-    ])
-    DBBuilder.session.commit()
-
-    # For correct `creating_datetime`:
-    for message in CHATS_MESSAGES:
-        DBBuilder.session.add(message)
-        DBBuilder.session.commit()
-
-
-_prepare_test_db()
