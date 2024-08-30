@@ -45,6 +45,9 @@ from api.http_.email.blueprint_ import (
 from api.http_.avatars.blueprint_ import (
     bp as avatars_bp,
 )
+from api.http_.backgrounds.blueprint_ import (
+    bp as backgrounds_bp,
+)
 from api.http_.email_codes import (
     email_code_is_valid,
     delete_email_code,
@@ -75,7 +78,7 @@ jwt: JWTManager = JWTManager(app)
 
 Swagger(app)
 
-for bp in (email_bp, avatars_bp):
+for bp in (email_bp, avatars_bp, backgrounds_bp):
     app.register_blueprint(bp)
 
 
