@@ -14,7 +14,7 @@ from pathlib import Path
 from api.config import STATIC_FOLDER, MEDIA_FOLDER
 from api.common.json_ import JSONKey, SimpleResponseStatusJSONDictMaker
 from api.db.models import User
-from api.http_.endpoints import Url
+from api.http_.urls import Url
 from api.http_.apidocs_constants import (
     USER_AVATAR_SPECS,
     USER_EDIT_AVATAR_SPECS,

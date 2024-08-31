@@ -13,7 +13,7 @@ from pathlib import Path
 from api.config import STATIC_FOLDER, MEDIA_FOLDER
 from api.common.json_ import SimpleResponseStatusJSONDictMaker
 from api.db.models import User
-from api.http_.endpoints import Url
+from api.http_.urls import Url
 from api.http_.apidocs_constants import (
     USER_BACKGROUND_SPECS,
     USER_EDIT_BACKGROUND_SPECS,

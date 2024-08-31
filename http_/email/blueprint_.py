@@ -8,7 +8,7 @@ from api.common.json_ import (
     CodeIsValidFlagJSONDictMaker,
     SimpleResponseStatusJSONDictMaker,
 )
-from api.http_.endpoints import Url
+from api.http_.urls import Url
 from api.http_.email.tasks import send_code_task
 from api.http_.email_codes import make_and_save_email_code, email_code_is_valid
 from api.http_.validation import EmailAndCodeJSONValidator
