@@ -37,7 +37,7 @@ from api.config import (
     JWT_ACCESS_TOKEN_EXPIRES,
     DB_URL,
 )
-from api.http_.endpoints import EndpointName, Url
+from api.http_.endpoints import Url
 from api.http_.validation import EmailAndCodeJSONValidator, UserJSONValidator
 from api.http_.email.blueprint_ import (
     bp as email_bp,
@@ -106,7 +106,7 @@ def handle_exception(exception: HTTPException) -> Response:
     return response
 
 
-@app.route(Url.CHECK_EMAIL, endpoint=EndpointName.CHECK_EMAIL, methods=[HTTPMethod.GET])
+@app.route(Url.CHECK_EMAIL, methods=[HTTPMethod.GET])
 @swag_from(CHECK_EMAIL_SPECS)
 def check_email() -> AlreadyTakenFlagJSONDictMaker.Dict:
     try:
@@ -119,7 +119,7 @@ def check_email() -> AlreadyTakenFlagJSONDictMaker.Dict:
     )
 
 
-@app.route(Url.LOGIN, endpoint=EndpointName.LOGIN, methods=[HTTPMethod.POST])
+@app.route(Url.LOGIN, methods=[HTTPMethod.POST])
 @swag_from(LOGIN_SPECS)
 def login() -> tuple[JWTJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREATED]:
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_json()
@@ -144,14 +144,14 @@ def login() -> tuple[JWTJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREATED]:
     return JWTJSONDictMaker.make(jwt=create_access_token(identity=user.email)), status_code
 
 
-@app.route(Url.REFRESH_TOKEN, endpoint=EndpointName.REFRESH_TOKEN, methods=[HTTPMethod.POST])
+@app.route(Url.REFRESH_TOKEN, methods=[HTTPMethod.POST])
 @jwt_required()
 @swag_from(REFRESH_TOKEN_SPECS)
 def refresh_token() -> JWTJSONDictMaker.Dict:
     return JWTJSONDictMaker.make(jwt=create_access_token(identity=current_user.email))
 
 
-@app.route(Url.USER_INFO, endpoint=EndpointName.USER_INFO, methods=[HTTPMethod.GET])
+@app.route(Url.USER_INFO, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_INFO_SPECS)
 def user_info() -> UserJSONDictMaker.Dict:
@@ -170,7 +170,7 @@ def user_info() -> UserJSONDictMaker.Dict:
     return UserJSONDictMaker.make(user=user)
 
 
-@app.route(Url.USER_EDIT_INFO, endpoint=EndpointName.USER_EDIT_INFO, methods=[HTTPMethod.PUT])
+@app.route(Url.USER_EDIT_INFO, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_EDIT_INFO_SPECS)
 def user_edit_info() -> SimpleResponseStatusJSONDictMaker.Dict:
@@ -183,7 +183,7 @@ def user_edit_info() -> SimpleResponseStatusJSONDictMaker.Dict:
     return SimpleResponseStatusJSONDictMaker.make(status=HTTPStatus.OK)
 
 
-@app.route(Url.USER_CHATS, endpoint=EndpointName.USER_CHATS, methods=[HTTPMethod.GET])
+@app.route(Url.USER_CHATS, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_CHATS_SPECS)
 def user_chats() -> UserChatsJSONDictMaker.Dict:
@@ -193,7 +193,7 @@ def user_chats() -> UserChatsJSONDictMaker.Dict:
     )
 
 
-@app.route(Url.CHAT_HISTORY, endpoint=EndpointName.CHAT_HISTORY, methods=[HTTPMethod.GET])
+@app.route(Url.CHAT_HISTORY, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(CHAT_HISTORY_SPECS)
 def chat_history() -> ChatHistoryJSONDictMaker.Dict:

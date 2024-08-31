@@ -13,7 +13,7 @@ from pathlib import Path
 from api.config import STATIC_FOLDER, MEDIA_FOLDER
 from api.common.json_ import SimpleResponseStatusJSONDictMaker
 from api.db.models import User
-from api.http_.endpoints import Url, EndpointName
+from api.http_.endpoints import Url
 from api.http_.apidocs_constants import (
     USER_BACKGROUND_SPECS,
     USER_EDIT_BACKGROUND_SPECS,
@@ -32,7 +32,7 @@ DEFAULT_BACKGROUND_PATH: Final[Path] = STATIC_FOLDER.joinpath('default_backgroun
 BACKGROUNDS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('backgrounds')
 
 
-@bp.route(Url.USER_BACKGROUND, endpoint=EndpointName.USER_BACKGROUND, methods=[HTTPMethod.GET])
+@bp.route(Url.USER_BACKGROUND, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_BACKGROUND_SPECS)
 def user_background() -> Response | None:
@@ -45,7 +45,7 @@ def user_background() -> Response | None:
     return send_file(DEFAULT_BACKGROUND_PATH)
 
 
-@bp.route(Url.USER_EDIT_BACKGROUND, endpoint=EndpointName.USER_EDIT_BACKGROUND, methods=[HTTPMethod.PUT])
+@bp.route(Url.USER_EDIT_BACKGROUND, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_EDIT_BACKGROUND_SPECS)
 def user_edit_background() -> SimpleResponseStatusJSONDictMaker.Dict:

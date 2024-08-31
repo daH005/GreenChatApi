@@ -14,7 +14,7 @@ from pathlib import Path
 from api.config import STATIC_FOLDER, MEDIA_FOLDER
 from api.common.json_ import JSONKey, SimpleResponseStatusJSONDictMaker
 from api.db.models import User
-from api.http_.endpoints import Url, EndpointName
+from api.http_.endpoints import Url
 from api.http_.apidocs_constants import (
     USER_AVATAR_SPECS,
     USER_EDIT_AVATAR_SPECS,
@@ -33,7 +33,7 @@ DEFAULT_AVATAR_PATH: Final[Path] = STATIC_FOLDER.joinpath('default_avatar.jpg')
 AVATARS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('avatars')
 
 
-@bp.route(Url.USER_AVATAR, endpoint=EndpointName.USER_AVATAR, methods=[HTTPMethod.GET])
+@bp.route(Url.USER_AVATAR, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_AVATAR_SPECS)
 def user_avatar() -> Response | None:
@@ -49,7 +49,7 @@ def user_avatar() -> Response | None:
     return send_file(DEFAULT_AVATAR_PATH)
 
 
-@bp.route(Url.USER_EDIT_AVATAR, endpoint=EndpointName.USER_EDIT_AVATAR, methods=[HTTPMethod.PUT])
+@bp.route(Url.USER_EDIT_AVATAR, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_EDIT_AVATAR_SPECS)
 def user_edit_avatar() -> SimpleResponseStatusJSONDictMaker.Dict:
