@@ -48,7 +48,7 @@ from api.http_.avatars.blueprint_ import (
 from api.http_.backgrounds.blueprint_ import (
     bp as backgrounds_bp,
 )
-from api.http_.email_codes import (
+from api.http_.email.codes import (
     email_code_is_valid,
     delete_email_code,
 )
