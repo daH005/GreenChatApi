@@ -9,10 +9,21 @@ __all__ = (
     'make_migrations',
 )
 
-config: Config = Config(BASE_DIR.joinpath('./db/alembic_/alembic.ini'))
-config.set_main_option('script_location', str(BASE_DIR.joinpath('./db/alembic_/migrations')))
-config.set_main_option('prepend_sys_path', str(BASE_DIR.joinpath('../')))
-config.set_main_option('sqlalchemy.url', DB_URL.render_as_string(hide_password=False))
+config: Config = Config(
+    file_=BASE_DIR.joinpath('./db/alembic_/alembic.ini'),
+)
+config.set_main_option(
+    name='script_location',
+    value=str(BASE_DIR.joinpath('./db/alembic_/migrations'))
+)
+config.set_main_option(
+    name='prepend_sys_path',
+    value=str(BASE_DIR.joinpath('../'))
+)
+config.set_main_option(
+    name='sqlalchemy.url',
+    value=DB_URL.render_as_string(hide_password=False)
+)
 
 
 def make_revision(message: str):
