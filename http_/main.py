@@ -53,11 +53,11 @@ from api.http_.email.codes import (
     delete_email_code,
 )
 from api.http_.apidocs_constants import (
-    CHECK_EMAIL_SPECS,
+    EMAIL_CHECK_SPECS,
     LOGIN_SPECS,
     REFRESH_TOKEN_SPECS,
     USER_INFO_SPECS,
-    USER_EDIT_INFO_SPECS,
+    USER_INFO_EDIT_SPECS,
     USER_CHATS_SPECS,
     CHAT_HISTORY_SPECS,
 )
@@ -107,8 +107,8 @@ def handle_exception(exception: HTTPException) -> Response:
 
 
 @app.route(Url.EMAIL_CHECK, methods=[HTTPMethod.GET])
-@swag_from(CHECK_EMAIL_SPECS)
-def check_email() -> AlreadyTakenFlagJSONDictMaker.Dict:
+@swag_from(EMAIL_CHECK_SPECS)
+def email_check() -> AlreadyTakenFlagJSONDictMaker.Dict:
     try:
         email: str = str(request.args[JSONKey.EMAIL])
     except KeyError:
@@ -172,8 +172,8 @@ def user_info() -> UserJSONDictMaker.Dict:
 
 @app.route(Url.USER_INFO_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
-@swag_from(USER_EDIT_INFO_SPECS)
-def user_edit_info() -> SimpleResponseStatusJSONDictMaker.Dict:
+@swag_from(USER_INFO_EDIT_SPECS)
+def user_info_edit() -> SimpleResponseStatusJSONDictMaker.Dict:
     data: UserJSONValidator = UserJSONValidator.from_json()
 
     current_user.first_name = data.first_name

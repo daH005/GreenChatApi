@@ -1,16 +1,16 @@
 __all__ = (
-    'CHECK_EMAIL_SPECS',
+    'EMAIL_CHECK_SPECS',
     'LOGIN_SPECS',
     'REFRESH_TOKEN_SPECS',
     'USER_INFO_SPECS',
     'USER_AVATAR_SPECS',
     'USER_BACKGROUND_SPECS',
-    'USER_EDIT_INFO_SPECS',
-    'USER_EDIT_AVATAR_SPECS',
-    'USER_EDIT_BACKGROUND_SPECS',
+    'USER_INFO_EDIT_SPECS',
+    'USER_AVATAR_EDIT_SPECS',
+    'USER_BACKGROUND_EDIT_SPECS',
     'USER_CHATS_SPECS',
-    'SEND_CODE_SPECS',
-    'CHECK_CODE_SPECS',
+    'CODE_SEND_SPECS',
+    'CODE_CHECK_SPECS',
     'CHAT_HISTORY_SPECS',
 )
 
@@ -105,7 +105,7 @@ CHAT_MESSAGE_SCHEMA = {
 
 # SPECS:
 
-CHECK_EMAIL_SPECS = {
+EMAIL_CHECK_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
         {
@@ -220,7 +220,7 @@ USER_BACKGROUND_SPECS = {
     }
 }
 
-USER_EDIT_INFO_SPECS = {
+USER_INFO_EDIT_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
         JWT_HEADER_PARAM,
@@ -247,7 +247,7 @@ USER_EDIT_INFO_SPECS = {
     }
 }
 
-USER_EDIT_AVATAR_SPECS = {
+USER_AVATAR_EDIT_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
         JWT_HEADER_PARAM,
@@ -266,7 +266,7 @@ USER_EDIT_AVATAR_SPECS = {
     }
 }
 
-USER_EDIT_BACKGROUND_SPECS = {
+USER_BACKGROUND_EDIT_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
         JWT_HEADER_PARAM,
@@ -319,7 +319,7 @@ USER_CHATS_SPECS = {
     }
 }
 
-SEND_CODE_SPECS = {
+CODE_SEND_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
         {
@@ -343,7 +343,7 @@ SEND_CODE_SPECS = {
     },
 }
 
-CHECK_CODE_SPECS = {
+CODE_CHECK_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
         {

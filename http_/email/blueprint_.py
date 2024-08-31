@@ -13,8 +13,8 @@ from api.http_.email.tasks import send_code_task
 from api.http_.email.codes import make_and_save_email_code, email_code_is_valid
 from api.http_.validation import EmailAndCodeJSONValidator
 from api.http_.apidocs_constants import (
-    SEND_CODE_SPECS,
-    CHECK_CODE_SPECS,
+    CODE_SEND_SPECS,
+    CODE_CHECK_SPECS,
 )
 
 __all__ = (
@@ -25,8 +25,8 @@ bp: Blueprint = Blueprint('email', __name__)
 
 
 @bp.route(Url.CODE_SEND, methods=[HTTPMethod.POST])
-@swag_from(SEND_CODE_SPECS)
-def send_code() -> SimpleResponseStatusJSONDictMaker.Dict:
+@swag_from(CODE_SEND_SPECS)
+def code_send() -> SimpleResponseStatusJSONDictMaker.Dict:
     try:
         email: str = validate_email(request.json[JSONKey.EMAIL])[1]
     except (ValueError, KeyError):
@@ -42,8 +42,8 @@ def send_code() -> SimpleResponseStatusJSONDictMaker.Dict:
 
 
 @bp.route(Url.CODE_CHECK, methods=[HTTPMethod.GET])
-@swag_from(CHECK_CODE_SPECS)
-def check_code() -> CodeIsValidFlagJSONDictMaker.Dict:
+@swag_from(CODE_CHECK_SPECS)
+def code_check() -> CodeIsValidFlagJSONDictMaker.Dict:
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_args()
 
     flag: bool = email_code_is_valid(identify=user_data.email, code=user_data.code)

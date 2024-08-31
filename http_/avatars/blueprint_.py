@@ -15,7 +15,7 @@ from api.common.json_ import JSONKey, SimpleResponseStatusJSONDictMaker
 from api.http_.urls import Url
 from api.http_.apidocs_constants import (
     USER_AVATAR_SPECS,
-    USER_EDIT_AVATAR_SPECS,
+    USER_AVATAR_EDIT_SPECS,
 )
 from api.http_.user_images_common import get_user_image, edit_user_image
 
@@ -47,6 +47,6 @@ def user_avatar() -> Response | None:
 
 @bp.route(Url.USER_AVATAR_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
-@swag_from(USER_EDIT_AVATAR_SPECS)
+@swag_from(USER_AVATAR_EDIT_SPECS)
 def user_avatar_edit() -> SimpleResponseStatusJSONDictMaker.Dict:
     return edit_user_image(folder_path=_AVATARS_PATH)
