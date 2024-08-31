@@ -16,7 +16,7 @@ from api.db.models import (
     UserChatMatch,
     UnreadCount,
 )
-from api.db.db_builder import DBBuilder
+from api.db.builder import DBBuilder
 from api.websocket_.base.server import WebSocketServer
 from api.websocket_.messages_types import MessageType
 from api.websocket_.common import (

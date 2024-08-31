@@ -26,7 +26,7 @@ __all__ = (
     'UnreadCount',
 )
 
-from api.db.db_builder import DBBuilder
+from api.db.builder import DBBuilder
 
 
 class BaseModel(DeclarativeBase):

@@ -6,7 +6,7 @@ from websockets import WebSocketServerProtocol, ConnectionClosed
 
 from api.common.hinting import raises
 from api.common.json_ import WebSocketMessageJSONDictMaker, JSONKey
-from api.db.db_builder import DBBuilder
+from api.db.builder import DBBuilder
 from api.db.models import User
 from api.websocket_.base.typing_ import CommonHandlerFuncT
 from api.websocket_.base.logs import logger

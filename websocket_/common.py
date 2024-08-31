@@ -6,7 +6,7 @@ from api.db.models import (
     ChatMessage,
     User,
 )
-from api.db.db_builder import DBBuilder
+from api.db.builder import DBBuilder
 from api.websocket_.base.server import WebSocketServer
 
 __all__ = (

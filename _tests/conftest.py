@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from api.db.db_builder import DBBuilder
+from api.db.builder import DBBuilder
 from api.db.models import BaseModel
 from api.common.json_ import ChatMessageJSONDictMaker
 from api._tests.common import COMMON_DATETIME
