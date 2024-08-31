@@ -49,7 +49,7 @@ def user_avatar() -> Response | None:
     return send_file(DEFAULT_AVATAR_PATH)
 
 
-@bp.route(Url.USER_EDIT_AVATAR, methods=[HTTPMethod.PUT])
+@bp.route(Url.USER_AVATAR_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_EDIT_AVATAR_SPECS)
 def user_edit_avatar() -> SimpleResponseStatusJSONDictMaker.Dict:

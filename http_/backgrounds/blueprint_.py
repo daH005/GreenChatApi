@@ -45,7 +45,7 @@ def user_background() -> Response | None:
     return send_file(DEFAULT_BACKGROUND_PATH)
 
 
-@bp.route(Url.USER_EDIT_BACKGROUND, methods=[HTTPMethod.PUT])
+@bp.route(Url.USER_BACKGROUND_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_EDIT_BACKGROUND_SPECS)
 def user_edit_background() -> SimpleResponseStatusJSONDictMaker.Dict:

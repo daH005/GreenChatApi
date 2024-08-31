@@ -6,16 +6,16 @@ __all__ = (
 
 
 class Url(StrEnum):
-    CHECK_EMAIL = '/user/login/email/check'
-    SEND_CODE = '/user/login/email/code/send'
-    CHECK_CODE = '/user/login/email/code/check'
+    EMAIL_CHECK = '/user/login/email/check'
+    CODE_SEND = '/user/login/email/code/send'
+    CODE_CHECK = '/user/login/email/code/check'
     LOGIN = '/user/login'
     REFRESH_TOKEN = '/user/refreshToken'
     USER_INFO = '/user/info'
     USER_AVATAR = '/user/avatar'
     USER_BACKGROUND = '/user/background'
-    USER_EDIT_INFO = '/user/info/edit'
-    USER_EDIT_AVATAR = '/user/avatar/edit'
-    USER_EDIT_BACKGROUND = '/user/background/edit'
+    USER_INFO_EDIT = '/user/info/edit'
+    USER_AVATAR_EDIT = '/user/avatar/edit'
+    USER_BACKGROUND_EDIT = '/user/background/edit'
     USER_CHATS = '/user/chats'
     CHAT_HISTORY = '/chat/history'

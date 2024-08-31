@@ -106,7 +106,7 @@ def handle_exception(exception: HTTPException) -> Response:
     return response
 
 
-@app.route(Url.CHECK_EMAIL, methods=[HTTPMethod.GET])
+@app.route(Url.EMAIL_CHECK, methods=[HTTPMethod.GET])
 @swag_from(CHECK_EMAIL_SPECS)
 def check_email() -> AlreadyTakenFlagJSONDictMaker.Dict:
     try:
@@ -170,7 +170,7 @@ def user_info() -> UserJSONDictMaker.Dict:
     return UserJSONDictMaker.make(user=user)
 
 
-@app.route(Url.USER_EDIT_INFO, methods=[HTTPMethod.PUT])
+@app.route(Url.USER_INFO_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_EDIT_INFO_SPECS)
 def user_edit_info() -> SimpleResponseStatusJSONDictMaker.Dict:

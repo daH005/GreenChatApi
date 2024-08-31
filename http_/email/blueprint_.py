@@ -24,7 +24,7 @@ __all__ = (
 bp: Blueprint = Blueprint('email', __name__)
 
 
-@bp.route(Url.SEND_CODE, methods=[HTTPMethod.POST])
+@bp.route(Url.CODE_SEND, methods=[HTTPMethod.POST])
 @swag_from(SEND_CODE_SPECS)
 def send_code() -> SimpleResponseStatusJSONDictMaker.Dict:
     try:
@@ -41,7 +41,7 @@ def send_code() -> SimpleResponseStatusJSONDictMaker.Dict:
     return SimpleResponseStatusJSONDictMaker.make(status=HTTPStatus.OK)
 
 
-@bp.route(Url.CHECK_CODE, methods=[HTTPMethod.GET])
+@bp.route(Url.CODE_CHECK, methods=[HTTPMethod.GET])
 @swag_from(CHECK_CODE_SPECS)
 def check_code() -> CodeIsValidFlagJSONDictMaker.Dict:
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_args()
