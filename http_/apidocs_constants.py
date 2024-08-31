@@ -4,8 +4,10 @@ __all__ = (
     'REFRESH_TOKEN_SPECS',
     'USER_INFO_SPECS',
     'USER_AVATAR_SPECS',
+    'USER_BACKGROUND_SPECS',
     'USER_EDIT_INFO_SPECS',
     'USER_EDIT_AVATAR_SPECS',
+    'USER_EDIT_BACKGROUND_SPECS',
     'USER_CHATS_SPECS',
     'SEND_CODE_SPECS',
     'CHECK_CODE_SPECS',
@@ -205,6 +207,19 @@ USER_AVATAR_SPECS = {
     }
 }
 
+USER_BACKGROUND_SPECS = {
+    'tags': USER_TAGS,
+    'parameters': [
+        JWT_HEADER_PARAM,
+    ],
+    'responses': {
+        200: {
+            'description': 'Image file bytes',
+        },
+        400: SIMPLE_REQUEST_RESPONSES[400],
+    }
+}
+
 USER_EDIT_INFO_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
@@ -233,6 +248,25 @@ USER_EDIT_INFO_SPECS = {
 }
 
 USER_EDIT_AVATAR_SPECS = {
+    'tags': USER_TAGS,
+    'parameters': [
+        JWT_HEADER_PARAM,
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'type': 'string',
+            'format': 'byte',
+            'description': 'Image file'
+        },
+    ],
+    'responses': {
+        200: SIMPLE_REQUEST_RESPONSES[200],
+        400: SIMPLE_REQUEST_RESPONSES[400],
+    }
+}
+
+USER_EDIT_BACKGROUND_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
         JWT_HEADER_PARAM,

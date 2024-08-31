@@ -15,8 +15,8 @@ from api.common.json_ import SimpleResponseStatusJSONDictMaker
 from api.db.models import User
 from api.http_.endpoints import Url, EndpointName
 from api.http_.apidocs_constants import (
-    USER_AVATAR_SPECS,
-    USER_EDIT_AVATAR_SPECS,
+    USER_BACKGROUND_SPECS,
+    USER_EDIT_BACKGROUND_SPECS,
 )
 
 __all__ = (
@@ -34,7 +34,7 @@ BACKGROUNDS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('backgrounds')
 
 @bp.route(Url.USER_BACKGROUND, endpoint=EndpointName.USER_BACKGROUND, methods=[HTTPMethod.GET])
 @jwt_required()
-@swag_from(USER_AVATAR_SPECS)
+@swag_from(USER_BACKGROUND_SPECS)
 def user_background() -> Response | None:
     user_id_as_str: str = str(current_user.id)
 
@@ -47,7 +47,7 @@ def user_background() -> Response | None:
 
 @bp.route(Url.USER_EDIT_BACKGROUND, endpoint=EndpointName.USER_EDIT_BACKGROUND, methods=[HTTPMethod.PUT])
 @jwt_required()
-@swag_from(USER_EDIT_AVATAR_SPECS)
+@swag_from(USER_EDIT_BACKGROUND_SPECS)
 def user_edit_background() -> SimpleResponseStatusJSONDictMaker.Dict:
     avatar_path: Path = _make_background_path(user_id_as_str=str(current_user.id))
     with open(avatar_path, 'wb') as f:
