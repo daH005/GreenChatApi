@@ -16,6 +16,7 @@ __all__ = (
     'JWT_SECRET_KEY',
     'JWT_ALGORITHM',
     'JWT_ACCESS_TOKEN_EXPIRES',
+    'JWT_REFRESH_TOKEN_EXPIRES',
     'DB_URL',
     'REDIS_HOST',
     'REDIS_PORT',
@@ -45,7 +46,8 @@ CORS_ORIGINS: Final[list[str]] = environ['CORS_ORIGINS'].split(',')
 
 JWT_SECRET_KEY: Final[str] = environ['JWT_SECRET_KEY']
 JWT_ALGORITHM: Final[str] = environ['JWT_ALGORITHM']
-JWT_ACCESS_TOKEN_EXPIRES: Final[int] = int(environ['JWT_ACCESS_TOKEN_EXPIRES'])  # Секунды.
+JWT_ACCESS_TOKEN_EXPIRES: Final[int] = int(environ['JWT_ACCESS_TOKEN_EXPIRES'])
+JWT_REFRESH_TOKEN_EXPIRES: Final[int] = int(environ['JWT_REFRESH_TOKEN_EXPIRES'])
 
 DB_URL: URL = URL.create(
     drivername=environ['DB_DRIVERNAME'],

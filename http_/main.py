@@ -35,6 +35,7 @@ from api.config import (
     JWT_SECRET_KEY,
     JWT_ALGORITHM,
     JWT_ACCESS_TOKEN_EXPIRES,
+    JWT_REFRESH_TOKEN_EXPIRES,
     DB_URL,
 )
 from api.http_.urls import Url
@@ -66,9 +67,11 @@ current_user: User
 
 app: Flask = Flask(__name__)
 app.config.from_mapping(
+    JWT_TOKEN_LOCATION=['cookies'],
     JWT_SECRET_KEY=JWT_SECRET_KEY,
     JWT_ALGORITHM=JWT_ALGORITHM,
     JWT_ACCESS_TOKEN_EXPIRES=JWT_ACCESS_TOKEN_EXPIRES,
+    JWT_REFRESH_TOKEN_EXPIRES=JWT_REFRESH_TOKEN_EXPIRES,
 )
 
 app.json.ensure_ascii = False
