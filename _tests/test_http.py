@@ -4,28 +4,22 @@ from werkzeug.test import TestResponse
 from unittest.mock import patch
 
 from api.http_.main import app
-from api._tests.common import JsonDictType, HeadersOrQueryArgsType, COMMON_JWT
+from api._tests.common import JsonDictType, HeadersOrQueryArgsType
 from api._tests.data.http_ import (
     CHECK_EMAIL_TEST_ENDPOINT_KWARGS,
     LOGIN_TEST_ENDPOINT_KWARGS,
-    REFRESH_TOKEN_TEST_ENDPOINT_KWARGS,
+    REFRESH_ACCESS_TEST_ENDPOINT_KWARGS,
     USER_INFO_TEST_ENDPOINT_KWARGS,
     USER_INFO_EDIT_TEST_ENDPOINT_KWARGS,
     USER_CHATS_TEST_ENDPOINT_KWARGS,
     CHAT_HISTORY_TEST_ENDPOINT_KWARGS,
 )
 
-_test_client = app.test_client()
+# `use_cookies` обязательно нужно оставить в False, поскольку мы сами управляем куками и меняем их в ходе тестов.
+_test_client = app.test_client(use_cookies=False)
 
 
 def setup_module() -> None:
-
-    def common_jwt_json_dict_maker_make_method_mock(jwt: str) -> dict:
-        return {
-            'JWT': COMMON_JWT,
-        }
-
-    patch('api.common.json_.JWTJSONDictMaker.make', common_jwt_json_dict_maker_make_method_mock).start()
     patch('api.http_.email.tasks.send_code_task').start()
     app.teardown_appcontext_funcs.clear()
 
@@ -40,9 +34,9 @@ def test_login(test_endpoint_kwargs: dict) -> None:
     _test_post_or_put_endpoint(urn='/user/login', method='POST', **test_endpoint_kwargs)
 
 
-@pytest.mark.parametrize('test_endpoint_kwargs', REFRESH_TOKEN_TEST_ENDPOINT_KWARGS)
-def test_refresh_token(test_endpoint_kwargs: dict) -> None:
-    _test_post_or_put_endpoint(urn='/user/refreshToken', method='POST', **test_endpoint_kwargs)
+@pytest.mark.parametrize('test_endpoint_kwargs', REFRESH_ACCESS_TEST_ENDPOINT_KWARGS)
+def test_refresh_access(test_endpoint_kwargs: dict) -> None:
+    _test_post_or_put_endpoint(urn='/user/refreshAccess', method='POST', **test_endpoint_kwargs)
 
 
 @pytest.mark.parametrize('test_endpoint_kwargs', USER_INFO_TEST_ENDPOINT_KWARGS)

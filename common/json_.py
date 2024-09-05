@@ -18,7 +18,6 @@ __all__ = (
     'ChatMessageTypingJSONDictMaker',
     'UserChatsJSONDictMaker',
     'ChatJSONDictMaker',
-    'JWTJSONDictMaker',
     'UserJSONDictMaker',
     'AlreadyTakenFlagJSONDictMaker',
     'CodeIsValidFlagJSONDictMaker',
@@ -46,8 +45,6 @@ class JSONKey(StrEnum):
     USERNAME = 'username'
     PASSWORD = 'password'
     EMAIL = 'email'
-
-    JWT_TOKEN = 'JWT'
 
     OFFSET_FROM_END = 'offsetFromEnd'
 
@@ -92,16 +89,6 @@ class SimpleResponseStatusJSONDictMaker(AbstractJSONDictMaker):
         return {
             JSONKey.STATUS: status,
         }
-
-
-class JWTJSONDictMaker(AbstractJSONDictMaker):
-
-    class Dict(TypedDict):
-        JWT: str
-
-    @staticmethod
-    def make(jwt: str) -> Dict:
-        return {JSONKey.JWT_TOKEN: jwt}
 
 
 class AlreadyTakenFlagJSONDictMaker(AbstractJSONDictMaker):

@@ -17,49 +17,18 @@ __all__ = (
 
 
 class WebSocketClientHandler:
-    _user_id: int
 
     def __init__(self, protocol: WebSocketServerProtocol,
                  common_handlers_funcs: dict[str, CommonHandlerFuncT],
-                 jwt_secret_key: str, jwt_algorithm: str,
+                 user_id: int,
                  ) -> None:
         self._protocol = protocol
         self._common_handlers_funcs = common_handlers_funcs
-        self._jwt_secret_key = jwt_secret_key
-        self._jwt_algorithm = jwt_algorithm
+        self._user_id = user_id
 
     @property
     def user(self) -> User:
         return DBBuilder.session.query(User).get(self._user_id)
-
-    @raises(ConnectionClosed)
-    async def wait_authorization(self) -> None:
-        jwt: str = await self._wait_str()
-        email: str = self._decode_jwt(encoded=jwt)
-        try:
-            self._try_to_authorize_user(email=email)
-        except ValueError:
-            await self.wait_authorization()
-
-    def _decode_jwt(self, encoded: str) -> str:
-        return decode(
-            encoded,
-            key=self._jwt_secret_key,
-            algorithms=[self._jwt_algorithm],
-        )['sub']
-
-    @raises(ValueError)
-    def _try_to_authorize_user(self, email: str) -> None:
-        DBBuilder.session.remove()  # for session updating
-        self._user_id = User.by_email(email=email).id
-
-    @raises(ConnectionClosed)
-    async def _wait_str(self) -> str:
-        return await self._protocol.recv()
-
-    @raises(ConnectionClosed, JSONDecodeError)
-    async def _wait_json_dict(self) -> WebSocketMessageJSONDictMaker.Dict:
-        return json.loads(await self._wait_str())
 
     @raises(ConnectionClosed)
     async def listen(self) -> None:
@@ -80,6 +49,14 @@ class WebSocketClientHandler:
                 continue
 
             DBBuilder.session.remove()
+
+    @raises(ConnectionClosed, JSONDecodeError)
+    async def _wait_json_dict(self) -> WebSocketMessageJSONDictMaker.Dict:
+        return json.loads(await self._wait_str())
+
+    @raises(ConnectionClosed)
+    async def _wait_str(self) -> str:
+        return await self._protocol.recv()
 
     @raises(KeyError, Exception)
     async def _handle_message(self, message: WebSocketMessageJSONDictMaker.Dict) -> None:

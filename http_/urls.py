@@ -10,7 +10,7 @@ class Url(StrEnum):
     CODE_SEND = '/user/login/email/code/send'
     CODE_CHECK = '/user/login/email/code/check'
     LOGIN = '/user/login'
-    REFRESH_TOKEN = '/user/refreshToken'
+    REFRESH_ACCESS = '/user/refreshAccess'
     USER_INFO = '/user/info'
     USER_AVATAR = '/user/avatar'
     USER_BACKGROUND = '/user/background'

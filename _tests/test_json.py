@@ -6,14 +6,12 @@ from api.common.json_ import (
     ChatMessageTypingJSONDictMaker,
     UserChatsJSONDictMaker,
     ChatJSONDictMaker,
-    JWTJSONDictMaker,
     UserJSONDictMaker,
     CodeIsValidFlagJSONDictMaker,
     NewUnreadCountJSONDictMaker,
     ReadChatMessagesIdsJSONDictMaker,
 )
 from api._tests.data.json_ import (
-    JWT_TOKEN_KWARGS_AND_JSON_DICTS,
     CODE_IS_VALID_FLAG_KWARGS_AND_JSON_DICTS,
     USER_CHATS_KWARGS_AND_JSON_DICTS,
     CHAT_INFO_KWARGS_AND_JSON_DICTS,
@@ -24,13 +22,6 @@ from api._tests.data.json_ import (
     READ_CHAT_MESSAGES_KWARGS_AND_JSON_DICTS,
     CHAT_MESSAGE_TYPING_KWARGS_AND_JSON_DICTS,
 )
-
-
-@pytest.mark.parametrize(('maker_kwargs', 'expected_dict'), JWT_TOKEN_KWARGS_AND_JSON_DICTS)
-def test_positive_jwt(maker_kwargs: dict,
-                            expected_dict: dict,
-                            ) -> None:
-    assert JWTJSONDictMaker.make(**maker_kwargs) == expected_dict
 
 
 @pytest.mark.parametrize(('maker_kwargs', 'expected_dict'), CODE_IS_VALID_FLAG_KWARGS_AND_JSON_DICTS)

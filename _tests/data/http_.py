@@ -1,9 +1,7 @@
-from jwt import encode
+from flask_jwt_extended import create_access_token, create_refresh_token
 
-from api.config import JWT_SECRET_KEY, JWT_ALGORITHM
 from api.db.models import User
 from api._tests.data.db import USERS
-from api._tests.common import COMMON_JWT
 from api._tests.data.json_ import (
     USER_CHATS_KWARGS_AND_JSON_DICTS,
     CHAT_HISTORY_KWARGS_AND_JSON_DICTS,
@@ -12,7 +10,7 @@ from api._tests.data.json_ import (
 __all__ = (
     'CHECK_EMAIL_TEST_ENDPOINT_KWARGS',
     'LOGIN_TEST_ENDPOINT_KWARGS',
-    'REFRESH_TOKEN_TEST_ENDPOINT_KWARGS',
+    'REFRESH_ACCESS_TEST_ENDPOINT_KWARGS',
     'USER_INFO_TEST_ENDPOINT_KWARGS',
     'USER_INFO_EDIT_TEST_ENDPOINT_KWARGS',
     'USER_CHATS_TEST_ENDPOINT_KWARGS',
@@ -20,26 +18,16 @@ __all__ = (
 )
 
 
-def _make_jwt(email: str) -> str:
-    data = {
-        'sub': email,
-    }
-    return encode(data, JWT_SECRET_KEY, JWT_ALGORITHM)
-
-
 NEW_USER_EMAIL = 'danil.shevelev.2004@mail.ru'
 NEW_USER_ID = USERS[max(USERS.keys())].id + 1
 
 NEW_USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT = {
-    'Authorization': 'Bearer ' + _make_jwt(NEW_USER_EMAIL),
+    'Cookie': 'access_token_cookie=' + create_access_token(NEW_USER_EMAIL) + ';'
+              'refresh_token_cookie=' + create_refresh_token(NEW_USER_EMAIL),
 }
 
 USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT = {
-    'Authorization': 'Bearer ' + _make_jwt(USERS[1].email),
-}
-
-COMMON_AUTHORIZATION_HEADERS = {
-    'Authorization': 'Bearer ' + COMMON_JWT,
+    'Cookie': 'access_token_cookie=' + create_access_token(USERS[1].email),
 }
 
 CHECK_EMAIL_TEST_ENDPOINT_KWARGS = [
@@ -77,7 +65,7 @@ LOGIN_TEST_ENDPOINT_KWARGS = [
         },
         expected_response_status_code=201,
         expected_response_json_dict={
-            'JWT': COMMON_JWT,
+            'status': 201,
         },
     ),
     dict(
@@ -87,7 +75,7 @@ LOGIN_TEST_ENDPOINT_KWARGS = [
         },
         expected_response_status_code=200,
         expected_response_json_dict={
-            'JWT': COMMON_JWT,
+            'status': 200,
         },
     ),
     dict(
@@ -99,12 +87,12 @@ LOGIN_TEST_ENDPOINT_KWARGS = [
     ),
 ]
 
-REFRESH_TOKEN_TEST_ENDPOINT_KWARGS = [
+REFRESH_ACCESS_TEST_ENDPOINT_KWARGS = [
     dict(
         headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT,
         expected_response_status_code=200,
         expected_response_json_dict={
-            'JWT': COMMON_JWT,
+            'status': 200,
         },
     )
 ]

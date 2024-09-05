@@ -3,6 +3,7 @@ from flask import (
     request,
     abort,
     Response,
+    jsonify,
 )
 from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
@@ -10,6 +11,9 @@ from http import HTTPMethod, HTTPStatus
 from json import dumps as json_dumps
 from flask_jwt_extended import (
     create_access_token,
+    create_refresh_token,
+    set_access_cookies,
+    set_refresh_cookies,
     current_user,
     jwt_required,
     JWTManager,
@@ -23,7 +27,6 @@ from api.common.json_ import (
     SimpleResponseStatusJSONDictMaker,
     ChatHistoryJSONDictMaker,
     UserChatsJSONDictMaker,
-    JWTJSONDictMaker,
     UserJSONDictMaker,
     AlreadyTakenFlagJSONDictMaker,
 )
@@ -56,27 +59,34 @@ from api.http_.email.codes import (
 from api.http_.apidocs_constants import (
     EMAIL_CHECK_SPECS,
     LOGIN_SPECS,
-    REFRESH_TOKEN_SPECS,
+    REFRESH_ACCESS_SPECS,
     USER_INFO_SPECS,
     USER_INFO_EDIT_SPECS,
     USER_CHATS_SPECS,
     CHAT_HISTORY_SPECS,
 )
+from api.ssl_context import get_ssl_context
 
 current_user: User
 
 app: Flask = Flask(__name__)
 app.config.from_mapping(
+    JWT_SESSION_COOKIE=False,
+    JWT_COOKIE_SECURE=True,
+    JWT_COOKIE_CSRF_PROTECT=False,
+    JWT_COOKIE_SAMESITE='None',
     JWT_TOKEN_LOCATION=['cookies'],
+    JWT_ACCESS_COOKIE_PATH='/',
+    JWT_REFRESH_COOKIE_PATH=Url.REFRESH_ACCESS,
     JWT_SECRET_KEY=JWT_SECRET_KEY,
     JWT_ALGORITHM=JWT_ALGORITHM,
     JWT_ACCESS_TOKEN_EXPIRES=JWT_ACCESS_TOKEN_EXPIRES,
     JWT_REFRESH_TOKEN_EXPIRES=JWT_REFRESH_TOKEN_EXPIRES,
 )
-
+app.app_context().push()
 app.json.ensure_ascii = False
 
-CORS(app, origins=CORS_ORIGINS)
+CORS(app, origins=CORS_ORIGINS, supports_credentials=True, expose_headers=['Set-Cookie'])
 jwt: JWTManager = JWTManager(app)
 
 Swagger(app)
@@ -124,7 +134,7 @@ def email_check() -> AlreadyTakenFlagJSONDictMaker.Dict:
 
 @app.route(Url.LOGIN, methods=[HTTPMethod.POST])
 @swag_from(LOGIN_SPECS)
-def login() -> tuple[JWTJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREATED]:
+def login() -> tuple[Response, HTTPStatus]:
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_json()
 
     if email_code_is_valid(identify=user_data.email, code=user_data.code):
@@ -144,14 +154,20 @@ def login() -> tuple[JWTJSONDictMaker.Dict, HTTPStatus.OK | HTTPStatus.CREATED]:
         DBBuilder.session.commit()
         status_code = HTTPStatus.CREATED
 
-    return JWTJSONDictMaker.make(jwt=create_access_token(identity=user.email)), status_code
+    response: Response = jsonify(**SimpleResponseStatusJSONDictMaker.make(status=status_code))
+    set_access_cookies(response, create_access_token(identity=user.email))
+    set_refresh_cookies(response, create_refresh_token(identity=user.email))
+
+    return response, status_code
 
 
-@app.route(Url.REFRESH_TOKEN, methods=[HTTPMethod.POST])
-@jwt_required()
-@swag_from(REFRESH_TOKEN_SPECS)
-def refresh_token() -> JWTJSONDictMaker.Dict:
-    return JWTJSONDictMaker.make(jwt=create_access_token(identity=current_user.email))
+@app.route(Url.REFRESH_ACCESS, methods=[HTTPMethod.POST])
+@jwt_required(refresh=True)
+@swag_from(REFRESH_ACCESS_SPECS)
+def refresh_access() -> Response:
+    response: Response = jsonify(**SimpleResponseStatusJSONDictMaker.make(status=HTTPStatus.OK))
+    set_access_cookies(response, create_access_token(identity=current_user.email))
+    return response
 
 
 @app.route(Url.USER_INFO, methods=[HTTPMethod.GET])
@@ -228,4 +244,4 @@ def chat_history() -> ChatHistoryJSONDictMaker.Dict:
 if __name__ == '__main__':
     DBBuilder.init_session(url=DB_URL)
     DBBuilder.make_migrations()
-    app.run(HOST, PORT, debug=DEBUG)
+    app.run(HOST, PORT, debug=DEBUG, ssl_context=get_ssl_context())

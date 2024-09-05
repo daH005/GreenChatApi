@@ -4,10 +4,9 @@ from api._tests.data.db import (
     USERS,
     CHATS_MESSAGES,
 )
-from api._tests.common import COMMON_DATETIME, COMMON_JWT
+from api._tests.common import COMMON_DATETIME
 
 __all__ = (
-    'JWT_TOKEN_KWARGS_AND_JSON_DICTS',
     'CODE_IS_VALID_FLAG_KWARGS_AND_JSON_DICTS',
     'USER_CHATS_KWARGS_AND_JSON_DICTS',
     'CHAT_INFO_KWARGS_AND_JSON_DICTS',
@@ -18,17 +17,6 @@ __all__ = (
     'READ_CHAT_MESSAGES_KWARGS_AND_JSON_DICTS',
     'CHAT_MESSAGE_TYPING_KWARGS_AND_JSON_DICTS',
 )
-
-JWT_TOKEN_KWARGS_AND_JSON_DICTS = [
-    (
-        dict(
-            jwt=COMMON_JWT,
-        ),
-        {
-            'JWT': COMMON_JWT,
-        }
-    )
-]
 
 CODE_IS_VALID_FLAG_KWARGS_AND_JSON_DICTS = [
     (
