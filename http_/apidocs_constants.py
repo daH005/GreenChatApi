@@ -1,7 +1,7 @@
 __all__ = (
     'EMAIL_CHECK_SPECS',
     'LOGIN_SPECS',
-    'REFRESH_TOKEN_SPECS',
+    'REFRESH_ACCESS_SPECS',
     'USER_INFO_SPECS',
     'USER_AVATAR_SPECS',
     'USER_BACKGROUND_SPECS',
@@ -158,7 +158,7 @@ LOGIN_SPECS = {
     },
 }
 
-REFRESH_TOKEN_SPECS = {
+REFRESH_ACCESS_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
         JWT_HEADER_PARAM,
