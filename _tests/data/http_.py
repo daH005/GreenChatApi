@@ -1,4 +1,4 @@
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import create_access_token, create_refresh_token, get_csrf_token
 
 from api.db.models import User
 from api._tests.data.db import USERS
@@ -21,13 +21,26 @@ __all__ = (
 NEW_USER_EMAIL = 'danil.shevelev.2004@mail.ru'
 NEW_USER_ID = USERS[max(USERS.keys())].id + 1
 
-NEW_USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT = {
-    'Cookie': 'access_token_cookie=' + create_access_token(NEW_USER_EMAIL) + ';'
-              'refresh_token_cookie=' + create_refresh_token(NEW_USER_EMAIL),
+NEW_USER_ACCESS_TOKEN = create_access_token(NEW_USER_EMAIL)
+NEW_USER_AUTHORIZATION_HEADERS_WITH_ACCESS_TOKEN = {
+    'Cookie': 'access_token_cookie=' + NEW_USER_ACCESS_TOKEN,
+    'X-CSRF-TOKEN': get_csrf_token(NEW_USER_ACCESS_TOKEN),
+}
+NEW_USER_REFRESH_TOKEN = create_refresh_token(NEW_USER_EMAIL)
+NEW_USER_AUTHORIZATION_HEADERS_WITH_REFRESH_TOKEN = {
+    'Cookie': 'refresh_token_cookie=' + NEW_USER_REFRESH_TOKEN,
+    'X-CSRF-TOKEN': get_csrf_token(NEW_USER_REFRESH_TOKEN),
 }
 
-USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT = {
-    'Cookie': 'access_token_cookie=' + create_access_token(USERS[1].email),
+USER_ACCESS_TOKEN = create_access_token(USERS[1].email)
+USER_AUTHORIZATION_HEADERS_WITH_ACCESS_TOKEN = {
+    'Cookie': 'access_token_cookie=' + USER_ACCESS_TOKEN,
+    'X-CSRF-TOKEN': get_csrf_token(USER_ACCESS_TOKEN),
+}
+USER_REFRESH_TOKEN = create_refresh_token(USERS[1].email)
+USER_AUTHORIZATION_HEADERS_WITH_REFRESH_TOKEN = {
+    'Cookie': 'refresh_token_cookie=' + USER_REFRESH_TOKEN,
+    'X-CSRF-TOKEN': get_csrf_token(USER_REFRESH_TOKEN),
 }
 
 CHECK_EMAIL_TEST_ENDPOINT_KWARGS = [
@@ -89,7 +102,7 @@ LOGIN_TEST_ENDPOINT_KWARGS = [
 
 REFRESH_ACCESS_TEST_ENDPOINT_KWARGS = [
     dict(
-        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT,
+        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_REFRESH_TOKEN,
         expected_response_status_code=200,
         expected_response_json_dict={
             'status': 200,
@@ -99,7 +112,7 @@ REFRESH_ACCESS_TEST_ENDPOINT_KWARGS = [
 
 USER_INFO_TEST_ENDPOINT_KWARGS = [
     dict(
-        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT,
+        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_ACCESS_TOKEN,
         expected_response_status_code=200,
         expected_response_json_dict={
             'id': NEW_USER_ID,
@@ -109,7 +122,7 @@ USER_INFO_TEST_ENDPOINT_KWARGS = [
         },
     ),
     dict(
-        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT,
+        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_ACCESS_TOKEN,
         data={
             'userId': 2,
         },
@@ -121,7 +134,7 @@ USER_INFO_TEST_ENDPOINT_KWARGS = [
         },
     ),
     dict(
-        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT,
+        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_ACCESS_TOKEN,
         data={
             'userId': 999,
         },
@@ -131,7 +144,7 @@ USER_INFO_TEST_ENDPOINT_KWARGS = [
         },
     ),
     dict(
-        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT,
+        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_ACCESS_TOKEN,
         data={
             'userId': 'text',
         },
@@ -144,7 +157,7 @@ USER_INFO_TEST_ENDPOINT_KWARGS = [
 
 USER_INFO_EDIT_TEST_ENDPOINT_KWARGS = [
     dict(
-        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT,
+        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_ACCESS_TOKEN,
         data={
             'firstName': 'newName',
             'lastName': 'newName',
@@ -155,7 +168,7 @@ USER_INFO_EDIT_TEST_ENDPOINT_KWARGS = [
         },
     ),
     dict(
-        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT,
+        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_ACCESS_TOKEN,
         data={},
         expected_response_status_code=400,
         expected_response_json_dict={
@@ -166,12 +179,12 @@ USER_INFO_EDIT_TEST_ENDPOINT_KWARGS = [
 
 USER_CHATS_TEST_ENDPOINT_KWARGS = [
     dict(
-        headers=USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT,
+        headers=USER_AUTHORIZATION_HEADERS_WITH_ACCESS_TOKEN,
         expected_response_status_code=200,
         expected_response_json_dict=USER_CHATS_KWARGS_AND_JSON_DICTS[0][1],
     ),
     dict(
-        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT,
+        headers=NEW_USER_AUTHORIZATION_HEADERS_WITH_ACCESS_TOKEN,
         expected_response_status_code=200,
         expected_response_json_dict={
             'chats': [],
@@ -181,7 +194,7 @@ USER_CHATS_TEST_ENDPOINT_KWARGS = [
 
 CHAT_HISTORY_TEST_ENDPOINT_KWARGS = [
     dict(
-        headers=USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT,
+        headers=USER_AUTHORIZATION_HEADERS_WITH_ACCESS_TOKEN,
         data={
             'chatId': 1,
         },
@@ -189,7 +202,7 @@ CHAT_HISTORY_TEST_ENDPOINT_KWARGS = [
         expected_response_json_dict=CHAT_HISTORY_KWARGS_AND_JSON_DICTS[0][1],
     ),
     dict(
-        headers=USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT,
+        headers=USER_AUTHORIZATION_HEADERS_WITH_ACCESS_TOKEN,
         data={
             'chatId': 1,
             'offsetFromEnd': 1,
@@ -200,7 +213,7 @@ CHAT_HISTORY_TEST_ENDPOINT_KWARGS = [
         },
     ),
     dict(
-        headers=USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT,
+        headers=USER_AUTHORIZATION_HEADERS_WITH_ACCESS_TOKEN,
         data={
             'chatId': 4,
             'offsetFromEnd': 1,
@@ -211,7 +224,7 @@ CHAT_HISTORY_TEST_ENDPOINT_KWARGS = [
         },
     ),
     dict(
-        headers=USER_AUTHORIZATION_HEADERS_WITH_REAL_JWT,
+        headers=USER_AUTHORIZATION_HEADERS_WITH_ACCESS_TOKEN,
         expected_response_status_code=400,
         expected_response_json_dict={
             'status': 400,
