@@ -73,7 +73,7 @@ app: Flask = Flask(__name__)
 app.config.from_mapping(
     JWT_SESSION_COOKIE=False,
     JWT_COOKIE_SECURE=True,
-    JWT_COOKIE_CSRF_PROTECT=False,
+    JWT_COOKIE_CSRF_PROTECT=True,
     JWT_COOKIE_SAMESITE='None',
     JWT_TOKEN_LOCATION=['cookies'],
     JWT_ACCESS_COOKIE_PATH='/',
