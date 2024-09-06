@@ -31,29 +31,32 @@ CHAT_TAGS = ['Chat']
 
 SIMPLE_REQUEST_RESPONSES = {
     200: make_simple_request_response(200),
+    201: make_simple_request_response(201),
     400: make_simple_request_response(400),
     403: make_simple_request_response(403),
     404: make_simple_request_response(404),
     409: make_simple_request_response(409),
 }
 
-JWT_RESPONSE = {
-    'schema': {
-        'type': 'object',
-        'properties': {
-            'JWT': {
-                'type': 'string',
-            },
-        },
-    },
+ACCESS_TOKEN_COOKIE = {
+    'name': 'access_token_cookie',
+    'in': 'cookie',
+    'required': True,
+    'type': 'string',
 }
 
-JWT_HEADER_PARAM = {
-    'name': 'Authorization',
+REFRESH_TOKEN_COOKIE = {
+    'name': 'refresh_token_cookie',
+    'in': 'cookie',
+    'required': True,
+    'type': 'string',
+}
+
+CSRF_TOKEN_HEADER = {
+    'name': 'X-CSRF-TOKEN',
     'in': 'header',
     'required': True,
     'type': 'string',
-    'example': 'Bearer {JWT}'
 }
 
 USER_INFO_SCHEMA = {
@@ -152,8 +155,8 @@ LOGIN_SPECS = {
         },
     ],
     'responses': {
-        200: JWT_RESPONSE,
-        201: JWT_RESPONSE,
+        200: SIMPLE_REQUEST_RESPONSES[200],
+        201: SIMPLE_REQUEST_RESPONSES[201],
         400: SIMPLE_REQUEST_RESPONSES[400],
     },
 }
@@ -161,17 +164,18 @@ LOGIN_SPECS = {
 REFRESH_ACCESS_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
-        JWT_HEADER_PARAM,
+        REFRESH_TOKEN_COOKIE,
+        CSRF_TOKEN_HEADER,
     ],
     'responses': {
-        200: JWT_RESPONSE,
+        200: SIMPLE_REQUEST_RESPONSES[200],
     },
 }
 
 USER_INFO_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
-        JWT_HEADER_PARAM,
+        ACCESS_TOKEN_COOKIE,
         {
             'name': 'userId',
             'in': 'query',
@@ -191,7 +195,7 @@ USER_INFO_SPECS = {
 USER_AVATAR_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
-        JWT_HEADER_PARAM,
+        ACCESS_TOKEN_COOKIE,
         {
             'name': 'userId',
             'in': 'query',
@@ -210,7 +214,7 @@ USER_AVATAR_SPECS = {
 USER_BACKGROUND_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
-        JWT_HEADER_PARAM,
+        ACCESS_TOKEN_COOKIE,
     ],
     'responses': {
         200: {
@@ -223,7 +227,8 @@ USER_BACKGROUND_SPECS = {
 USER_INFO_EDIT_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
-        JWT_HEADER_PARAM,
+        ACCESS_TOKEN_COOKIE,
+        CSRF_TOKEN_HEADER,
         {
             'name': 'body',
             'in': 'body',
@@ -250,7 +255,8 @@ USER_INFO_EDIT_SPECS = {
 USER_AVATAR_EDIT_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
-        JWT_HEADER_PARAM,
+        ACCESS_TOKEN_COOKIE,
+        CSRF_TOKEN_HEADER,
         {
             'name': 'body',
             'in': 'body',
@@ -269,7 +275,8 @@ USER_AVATAR_EDIT_SPECS = {
 USER_BACKGROUND_EDIT_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
-        JWT_HEADER_PARAM,
+        ACCESS_TOKEN_COOKIE,
+        CSRF_TOKEN_HEADER,
         {
             'name': 'body',
             'in': 'body',
@@ -289,7 +296,7 @@ USER_CHATS_SPECS = {
     'tags': USER_TAGS,
     'description': 'Chats sorted by "creatingDatetime" of "lastMessage" in descending order.',
     'parameters': [
-        JWT_HEADER_PARAM,
+        ACCESS_TOKEN_COOKIE,
     ],
     'responses': {
         200: {
@@ -322,6 +329,7 @@ USER_CHATS_SPECS = {
 CODE_SEND_SPECS = {
     'tags': USER_TAGS,
     'parameters': [
+        CSRF_TOKEN_HEADER,
         {
             'name': 'body',
             'in': 'body',
@@ -378,7 +386,7 @@ CHAT_HISTORY_SPECS = {
     'tags': CHAT_TAGS,
     'description': 'Messages sorted by "creatingDatetime" in descending order.',
     'parameters': [
-        JWT_HEADER_PARAM,
+        ACCESS_TOKEN_COOKIE,
         {
             'name': 'chatId',
             'in': 'query',
