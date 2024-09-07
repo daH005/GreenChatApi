@@ -1,49 +1,19 @@
-from redis import Redis
 from random import randint
-from enum import StrEnum
 
 from api.common.hinting import raises
 from api.config import (
-    REDIS_HOST,
-    REDIS_PORT,
     REDIS_EMAIL_CODES_EXPIRES,
     DEBUG,
     TEST_PASS_EMAIL_CODE,
     MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE,
 )
+from api.http_.email.codes.key_prefixes import KeyPrefix
 
 __all__ = (
-    'app',
     'make_and_save_email_code',
     'email_code_is_valid',
     'delete_email_code',
 )
-
-app: Redis = Redis(
-    host=REDIS_HOST,
-    port=REDIS_PORT,
-    decode_responses=True,
-)
-
-
-class KeyPrefix(StrEnum):
-    EMAIL_CODE = 'greenchat_email_code_'
-    EMAIL_CODE_COUNT = 'greenchat_email_code_count_'
-
-    def get(self, identify: str) -> str:
-        return app.get(self + identify)
-
-    def set(self, identify: str,
-            value: str | int,
-            expires: float | None = None,
-            ) -> None:
-        app.set(self + identify, value, ex=expires)
-
-    def delete(self, identify: str) -> None:
-        app.delete(self + identify)
-
-    def exists(self, identify: str) -> bool:
-        return app.exists(self + identify)
 
 
 @raises(ValueError)

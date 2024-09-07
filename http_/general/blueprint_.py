@@ -28,7 +28,7 @@ from api.common.json_ import (
     AlreadyTakenFlagJSONDictMaker,
 )
 from api.http_.validation import EmailAndCodeJSONValidator, UserJSONValidator
-from api.http_.email.codes import (
+from api.http_.email.codes.functions import (
     email_code_is_valid,
     delete_email_code,
 )
