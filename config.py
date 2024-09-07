@@ -70,10 +70,3 @@ EMAIL: Final[str] = environ['EMAIL']
 EMAIL_PASSWORD: Final[str] = environ['EMAIL_PASSWORD']
 TEST_PASS_EMAIL_CODE: Final[int] = int(environ['TEST_PASS_EMAIL_CODE'])
 MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE: Final[int] = int(environ['MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE'])
-
-if __name__ == '__main__':
-    print(BASE_DIR)
-    print(DB_URL)
-    print(CORS_ORIGINS)
-    print(JWT_SECRET_KEY)
-    print(DEBUG)
