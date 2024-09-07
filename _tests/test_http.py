@@ -3,7 +3,7 @@ from http import HTTPStatus
 from werkzeug.test import TestResponse
 from unittest.mock import patch
 
-from api.http_.main import app
+from api.http_.app import app
 from api._tests.common import JsonDictType, HeadersOrQueryArgsType
 from api._tests.data.http_ import (
     CHECK_EMAIL_TEST_ENDPOINT_KWARGS,
