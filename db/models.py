@@ -40,7 +40,7 @@ class BaseModel(DeclarativeBase):
 class BlacklistToken(BaseModel):
     __tablename__ = 'blacklist_tokens'
 
-    token: Mapped[str] = mapped_column(String(500), unique=True)
+    jti: Mapped[str] = mapped_column(String(500), unique=True)
 
 
 class User(BaseModel):
