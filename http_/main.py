@@ -14,13 +14,14 @@ from flask_jwt_extended import (
     create_refresh_token,
     set_access_cookies,
     set_refresh_cookies,
+    get_jwt,
     current_user,
     jwt_required,
     JWTManager,
 )
 from flasgger import Swagger, swag_from
 
-from api.db.models import User, UserChatMatch
+from api.db.models import User, UserChatMatch, BlacklistToken
 from api.db.builder import DBBuilder
 from api.common.json_ import (
     JSONKey,
@@ -104,6 +105,13 @@ def user_lookup_callback(_jwt_header, jwt_data) -> User | None:
         return None
 
 
+@jwt.token_in_blocklist_loader
+def token_in_blocklist_callback(_, jwt_payload: dict) -> None:
+    jti: str = jwt_payload['jti']
+    jti_in_blocklist: str | None = DBBuilder.session.query(BlacklistToken).filter_by(jti=jti).first()
+    return jti_in_blocklist is not None
+
+
 @app.teardown_appcontext
 def shutdown_db_session(exception=None) -> None:
     if exception:
@@ -167,6 +175,12 @@ def login() -> tuple[Response, HTTPStatus]:
 def refresh_access() -> Response:
     response: Response = jsonify(**SimpleResponseStatusJSONDictMaker.make(status=HTTPStatus.OK))
     set_access_cookies(response, create_access_token(identity=current_user.email))
+    set_refresh_cookies(response, create_refresh_token(identity=current_user.email))
+
+    blacklist_token: BlacklistToken = BlacklistToken(jti=get_jwt()['jti'])
+    DBBuilder.session.add(blacklist_token)
+    DBBuilder.session.commit()
+
     return response
 
 
