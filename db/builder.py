@@ -1,7 +1,7 @@
 from sqlalchemy import Engine, URL, create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from api.db.alembic_.init import make_migrations
+from api.db.alembic_.main import make_migrations
 
 __all__ = (
     'DBBuilder',
