@@ -19,6 +19,7 @@ from api.common.hinting import raises
 
 __all__ = (
     'BaseModel',
+    'BlacklistToken',
     'User',
     'Chat',
     'ChatMessage',
@@ -34,6 +35,12 @@ class BaseModel(DeclarativeBase):
 
     def __repr__(self) -> str:
         return type(self).__name__ + f'<{self.id}>'
+
+
+class BlacklistToken(BaseModel):
+    __tablename__ = 'blacklist_tokens'
+
+    token: Mapped[str] = mapped_column(String(500), unique=True)
 
 
 class User(BaseModel):
