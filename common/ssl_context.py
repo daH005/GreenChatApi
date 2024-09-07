@@ -9,7 +9,7 @@ __all__ = (
 
 
 def get_ssl_context() -> SSLContext | None:
-    ssl_path: Path = BASE_DIR.joinpath('ssl_')
+    ssl_path: Path = BASE_DIR.joinpath('../ssl_')
     if not ssl_path.exists():
         return
 

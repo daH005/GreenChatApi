@@ -32,7 +32,7 @@ from api.websocket_.validation import (
     ChatIdJSONValidator,
     ChatMessageWasReadJSONValidator,
 )
-from api.ssl_context import get_ssl_context
+from api.common.ssl_context import get_ssl_context
 
 server = WebSocketServer(
     host=HOST,
