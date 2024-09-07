@@ -11,16 +11,16 @@ from api.config import (
 from api.http_.urls import Url
 from api.http_.jwt_ import jwt
 from api.http_.app import app
-from api.http_.email.blueprint_ import (
+from api.http_.email.blueprint import (
     bp as email_bp,
 )
-from api.http_.avatars.blueprint_ import (
+from api.http_.avatars.blueprint import (
     bp as avatars_bp,
 )
-from api.http_.backgrounds.blueprint_ import (
+from api.http_.backgrounds.blueprint import (
     bp as backgrounds_bp,
 )
-from api.http_.general.blueprint_ import (
+from api.http_.general.blueprint import (
     bp as general_bp,
 )
 
