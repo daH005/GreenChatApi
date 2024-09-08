@@ -10,11 +10,14 @@ click==8.1.7
 click-didyoumean==0.3.1
 click-plugins==1.1.1
 click-repl==0.3.0
+dnspython==2.6.1
+email_validator==2.2.0
 flasgger==0.9.7.1
 Flask==3.0.0
 Flask-Cors==5.0.0
 Flask-JWT-Extended==4.6.0
 greenlet==3.0.3
+idna==3.8
 iniconfig==2.0.0
 itsdangerous==2.2.0
 Jinja2==3.1.4
