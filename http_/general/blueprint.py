@@ -3,7 +3,6 @@ from flask import (
     request,
     abort,
     Response,
-    jsonify,
 )
 from http import HTTPMethod, HTTPStatus
 from flask_jwt_extended import (
@@ -21,12 +20,12 @@ from api.db.builder import db_builder
 from api.db.models import User, UserChatMatch, BlacklistToken
 from api.common.json_ import (
     JSONKey,
-    SimpleResponseStatusJSONDictMaker,
     ChatHistoryJSONDictMaker,
     UserChatsJSONDictMaker,
     UserJSONDictMaker,
     AlreadyTakenFlagJSONDictMaker,
 )
+from api.http_.simple_response import make_simple_response
 from api.http_.validation import EmailAndCodeJSONValidator, UserJSONValidator
 from api.http_.email.codes.functions import (
     email_code_is_valid,
@@ -55,7 +54,7 @@ bp: Blueprint = Blueprint('general', __name__)
 
 @bp.route(Url.EMAIL_CHECK, methods=[HTTPMethod.GET])
 @swag_from(EMAIL_CHECK_SPECS)
-def email_check() -> AlreadyTakenFlagJSONDictMaker.Dict:
+def email_check() -> AlreadyTakenFlagJSONDictMaker.Dict | None:
     try:
         email: str = str(request.args[JSONKey.EMAIL])
     except KeyError:
@@ -68,7 +67,7 @@ def email_check() -> AlreadyTakenFlagJSONDictMaker.Dict:
 
 @bp.route(Url.LOGIN, methods=[HTTPMethod.POST])
 @swag_from(LOGIN_SPECS)
-def login() -> tuple[Response, HTTPStatus]:
+def login() -> Response | None:
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_json()
 
     if email_code_is_valid(identify=user_data.email, code=user_data.code):
@@ -88,18 +87,18 @@ def login() -> tuple[Response, HTTPStatus]:
         db_builder.session.commit()
         status_code = HTTPStatus.CREATED
 
-    response: Response = jsonify(**SimpleResponseStatusJSONDictMaker.make(status=status_code))
+    response: Response = make_simple_response(status_code)
     set_access_cookies(response, create_access_token(identity=user.email))
     set_refresh_cookies(response, create_refresh_token(identity=user.email))
 
-    return response, status_code
+    return response
 
 
 @bp.route(Url.REFRESH_ACCESS, methods=[HTTPMethod.POST])
 @jwt_required(refresh=True)
 @swag_from(REFRESH_ACCESS_SPECS)
 def refresh_access() -> Response:
-    response: Response = jsonify(**SimpleResponseStatusJSONDictMaker.make(status=HTTPStatus.OK))
+    response: Response = make_simple_response(HTTPStatus.OK)
     set_access_cookies(response, create_access_token(identity=current_user.email))
     set_refresh_cookies(response, create_refresh_token(identity=current_user.email))
 
@@ -113,7 +112,7 @@ def refresh_access() -> Response:
 @bp.route(Url.USER_INFO, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_INFO_SPECS)
-def user_info() -> UserJSONDictMaker.Dict:
+def user_info() -> UserJSONDictMaker.Dict | None:
     user_id_as_str: str | None = request.args.get(JSONKey.USER_ID)
     if user_id_as_str is None:
         return UserJSONDictMaker.make(user=current_user, exclude_important_info=False)
@@ -132,14 +131,14 @@ def user_info() -> UserJSONDictMaker.Dict:
 @bp.route(Url.USER_INFO_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_INFO_EDIT_SPECS)
-def user_info_edit() -> SimpleResponseStatusJSONDictMaker.Dict:
+def user_info_edit() -> Response:
     data: UserJSONValidator = UserJSONValidator.from_json()
 
     current_user.first_name = data.first_name
     current_user.last_name = data.last_name
     db_builder.session.commit()
 
-    return SimpleResponseStatusJSONDictMaker.make(status=HTTPStatus.OK)
+    return make_simple_response(HTTPStatus.OK)
 
 
 @bp.route(Url.USER_CHATS, methods=[HTTPMethod.GET])
@@ -155,7 +154,7 @@ def user_chats() -> UserChatsJSONDictMaker.Dict:
 @bp.route(Url.CHAT_HISTORY, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(CHAT_HISTORY_SPECS)
-def chat_history() -> ChatHistoryJSONDictMaker.Dict:
+def chat_history() -> ChatHistoryJSONDictMaker.Dict | None:
     try:
         chat_id: int = int(request.args[JSONKey.CHAT_ID])
     except (ValueError, KeyError):

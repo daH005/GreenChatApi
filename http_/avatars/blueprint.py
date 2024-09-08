@@ -11,7 +11,7 @@ from typing import Final
 from pathlib import Path
 
 from api.config import STATIC_FOLDER, MEDIA_FOLDER
-from api.common.json_ import JSONKey, SimpleResponseStatusJSONDictMaker
+from api.common.json_ import JSONKey
 from api.http_.urls import Url
 from api.http_.apidocs_constants import (
     USER_AVATAR_SPECS,
@@ -48,5 +48,5 @@ def user_avatar() -> Response | None:
 @bp.route(Url.USER_AVATAR_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_AVATAR_EDIT_SPECS)
-def user_avatar_edit() -> SimpleResponseStatusJSONDictMaker.Dict:
+def user_avatar_edit() -> Response:
     return edit_user_image(folder_path=_AVATARS_PATH)

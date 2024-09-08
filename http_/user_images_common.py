@@ -8,7 +8,7 @@ from flask_jwt_extended import current_user
 from typing import Final
 from pathlib import Path
 
-from api.common.json_ import SimpleResponseStatusJSONDictMaker
+from api.http_.simple_response import make_simple_response
 
 __all__ = (
     'get_user_image',
@@ -21,7 +21,7 @@ _EXTENSION: Final[str] = '.jpg'
 def get_user_image(user_id_as_str: str,
                    default_path: Path,
                    folder_path: Path,
-                   ) -> Response | None:
+                   ) -> Response:
     path: Path = _make_user_image_path(user_id_as_str=user_id_as_str, folder_path=folder_path)
     if path.exists():
         return send_file(path)
@@ -29,12 +29,12 @@ def get_user_image(user_id_as_str: str,
     return send_file(default_path)
 
 
-def edit_user_image(folder_path: Path) -> SimpleResponseStatusJSONDictMaker.Dict:
+def edit_user_image(folder_path: Path) -> Response:
     avatar_path: Path = _make_user_image_path(user_id_as_str=str(current_user.id), folder_path=folder_path)
     with open(avatar_path, 'wb') as f:
         f.write(request.data)
 
-    return SimpleResponseStatusJSONDictMaker.make(status=HTTPStatus.OK)
+    return make_simple_response(HTTPStatus.OK)
 
 
 def _make_user_image_path(user_id_as_str: str,

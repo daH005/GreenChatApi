@@ -12,7 +12,6 @@ from api.db.models import (
 __all__ = (
     'JSONKey',
     'AbstractJSONDictMaker',
-    'SimpleResponseStatusJSONDictMaker',
     'ChatHistoryJSONDictMaker',
     'ChatMessageJSONDictMaker',
     'ChatMessageTypingJSONDictMaker',
@@ -28,7 +27,6 @@ __all__ = (
 
 
 class JSONKey(StrEnum):
-    STATUS = 'status'
 
     ID = 'id'
     USER_ID = 'userId'
@@ -77,18 +75,6 @@ class AbstractJSONDictMaker(ABC):
     @abstractmethod
     def make(*args, **kwargs) -> Dict:
         raise NotImplementedError
-
-
-class SimpleResponseStatusJSONDictMaker(AbstractJSONDictMaker):
-
-    class Dict(TypedDict):
-        status: int
-
-    @staticmethod
-    def make(status: int) -> Dict:
-        return {
-            JSONKey.STATUS: status,
-        }
 
 
 class AlreadyTakenFlagJSONDictMaker(AbstractJSONDictMaker):

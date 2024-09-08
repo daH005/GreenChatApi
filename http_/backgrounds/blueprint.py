@@ -9,7 +9,6 @@ from typing import Final
 from pathlib import Path
 
 from api.config import STATIC_FOLDER, MEDIA_FOLDER
-from api.common.json_ import SimpleResponseStatusJSONDictMaker
 from api.db.models import User
 from api.http_.urls import Url
 from api.http_.apidocs_constants import (
@@ -33,7 +32,7 @@ _BACKGROUNDS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('backgrounds')
 @bp.route(Url.USER_BACKGROUND, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_BACKGROUND_SPECS)
-def user_background() -> Response | None:
+def user_background() -> Response:
     return get_user_image(
         user_id_as_str=str(current_user.id),
         default_path=_DEFAULT_BACKGROUND_PATH,
@@ -44,5 +43,5 @@ def user_background() -> Response | None:
 @bp.route(Url.USER_BACKGROUND_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_BACKGROUND_EDIT_SPECS)
-def user_background_edit() -> SimpleResponseStatusJSONDictMaker.Dict:
+def user_background_edit() -> Response:
     return edit_user_image(folder_path=_BACKGROUNDS_PATH)

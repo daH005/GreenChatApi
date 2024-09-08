@@ -3,9 +3,9 @@ from flask import (
     Response,
 )
 from werkzeug.exceptions import HTTPException
-from json import dumps as json_dumps
 
 from api.db.builder import db_builder
+from api.http_.simple_response import make_simple_response
 
 __all__ = (
     'app',
@@ -23,7 +23,4 @@ def shutdown_db_session(exception=None) -> None:
 
 @app.errorhandler(HTTPException)
 def handle_exception(exception: HTTPException) -> Response:
-    response = exception.get_response()
-    response.content_type = 'application/json'
-    response.data = json_dumps(dict(status=exception.code))
-    return response
+    return make_simple_response(exception.code)
