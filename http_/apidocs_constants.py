@@ -15,7 +15,7 @@ __all__ = (
 )
 
 
-def make_simple_request_response(status_code: int) -> dict:
+def _make_simple_request_response(status_code: int) -> dict:
     return {
         'schema': {
             'type': 'object',
@@ -26,40 +26,40 @@ def make_simple_request_response(status_code: int) -> dict:
     }
 
 
-USER_TAGS = ['User']
-CHAT_TAGS = ['Chat']
+_USER_TAGS = ['User']
+_CHAT_TAGS = ['Chat']
 
-SIMPLE_REQUEST_RESPONSES = {
-    200: make_simple_request_response(200),
-    201: make_simple_request_response(201),
-    400: make_simple_request_response(400),
-    403: make_simple_request_response(403),
-    404: make_simple_request_response(404),
-    409: make_simple_request_response(409),
+_SIMPLE_REQUEST_RESPONSES = {
+    200: _make_simple_request_response(200),
+    201: _make_simple_request_response(201),
+    400: _make_simple_request_response(400),
+    403: _make_simple_request_response(403),
+    404: _make_simple_request_response(404),
+    409: _make_simple_request_response(409),
 }
 
-ACCESS_TOKEN_COOKIE = {
+_ACCESS_TOKEN_COOKIE = {
     'name': 'access_token_cookie',
     'in': 'cookie',
     'required': True,
     'type': 'string',
 }
 
-REFRESH_TOKEN_COOKIE = {
+_REFRESH_TOKEN_COOKIE = {
     'name': 'refresh_token_cookie',
     'in': 'cookie',
     'required': True,
     'type': 'string',
 }
 
-CSRF_TOKEN_HEADER = {
+_CSRF_TOKEN_HEADER = {
     'name': 'X-CSRF-TOKEN',
     'in': 'header',
     'required': True,
     'type': 'string',
 }
 
-USER_INFO_SCHEMA = {
+_USER_INFO_SCHEMA = {
     'type': 'object',
     'required': [
         'id',
@@ -82,7 +82,7 @@ USER_INFO_SCHEMA = {
     },
 }
 
-CHAT_MESSAGE_SCHEMA = {
+_CHAT_MESSAGE_SCHEMA = {
     'type': 'object',
     'properties': {
         'id': {
@@ -106,10 +106,8 @@ CHAT_MESSAGE_SCHEMA = {
     },
 }
 
-# SPECS:
-
 EMAIL_CHECK_SPECS = {
-    'tags': USER_TAGS,
+    'tags': _USER_TAGS,
     'parameters': [
         {
             'name': 'email',
@@ -129,12 +127,12 @@ EMAIL_CHECK_SPECS = {
                 },
             },
         },
-        400: SIMPLE_REQUEST_RESPONSES[400],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
     },
 }
 
 LOGIN_SPECS = {
-    'tags': USER_TAGS,
+    'tags': _USER_TAGS,
     'parameters': [
         {
             'name': 'body',
@@ -155,27 +153,27 @@ LOGIN_SPECS = {
         },
     ],
     'responses': {
-        200: SIMPLE_REQUEST_RESPONSES[200],
-        201: SIMPLE_REQUEST_RESPONSES[201],
-        400: SIMPLE_REQUEST_RESPONSES[400],
+        200: _SIMPLE_REQUEST_RESPONSES[200],
+        201: _SIMPLE_REQUEST_RESPONSES[201],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
     },
 }
 
 REFRESH_ACCESS_SPECS = {
-    'tags': USER_TAGS,
+    'tags': _USER_TAGS,
     'parameters': [
-        REFRESH_TOKEN_COOKIE,
-        CSRF_TOKEN_HEADER,
+        _REFRESH_TOKEN_COOKIE,
+        _CSRF_TOKEN_HEADER,
     ],
     'responses': {
-        200: SIMPLE_REQUEST_RESPONSES[200],
+        200: _SIMPLE_REQUEST_RESPONSES[200],
     },
 }
 
 USER_INFO_SPECS = {
-    'tags': USER_TAGS,
+    'tags': _USER_TAGS,
     'parameters': [
-        ACCESS_TOKEN_COOKIE,
+        _ACCESS_TOKEN_COOKIE,
         {
             'name': 'userId',
             'in': 'query',
@@ -185,17 +183,17 @@ USER_INFO_SPECS = {
     ],
     'responses': {
         200: {
-            'schema': USER_INFO_SCHEMA,
+            'schema': _USER_INFO_SCHEMA,
         },
-        400: SIMPLE_REQUEST_RESPONSES[400],
-        404: SIMPLE_REQUEST_RESPONSES[404],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
+        404: _SIMPLE_REQUEST_RESPONSES[404],
     }
 }
 
 USER_AVATAR_SPECS = {
-    'tags': USER_TAGS,
+    'tags': _USER_TAGS,
     'parameters': [
-        ACCESS_TOKEN_COOKIE,
+        _ACCESS_TOKEN_COOKIE,
         {
             'name': 'userId',
             'in': 'query',
@@ -207,28 +205,28 @@ USER_AVATAR_SPECS = {
         200: {
             'description': 'Image file bytes',
         },
-        400: SIMPLE_REQUEST_RESPONSES[400],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
     }
 }
 
 USER_BACKGROUND_SPECS = {
-    'tags': USER_TAGS,
+    'tags': _USER_TAGS,
     'parameters': [
-        ACCESS_TOKEN_COOKIE,
+        _ACCESS_TOKEN_COOKIE,
     ],
     'responses': {
         200: {
             'description': 'Image file bytes',
         },
-        400: SIMPLE_REQUEST_RESPONSES[400],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
     }
 }
 
 USER_INFO_EDIT_SPECS = {
-    'tags': USER_TAGS,
+    'tags': _USER_TAGS,
     'parameters': [
-        ACCESS_TOKEN_COOKIE,
-        CSRF_TOKEN_HEADER,
+        _ACCESS_TOKEN_COOKIE,
+        _CSRF_TOKEN_HEADER,
         {
             'name': 'body',
             'in': 'body',
@@ -247,16 +245,16 @@ USER_INFO_EDIT_SPECS = {
         },
     ],
     'responses': {
-        200: SIMPLE_REQUEST_RESPONSES[200],
-        400: SIMPLE_REQUEST_RESPONSES[400],
+        200: _SIMPLE_REQUEST_RESPONSES[200],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
     }
 }
 
 USER_AVATAR_EDIT_SPECS = {
-    'tags': USER_TAGS,
+    'tags': _USER_TAGS,
     'parameters': [
-        ACCESS_TOKEN_COOKIE,
-        CSRF_TOKEN_HEADER,
+        _ACCESS_TOKEN_COOKIE,
+        _CSRF_TOKEN_HEADER,
         {
             'name': 'body',
             'in': 'body',
@@ -267,16 +265,16 @@ USER_AVATAR_EDIT_SPECS = {
         },
     ],
     'responses': {
-        200: SIMPLE_REQUEST_RESPONSES[200],
-        400: SIMPLE_REQUEST_RESPONSES[400],
+        200: _SIMPLE_REQUEST_RESPONSES[200],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
     }
 }
 
 USER_BACKGROUND_EDIT_SPECS = {
-    'tags': USER_TAGS,
+    'tags': _USER_TAGS,
     'parameters': [
-        ACCESS_TOKEN_COOKIE,
-        CSRF_TOKEN_HEADER,
+        _ACCESS_TOKEN_COOKIE,
+        _CSRF_TOKEN_HEADER,
         {
             'name': 'body',
             'in': 'body',
@@ -287,16 +285,16 @@ USER_BACKGROUND_EDIT_SPECS = {
         },
     ],
     'responses': {
-        200: SIMPLE_REQUEST_RESPONSES[200],
-        400: SIMPLE_REQUEST_RESPONSES[400],
+        200: _SIMPLE_REQUEST_RESPONSES[200],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
     }
 }
 
 USER_CHATS_SPECS = {
-    'tags': USER_TAGS,
+    'tags': _USER_TAGS,
     'description': 'Chats sorted by "creatingDatetime" of "lastMessage" in descending order.',
     'parameters': [
-        ACCESS_TOKEN_COOKIE,
+        _ACCESS_TOKEN_COOKIE,
     ],
     'responses': {
         200: {
@@ -319,7 +317,7 @@ USER_CHATS_SPECS = {
                         'type': 'array',
                         'items': {'type': 'integer'},
                     },
-                    'lastMessage': CHAT_MESSAGE_SCHEMA,
+                    'lastMessage': _CHAT_MESSAGE_SCHEMA,
                 },
             }
         },
@@ -327,9 +325,9 @@ USER_CHATS_SPECS = {
 }
 
 CODE_SEND_SPECS = {
-    'tags': USER_TAGS,
+    'tags': _USER_TAGS,
     'parameters': [
-        CSRF_TOKEN_HEADER,
+        _CSRF_TOKEN_HEADER,
         {
             'name': 'body',
             'in': 'body',
@@ -345,14 +343,14 @@ CODE_SEND_SPECS = {
         },
     ],
     'responses': {
-        200: SIMPLE_REQUEST_RESPONSES[200],
-        400: SIMPLE_REQUEST_RESPONSES[400],
-        409: SIMPLE_REQUEST_RESPONSES[409],
+        200: _SIMPLE_REQUEST_RESPONSES[200],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
+        409: _SIMPLE_REQUEST_RESPONSES[409],
     },
 }
 
 CODE_CHECK_SPECS = {
-    'tags': USER_TAGS,
+    'tags': _USER_TAGS,
     'parameters': [
         {
             'name': 'email',
@@ -378,15 +376,15 @@ CODE_CHECK_SPECS = {
                 }
             }
         },
-        400: SIMPLE_REQUEST_RESPONSES[400],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
     },
 }
 
 CHAT_HISTORY_SPECS = {
-    'tags': CHAT_TAGS,
+    'tags': _CHAT_TAGS,
     'description': 'Messages sorted by "creatingDatetime" in descending order.',
     'parameters': [
-        ACCESS_TOKEN_COOKIE,
+        _ACCESS_TOKEN_COOKIE,
         {
             'name': 'chatId',
             'in': 'query',
@@ -407,12 +405,12 @@ CHAT_HISTORY_SPECS = {
                 'properties': {
                     'messages': {
                         'type': 'array',
-                        'items': CHAT_MESSAGE_SCHEMA,
+                        'items': _CHAT_MESSAGE_SCHEMA,
                     }
                 }
             }
         },
-        400: SIMPLE_REQUEST_RESPONSES[400],
-        403: SIMPLE_REQUEST_RESPONSES[403],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
+        403: _SIMPLE_REQUEST_RESPONSES[403],
     }
 }
