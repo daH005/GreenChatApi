@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from api.websocket_.base.typing_ import CommonHandlerFuncT, ConnectAndDisconnectHandlerFuncT
 from api.websocket_.common import clear_message_text
-from api.websocket_.main import (
+from api.websocket_.server_handlers import (
     users_ids_and_potential_interlocutors_ids,
     each_connection_handler,
     full_disconnection_handler,

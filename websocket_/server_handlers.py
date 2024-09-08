@@ -34,6 +34,10 @@ from api.websocket_.validation import (
 )
 from api.common.ssl_context import get_ssl_context
 
+__all__ = (
+    'server',
+)
+
 server = WebSocketServer(
     host=HOST,
     port=WEBSOCKET_PORT,
@@ -289,9 +293,3 @@ async def chat_message_was_read(user: User, data: dict) -> None:
             user_id=sender_id,
             message=MessageType.READ_CHAT_MESSAGES.make_json_dict(result_data),
         )
-
-
-if __name__ == '__main__':
-    db_builder.init_session(url=DB_URL)
-    db_builder.make_migrations()
-    server.run()
