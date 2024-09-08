@@ -6,7 +6,7 @@ from api.db.models import (
     ChatMessage,
     User,
 )
-from api.db.builder import DBBuilder
+from api.db.builder import db_builder
 from api.websocket_.base.server import WebSocketServer
 
 __all__ = (
@@ -42,7 +42,7 @@ def make_chat_message_and_add_to_session(text: str,
         chat_id=chat_id,
         text=text,
     )
-    DBBuilder.session.add(chat_message)
+    db_builder.session.add(chat_message)
     return chat_message
 
 

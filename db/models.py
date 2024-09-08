@@ -27,7 +27,7 @@ __all__ = (
     'UnreadCount',
 )
 
-from api.db.builder import DBBuilder
+from api.db.builder import db_builder
 
 
 class BaseModel(DeclarativeBase):
@@ -63,7 +63,7 @@ class User(BaseModel):
     @classmethod
     @raises(ValueError)
     def by_email(cls, email: str) -> User:
-        user: User | None = DBBuilder.session.query(cls).filter(cls.email == email).first()
+        user: User | None = db_builder.session.query(cls).filter(cls.email == email).first()
         if user is None:
             raise ValueError
         return user
@@ -76,7 +76,7 @@ class User(BaseModel):
     def _data_is_already_taken(cls, field_name: str,
                                value: str,
                                ) -> bool:
-        user: User | None = DBBuilder.session.query(cls).filter(getattr(cls, field_name) == value).first()
+        user: User | None = db_builder.session.query(cls).filter(getattr(cls, field_name) == value).first()
         return user is not None
 
 
@@ -148,7 +148,7 @@ class UserChatMatch(BaseModel):
     def chat_if_user_has_access(cls, user_id: int,
                                 chat_id: int,
                                 ) -> Chat:
-        match: UserChatMatch | None = DBBuilder.session.query(cls).filter(
+        match: UserChatMatch | None = db_builder.session.query(cls).filter(
             cls.user_id == user_id, cls.chat_id == chat_id
         ).first()
         if match is not None:
@@ -157,12 +157,12 @@ class UserChatMatch(BaseModel):
 
     @classmethod
     def users_of_chat(cls, chat_id: int) -> list[User]:
-        matches: list[cls] = DBBuilder.session.query(cls).filter(cls.chat_id == chat_id).all()  # type: ignore
+        matches: list[cls] = db_builder.session.query(cls).filter(cls.chat_id == chat_id).all()  # type: ignore
         return [match.user for match in matches]
 
     @classmethod
     def chats_of_user(cls, user_id: int) -> list[Chat]:
-        matches: list[cls] = DBBuilder.session.query(cls).filter(cls.user_id == user_id).all()  # type: ignore
+        matches: list[cls] = db_builder.session.query(cls).filter(cls.user_id == user_id).all()  # type: ignore
         return sorted([match.chat for match in matches], key=cls._value_for_user_chats_sort, reverse=True)
 
     @staticmethod
@@ -177,9 +177,9 @@ class UserChatMatch(BaseModel):
     def interlocutor_of_user_of_chat(cls, user_id: int,
                                      chat_id: int,
                                      ) -> User:
-        interlocutor_match: cls | None = DBBuilder.session.query(cls).filter(cls.user_id != user_id,
-                                                                             cls.chat_id == chat_id,
-                                                                             ).first()  # type: ignore
+        interlocutor_match: cls | None = db_builder.session.query(cls).filter(cls.user_id != user_id,
+                                                                              cls.chat_id == chat_id,
+                                                                              ).first()  # type: ignore
         if interlocutor_match is not None:
             return interlocutor_match.user
         raise ValueError
@@ -191,7 +191,7 @@ class UserChatMatch(BaseModel):
                                    ) -> Chat:
         chats_ids = []
 
-        matches: list[cls] = DBBuilder.session.query(cls).filter(  # type: ignore
+        matches: list[cls] = db_builder.session.query(cls).filter(  # type: ignore
             (cls.user_id == first_user_id) | (cls.user_id == second_user_id),
         ).all()
         for match in matches:
@@ -212,7 +212,7 @@ class UserChatMatch(BaseModel):
             users = cls.users_of_chat(chat.id)
             interlocutors.update(users)
 
-        self_user: User = DBBuilder.session.get(User, user_id)  # noqa
+        self_user: User = db_builder.session.get(User, user_id)  # noqa
         if self_user in interlocutors:
             interlocutors.remove(self_user)
 
@@ -222,9 +222,9 @@ class UserChatMatch(BaseModel):
     def unread_count_of_user_of_chat(cls, user_id: int,
                                      chat_id: int,
                                      ) -> UnreadCount:
-        match: cls | None = DBBuilder.session.query(cls).filter(cls.user_id == user_id,
-                                                                cls.chat_id == chat_id,
-                                                                ).first()  # type: ignore
+        match: cls | None = db_builder.session.query(cls).filter(cls.user_id == user_id,
+                                                                 cls.chat_id == chat_id,
+                                                                 ).first()  # type: ignore
         return match.unread_count
 
 

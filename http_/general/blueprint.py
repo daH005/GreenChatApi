@@ -17,7 +17,7 @@ from flask_jwt_extended import (
 )
 from flasgger import swag_from
 
-from api.db.builder import DBBuilder
+from api.db.builder import db_builder
 from api.db.models import User, UserChatMatch, BlacklistToken
 from api.common.json_ import (
     JSONKey,
@@ -84,8 +84,8 @@ def login() -> tuple[Response, HTTPStatus]:
         user: User = User(
             email=user_data.email,
         )
-        DBBuilder.session.add(user)
-        DBBuilder.session.commit()
+        db_builder.session.add(user)
+        db_builder.session.commit()
         status_code = HTTPStatus.CREATED
 
     response: Response = jsonify(**SimpleResponseStatusJSONDictMaker.make(status=status_code))
@@ -104,8 +104,8 @@ def refresh_access() -> Response:
     set_refresh_cookies(response, create_refresh_token(identity=current_user.email))
 
     blacklist_token: BlacklistToken = BlacklistToken(jti=get_jwt()['jti'])
-    DBBuilder.session.add(blacklist_token)
-    DBBuilder.session.commit()
+    db_builder.session.add(blacklist_token)
+    db_builder.session.commit()
 
     return response
 
@@ -119,7 +119,7 @@ def user_info() -> UserJSONDictMaker.Dict:
         return UserJSONDictMaker.make(user=current_user, exclude_important_info=False)
 
     try:
-        user: User | None = DBBuilder.session.get(User, int(user_id_as_str))
+        user: User | None = db_builder.session.get(User, int(user_id_as_str))
     except ValueError:
         return abort(HTTPStatus.BAD_REQUEST)
 
@@ -137,7 +137,7 @@ def user_info_edit() -> SimpleResponseStatusJSONDictMaker.Dict:
 
     current_user.first_name = data.first_name
     current_user.last_name = data.last_name
-    DBBuilder.session.commit()
+    db_builder.session.commit()
 
     return SimpleResponseStatusJSONDictMaker.make(status=HTTPStatus.OK)
 

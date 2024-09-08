@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from api.db.builder import DBBuilder
+from api.db.builder import db_builder
 from api.db.models import BaseModel
 from api.common.json_ import ChatMessageJSONDictMaker
 from api.http_.app_preparing import init_all_dependencies
@@ -29,18 +29,18 @@ def pytest_sessionstart() -> None:
 
 
 def prepare_db() -> None:
-    DBBuilder.init_session('sqlite:///:memory:')
-    BaseModel.metadata.create_all(bind=DBBuilder.engine)
+    db_builder.init_session('sqlite:///:memory:')
+    BaseModel.metadata.create_all(bind=db_builder.engine)
 
-    DBBuilder.session.add_all([
+    db_builder.session.add_all([
         *USERS.values(),
         *CHATS.values(),
         *USERS_CHATS_MATCHES,
         *UNREAD_COUNTS,
     ])
-    DBBuilder.session.commit()
+    db_builder.session.commit()
 
     # For correct `creating_datetime`:
     for message in CHATS_MESSAGES:
-        DBBuilder.session.add(message)
-        DBBuilder.session.commit()
+        db_builder.session.add(message)
+        db_builder.session.commit()

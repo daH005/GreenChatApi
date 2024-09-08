@@ -7,7 +7,7 @@ from jwt import decode as decode_jwt
 
 from api.common.hinting import raises
 from api.common.json_ import WebSocketMessageJSONDictMaker
-from api.db.builder import DBBuilder
+from api.db.builder import db_builder
 from api.db.models import User
 from api.websocket_.base.typing_ import CommonHandlerFuncT, ConnectAndDisconnectHandlerFuncT
 from api.websocket_.base.client_handler import WebSocketClientHandler
@@ -94,7 +94,7 @@ class WebSocketServer:
     @raises(ValueError)
     def _try_to_get_user_id_by_jwt(self, jwt: str) -> int:
         email: str = self._try_to_get_email_from_jwt(jwt)
-        DBBuilder.session.remove()  # for session updating
+        db_builder.session.remove()  # for session updating
         return User.by_email(email=email).id
 
     @raises(ValueError)

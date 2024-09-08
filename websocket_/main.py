@@ -16,7 +16,7 @@ from api.db.models import (
     UserChatMatch,
     UnreadCount,
 )
-from api.db.builder import DBBuilder
+from api.db.builder import db_builder
 from api.websocket_.base.server import WebSocketServer
 from api.websocket_.messages_types import MessageType
 from api.websocket_.common import (
@@ -116,16 +116,16 @@ async def new_chat(user: User, data: dict) -> None:
         name=data.name,
         is_group=data.is_group,
     )
-    DBBuilder.session.add(chat)
-    DBBuilder.session.flush()
+    db_builder.session.add(chat)
+    db_builder.session.flush()
 
     for user_id in data.users_ids:
         match: UserChatMatch = UserChatMatch(
             user_id=user_id,
             chat_id=chat.id,
         )
-        DBBuilder.session.add(match)
-        DBBuilder.session.flush()
+        db_builder.session.add(match)
+        db_builder.session.flush()
 
         value = 1
         if user_id == user.id:
@@ -134,7 +134,7 @@ async def new_chat(user: User, data: dict) -> None:
             user_chat_match_id=match.id,
             value=value,
         )
-        DBBuilder.session.add(unread_count)
+        db_builder.session.add(unread_count)
 
     make_chat_message_and_add_to_session(
         text=data.text,
@@ -142,7 +142,7 @@ async def new_chat(user: User, data: dict) -> None:
         chat_id=chat.id,
     )
 
-    DBBuilder.session.commit()
+    db_builder.session.commit()
 
     for user_id in data.users_ids:
         result_data = ChatJSONDictMaker.make(chat=chat, user_id=user_id)
@@ -201,7 +201,7 @@ async def new_chat_message(user: User, data: dict) -> None:
             message=MessageType.NEW_UNREAD_COUNT.make_json_dict(result_data)
         )
 
-    DBBuilder.session.commit()
+    db_builder.session.commit()
 
     chat_users_ids: list[int] = [chat_user.id for chat_user in chat_users]
     result_data = ChatMessageJSONDictMaker.make(chat_message=chat_message)
@@ -269,7 +269,7 @@ async def chat_message_was_read(user: User, data: dict) -> None:
     if not read_messages_ids:
         return
 
-    DBBuilder.session.commit()
+    db_builder.session.commit()
 
     result_data = NewUnreadCountJSONDictMaker.make(
         chat_id=chat.id,
@@ -292,6 +292,6 @@ async def chat_message_was_read(user: User, data: dict) -> None:
 
 
 if __name__ == '__main__':
-    DBBuilder.init_session(url=DB_URL)
-    DBBuilder.make_migrations()
+    db_builder.init_session(url=DB_URL)
+    db_builder.make_migrations()
     server.run()

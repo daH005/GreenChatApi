@@ -5,7 +5,7 @@ from flask import (
 from werkzeug.exceptions import HTTPException
 from json import dumps as json_dumps
 
-from api.db.builder import DBBuilder
+from api.db.builder import db_builder
 
 __all__ = (
     'app',
@@ -18,7 +18,7 @@ app: Flask = Flask(__name__)
 def shutdown_db_session(exception=None) -> None:
     if exception:
         print(exception)
-    DBBuilder.session.remove()
+    db_builder.session.remove()
 
 
 @app.errorhandler(HTTPException)

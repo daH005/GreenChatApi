@@ -6,7 +6,7 @@ from websockets import WebSocketServerProtocol, ConnectionClosed
 
 from api.common.hinting import raises
 from api.common.json_ import WebSocketMessageJSONDictMaker, JSONKey
-from api.db.builder import DBBuilder
+from api.db.builder import db_builder
 from api.db.models import User
 from api.websocket_.base.typing_ import CommonHandlerFuncT
 from api.websocket_.base.logs import logger
@@ -28,7 +28,7 @@ class WebSocketClientHandler:
 
     @property
     def user(self) -> User:
-        return DBBuilder.session.query(User).get(self._user_id)
+        return db_builder.session.query(User).get(self._user_id)
 
     @raises(ConnectionClosed)
     async def listen(self) -> None:
@@ -48,7 +48,7 @@ class WebSocketClientHandler:
                 print_exc()
                 continue
 
-            DBBuilder.session.remove()
+            db_builder.session.remove()
 
     @raises(ConnectionClosed, JSONDecodeError)
     async def _wait_json_dict(self) -> WebSocketMessageJSONDictMaker.Dict:
