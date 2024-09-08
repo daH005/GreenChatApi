@@ -8,14 +8,14 @@ from flasgger import swag_from
 from typing import Final
 from pathlib import Path
 
-from api.config import STATIC_FOLDER, MEDIA_FOLDER
-from api.db.models import User
-from api.http_.urls import Url
-from api.http_.apidocs_constants import (
+from config import STATIC_FOLDER, MEDIA_FOLDER
+from db.models import User
+from http_.urls import Url
+from http_.apidocs_constants import (
     USER_BACKGROUND_SPECS,
     USER_BACKGROUND_EDIT_SPECS,
 )
-from api.http_.user_images_common import get_user_image, edit_user_image
+from http_.user_images_common import get_user_image, edit_user_image
 
 __all__ = (
     'bp',

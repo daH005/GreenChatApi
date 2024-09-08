@@ -16,22 +16,22 @@ from flask_jwt_extended import (
 )
 from flasgger import swag_from
 
-from api.db.builder import db_builder
-from api.db.models import User, UserChatMatch, BlacklistToken
-from api.common.json_ import (
+from db.builder import db_builder
+from db.models import User, UserChatMatch, BlacklistToken
+from common.json_ import (
     JSONKey,
     ChatHistoryJSONDictMaker,
     UserChatsJSONDictMaker,
     UserJSONDictMaker,
     AlreadyTakenFlagJSONDictMaker,
 )
-from api.http_.simple_response import make_simple_response
-from api.http_.validation import EmailAndCodeJSONValidator, UserJSONValidator
-from api.http_.email.codes.functions import (
+from http_.simple_response import make_simple_response
+from http_.validation import EmailAndCodeJSONValidator, UserJSONValidator
+from http_.email.codes.functions import (
     email_code_is_valid,
     delete_email_code,
 )
-from api.http_.apidocs_constants import (
+from http_.apidocs_constants import (
     EMAIL_CHECK_SPECS,
     LOGIN_SPECS,
     REFRESH_ACCESS_SPECS,
@@ -40,7 +40,7 @@ from api.http_.apidocs_constants import (
     USER_CHATS_SPECS,
     CHAT_HISTORY_SPECS,
 )
-from api.http_.urls import Url
+from http_.urls import Url
 
 current_user: User
 

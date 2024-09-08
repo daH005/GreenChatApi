@@ -1,8 +1,8 @@
 from flask_jwt_extended import create_access_token, create_refresh_token, get_csrf_token
 
-from api.db.models import User
-from api._tests.data.db import USERS
-from api._tests.data.json_ import (
+from db.models import User
+from _tests.data.db import USERS
+from _tests.data.json_ import (
     USER_CHATS_KWARGS_AND_JSON_DICTS,
     CHAT_HISTORY_KWARGS_AND_JSON_DICTS,
 )

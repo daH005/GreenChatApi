@@ -3,7 +3,7 @@ from enum import StrEnum
 from typing import TypedDict, NotRequired
 from abc import ABC, abstractmethod
 
-from api.db.models import (
+from db.models import (
     User,
     ChatMessage,
     Chat,

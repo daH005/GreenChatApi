@@ -1,4 +1,4 @@
-from api.db.models import (
+from db.models import (
     User,
     Chat,
     ChatMessage,

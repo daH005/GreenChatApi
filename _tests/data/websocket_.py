@@ -1,5 +1,5 @@
-from api._tests.data.db import USERS
-from api._tests.common import COMMON_DATETIME
+from _tests.data.db import USERS
+from _tests.common_ import COMMON_DATETIME
 
 __all__ = (
     'ONLINE_USERS_IDS',

@@ -1,7 +1,7 @@
 from enum import StrEnum
 from redis import Redis
 
-from api.config import REDIS_HOST, REDIS_PORT
+from config import REDIS_HOST, REDIS_PORT
 
 __all__ = (
     'KeyPrefix',

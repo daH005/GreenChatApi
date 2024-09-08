@@ -4,12 +4,12 @@ from traceback import print_exc
 from jwt import decode
 from websockets import WebSocketServerProtocol, ConnectionClosed
 
-from api.common.hinting import raises
-from api.common.json_ import WebSocketMessageJSONDictMaker, JSONKey
-from api.db.builder import db_builder
-from api.db.models import User
-from api.websocket_.base.typing_ import CommonHandlerFuncT
-from api.websocket_.base.logs import logger
+from common.hinting import raises
+from common.json_ import WebSocketMessageJSONDictMaker, JSONKey
+from db.builder import db_builder
+from db.models import User
+from websocket_.base.typing_ import CommonHandlerFuncT
+from websocket_.base.logs import logger
 
 __all__ = (
     'WebSocketClientHandler',

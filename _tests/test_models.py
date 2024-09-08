@@ -1,13 +1,13 @@
 import pytest
 
-from api.db.models import (
+from db.models import (
     User,
     Chat,
     ChatMessage,
     UserChatMatch,
     UnreadCount,
 )
-from api._tests.data.db import (
+from _tests.data.db import (
     CHATS_INTERLOCUTORS,
     USERS_CHATS,
     CHATS_USERS,

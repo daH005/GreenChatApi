@@ -4,8 +4,8 @@ from flask import (
 )
 from werkzeug.exceptions import HTTPException
 
-from api.db.builder import db_builder
-from api.http_.simple_response import make_simple_response
+from db.builder import db_builder
+from http_.simple_response import make_simple_response
 
 __all__ = (
     'app',

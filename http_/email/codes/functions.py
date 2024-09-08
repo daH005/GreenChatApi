@@ -1,13 +1,13 @@
 from random import randint
 
-from api.common.hinting import raises
-from api.config import (
+from common.hinting import raises
+from config import (
     REDIS_EMAIL_CODES_EXPIRES,
     DEBUG,
     TEST_PASS_EMAIL_CODE,
     MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE,
 )
-from api.http_.email.codes.key_prefixes import KeyPrefix
+from http_.email.codes.key_prefixes import KeyPrefix
 
 __all__ = (
     'make_and_save_email_code',

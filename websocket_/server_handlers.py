@@ -1,38 +1,38 @@
 from pydantic import ValidationError
 
-from api.config import HOST, WEBSOCKET_PORT, DB_URL, JWT_SECRET_KEY, JWT_ALGORITHM
-from api.common.hinting import raises
-from api.common.json_ import (
+from config import HOST, WEBSOCKET_PORT, DB_URL, JWT_SECRET_KEY, JWT_ALGORITHM
+from common.hinting import raises
+from common.json_ import (
     ChatJSONDictMaker,
     ChatMessageJSONDictMaker,
     ChatMessageTypingJSONDictMaker,
     NewUnreadCountJSONDictMaker,
     ReadChatMessagesIdsJSONDictMaker,
 )
-from api.db.models import (
+from db.models import (
     User,
     Chat,
     ChatMessage,
     UserChatMatch,
     UnreadCount,
 )
-from api.db.builder import db_builder
-from api.websocket_.base.server import WebSocketServer
-from api.websocket_.messages_types import MessageType
-from api.websocket_.common import (
+from db.builder import db_builder
+from websocket_.base.server import WebSocketServer
+from websocket_.messages_types import MessageType
+from websocket_.common import (
     users_ids_of_chat_by_id,
     make_chat_message_and_add_to_session,
     interlocutors_ids_for_user_by_id,
     make_online_statuses_data,
 )
-from api.websocket_.validation import (
+from websocket_.validation import (
     UserIdJSONValidator,
     NewChatJSONValidator,
     NewChatMessageJSONValidator,
     ChatIdJSONValidator,
     ChatMessageWasReadJSONValidator,
 )
-from api.common.ssl_context import get_ssl_context
+from common.ssl_context import get_ssl_context
 
 __all__ = (
     'server',

@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from api.common.json_ import WebSocketMessageJSONDictMaker
+from common.json_ import WebSocketMessageJSONDictMaker
 
 __all__ = (
     'MessageType',

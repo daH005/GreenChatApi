@@ -3,9 +3,9 @@ from http import HTTPStatus
 from werkzeug.test import TestResponse
 from unittest.mock import patch
 
-from api.http_.app import app
-from api._tests.common import JsonDictType, HeadersOrQueryArgsType
-from api._tests.data.http_ import (
+from http_.app import app
+from _tests.common_ import JsonDictType, HeadersOrQueryArgsType
+from _tests.data.http_ import (
     CHECK_EMAIL_TEST_ENDPOINT_KWARGS,
     LOGIN_TEST_ENDPOINT_KWARGS,
     REFRESH_ACCESS_TEST_ENDPOINT_KWARGS,
@@ -20,7 +20,7 @@ _test_client = app.test_client(use_cookies=False)
 
 
 def setup_module() -> None:
-    patch('api.http_.email.tasks.send_code_task').start()
+    patch('http_.email.tasks.send_code_task').start()
     app.teardown_appcontext_funcs.clear()
 
 

@@ -1,5 +1,5 @@
-from api.config import DB_URL
-from api.db.builder import db_builder
+from config import DB_URL
+from db.builder import db_builder
 
 __all__ = (
     'init_db',

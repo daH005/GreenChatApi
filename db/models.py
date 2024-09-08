@@ -15,7 +15,7 @@ from sqlalchemy.orm import (
 )
 from datetime import datetime
 
-from api.common.hinting import raises
+from common.hinting import raises
 
 __all__ = (
     'BaseModel',
@@ -27,7 +27,7 @@ __all__ = (
     'UnreadCount',
 )
 
-from api.db.builder import db_builder
+from db.builder import db_builder
 
 
 class BaseModel(DeclarativeBase):

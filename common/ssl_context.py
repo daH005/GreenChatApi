@@ -1,7 +1,7 @@
 from pathlib import Path
 from ssl import SSLContext, create_default_context, Purpose
 
-from api.config import BASE_DIR
+from config import BASE_DIR
 
 __all__ = (
     'get_ssl_context',

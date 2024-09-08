@@ -1,11 +1,11 @@
 from unittest.mock import patch
 
-from api.db.builder import db_builder
-from api.db.models import BaseModel
-from api.common.json_ import ChatMessageJSONDictMaker
-from api.http_.app_preparing import init_all_dependencies
-from api._tests.common import COMMON_DATETIME
-from api._tests.data.db import (
+from db.builder import db_builder
+from db.models import BaseModel
+from common.json_ import ChatMessageJSONDictMaker
+from http_.app_preparing import init_all_dependencies
+from _tests.common_ import COMMON_DATETIME
+from _tests.data.db import (
     USERS,
     CHATS,
     USERS_CHATS_MATCHES,
@@ -24,7 +24,7 @@ def pytest_sessionstart() -> None:
             'creatingDatetime': COMMON_DATETIME.isoformat(),
         }
 
-    patch('api.common.json_.ChatMessageJSONDictMaker.make', chat_message_json_dict_maker_make_method_mock).start()
+    patch('common.json_.ChatMessageJSONDictMaker.make', chat_message_json_dict_maker_make_method_mock).start()
     prepare_db()
 
 

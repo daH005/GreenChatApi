@@ -1,13 +1,13 @@
 from re import sub
 from typing import Final
 
-from api.db.models import (
+from db.models import (
     UserChatMatch,
     ChatMessage,
     User,
 )
-from api.db.builder import db_builder
-from api.websocket_.base.server import WebSocketServer
+from db.builder import db_builder
+from websocket_.base.server import WebSocketServer
 
 __all__ = (
     'TEXT_MAX_LENGTH',

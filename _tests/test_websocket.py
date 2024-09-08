@@ -1,9 +1,9 @@
 import pytest
 from unittest.mock import patch
 
-from api.websocket_.base.typing_ import CommonHandlerFuncT, ConnectAndDisconnectHandlerFuncT
-from api.websocket_.common import clear_message_text
-from api.websocket_.server_handlers import (
+from websocket_.base.typing_ import CommonHandlerFuncT, ConnectAndDisconnectHandlerFuncT
+from websocket_.common import clear_message_text
+from websocket_.server_handlers import (
     users_ids_and_potential_interlocutors_ids,
     each_connection_handler,
     full_disconnection_handler,
@@ -13,7 +13,7 @@ from api.websocket_.server_handlers import (
     new_chat_message_typing,
     chat_message_was_read,
 )
-from api._tests.data.websocket_ import (
+from _tests.data.websocket_ import (
     ONLINE_USERS_IDS,
     USERS_IDS_AND_POTENTIAL_INTERLOCUTORS_IDS,
     EACH_CONNECTION_HANDLER_KWARGS_AND_SERVER_MESSAGES,
@@ -43,8 +43,8 @@ def setup_module() -> None:
                                                             ) -> None:
         saved_server_messages.setdefault(user_id, []).append(message)
 
-    patch('api.websocket_.base.server.WebSocketServer.user_have_connections', websocket_server_user_have_connections_method_mock).start()
-    patch('api.websocket_.base.server.WebSocketServer.send_to_one_user', websocket_server_send_to_one_user_method_mock).start()
+    patch('websocket_.base.server.WebSocketServer.user_have_connections', websocket_server_user_have_connections_method_mock).start()
+    patch('websocket_.base.server.WebSocketServer.send_to_one_user', websocket_server_send_to_one_user_method_mock).start()
     users_ids_and_potential_interlocutors_ids.update(USERS_IDS_AND_POTENTIAL_INTERLOCUTORS_IDS)
 
 

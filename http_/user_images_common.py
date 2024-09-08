@@ -8,7 +8,7 @@ from flask_jwt_extended import current_user
 from typing import Final
 from pathlib import Path
 
-from api.http_.simple_response import make_simple_response
+from http_.simple_response import make_simple_response
 
 __all__ = (
     'get_user_image',

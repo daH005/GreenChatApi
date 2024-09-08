@@ -1,26 +1,26 @@
 from flask_cors import CORS
 from flasgger import Swagger
 
-from api.config import (
+from config import (
     CORS_ORIGINS,
     JWT_SECRET_KEY,
     JWT_ALGORITHM,
     JWT_ACCESS_TOKEN_EXPIRES,
     JWT_REFRESH_TOKEN_EXPIRES,
 )
-from api.http_.urls import Url
-from api.http_.jwt_ import jwt
-from api.http_.app import app
-from api.http_.email.blueprint import (
+from http_.urls import Url
+from http_.jwt_ import jwt
+from http_.app import app
+from http_.email.blueprint import (
     bp as email_bp,
 )
-from api.http_.avatars.blueprint import (
+from http_.avatars.blueprint import (
     bp as avatars_bp,
 )
-from api.http_.backgrounds.blueprint import (
+from http_.backgrounds.blueprint import (
     bp as backgrounds_bp,
 )
-from api.http_.general.blueprint import (
+from http_.general.blueprint import (
     bp as general_bp,
 )
 

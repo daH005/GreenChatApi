@@ -3,8 +3,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from celery import Celery
 
-from api.config import REDIS_URL
-from api.config import (
+from config import REDIS_URL
+from config import (
     EMAIL,
     EMAIL_PASSWORD,
     SMTP_HOST,

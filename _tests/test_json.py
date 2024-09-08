@@ -1,6 +1,6 @@
 import pytest
 
-from api.common.json_ import (
+from common.json_ import (
     ChatHistoryJSONDictMaker,
     ChatMessageJSONDictMaker,
     ChatMessageTypingJSONDictMaker,
@@ -11,7 +11,7 @@ from api.common.json_ import (
     NewUnreadCountJSONDictMaker,
     ReadChatMessagesIdsJSONDictMaker,
 )
-from api._tests.data.json_ import (
+from _tests.data.json_ import (
     CODE_IS_VALID_FLAG_KWARGS_AND_JSON_DICTS,
     USER_CHATS_KWARGS_AND_JSON_DICTS,
     CHAT_INFO_KWARGS_AND_JSON_DICTS,

@@ -10,14 +10,14 @@ from flasgger import swag_from
 from typing import Final
 from pathlib import Path
 
-from api.config import STATIC_FOLDER, MEDIA_FOLDER
-from api.common.json_ import JSONKey
-from api.http_.urls import Url
-from api.http_.apidocs_constants import (
+from config import STATIC_FOLDER, MEDIA_FOLDER
+from common.json_ import JSONKey
+from http_.urls import Url
+from http_.apidocs_constants import (
     USER_AVATAR_SPECS,
     USER_AVATAR_EDIT_SPECS,
 )
-from api.http_.user_images_common import get_user_image, edit_user_image
+from http_.user_images_common import get_user_image, edit_user_image
 
 __all__ = (
     'bp',

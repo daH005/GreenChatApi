@@ -3,8 +3,8 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool, MetaData
 from alembic import context
 
-from api.db.models import BaseModel
-# from api.config import DB_URL, BASE_DIR
+from db.models import BaseModel
+# from config import DB_URL, BASE_DIR
 
 config = context.config
 

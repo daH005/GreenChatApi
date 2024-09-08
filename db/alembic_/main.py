@@ -1,7 +1,7 @@
 from alembic.config import Config
 from alembic import command
 
-from api.config import BASE_DIR, DB_URL
+from config import BASE_DIR, DB_URL
 
 __all__ = (
     'config',

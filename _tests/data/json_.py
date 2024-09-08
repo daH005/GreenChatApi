@@ -1,10 +1,10 @@
-from api._tests.data.db import (
+from _tests.data.db import (
     USERS_CHATS,
     CHATS,
     USERS,
     CHATS_MESSAGES,
 )
-from api._tests.common import COMMON_DATETIME
+from _tests.common_ import COMMON_DATETIME
 
 __all__ = (
     'CODE_IS_VALID_FLAG_KWARGS_AND_JSON_DICTS',

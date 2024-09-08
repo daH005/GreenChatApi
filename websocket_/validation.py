@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, field_validator
 
-from api.common.json_ import JSONKey
-from api.websocket_.common import clear_message_text
+from common.json_ import JSONKey
+from websocket_.common import clear_message_text
 
 __all__ = (
     'TextJSONValidator',

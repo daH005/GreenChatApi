@@ -1,6 +1,6 @@
 from typing import Callable, Coroutine
 
-from api.db.models import User
+from db.models import User
 
 __all__ = (
     'CommonHandlerFuncT',

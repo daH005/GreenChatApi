@@ -5,16 +5,16 @@ from kombu.asynchronous.http import Response
 from pydantic import validate_email
 from flasgger import swag_from
 
-from api.common.json_ import (
+from common.json_ import (
     JSONKey,
     CodeIsValidFlagJSONDictMaker,
 )
-from api.http_.simple_response import make_simple_response
-from api.http_.urls import Url
-from api.http_.email.tasks import send_code_task
-from api.http_.email.codes.functions import make_and_save_email_code, email_code_is_valid
-from api.http_.validation import EmailAndCodeJSONValidator
-from api.http_.apidocs_constants import (
+from http_.simple_response import make_simple_response
+from http_.urls import Url
+from http_.email.tasks import send_code_task
+from http_.email.codes.functions import make_and_save_email_code, email_code_is_valid
+from http_.validation import EmailAndCodeJSONValidator
+from http_.apidocs_constants import (
     CODE_SEND_SPECS,
     CODE_CHECK_SPECS,
 )

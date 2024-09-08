@@ -1,6 +1,6 @@
 from typing import NoReturn
 
-from api.http_.email.tasks import app
+from http_.email.tasks import app
 
 __all__ = (
     'run_celery',
