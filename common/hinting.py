@@ -8,7 +8,7 @@ func_T = TypeVar('func_T')
 
 
 def raises(*_exceptions: Unpack[Exception]) -> Callable[[func_T], func_T]:
-    """Decorator for annotation of exceptions.
+    """A decorator for annotations of exceptions.
 
     @raises(ValueError, KeyError)
     def any_func():
