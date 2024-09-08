@@ -42,6 +42,10 @@ class BlacklistToken(BaseModel):
 
     jti: Mapped[str] = mapped_column(String(500), unique=True)
 
+    @classmethod
+    def exists(cls, jti: str) -> bool:
+        return db_builder.session.query(cls).filter(cls.jti == jti).first() is not None
+
 
 class User(BaseModel):
     __tablename__ = 'users'
