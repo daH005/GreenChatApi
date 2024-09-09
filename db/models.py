@@ -1,4 +1,5 @@
 from __future__ import annotations
+from line_profiler import profile
 from sqlalchemy import (
     Integer,
     String,
@@ -16,6 +17,7 @@ from sqlalchemy.orm import (
 from datetime import datetime
 
 from common.hinting import raises
+from db.builder import db_builder
 
 __all__ = (
     'BaseModel',
@@ -26,8 +28,6 @@ __all__ = (
     'UserChatMatch',
     'UnreadCount',
 )
-
-from db.builder import db_builder
 
 
 class BaseModel(DeclarativeBase):
@@ -148,6 +148,7 @@ class UserChatMatch(BaseModel):
     )
 
     @classmethod
+    @profile
     @raises(PermissionError)
     def chat_if_user_has_access(cls, user_id: int,
                                 chat_id: int,
@@ -160,11 +161,13 @@ class UserChatMatch(BaseModel):
         raise PermissionError
 
     @classmethod
+    @profile
     def users_of_chat(cls, chat_id: int) -> list[User]:
         matches: list[cls] = db_builder.session.query(cls).filter(cls.chat_id == chat_id).all()  # type: ignore
         return [match.user for match in matches]
 
     @classmethod
+    @profile
     def chats_of_user(cls, user_id: int) -> list[Chat]:
         matches: list[cls] = db_builder.session.query(cls).filter(cls.user_id == user_id).all()  # type: ignore
         return sorted([match.chat for match in matches], key=cls._value_for_user_chats_sort, reverse=True)
@@ -177,6 +180,7 @@ class UserChatMatch(BaseModel):
             return 0.0
 
     @classmethod
+    @profile
     @raises(ValueError)
     def interlocutor_of_user_of_chat(cls, user_id: int,
                                      chat_id: int,
@@ -189,6 +193,7 @@ class UserChatMatch(BaseModel):
         raise ValueError
 
     @classmethod
+    @profile
     @raises(ValueError)
     def private_chat_between_users(cls, first_user_id: int,
                                    second_user_id: int,
@@ -208,6 +213,7 @@ class UserChatMatch(BaseModel):
         raise ValueError
 
     @classmethod
+    @profile
     def all_interlocutors_of_user(cls, user_id: int) -> list[User]:
         interlocutors = set()
 
@@ -223,6 +229,7 @@ class UserChatMatch(BaseModel):
         return list(interlocutors)
 
     @classmethod
+    @profile
     def unread_count_of_user_of_chat(cls, user_id: int,
                                      chat_id: int,
                                      ) -> UnreadCount:

@@ -1,3 +1,4 @@
+from line_profiler import profile
 from flask import (
     Blueprint,
     request,
@@ -32,6 +33,7 @@ _AVATARS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('avatars')
 @bp.route(Url.USER_AVATAR, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_AVATAR_SPECS)
+@profile
 def user_avatar() -> Response | None:
     try:
         user_id_as_str: str = request.args[JSONKey.USER_ID]
@@ -48,5 +50,6 @@ def user_avatar() -> Response | None:
 @bp.route(Url.USER_AVATAR_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_AVATAR_EDIT_SPECS)
+@profile
 def user_avatar_edit() -> Response:
     return edit_user_image(folder_path=_AVATARS_PATH)

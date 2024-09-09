@@ -1,6 +1,7 @@
+from line_profiler import profile
 from pydantic import ValidationError
 
-from config import HOST, WEBSOCKET_PORT, DB_URL, JWT_SECRET_KEY, JWT_ALGORITHM
+from config import HOST, WEBSOCKET_PORT, JWT_SECRET_KEY, JWT_ALGORITHM
 from common.hinting import raises
 from common.json_ import (
     ChatJSONDictMaker,
@@ -50,6 +51,7 @@ users_ids_and_potential_interlocutors_ids = {}
 
 
 @server.each_connection_handler
+@profile
 async def each_connection_handler(user: User) -> None:
     interlocutors_ids: list[int] = interlocutors_ids_for_user_by_id(user_id=user.id)
 
@@ -72,6 +74,7 @@ async def each_connection_handler(user: User) -> None:
 
 
 @server.full_disconnection_handler
+@profile
 async def full_disconnection_handler(user: User) -> None:
     interlocutors_ids: list[int] = interlocutors_ids_for_user_by_id(user_id=user.id)
 
@@ -84,6 +87,7 @@ async def full_disconnection_handler(user: User) -> None:
 
 
 @server.common_handler(MessageType.ONLINE_STATUS_TRACING_ADDING)
+@profile
 @raises(ValidationError)
 async def online_status_tracing_adding(user: User, data: dict) -> None:
     data: UserIdJSONValidator = UserIdJSONValidator(**data)
@@ -98,6 +102,7 @@ async def online_status_tracing_adding(user: User, data: dict) -> None:
 
 
 @server.common_handler(MessageType.NEW_CHAT)
+@profile
 @raises(ValidationError, ValueError)
 async def new_chat(user: User, data: dict) -> None:
     data: NewChatJSONValidator = NewChatJSONValidator(**data)
@@ -176,6 +181,7 @@ async def new_chat(user: User, data: dict) -> None:
 
 
 @server.common_handler(MessageType.NEW_CHAT_MESSAGE)
+@profile
 @raises(ValidationError, PermissionError)
 async def new_chat_message(user: User, data: dict) -> None:
     data: NewChatMessageJSONValidator = NewChatMessageJSONValidator(**data)
@@ -216,6 +222,7 @@ async def new_chat_message(user: User, data: dict) -> None:
 
 
 @server.common_handler(MessageType.NEW_CHAT_MESSAGE_TYPING)
+@profile
 @raises(ValidationError, PermissionError)
 async def new_chat_message_typing(user: User, data: dict) -> None:
     data: ChatIdJSONValidator = ChatIdJSONValidator(**data)
@@ -236,6 +243,7 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
 
 
 @server.common_handler(MessageType.CHAT_MESSAGE_WAS_READ)
+@profile
 @raises(ValidationError, PermissionError)
 async def chat_message_was_read(user: User, data: dict) -> None:
     data: ChatMessageWasReadJSONValidator = ChatMessageWasReadJSONValidator(**data)

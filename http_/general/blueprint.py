@@ -1,3 +1,4 @@
+from line_profiler import profile
 from flask import (
     Blueprint,
     request,
@@ -54,6 +55,7 @@ bp: Blueprint = Blueprint('general', __name__)
 
 @bp.route(Url.EMAIL_CHECK, methods=[HTTPMethod.GET])
 @swag_from(EMAIL_CHECK_SPECS)
+@profile
 def email_check() -> AlreadyTakenFlagJSONDictMaker.Dict | None:
     try:
         email: str = str(request.args[JSONKey.EMAIL])
@@ -67,6 +69,7 @@ def email_check() -> AlreadyTakenFlagJSONDictMaker.Dict | None:
 
 @bp.route(Url.LOGIN, methods=[HTTPMethod.POST])
 @swag_from(LOGIN_SPECS)
+@profile
 def login() -> Response | None:
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_json()
 
@@ -97,6 +100,7 @@ def login() -> Response | None:
 @bp.route(Url.REFRESH_ACCESS, methods=[HTTPMethod.POST])
 @jwt_required(refresh=True)
 @swag_from(REFRESH_ACCESS_SPECS)
+@profile
 def refresh_access() -> Response:
     response: Response = make_simple_response(HTTPStatus.OK)
     set_access_cookies(response, create_access_token(identity=current_user.email))
@@ -112,6 +116,7 @@ def refresh_access() -> Response:
 @bp.route(Url.USER_INFO, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_INFO_SPECS)
+@profile
 def user_info() -> UserJSONDictMaker.Dict | None:
     user_id_as_str: str | None = request.args.get(JSONKey.USER_ID)
     if user_id_as_str is None:
@@ -131,6 +136,7 @@ def user_info() -> UserJSONDictMaker.Dict | None:
 @bp.route(Url.USER_INFO_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_INFO_EDIT_SPECS)
+@profile
 def user_info_edit() -> Response:
     data: UserJSONValidator = UserJSONValidator.from_json()
 
@@ -144,6 +150,7 @@ def user_info_edit() -> Response:
 @bp.route(Url.USER_CHATS, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_CHATS_SPECS)
+@profile
 def user_chats() -> UserChatsJSONDictMaker.Dict:
     return UserChatsJSONDictMaker.make(
         user_chats=UserChatMatch.chats_of_user(user_id=current_user.id),
@@ -154,6 +161,7 @@ def user_chats() -> UserChatsJSONDictMaker.Dict:
 @bp.route(Url.CHAT_HISTORY, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(CHAT_HISTORY_SPECS)
+@profile
 def chat_history() -> ChatHistoryJSONDictMaker.Dict | None:
     try:
         chat_id: int = int(request.args[JSONKey.CHAT_ID])

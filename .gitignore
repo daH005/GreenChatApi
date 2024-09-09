@@ -5,3 +5,4 @@ __pycache__
 db/db.db
 db/__create_test_data.py
 _tests/.pytest_cache
+main.py.lprof

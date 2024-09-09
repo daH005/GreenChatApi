@@ -1,3 +1,4 @@
+from line_profiler import profile
 from flask import Blueprint, request, abort
 from http import HTTPMethod, HTTPStatus
 
@@ -28,6 +29,7 @@ bp: Blueprint = Blueprint('email', __name__)
 
 @bp.route(Url.CODE_SEND, methods=[HTTPMethod.POST])
 @swag_from(CODE_SEND_SPECS)
+@profile
 def code_send() -> Response | None:
     try:
         email: str = validate_email(request.json[JSONKey.EMAIL])[1]
@@ -45,6 +47,7 @@ def code_send() -> Response | None:
 
 @bp.route(Url.CODE_CHECK, methods=[HTTPMethod.GET])
 @swag_from(CODE_CHECK_SPECS)
+@profile
 def code_check() -> CodeIsValidFlagJSONDictMaker.Dict:
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_args()
 

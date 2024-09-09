@@ -1,3 +1,4 @@
+from line_profiler import profile
 from flask import (
     Blueprint,
     Response,
@@ -32,6 +33,7 @@ _BACKGROUNDS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('backgrounds')
 @bp.route(Url.USER_BACKGROUND, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_BACKGROUND_SPECS)
+@profile
 def user_background() -> Response:
     return get_user_image(
         user_id_as_str=str(current_user.id),
@@ -43,5 +45,6 @@ def user_background() -> Response:
 @bp.route(Url.USER_BACKGROUND_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_BACKGROUND_EDIT_SPECS)
+@profile
 def user_background_edit() -> Response:
     return edit_user_image(folder_path=_BACKGROUNDS_PATH)
