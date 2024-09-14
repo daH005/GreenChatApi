@@ -22,10 +22,10 @@ def pytest_sessionstart() -> None:
         }
 
     patch('common.json_.ChatMessageJSONDictMaker.make', chat_message_json_dict_maker_make_method_mock).start()
-    prepare_db()
+    _prepare_db()
 
 
-def prepare_db() -> None:
+def _prepare_db() -> None:
     db_builder.init_session('sqlite:///:memory:')
     BaseModel.metadata.create_all(bind=db_builder.engine)
 
