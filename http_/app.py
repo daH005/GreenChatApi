@@ -6,14 +6,13 @@ from werkzeug.exceptions import HTTPException
 
 from db.builder import db_builder
 from http_.simple_response import make_simple_response
-from http_.app_preparing import prepare_app
+from http_.app_creating import create_app
 
 __all__ = (
     'app',
 )
 
-app: Flask = Flask(__name__)
-prepare_app(app)
+app: Flask = create_app(__name__)
 
 
 @app.teardown_appcontext

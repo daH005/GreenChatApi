@@ -25,16 +25,18 @@ from http_.general.blueprint import (
 )
 
 __all__ = (
-    'prepare_app',
+    'create_app',
 )
 
 
-def prepare_app(app: Flask) -> None:
+def create_app(name: str) -> Flask:
+    app: Flask = Flask(name)
     _init_app_config_and_options(app)
     _init_blueprints(app)
     _init_jwt(app)
     _init_cors(app)
     _init_swagger(app)
+    return app
 
 
 def _init_app_config_and_options(app: Flask) -> None:
