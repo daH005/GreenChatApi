@@ -3,7 +3,6 @@ from unittest.mock import patch
 from db.builder import db_builder
 from db.models import BaseModel
 from common.json_ import ChatMessageJSONDictMaker
-from http_.app_preparing import init_all_dependencies
 from _tests.common_ import COMMON_DATETIME
 from _tests.data.db import (
     USERS,
@@ -15,8 +14,6 @@ from _tests.data.db import (
 
 
 def pytest_sessionstart() -> None:
-    init_all_dependencies()
-
     _chat_message_json_dict_maker_make_method_backup = ChatMessageJSONDictMaker.make
     def chat_message_json_dict_maker_make_method_mock(*args, **kwargs) -> dict:
         return {

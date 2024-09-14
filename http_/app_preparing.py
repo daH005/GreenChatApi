@@ -1,3 +1,4 @@
+from flask import Flask
 from flask_cors import CORS
 from flasgger import Swagger
 
@@ -10,7 +11,6 @@ from config import (
 )
 from http_.urls import Url
 from http_.jwt_ import jwt
-from http_.app import app
 from http_.email.blueprint import (
     bp as email_bp,
 )
@@ -25,19 +25,19 @@ from http_.general.blueprint import (
 )
 
 __all__ = (
-    'init_all_dependencies',
+    'prepare_app',
 )
 
 
-def init_all_dependencies() -> None:
-    _init_app()
-    _init_blueprints()
-    _init_jwt()
-    _init_cors()
-    _init_swagger()
+def prepare_app(app: Flask) -> None:
+    _init_app_config_and_options(app)
+    _init_blueprints(app)
+    _init_jwt(app)
+    _init_cors(app)
+    _init_swagger(app)
 
 
-def _init_app() -> None:
+def _init_app_config_and_options(app: Flask) -> None:
     app.config.from_mapping(
         JWT_SESSION_COOKIE=False,
         JWT_COOKIE_SECURE=True,
@@ -55,18 +55,18 @@ def _init_app() -> None:
     app.json.ensure_ascii = False
 
 
-def _init_jwt() -> None:
+def _init_jwt(app: Flask) -> None:
     jwt.init_app(app)
 
 
-def _init_cors() -> None:
+def _init_cors(app: Flask) -> None:
     CORS(app, origins=CORS_ORIGINS, supports_credentials=True, expose_headers=['Set-Cookie'])
 
 
-def _init_swagger() -> None:
+def _init_swagger(app: Flask) -> None:
     Swagger(app)
 
 
-def _init_blueprints() -> None:
+def _init_blueprints(app: Flask) -> None:
     for bp in (general_bp, email_bp, avatars_bp, backgrounds_bp):
         app.register_blueprint(bp)
