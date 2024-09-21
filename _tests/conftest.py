@@ -22,7 +22,9 @@ def pytest_sessionstart() -> None:
         }
 
     patch('common.json_.ChatMessageJSONDictMaker.make', chat_message_json_dict_maker_make_method_mock).start()
+
     _prepare_db()
+    patch('db.builder.db_builder.session.remove', lambda: 0).start()
 
 
 def _prepare_db() -> None:
