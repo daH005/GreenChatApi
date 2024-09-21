@@ -26,7 +26,7 @@ def pytest_sessionstart() -> None:
 
 
 def _prepare_db() -> None:
-    db_builder.init_session('sqlite:///:memory:')
+    db_builder.init_session('sqlite:///:memory:', isolation_level=None)
     BaseModel.metadata.create_all(bind=db_builder.engine)
 
     db_builder.session.add_all([

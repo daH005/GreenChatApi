@@ -12,8 +12,10 @@ class DBBuilder:
     _engine: Engine
     _session: scoped_session
 
-    def init_session(self, url: str | URL) -> None:
-        self._engine = create_engine(url=url, isolation_level='READ COMMITTED')
+    def init_session(self, url: str | URL,
+                     isolation_level: str | None = 'READ COMMITTED',
+                     ) -> None:
+        self._engine = create_engine(url=url, isolation_level=isolation_level)
         self._session = scoped_session(
             sessionmaker(autocommit=False,
                          autoflush=False,
