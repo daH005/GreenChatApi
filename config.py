@@ -21,13 +21,13 @@ __all__ = (
     'REDIS_HOST',
     'REDIS_PORT',
     'REDIS_URL',
-    'REDIS_EMAIL_CODES_EXPIRES',
     'SMTP_HOST',
     'SMTP_PORT',
     'EMAIL',
     'EMAIL_PASSWORD',
-    'TEST_PASS_EMAIL_CODE',
-    'MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE',
+    'EMAIL_CODES_EXPIRES',
+    'EMAIL_PASS_CODE',
+    'EMAIL_CODES_MAX_ATTEMPTS',
 )
 
 load_dotenv()
@@ -61,12 +61,12 @@ DB_URL: URL = URL.create(
 REDIS_HOST: Final[str] = environ['REDIS_HOST']
 REDIS_PORT: Final[int] = int(environ['REDIS_PORT'])
 REDIS_URL: Final[str] = f'redis://{REDIS_HOST}:{REDIS_PORT}'
-REDIS_EMAIL_CODES_EXPIRES: Final[int] = int(environ['REDIS_EMAIL_CODES_EXPIRES'])
 
 SMTP_HOST: Final[str] = environ['SMTP_HOST']
 SMTP_PORT: Final[int] = int(environ['SMTP_PORT'])
 
 EMAIL: Final[str] = environ['EMAIL']
 EMAIL_PASSWORD: Final[str] = environ['EMAIL_PASSWORD']
-TEST_PASS_EMAIL_CODE: Final[int] = int(environ['TEST_PASS_EMAIL_CODE'])
-MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE: Final[int] = int(environ['MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE'])
+EMAIL_CODES_EXPIRES: Final[int] = int(environ['EMAIL_CODES_EXPIRES'])
+EMAIL_PASS_CODE: Final[int] = int(environ['EMAIL_PASS_CODE'])
+EMAIL_CODES_MAX_ATTEMPTS: Final[int] = int(environ['EMAIL_CODES_MAX_ATTEMPTS'])

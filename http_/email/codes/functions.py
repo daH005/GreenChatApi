@@ -2,10 +2,10 @@ from random import randint
 
 from common.hinting import raises
 from config import (
-    REDIS_EMAIL_CODES_EXPIRES,
     DEBUG,
-    TEST_PASS_EMAIL_CODE,
-    MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE,
+    EMAIL_CODES_EXPIRES,
+    EMAIL_PASS_CODE,
+    EMAIL_CODES_MAX_ATTEMPTS,
 )
 from http_.email.codes.key_prefixes import KeyPrefix
 
@@ -22,7 +22,7 @@ def make_and_save_email_code(identify: str) -> int:
         raise ValueError
 
     code: int = _make_random_four_digit_number()
-    KeyPrefix.EMAIL_CODE.set(identify, code, REDIS_EMAIL_CODES_EXPIRES)
+    KeyPrefix.EMAIL_CODE.set(identify, code, EMAIL_CODES_EXPIRES)
     KeyPrefix.EMAIL_CODE_COUNT.set(identify, 0)
 
     return code
@@ -35,7 +35,7 @@ def _make_random_four_digit_number() -> int:
 def email_code_is_valid(identify: str,
                         code: int,
                         ) -> bool:
-    if DEBUG and code == TEST_PASS_EMAIL_CODE:
+    if DEBUG and code == EMAIL_PASS_CODE:
         return True
 
     if not KeyPrefix.EMAIL_CODE.exists(identify):
@@ -46,7 +46,7 @@ def email_code_is_valid(identify: str,
     except ValueError:
         return False
 
-    if cur_count > MAX_ATTEMPTS_TO_CHECK_EMAIL_CODE:
+    if cur_count > EMAIL_CODES_MAX_ATTEMPTS:
         delete_email_code(identify)
         return False
 
