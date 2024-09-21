@@ -13,7 +13,7 @@ class DBBuilder:
     _session: scoped_session
 
     def init_session(self, url: str | URL) -> None:
-        self._engine = create_engine(url=url)
+        self._engine = create_engine(url=url, isolation_level='READ COMMITTED')
         self._session = scoped_session(
             sessionmaker(autocommit=False,
                          autoflush=False,
