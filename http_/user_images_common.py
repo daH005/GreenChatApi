@@ -4,7 +4,7 @@ from flask import (
     Response,
 )
 from http import HTTPStatus
-from flask_jwt_extended import current_user
+from flask_jwt_extended import get_current_user
 from typing import Final
 from pathlib import Path
 
@@ -30,7 +30,7 @@ def get_user_image(user_id_as_str: str,
 
 
 def edit_user_image(folder_path: Path) -> Response:
-    avatar_path: Path = _make_user_image_path(user_id_as_str=str(current_user.id), folder_path=folder_path)
+    avatar_path: Path = _make_user_image_path(user_id_as_str=str(get_current_user().id), folder_path=folder_path)
     with open(avatar_path, 'wb') as f:
         f.write(request.data)
 

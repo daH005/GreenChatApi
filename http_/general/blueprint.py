@@ -12,7 +12,7 @@ from flask_jwt_extended import (
     set_access_cookies,
     set_refresh_cookies,
     get_jwt,
-    current_user,
+    get_current_user,
     jwt_required,
 )
 from flasgger import swag_from
@@ -42,8 +42,6 @@ from http_.apidocs_constants import (
     CHAT_HISTORY_SPECS,
 )
 from http_.urls import Url
-
-current_user: User
 
 
 __all__ = (
@@ -103,6 +101,8 @@ def login() -> Response | None:
 @profile
 def refresh_access() -> Response:
     response: Response = make_simple_response(HTTPStatus.OK)
+
+    current_user: User = get_current_user()
     set_access_cookies(response, create_access_token(identity=current_user.email))
     set_refresh_cookies(response, create_refresh_token(identity=current_user.email))
 
@@ -120,7 +120,7 @@ def refresh_access() -> Response:
 def user_info() -> UserJSONDictMaker.Dict | None:
     user_id_as_str: str | None = request.args.get(JSONKey.USER_ID)
     if user_id_as_str is None:
-        return UserJSONDictMaker.make(user=current_user, exclude_important_info=False)
+        return UserJSONDictMaker.make(user=get_current_user(), exclude_important_info=False)
 
     try:
         user: User | None = db_builder.session.get(User, int(user_id_as_str))
@@ -140,6 +140,7 @@ def user_info() -> UserJSONDictMaker.Dict | None:
 def user_info_edit() -> Response:
     data: UserJSONValidator = UserJSONValidator.from_json()
 
+    current_user: User = get_current_user()
     current_user.first_name = data.first_name
     current_user.last_name = data.last_name
     db_builder.session.commit()
@@ -152,6 +153,7 @@ def user_info_edit() -> Response:
 @swag_from(USER_CHATS_SPECS)
 @profile
 def user_chats() -> UserChatsJSONDictMaker.Dict:
+    current_user: User = get_current_user()
     return UserChatsJSONDictMaker.make(
         user_chats=UserChatMatch.chats_of_user(user_id=current_user.id),
         user_id=current_user.id,
@@ -179,7 +181,7 @@ def chat_history() -> ChatHistoryJSONDictMaker.Dict | None:
         return abort(HTTPStatus.BAD_REQUEST)
 
     try:
-        chat_messages = UserChatMatch.chat_if_user_has_access(user_id=current_user.id,
+        chat_messages = UserChatMatch.chat_if_user_has_access(user_id=get_current_user().id,
                                                               chat_id=chat_id).messages[offset_from_end:]
         return ChatHistoryJSONDictMaker.make(
             chat_messages=chat_messages,

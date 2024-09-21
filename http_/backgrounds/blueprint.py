@@ -4,13 +4,12 @@ from flask import (
     Response,
 )
 from http import HTTPMethod
-from flask_jwt_extended import jwt_required, current_user
+from flask_jwt_extended import jwt_required, get_current_user
 from flasgger import swag_from
 from typing import Final
 from pathlib import Path
 
 from config import STATIC_FOLDER, MEDIA_FOLDER
-from db.models import User
 from http_.urls import Url
 from http_.apidocs_constants import (
     USER_BACKGROUND_SPECS,
@@ -21,8 +20,6 @@ from http_.user_images_common import get_user_image, edit_user_image
 __all__ = (
     'bp',
 )
-
-current_user: User
 
 bp: Blueprint = Blueprint('backgrounds', __name__)
 
@@ -36,7 +33,7 @@ _BACKGROUNDS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('backgrounds')
 @profile
 def user_background() -> Response:
     return get_user_image(
-        user_id_as_str=str(current_user.id),
+        user_id_as_str=str(get_current_user().id),
         default_path=_DEFAULT_BACKGROUND_PATH,
         folder_path=_BACKGROUNDS_PATH,
     )
