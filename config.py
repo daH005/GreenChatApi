@@ -11,6 +11,8 @@ __all__ = (
     'DEBUG',
     'HOST',
     'HTTP_PORT',
+    'SSL_CERTFILE',
+    'SSL_KEYFILE',
     'WEBSOCKET_PORT',
     'CORS_ORIGINS',
     'JWT_SECRET_KEY',
@@ -41,6 +43,9 @@ DEBUG: Final[bool] = False if environ['DEBUG'].lower() == 'false' else bool(envi
 HOST: Final[str] = environ['HOST']  # Хост общий для HTTP и WebSocket.
 HTTP_PORT: Final[int] = int(environ['HTTP_PORT'])
 WEBSOCKET_PORT: Final[int] = int(environ['WEBSOCKET_PORT'])
+
+SSL_CERTFILE: Final[Path] = Path(environ['SSL_CERTFILE'])
+SSL_KEYFILE: Final[Path] = Path(environ['SSL_KEYFILE'])
 
 CORS_ORIGINS: Final[list[str]] = environ['CORS_ORIGINS'].split(',')
 

@@ -1,7 +1,7 @@
 from line_profiler import profile
 from pydantic import ValidationError
 
-from config import HOST, WEBSOCKET_PORT, JWT_SECRET_KEY, JWT_ALGORITHM
+from config import HOST, WEBSOCKET_PORT, JWT_SECRET_KEY, JWT_ALGORITHM, SSL_CERTFILE, SSL_KEYFILE
 from common.hinting import raises
 from common.json_ import (
     ChatJSONDictMaker,
@@ -44,7 +44,7 @@ server = WebSocketServer(
     port=WEBSOCKET_PORT,
     jwt_secret_key=JWT_SECRET_KEY,
     jwt_algorithm=JWT_ALGORITHM,
-    ssl_context=get_ssl_context(),
+    ssl_context=get_ssl_context(SSL_CERTFILE, SSL_KEYFILE),
 )
 
 users_ids_and_potential_interlocutors_ids = {}
