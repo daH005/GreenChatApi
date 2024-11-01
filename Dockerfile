@@ -1,11 +1,13 @@
 FROM python:3.11
 
-COPY ./ /api/
-WORKDIR /api
+RUN useradd -m user
 
-RUN apt update
+WORKDIR /home/user/api
+COPY ./requirements.txt .
+
 RUN pip3 install -r requirements.txt
 
-ENV PYTHONPATH=/api
+USER user
+COPY --chown=user:user . .
 
 CMD ["python3", "main.py"]
