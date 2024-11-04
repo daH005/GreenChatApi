@@ -108,10 +108,10 @@ async def new_chat(user: User, data: dict) -> None:
     data: NewChatJSONValidator = NewChatJSONValidator(**data)
 
     if user.id not in data.users_ids:
-        raise ValueError
+        raise ValueError(f'user.id={user.id} does not exist in the received data.users_ids={data.users_ids}')
 
     if not data.is_group and len(data.users_ids) > 2:
-        raise ValueError
+        raise ValueError(f'length of the received data.users_ids={data.users_ids} more than two for a private chat')
 
     if len(data.users_ids) == 2:
         try:
@@ -119,7 +119,7 @@ async def new_chat(user: User, data: dict) -> None:
         except ValueError:
             pass  # Чата нет, значит всё идёт по плану - создаём.
         else:
-            raise ValueError
+            raise ValueError(f'private chat between {data.users_ids} already exists')
 
     chat: Chat = Chat(
         name=data.name,
