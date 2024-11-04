@@ -41,7 +41,7 @@ class ChatIdJSONValidator(BaseModel):
 
 
 class NewChatMessageJSONValidator(TextJSONValidator, ChatIdJSONValidator):
-    pass
+    has_files: bool = Field(alias=JSONKey.HAS_FILES, default=False)
 
 
 class ChatMessageWasReadJSONValidator(ChatIdJSONValidator):
