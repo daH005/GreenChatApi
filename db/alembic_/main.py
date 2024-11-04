@@ -27,6 +27,11 @@ config.set_main_option(
 
 
 def make_revision(message: str):
+    while True:
+        answer = input('Have you stopped the app? (write yes)')
+        if answer == 'yes':
+            break
+
     try:
         command.revision(config, message, autogenerate=True)
     except Exception as e:
