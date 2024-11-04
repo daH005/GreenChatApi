@@ -41,7 +41,7 @@ class WebSocketClientHandler:
             try:
                 await self._handle_message(message)
             except Exception as e:
-                msg = (f'[{self.user.id}] Handling error ({type(e).__name__}):\n'
+                msg = (f'[{self.user.id}] Handling error ({e}):\n'
                        f'- Message:\n'
                        f'{json.dumps(message, indent=4)}\n')
                 logger.info(msg)
