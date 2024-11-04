@@ -23,6 +23,9 @@ from http_.backgrounds.blueprint import (
 from http_.general.blueprint import (
     bp as general_bp,
 )
+from http_.files.blueprint import (
+    bp as files_bp,
+)
 
 __all__ = (
     'create_app',
@@ -70,5 +73,5 @@ def _init_swagger(app: Flask) -> None:
 
 
 def _init_blueprints(app: Flask) -> None:
-    for bp in (general_bp, email_bp, avatars_bp, backgrounds_bp):
+    for bp in (general_bp, email_bp, avatars_bp, backgrounds_bp, files_bp):
         app.register_blueprint(bp)

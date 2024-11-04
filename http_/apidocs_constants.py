@@ -12,6 +12,9 @@ __all__ = (
     'CODE_SEND_SPECS',
     'CODE_CHECK_SPECS',
     'CHAT_HISTORY_SPECS',
+    'CHAT_MESSAGES_FILES_SAVE_SPECS',
+    'CHAT_MESSAGES_FILES_NAMES_SPECS',
+    'CHAT_MESSAGES_FILES_GET_SPECS',
 )
 
 
@@ -413,4 +416,80 @@ CHAT_HISTORY_SPECS = {
         400: _SIMPLE_REQUEST_RESPONSES[400],
         403: _SIMPLE_REQUEST_RESPONSES[403],
     }
+}
+
+CHAT_MESSAGES_FILES_SAVE_SPECS = {
+    'tags': _CHAT_TAGS,
+    'parameters': [
+        _ACCESS_TOKEN_COOKIE,
+        {
+            'name': 'chatMessageId',
+            'in': 'query',
+            'type': 'integer',
+            'required': True,
+        },
+        {
+            'name': 'file',
+            'in': 'body',
+            'type': 'file',
+            'required': True,
+        },
+    ],
+    'responses': {
+        200: _SIMPLE_REQUEST_RESPONSES[200],
+    },
+}
+
+CHAT_MESSAGES_FILES_NAMES_SPECS = {
+    'tags': _CHAT_TAGS,
+    'parameters': [
+        _ACCESS_TOKEN_COOKIE,
+        {
+            'name': 'chatMessageId',
+            'in': 'query',
+            'type': 'integer',
+            'required': True,
+        },
+    ],
+    'responses': {
+        200: {
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'filenames': {
+                        'type': 'array',
+                        'items': {
+                            'type': 'string',
+                        }
+                    }
+                }
+            }
+        }
+    },
+}
+
+CHAT_MESSAGES_FILES_GET_SPECS = {
+    'tags': _CHAT_TAGS,
+    'parameters': [
+        _ACCESS_TOKEN_COOKIE,
+        {
+            'name': 'chatMessageId',
+            'in': 'query',
+            'type': 'integer',
+            'required': True,
+        },
+        {
+            'name': 'filename',
+            'in': 'query',
+            'type': 'string',
+            'required': True,
+        },
+    ],
+    'responses': {
+        200: {
+            'schema': {
+                'type': 'file',
+            }
+        }
+    },
 }

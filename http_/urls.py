@@ -19,3 +19,6 @@ class Url(StrEnum):
     USER_BACKGROUND_EDIT = '/user/background/edit'
     USER_CHATS = '/user/chats'
     CHAT_HISTORY = '/chat/history'
+    CHAT_MESSAGES_FILES_SAVE = '/chat/messages/files/save'
+    CHAT_MESSAGES_FILES_NAMES = '/chat/messages/files/names'
+    CHAT_MESSAGES_FILES_GET = '/chat/messages/files/get'

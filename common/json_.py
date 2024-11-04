@@ -14,6 +14,7 @@ __all__ = (
     'AbstractJSONDictMaker',
     'ChatHistoryJSONDictMaker',
     'ChatMessageJSONDictMaker',
+    'ChatMessageFilenamesJSONDictMaker',
     'ChatMessageTypingJSONDictMaker',
     'UserChatsJSONDictMaker',
     'ChatJSONDictMaker',
@@ -40,6 +41,9 @@ class JSONKey(StrEnum):
     CREATING_DATETIME = 'creatingDatetime'
     IS_READ = 'isRead'
     HAS_FILES = 'hasFiles'
+
+    FILENAME = 'filename'
+    FILENAMES = 'filenames'
 
     USERNAME = 'username'
     PASSWORD = 'password'
@@ -151,6 +155,18 @@ class ChatMessageJSONDictMaker(AbstractJSONDictMaker):
             JSONKey.CREATING_DATETIME: chat_message.creating_datetime.isoformat(),
             JSONKey.USER_ID: chat_message.user_id,
             JSONKey.IS_READ: chat_message.is_read,
+        }
+
+
+class ChatMessageFilenamesJSONDictMaker(AbstractJSONDictMaker):
+
+    class Dict(TypedDict):
+        filenames: list[str]
+
+    @staticmethod
+    def make(filenames: list[str]) -> Dict:
+        return {
+            JSONKey.FILENAMES: filenames,
         }
 
 
