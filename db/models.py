@@ -128,6 +128,7 @@ class ChatMessage(BaseModel):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     creating_datetime: Mapped[datetime] = mapped_column(DATETIME(fsp=6), default=datetime.utcnow)
     is_read: Mapped[bool] = mapped_column(Boolean, default=False)
+    has_files: Mapped[bool] = mapped_column(Boolean, default=False)
 
     user: Mapped['User'] = relationship(back_populates='chats_messages', uselist=False)
     chat: Mapped['Chat'] = relationship(back_populates='messages', uselist=False)
