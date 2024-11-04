@@ -36,11 +36,13 @@ def users_ids_of_chat_by_id(chat_id: int) -> list[int]:
 def make_chat_message_and_add_to_session(text: str,
                                          user_id: int,
                                          chat_id: int,
+                                         has_files: bool,
                                          ) -> ChatMessage:
     chat_message: ChatMessage = ChatMessage(
         user_id=user_id,
         chat_id=chat_id,
         text=text,
+        has_files=has_files,
     )
     db_builder.session.add(chat_message)
     return chat_message

@@ -29,7 +29,11 @@ class UserIdJSONValidator(BaseModel):
     user_id: int = Field(alias=JSONKey.USER_ID)
 
 
-class NewChatJSONValidator(TextJSONValidator):
+class HasFilesMixin:
+    has_files: bool = Field(alias=JSONKey.HAS_FILES, default=False)
+
+
+class NewChatJSONValidator(TextJSONValidator, HasFilesMixin):
 
     users_ids: list[int] = Field(alias=JSONKey.USERS_IDS)
     name: str | None = Field(default=None)
@@ -40,8 +44,8 @@ class ChatIdJSONValidator(BaseModel):
     chat_id: int = Field(alias=JSONKey.CHAT_ID)
 
 
-class NewChatMessageJSONValidator(TextJSONValidator, ChatIdJSONValidator):
-    has_files: bool = Field(alias=JSONKey.HAS_FILES, default=False)
+class NewChatMessageJSONValidator(TextJSONValidator, ChatIdJSONValidator, HasFilesMixin):
+    pass
 
 
 class ChatMessageWasReadJSONValidator(ChatIdJSONValidator):

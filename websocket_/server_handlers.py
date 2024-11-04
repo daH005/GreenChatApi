@@ -149,6 +149,7 @@ async def new_chat(user: User, data: dict) -> None:
         text=data.text,
         user_id=user.id,
         chat_id=chat.id,
+        has_files=data.has_files,
     )
 
     db_builder.session.commit()
@@ -195,6 +196,7 @@ async def new_chat_message(user: User, data: dict) -> None:
         text=data.text,
         user_id=user.id,
         chat_id=chat.id,
+        has_files=data.has_files,
     )
 
     chat_users: list[User] = chat.users()
