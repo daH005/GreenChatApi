@@ -66,7 +66,7 @@ class WebSocketClientHandler:
             data=message[JSONKey.DATA],  # type: ignore
         )  # type: ignore
 
-        logger.info(f'[{self.user.id}] <{message[JSONKey.TYPE]}>')  # noqa
+        logger.info(f'[{self.user.id}][{message[JSONKey.TYPE]}]')  # noqa
 
     @raises(KeyError)
     def _get_handler_func(self, type_: str) -> CommonHandlerFuncT:
