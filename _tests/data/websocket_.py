@@ -149,7 +149,7 @@ NEW_CHAT_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                      'id': 5,
                      'name': None,
                      'isGroup': False,
-                     'unreadCount': 1,
+                     'unreadCount': 0,
                      'lastMessage': None,
                      'usersIds': [1, 5]
                  }
@@ -226,7 +226,7 @@ NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                 {'type': 'newUnreadCount',
                  'data': {
                      'chatId': 5,
-                     'unreadCount': 2,
+                     'unreadCount': 1,
                  }
                  },
                 {'type': 'newChatMessage',
@@ -267,7 +267,7 @@ NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                 {'type': 'newUnreadCount',
                  'data': {
                      'chatId': 5,
-                     'unreadCount': 3,
+                     'unreadCount': 2,
                  }
                  },
                 {'type': 'newChatMessage',
@@ -381,7 +381,7 @@ CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                 {'type': 'newUnreadCount',
                  'data': {
                      'chatId': 5,
-                     'unreadCount': 2,
+                     'unreadCount': 1,
                  }
                  }
             ]
@@ -408,7 +408,7 @@ CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                 {'type': 'newUnreadCount',
                  'data': {
                      'chatId': 5,
-                     'unreadCount': 1,
+                     'unreadCount': 0,
                  }
                  }
             ]
