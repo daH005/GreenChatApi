@@ -135,12 +135,9 @@ async def new_chat(user: User, data: dict) -> None:
         db_builder.session.add(match)
         db_builder.session.flush()
 
-        value = 1
-        if user_id == user.id:
-            value = 0
         unread_count: UnreadCount = UnreadCount(
             user_chat_match_id=match.id,
-            value=value,
+            value=0,
         )
         db_builder.session.add(unread_count)
 
