@@ -4,7 +4,6 @@ from common.json_ import JSONKey
 from websocket_.common import clear_message_text
 
 __all__ = (
-    'TextJSONValidator',
     'UserIdJSONValidator',
     'NewChatJSONValidator',
     'NewChatMessageJSONValidator',
@@ -13,27 +12,11 @@ __all__ = (
 )
 
 
-class TextJSONValidator(BaseModel):
-    text: str
-
-    @field_validator('text')  # noqa: from pydantic doc
-    @classmethod
-    def _validate_text(cls, text: str) -> str:
-        text = clear_message_text(text=text)
-        if not text:
-            raise AssertionError
-        return text
-
-
 class UserIdJSONValidator(BaseModel):
     user_id: int = Field(alias=JSONKey.USER_ID)
 
 
-class HasFilesMixin:
-    has_files: bool = Field(alias=JSONKey.HAS_FILES, default=False)
-
-
-class NewChatJSONValidator(TextJSONValidator, HasFilesMixin):
+class NewChatJSONValidator(BaseModel):
 
     users_ids: list[int] = Field(alias=JSONKey.USERS_IDS)
     name: str | None = Field(default=None)
@@ -44,8 +27,17 @@ class ChatIdJSONValidator(BaseModel):
     chat_id: int = Field(alias=JSONKey.CHAT_ID)
 
 
-class NewChatMessageJSONValidator(TextJSONValidator, ChatIdJSONValidator, HasFilesMixin):
-    pass
+class NewChatMessageJSONValidator(ChatIdJSONValidator):
+    text: str
+    has_files: bool = Field(alias=JSONKey.HAS_FILES, default=False)
+
+    @field_validator('text')  # noqa: from pydantic doc
+    @classmethod
+    def _validate_text(cls, text: str) -> str:
+        text = clear_message_text(text=text)
+        if not text:
+            raise AssertionError
+        return text
 
 
 class ChatMessageWasReadJSONValidator(ChatIdJSONValidator):

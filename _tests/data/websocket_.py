@@ -123,7 +123,6 @@ NEW_CHAT_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
             user=USERS[1],
             data={
                 'usersIds': [1, 5],
-                'text': 'Hi!',
             }
         ),
         {
@@ -134,14 +133,7 @@ NEW_CHAT_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                      'name': None,
                      'isGroup': False,
                      'unreadCount': 0,
-                     'lastMessage': {
-                         'id': 5,
-                         'chatId': 5,
-                         'text': 'Hi!',
-                         'creatingDatetime': COMMON_DATETIME.isoformat(),
-                         'userId': 1,
-                         'isRead': False,
-                     },
+                     'lastMessage': None,
                      'usersIds': [1, 5]
                  }
                  },
@@ -158,14 +150,7 @@ NEW_CHAT_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                      'name': None,
                      'isGroup': False,
                      'unreadCount': 1,
-                     'lastMessage': {
-                         'id': 5,
-                         'chatId': 5,
-                         'text': 'Hi!',
-                         'creatingDatetime': COMMON_DATETIME.isoformat(),
-                         'userId': 1,
-                         'isRead': False,
-                     },
+                     'lastMessage': None,
                      'usersIds': [1, 5]
                  }
                  },
@@ -184,7 +169,6 @@ NEW_CHAT_HANDLER_KWARGS_AND_EXCEPTIONS = [
         dict(
             user=USERS[1],
             data={
-                'text': 'Hi!',
                 'usersIds': [2],
                 'name': None,
                 'isGroup': False,
@@ -196,7 +180,6 @@ NEW_CHAT_HANDLER_KWARGS_AND_EXCEPTIONS = [
         dict(
             user=USERS[1],
             data={
-                'text': 'Hi!',
                 'usersIds': [1, 5, 7],
                 'name': None,
                 'isGroup': False,
@@ -208,7 +191,6 @@ NEW_CHAT_HANDLER_KWARGS_AND_EXCEPTIONS = [
         dict(
             user=USERS[1],
             data={
-                'text': 'Hi!',
                 'usersIds': [1, 5],
                 'name': None,
                 'isGroup': False,
@@ -231,7 +213,7 @@ NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
             1: [
                 {'type': 'newChatMessage',
                  'data': {
-                     'id': 6,
+                     'id': 5,
                      'chatId': 5,
                      'text': 'Hello...',
                      'creatingDatetime': COMMON_DATETIME.isoformat(),
@@ -249,7 +231,7 @@ NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                  },
                 {'type': 'newChatMessage',
                  'data': {
-                     'id': 6,
+                     'id': 5,
                      'chatId': 5,
                      'text': 'Hello...',
                      'creatingDatetime': COMMON_DATETIME.isoformat(),
@@ -272,7 +254,7 @@ NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
             1: [
                 {'type': 'newChatMessage',
                  'data': {
-                     'id': 7,
+                     'id': 6,
                      'chatId': 5,
                      'text': 'Hello 2...',
                      'creatingDatetime': COMMON_DATETIME.isoformat(),
@@ -290,7 +272,7 @@ NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                  },
                 {'type': 'newChatMessage',
                  'data': {
-                     'id': 7,
+                     'id': 6,
                      'chatId': 5,
                      'text': 'Hello 2...',
                      'creatingDatetime': COMMON_DATETIME.isoformat(),
@@ -410,7 +392,7 @@ CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
             user=USERS[5],
             data={
                 'chatId': 5,
-                'chatMessageId': 7,
+                'chatMessageId': 6,
             }
         ),
         {
@@ -418,7 +400,7 @@ CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                 {'type': 'readChatMessages',
                  'data': {
                      'chatId': 5,
-                     'chatMessagesIds': [6, 7],
+                     'chatMessagesIds': [6],
                  }
                  },
             ],
@@ -426,7 +408,7 @@ CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                 {'type': 'newUnreadCount',
                  'data': {
                      'chatId': 5,
-                     'unreadCount': 0,
+                     'unreadCount': 1,
                  }
                  }
             ]

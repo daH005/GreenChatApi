@@ -22,7 +22,6 @@ from websocket_.base.server import WebSocketServer
 from websocket_.messages_types import MessageType
 from websocket_.common import (
     users_ids_of_chat_by_id,
-    make_chat_message_and_add_to_session,
     interlocutors_ids_for_user_by_id,
     make_online_statuses_data,
 )
@@ -145,13 +144,6 @@ async def new_chat(user: User, data: dict) -> None:
         )
         db_builder.session.add(unread_count)
 
-    make_chat_message_and_add_to_session(
-        text=data.text,
-        user_id=user.id,
-        chat_id=chat.id,
-        has_files=data.has_files,
-    )
-
     db_builder.session.commit()
 
     for user_id in data.users_ids:
@@ -192,12 +184,13 @@ async def new_chat_message(user: User, data: dict) -> None:
         chat_id=data.chat_id,
     )
 
-    chat_message = make_chat_message_and_add_to_session(
-        text=data.text,
+    chat_message: ChatMessage = ChatMessage(
         user_id=user.id,
-        chat_id=chat.id,
+        chat_id=data.chat_id,
+        text=data.text,
         has_files=data.has_files,
     )
+    db_builder.session.add(chat_message)
 
     chat_users: list[User] = chat.users()
     for chat_user in chat_users:

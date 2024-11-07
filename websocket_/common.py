@@ -3,17 +3,14 @@ from typing import Final
 
 from db.models import (
     UserChatMatch,
-    ChatMessage,
     User,
 )
-from db.builder import db_builder
 from websocket_.base.server import WebSocketServer
 
 __all__ = (
     'TEXT_MAX_LENGTH',
     'clear_message_text',
     'users_ids_of_chat_by_id',
-    'make_chat_message_and_add_to_session',
     'interlocutors_ids_for_user_by_id',
     'make_online_statuses_data',
 )
@@ -31,21 +28,6 @@ def clear_message_text(text: str) -> str:
 
 def users_ids_of_chat_by_id(chat_id: int) -> list[int]:
     return [user.id for user in UserChatMatch.users_of_chat(chat_id=chat_id)]
-
-
-def make_chat_message_and_add_to_session(text: str,
-                                         user_id: int,
-                                         chat_id: int,
-                                         has_files: bool,
-                                         ) -> ChatMessage:
-    chat_message: ChatMessage = ChatMessage(
-        user_id=user_id,
-        chat_id=chat_id,
-        text=text,
-        has_files=has_files,
-    )
-    db_builder.session.add(chat_message)
-    return chat_message
 
 
 def interlocutors_ids_for_user_by_id(user_id: int) -> list[int]:
