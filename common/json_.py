@@ -145,6 +145,7 @@ class ChatMessageJSONDictMaker(AbstractJSONDictMaker):
         text: str
         creatingDatetime: str
         isRead: bool
+        hasFiles: bool
 
     @staticmethod
     def make(chat_message: ChatMessage) -> Dict:
@@ -155,6 +156,7 @@ class ChatMessageJSONDictMaker(AbstractJSONDictMaker):
             JSONKey.CREATING_DATETIME: chat_message.creating_datetime.isoformat(),
             JSONKey.USER_ID: chat_message.user_id,
             JSONKey.IS_READ: chat_message.is_read,
+            JSONKey.HAS_FILES: chat_message.has_files,
         }
 
 
