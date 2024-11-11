@@ -423,12 +423,6 @@ CHAT_MESSAGES_FILES_SAVE_SPECS = {
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
         {
-            'name': 'chatMessageId',
-            'in': 'query',
-            'type': 'integer',
-            'required': True,
-        },
-        {
             'name': 'file',
             'in': 'body',
             'type': 'file',
@@ -436,7 +430,16 @@ CHAT_MESSAGES_FILES_SAVE_SPECS = {
         },
     ],
     'responses': {
-        200: _SIMPLE_REQUEST_RESPONSES[200],
+        201: {
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'storageId': {
+                        'type': 'number',
+                    }
+                }
+            }
+        },
     },
 }
 
@@ -445,7 +448,7 @@ CHAT_MESSAGES_FILES_NAMES_SPECS = {
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
         {
-            'name': 'chatMessageId',
+            'name': 'storageId',
             'in': 'query',
             'type': 'integer',
             'required': True,
@@ -473,7 +476,7 @@ CHAT_MESSAGES_FILES_GET_SPECS = {
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
         {
-            'name': 'chatMessageId',
+            'name': 'storageId',
             'in': 'query',
             'type': 'integer',
             'required': True,

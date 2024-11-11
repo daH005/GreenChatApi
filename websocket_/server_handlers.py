@@ -185,7 +185,7 @@ async def new_chat_message(user: User, data: dict) -> None:
         user_id=user.id,
         chat_id=data.chat_id,
         text=data.text,
-        has_files=data.has_files,
+        storage_id=data.storage_id,
     )
     db_builder.session.add(chat_message)
 

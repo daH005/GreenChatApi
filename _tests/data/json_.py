@@ -58,7 +58,7 @@ USER_CHATS_KWARGS_AND_JSON_DICTS = [
                         'userId': 1,
                         'text': 'And?..',
                         'isRead': False,
-                        'hasFiles': False,
+                        'storageId': None,
                     }
                 },
                 {
@@ -74,7 +74,7 @@ USER_CHATS_KWARGS_AND_JSON_DICTS = [
                         'userId': 1,
                         'text': 'Yup.',
                         'isRead': False,
-                        'hasFiles': False,
+                        'storageId': None,
                     }
                 },
                 {
@@ -90,7 +90,7 @@ USER_CHATS_KWARGS_AND_JSON_DICTS = [
                         'userId': 2,
                         'text': 'Hello! How are u?',
                         'isRead': False,
-                        'hasFiles': False,
+                        'storageId': None,
                     }
                 },
             ]
@@ -117,7 +117,7 @@ CHAT_INFO_KWARGS_AND_JSON_DICTS = [
                 'userId': 2,
                 'text': 'Hello! How are u?',
                 'isRead': False,
-                'hasFiles': False,
+                'storageId': None,
             }
         },
     ),
@@ -163,7 +163,7 @@ CHAT_HISTORY_KWARGS_AND_JSON_DICTS = [
                     'userId': 2,
                     'text': 'Hello! How are u?',
                     'isRead': False,
-                    'hasFiles': False,
+                    'storageId': None,
                 },
                 {
                     'id': 1,
@@ -172,7 +172,7 @@ CHAT_HISTORY_KWARGS_AND_JSON_DICTS = [
                     'userId': 1,
                     'text': 'Hi!',
                     'isRead': False,
-                    'hasFiles': False,
+                    'storageId': None,
                 },
             ]
         }
@@ -191,7 +191,7 @@ CHAT_MESSAGE_KWARGS_AND_JSON_DICTS = [
             'userId': 2,
             'text': 'Hello! How are u?',
             'isRead': False,
-            'hasFiles': False,
+            'storageId': None,
         },
     ),
 ]

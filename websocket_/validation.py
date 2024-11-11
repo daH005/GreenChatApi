@@ -29,7 +29,7 @@ class ChatIdJSONValidator(BaseModel):
 
 class NewChatMessageJSONValidator(ChatIdJSONValidator):
     text: str
-    has_files: bool = Field(alias=JSONKey.HAS_FILES, default=False)
+    storage_id: int | None = Field(alias=JSONKey.STORAGE_ID, default=None)
 
     @field_validator('text')  # noqa: from pydantic doc
     @classmethod

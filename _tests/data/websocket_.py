@@ -219,7 +219,7 @@ NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                      'creatingDatetime': COMMON_DATETIME.isoformat(),
                      'userId': 1,
                      'isRead': False,
-                     'hasFiles': False,
+                     'storageId': None,
                  }
                  }
             ],
@@ -238,7 +238,7 @@ NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                      'creatingDatetime': COMMON_DATETIME.isoformat(),
                      'userId': 1,
                      'isRead': False,
-                     'hasFiles': False,
+                     'storageId': None,
                  }
                  },
             ],
@@ -262,7 +262,7 @@ NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                      'creatingDatetime': COMMON_DATETIME.isoformat(),
                      'userId': 1,
                      'isRead': False,
-                     'hasFiles': False,
+                     'storageId': None,
                  }
                  }
             ],
@@ -281,7 +281,7 @@ NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
                      'creatingDatetime': COMMON_DATETIME.isoformat(),
                      'userId': 1,
                      'isRead': False,
-                     'hasFiles': False,
+                     'storageId': None,
                  }
                  },
             ],

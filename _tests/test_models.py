@@ -58,7 +58,7 @@ class TestChatMessage(AbstractTestModel):
         'text',
         'creating_datetime',
         'is_read',
-        'has_files',
+        'storage_id',
         'user',
         'chat',
     )
