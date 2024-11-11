@@ -38,7 +38,7 @@ def save_chat_message_files() -> int:
 
 def _next_storage_id() -> int:
     if not _STORAGE_ID_PATH.exists():
-        _STORAGE_ID_PATH.touch()
+        _STORAGE_ID_PATH.write_text('0')
 
     storage_id: int = int(_STORAGE_ID_PATH.read_text())
     _STORAGE_ID_PATH.write_text(str(storage_id + 1))
