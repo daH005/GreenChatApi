@@ -1,11 +1,12 @@
-from flask import request
+from flask import request, abort
+from http import HTTPStatus
 from werkzeug.utils import secure_filename
 from pathlib import Path
 from typing import Final
 from os import listdir, mkdir
 
-from common.hinting import raises
 from config import MEDIA_FOLDER
+from common.hinting import raises
 
 __all__ = (
     'save_chat_message_files',
@@ -17,12 +18,16 @@ _FILES_PATH: Final[Path] = MEDIA_FOLDER.joinpath('files')
 _STORAGE_ID_PATH: Final[Path] = _FILES_PATH.joinpath('storage_id')
 
 
-def save_chat_message_files() -> int:
+def save_chat_message_files() -> int | None:
+    files = request.files.getlist('files')
+    if not files:
+        return abort(HTTPStatus.BAD_REQUEST)
+
     storage_id: int = _next_storage_id()
 
     secured_filename: str
     file_folder_path: Path
-    for file in request.files.getlist('files'):
+    for file in files:
         if not file.filename:
             continue
 

@@ -440,6 +440,7 @@ CHAT_MESSAGES_FILES_SAVE_SPECS = {
                 }
             }
         },
+        400: _SIMPLE_REQUEST_RESPONSES[400],
     },
 }
 
