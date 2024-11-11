@@ -470,7 +470,8 @@ CHAT_MESSAGES_FILES_NAMES_SPECS = {
                     }
                 }
             }
-        }
+        },
+        404: _SIMPLE_REQUEST_RESPONSES[404],
     },
 }
 
@@ -496,6 +497,7 @@ CHAT_MESSAGES_FILES_GET_SPECS = {
             'schema': {
                 'type': 'file',
             }
-        }
+        },
+        404: _SIMPLE_REQUEST_RESPONSES[404],
     },
 }

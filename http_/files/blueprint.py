@@ -3,6 +3,7 @@ from flask import Response, Blueprint, request, abort, send_file
 from http import HTTPMethod, HTTPStatus
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required
+from pathlib import Path
 
 from common.json_ import (
     JSONKey,
@@ -47,7 +48,12 @@ def chat_messages_files_names() -> ChatMessageFilenamesJSONDictMaker.Dict:
     except (KeyError, ValueError):
         return abort(HTTPStatus.BAD_REQUEST)
 
-    return ChatMessageFilenamesJSONDictMaker.make(chat_message_filenames(storage_id))
+    try:
+        filenames: list[str] = chat_message_filenames(storage_id)
+    except FileNotFoundError:
+        return abort(HTTPStatus.NOT_FOUND)
+
+    return ChatMessageFilenamesJSONDictMaker.make(filenames)
 
 
 @bp.route(Url.CHAT_MESSAGES_FILES_GET, methods=[HTTPMethod.GET])
@@ -61,4 +67,9 @@ def chat_messages_files_get() -> Response:
     except (KeyError, ValueError):
         return abort(HTTPStatus.BAD_REQUEST)
 
-    return send_file(chat_message_file_path(storage_id, filename))
+    try:
+        file_path: Path = chat_message_file_path(storage_id, filename)
+    except FileNotFoundError:
+        return abort(HTTPStatus.NOT_FOUND)
+
+    return send_file(file_path)
