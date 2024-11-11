@@ -3,7 +3,7 @@ from http import HTTPStatus
 from werkzeug.utils import secure_filename
 from pathlib import Path
 from typing import Final
-from os import listdir, mkdir
+from os import listdir
 
 from config import MEDIA_FOLDER
 from common.hinting import raises
@@ -29,18 +29,16 @@ def save_chat_message_files() -> int | None:
 
     storage_id: int = _next_storage_id()
 
-    file_size: int
+    file_folder_path = _FILES_PATH.joinpath(str(storage_id))
+    if not file_folder_path.exists():
+        file_folder_path.mkdir()
+
     secured_filename: str
-    file_folder_path: Path
     for file in files:
         if not file.filename:
             continue
 
         secured_filename = secure_filename(file.filename)
-
-        file_folder_path = _FILES_PATH.joinpath(str(storage_id))
-        mkdir(file_folder_path)
-
         file.save(file_folder_path.joinpath(secured_filename))
 
     return storage_id
