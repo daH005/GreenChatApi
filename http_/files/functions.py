@@ -16,15 +16,20 @@ __all__ = (
 
 _FILES_PATH: Final[Path] = MEDIA_FOLDER.joinpath('files')
 _STORAGE_ID_PATH: Final[Path] = _FILES_PATH.joinpath('storage_id')
+_MAX_CONTENT_LENGTH: Final[int] = 16 * 1024 * 1024
 
 
 def save_chat_message_files() -> int | None:
+    if request.content_length > _MAX_CONTENT_LENGTH:
+        return abort(HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+
     files = request.files.getlist('files')
     if not files:
         return abort(HTTPStatus.BAD_REQUEST)
 
     storage_id: int = _next_storage_id()
 
+    file_size: int
     secured_filename: str
     file_folder_path: Path
     for file in files:

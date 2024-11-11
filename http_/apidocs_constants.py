@@ -39,6 +39,7 @@ _SIMPLE_REQUEST_RESPONSES = {
     403: _make_simple_request_response(403),
     404: _make_simple_request_response(404),
     409: _make_simple_request_response(409),
+    413: _make_simple_request_response(413),
 }
 
 _ACCESS_TOKEN_COOKIE = {
@@ -441,6 +442,7 @@ CHAT_MESSAGES_FILES_SAVE_SPECS = {
             }
         },
         400: _SIMPLE_REQUEST_RESPONSES[400],
+        413: _SIMPLE_REQUEST_RESPONSES[413],
     },
 }
 
