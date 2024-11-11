@@ -33,7 +33,7 @@ bp: Blueprint = Blueprint('files', __name__)
 @swag_from(CHAT_MESSAGES_FILES_SAVE_SPECS)
 @profile
 def chat_messages_files_save() -> ChatMessageStorageIdJSONDictMaker.Dict:
-    storage_id: int = save_chat_message_files(chat_message_id)
+    storage_id: int = save_chat_message_files()
     return ChatMessageStorageIdJSONDictMaker.make(storage_id)
 
 
