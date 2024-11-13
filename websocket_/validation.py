@@ -28,14 +28,14 @@ class ChatIdJSONValidator(BaseModel):
 
 
 class NewChatMessageJSONValidator(ChatIdJSONValidator):
-    text: str
+
     storage_id: int | None = Field(alias=JSONKey.STORAGE_ID, default=None)
+    text: str
 
     @field_validator('text')  # noqa: from pydantic doc
     @classmethod
-    def _validate_text(cls, text: str) -> str:
-        text = clear_message_text(text=text)
-        if not text:
+    def _validate_text(cls, text: str, values) -> str:
+        if not text and not values.data.get('storage_id'):
             raise AssertionError
         return text
 

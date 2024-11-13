@@ -287,6 +287,50 @@ NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
             ],
         }
     ),
+    (
+        dict(
+            user=USERS[1],
+            data={
+                'chatId': 1,
+                'text': '',
+                'storageId': 10,
+            }
+        ),
+        {
+            1: [
+                {'type': 'newChatMessage',
+                 'data': {
+                     'id': 7,
+                     'chatId': 1,
+                     'text': '',
+                     'creatingDatetime': COMMON_DATETIME.isoformat(),
+                     'userId': 1,
+                     'isRead': False,
+                     'storageId': 10,
+                 }
+                 }
+            ],
+            2: [
+                {'type': 'newUnreadCount',
+                 'data': {
+                     'chatId': 1,
+                     'unreadCount': 1,
+                 }
+                 },
+                {'type': 'newChatMessage',
+                 'data': {
+                     'id': 7,
+                     'chatId': 1,
+                     'text': '',
+                     'creatingDatetime': COMMON_DATETIME.isoformat(),
+                     'userId': 1,
+                     'isRead': False,
+                     'storageId': 10,
+                 }
+                 },
+            ],
+        }
+    ),
 ]
 
 NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_EXCEPTIONS = [
