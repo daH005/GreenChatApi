@@ -20,6 +20,7 @@ from http_.files.functions import (
     save_chat_message_files,
     chat_message_filenames,
     chat_message_file_path,
+    check_permissions_decorator,
 )
 
 __all__ = (
@@ -41,13 +42,9 @@ def chat_messages_files_save() -> ChatMessageStorageIdJSONDictMaker.Dict:
 @bp.route(Url.CHAT_MESSAGES_FILES_NAMES, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(CHAT_MESSAGES_FILES_NAMES_SPECS)
+@check_permissions_decorator
 @profile
-def chat_messages_files_names() -> ChatMessageFilenamesJSONDictMaker.Dict:
-    try:
-        storage_id: int = int(request.args[JSONKey.STORAGE_ID])
-    except (KeyError, ValueError):
-        return abort(HTTPStatus.BAD_REQUEST)
-
+def chat_messages_files_names(storage_id: int) -> ChatMessageFilenamesJSONDictMaker.Dict:
     try:
         filenames: list[str] = chat_message_filenames(storage_id)
     except FileNotFoundError:
@@ -59,10 +56,10 @@ def chat_messages_files_names() -> ChatMessageFilenamesJSONDictMaker.Dict:
 @bp.route(Url.CHAT_MESSAGES_FILES_GET, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(CHAT_MESSAGES_FILES_GET_SPECS)
+@check_permissions_decorator
 @profile
-def chat_messages_files_get() -> Response:
+def chat_messages_files_get(storage_id: int) -> Response:
     try:
-        storage_id: int = int(request.args[JSONKey.STORAGE_ID])
         filename: str = request.args[JSONKey.FILENAME]
     except (KeyError, ValueError):
         return abort(HTTPStatus.BAD_REQUEST)

@@ -133,6 +133,14 @@ class ChatMessage(BaseModel):
     user: Mapped['User'] = relationship(back_populates='chats_messages', uselist=False)
     chat: Mapped['Chat'] = relationship(back_populates='messages', uselist=False)
 
+    @classmethod
+    @raises(ValueError)
+    def by_storage_id(cls, storage_id: int) -> ChatMessage:
+        chat_message: ChatMessage | None = db_builder.session.query(cls).filter(cls.storage_id == storage_id).first()
+        if not chat_message:
+            raise ValueError
+        return chat_message
+
 
 class UserChatMatch(BaseModel):
     __tablename__ = 'users_chats'

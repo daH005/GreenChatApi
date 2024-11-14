@@ -1,17 +1,22 @@
 from flask import request, abort
 from http import HTTPStatus
 from werkzeug.utils import secure_filename
+from flask_jwt_extended import get_current_user
 from pathlib import Path
 from typing import Final
 from os import listdir
+from functools import wraps
 
-from config import MEDIA_FOLDER
+from common.json_ import JSONKey
 from common.hinting import raises
+from config import MEDIA_FOLDER
+from db.models import User, ChatMessage, UserChatMatch
 
 __all__ = (
     'save_chat_message_files',
     'chat_message_filenames',
     'chat_message_file_path',
+    'check_permissions_decorator',
 )
 
 _FILES_PATH: Final[Path] = MEDIA_FOLDER.joinpath('files')
@@ -67,3 +72,28 @@ def chat_message_file_path(storage_id: int,
     if not path.exists():
         raise FileNotFoundError
     return path
+
+
+@raises(PermissionError)
+def check_permissions_decorator(func):
+    @wraps(func)
+    def wrapper():
+        try:
+            storage_id: int = int(request.args[JSONKey.STORAGE_ID])
+        except (KeyError, ValueError):
+            return abort(HTTPStatus.BAD_REQUEST)
+
+        user: User = get_current_user()
+        chat_id: int = ChatMessage.by_storage_id(storage_id).chat_id
+
+        try:
+            UserChatMatch.chat_if_user_has_access(
+                user_id=user.id,
+                chat_id=chat_id,
+            )
+        except PermissionError:
+            return abort(HTTPStatus.FORBIDDEN)
+
+        return func(storage_id)
+
+    return wrapper
