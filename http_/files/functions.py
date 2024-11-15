@@ -21,7 +21,7 @@ __all__ = (
 
 _FILES_PATH: Final[Path] = MEDIA_FOLDER.joinpath('files')
 _STORAGE_ID_PATH: Final[Path] = _FILES_PATH.joinpath('storage_id')
-_MAX_CONTENT_LENGTH: Final[int] = 16 * 1024 * 1024
+_MAX_CONTENT_LENGTH: Final[int] = 300 * 1024 * 1024
 
 
 def save_chat_message_files() -> int | None:
