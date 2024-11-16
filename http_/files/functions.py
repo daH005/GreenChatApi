@@ -84,7 +84,11 @@ def check_permissions_decorator(func):
             return abort(HTTPStatus.BAD_REQUEST)
 
         user: User = get_current_user()
-        chat_id: int = ChatMessage.by_storage_id(storage_id).chat_id
+
+        try:
+            chat_id: int = ChatMessage.by_storage_id(storage_id).chat_id
+        except ValueError:
+            return abort(HTTPStatus.NOT_FOUND)
 
         try:
             UserChatMatch.chat_if_user_has_access(
