@@ -1,6 +1,7 @@
 __all__ = (
     'EMAIL_CHECK_SPECS',
     'LOGIN_SPECS',
+    'LOGOUT_SPECS',
     'REFRESH_ACCESS_SPECS',
     'USER_INFO_SPECS',
     'USER_AVATAR_SPECS',
@@ -160,6 +161,16 @@ LOGIN_SPECS = {
         200: _SIMPLE_REQUEST_RESPONSES[200],
         201: _SIMPLE_REQUEST_RESPONSES[201],
         400: _SIMPLE_REQUEST_RESPONSES[400],
+    },
+}
+
+LOGOUT_SPECS = {
+    'tags': _USER_TAGS,
+    'parameters': [
+        _ACCESS_TOKEN_COOKIE,
+    ],
+    'responses': {
+        200: _SIMPLE_REQUEST_RESPONSES[200],
     },
 }
 

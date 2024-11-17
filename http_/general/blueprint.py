@@ -11,6 +11,7 @@ from flask_jwt_extended import (
     create_refresh_token,
     set_access_cookies,
     set_refresh_cookies,
+    unset_jwt_cookies,
     get_jwt,
     get_current_user,
     jwt_required,
@@ -35,6 +36,7 @@ from http_.email.codes.functions import (
 from http_.apidocs_constants import (
     EMAIL_CHECK_SPECS,
     LOGIN_SPECS,
+    LOGOUT_SPECS,
     REFRESH_ACCESS_SPECS,
     USER_INFO_SPECS,
     USER_INFO_EDIT_SPECS,
@@ -91,6 +93,17 @@ def login() -> Response | None:
     response: Response = make_simple_response(status_code)
     set_access_cookies(response, create_access_token(identity=user.email))
     set_refresh_cookies(response, create_refresh_token(identity=user.email))
+
+    return response
+
+
+@bp.route(Url.LOGOUT, methods=[HTTPMethod.POST])
+@jwt_required()
+@swag_from(LOGOUT_SPECS)
+@profile
+def logout() -> Response:
+    response: Response = make_simple_response(HTTPStatus.OK)
+    unset_jwt_cookies(response)
 
     return response
 
