@@ -239,12 +239,16 @@ class UserChatMatch(BaseModel):
 
     @classmethod
     @profile
+    @raises(PermissionError)
     def unread_count_of_user_of_chat(cls, user_id: int,
                                      chat_id: int,
                                      ) -> UnreadCount:
         match: cls | None = db_builder.session.query(cls).filter(cls.user_id == user_id,
                                                                  cls.chat_id == chat_id,
                                                                  ).first()  # type: ignore
+        if match is None:
+            raise PermissionError
+
         return match.unread_count
 
 

@@ -90,7 +90,7 @@ USER_CHATS_KWARGS_AND_JSON_DICTS = [
                         'userId': 2,
                         'text': 'Hello! How are u?',
                         'isRead': False,
-                        'storageId': None,
+                        'storageId': 100,
                     }
                 },
             ]
@@ -117,7 +117,7 @@ CHAT_INFO_KWARGS_AND_JSON_DICTS = [
                 'userId': 2,
                 'text': 'Hello! How are u?',
                 'isRead': False,
-                'storageId': None,
+                'storageId': 100,
             }
         },
     ),
@@ -163,7 +163,7 @@ CHAT_HISTORY_KWARGS_AND_JSON_DICTS = [
                     'userId': 2,
                     'text': 'Hello! How are u?',
                     'isRead': False,
-                    'storageId': None,
+                    'storageId': 100,
                 },
                 {
                     'id': 1,
@@ -191,7 +191,7 @@ CHAT_MESSAGE_KWARGS_AND_JSON_DICTS = [
             'userId': 2,
             'text': 'Hello! How are u?',
             'isRead': False,
-            'storageId': None,
+            'storageId': 100,
         },
     ),
 ]

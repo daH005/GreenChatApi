@@ -12,6 +12,9 @@ __all__ = (
     'CHATS_MESSAGES',
     'USERS_CHATS_MATCHES',
     'UNREAD_COUNTS',
+    'EMAILS_AND_USERS',
+    'EMAILS_AND_FLAGS',
+    'CHAT_MESSAGES_BY_STORAGE_IDS',
     'CHATS_INTERLOCUTORS',
     'USERS_CHATS',
     'CHATS_USERS',
@@ -20,6 +23,9 @@ __all__ = (
     'USERS_PAIRS_AND_THEIR_PRIVATE_CHATS',
     'USERS_PAIRS_WITHOUT_PRIVATE_CHAT',
     'USERS_ALL_INTERLOCUTORS',
+    'CHATS_AND_USERS_AND_UNREAD_MESSAGES',
+    'USERS_AND_CHATS_AND_UNREAD_COUNTS',
+    'USERS_AND_CHATS_FOR_PERMISSION_ERROR_ON_UNREAD_COUNT_SEARCH',
 )
 
 USERS = {
@@ -67,6 +73,7 @@ CHATS_MESSAGES = [
         user_id=2,
         chat_id=1,
         text='Hello! How are u?',
+        storage_id=100,
     ),
     ChatMessage(
         user_id=1,
@@ -132,7 +139,28 @@ UNREAD_COUNTS = [
     ),
     UnreadCount(
         user_chat_match_id=7,
+        value=5,
     ),
+]
+
+EMAILS_AND_USERS = [
+    (USERS[1].email, USERS[1]),
+    (USERS[2].email, USERS[2]),
+    (USERS[3].email, USERS[3]),
+    (USERS[4].email, USERS[4]),
+]
+
+EMAILS_AND_FLAGS = [
+    ('newemail1@mail.ru', False),
+    (USERS[1].email, True),
+    ('newemail2@mail.ru', False),
+    (USERS[2].email, True),
+    (USERS[3].email, True),
+    ('newemail3@mail.ru', False),
+]
+
+CHAT_MESSAGES_BY_STORAGE_IDS = [
+    (100, CHATS_MESSAGES[1]),
 ]
 
 CHATS_INTERLOCUTORS = [
@@ -217,4 +245,19 @@ USERS_ALL_INTERLOCUTORS = [
         USERS[2],
     ]),
     (USERS[3], []),
+]
+
+CHATS_AND_USERS_AND_UNREAD_MESSAGES = [
+    (CHATS[3], USERS[2], [
+        CHATS_MESSAGES[3],
+    ])
+]
+
+USERS_AND_CHATS_AND_UNREAD_COUNTS = [
+    (USERS[4], CHATS[3], 5),
+    (USERS[1], CHATS[1], 0),
+]
+
+USERS_AND_CHATS_FOR_PERMISSION_ERROR_ON_UNREAD_COUNT_SEARCH = [
+    (USERS[1], CHATS[4]),
 ]
