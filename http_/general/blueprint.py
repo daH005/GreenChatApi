@@ -166,6 +166,8 @@ def user_info_edit() -> Response:
 @swag_from(USER_CHATS_SPECS)
 @profile
 def user_chats() -> UserChatsJSONDictMaker.Dict:
+    # return current_user.chats().as_json()
+
     current_user: User = get_current_user()
     return UserChatsJSONDictMaker.make(
         user_chats=UserChatMatch.chats_of_user(user_id=current_user.id),

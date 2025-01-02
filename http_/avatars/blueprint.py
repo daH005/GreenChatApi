@@ -21,12 +21,13 @@ from http_.apidocs_constants import (
 from http_.user_images_common import get_user_image, edit_user_image
 
 __all__ = (
+    'DEFAULT_AVATAR_PATH',
     'bp',
 )
 
 bp: Blueprint = Blueprint('avatars', __name__)
 
-_DEFAULT_AVATAR_PATH: Final[Path] = STATIC_FOLDER.joinpath('default_avatar.jpg')
+DEFAULT_AVATAR_PATH: Final[Path] = STATIC_FOLDER.joinpath('default_avatar.jpg')
 _AVATARS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('avatars')
 
 
@@ -42,7 +43,7 @@ def user_avatar() -> Response | None:
 
     return get_user_image(
         user_id_as_str=user_id_as_str,
-        default_path=_DEFAULT_AVATAR_PATH,
+        default_path=DEFAULT_AVATAR_PATH,
         folder_path=_AVATARS_PATH,
     )
 

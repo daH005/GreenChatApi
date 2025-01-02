@@ -1,90 +1,63 @@
 import pytest
-from http import HTTPStatus
+from flask.testing import FlaskClient
 from werkzeug.test import TestResponse
 from unittest.mock import patch
 
 from http_.app import app
-from _tests.common_ import JsonDictType, HeadersOrQueryArgsType
-from _tests.data.http_ import (
-    CHECK_EMAIL_TEST_ENDPOINT_KWARGS,
-    LOGIN_TEST_ENDPOINT_KWARGS,
-    REFRESH_ACCESS_TEST_ENDPOINT_KWARGS,
-    USER_INFO_TEST_ENDPOINT_KWARGS,
-    USER_INFO_EDIT_TEST_ENDPOINT_KWARGS,
-    USER_CHATS_TEST_ENDPOINT_KWARGS,
-    CHAT_HISTORY_TEST_ENDPOINT_KWARGS,
-)
+from http_.email.codes.functions import delete_email_code, make_and_save_email_code
+from http_.files.functions import STORAGE_ID_PATH
+from _tests.common.assert_and_save_jsons_if_failed import assert_and_save_jsons_if_failed
+from _tests.common.create_test_db import create_test_db
+from _tests.common.values_of_set_cookie_to_dict import values_of_set_cookie_to_dict
+from _tests.data.http_ import Params, ORMObjects, SetForTest
 
-# `use_cookies` обязательно нужно оставить в False, поскольку мы сами управляем куками и меняем их в ходе тестов.
-_test_client = app.test_client(use_cookies=False)
+_teardown_appcontext_funcs_backup = app.teardown_appcontext_funcs.copy()
 
 
 def setup_module() -> None:
+    create_test_db(ORMObjects.all)
+
+    delete_email_code(Params.user['email'])
+    delete_email_code(Params.EMAIL_WITH_CODE)
+    make_and_save_email_code(Params.EMAIL_WITH_CODE, Params.EMAIL_CODE)
+
+    STORAGE_ID_PATH.write_text(str(Params.STORAGE_ID))
+
     patch('http_.email.tasks.send_code_task').start()
     app.teardown_appcontext_funcs.clear()
 
 
-@pytest.mark.parametrize('test_endpoint_kwargs', CHECK_EMAIL_TEST_ENDPOINT_KWARGS)
-def test_check_email(test_endpoint_kwargs: dict) -> None:
-    _test_get_endpoint(url='/user/login/email/check', **test_endpoint_kwargs)
+def teardown_module() -> None:
+    patch('db.builder.db_builder.session.remove').stop()
+    patch('http_.email.tasks.send_code_task').stop()
+    app.teardown_appcontext_funcs.extend(_teardown_appcontext_funcs_backup)
 
 
-@pytest.mark.parametrize('test_endpoint_kwargs', LOGIN_TEST_ENDPOINT_KWARGS)
-def test_login(test_endpoint_kwargs: dict) -> None:
-    _test_post_or_put_endpoint(url='/user/login', method='POST', **test_endpoint_kwargs)
+@pytest.fixture
+def test_client() -> FlaskClient:
+    return app.test_client()
 
 
-@pytest.mark.parametrize('test_endpoint_kwargs', REFRESH_ACCESS_TEST_ENDPOINT_KWARGS)
-def test_refresh_access(test_endpoint_kwargs: dict) -> None:
-    _test_post_or_put_endpoint(url='/user/refreshAccess', method='POST', **test_endpoint_kwargs)
+@pytest.mark.parametrize('kwargs', SetForTest.all)
+def test_endpoints(test_client: FlaskClient, kwargs) -> None:
+    for key, value in kwargs.get('cookies', {}).items():
+        test_client.set_cookie(key, value)
 
-
-@pytest.mark.parametrize('test_endpoint_kwargs', USER_INFO_TEST_ENDPOINT_KWARGS)
-def test_user_info(test_endpoint_kwargs: dict) -> None:
-    _test_get_endpoint(url='/user/info', **test_endpoint_kwargs)
-
-
-@pytest.mark.parametrize('test_endpoint_kwargs', USER_INFO_EDIT_TEST_ENDPOINT_KWARGS)
-def test_user_info_edit(test_endpoint_kwargs: dict) -> None:
-    _test_post_or_put_endpoint(url='/user/info/edit', method='PUT', **test_endpoint_kwargs)
-
-
-@pytest.mark.parametrize('test_endpoint_kwargs', USER_CHATS_TEST_ENDPOINT_KWARGS)
-def test_user_chats(test_endpoint_kwargs: dict) -> None:
-    _test_get_endpoint(url='/user/chats', **test_endpoint_kwargs)
-
-
-@pytest.mark.parametrize('test_endpoint_kwargs', CHAT_HISTORY_TEST_ENDPOINT_KWARGS)
-def test_chat_history(test_endpoint_kwargs: dict) -> None:
-    _test_get_endpoint(url='/chat/history', **test_endpoint_kwargs)
-
-
-def _test_get_endpoint(data: HeadersOrQueryArgsType | None = None,
-                       **kwargs,
-                       ) -> None:
-    _test_endpoint(**kwargs, method='GET', query_args=data)
-
-
-def _test_post_or_put_endpoint(data: JsonDictType | None = None,
-                               **kwargs,
-                               ) -> None:
-    _test_endpoint(**kwargs, json_dict=data)
-
-
-def _test_endpoint(url: str,
-                   method: str,
-                   expected_response_status_code: HTTPStatus,
-                   headers: HeadersOrQueryArgsType | None = None,
-                   query_args: HeadersOrQueryArgsType | None = None,
-                   json_dict: JsonDictType | None = None,
-                   expected_response_json_dict: JsonDictType | None = None,
-                   ) -> None:
-    response: TestResponse = _test_client.open(
-        url,
-        method=method,
-        query_string=query_args,
-        headers=headers,
-        json=json_dict,
+    response: TestResponse = test_client.open(
+        kwargs['url'],
+        method=kwargs['method'],
+        query_string=kwargs.get('query_string'),
+        headers=kwargs.get('headers'),
+        json=kwargs.get('json_dict'),
+        data=kwargs.get('data'),
     )
-    assert response.status_code == expected_response_status_code
-    assert response.json == expected_response_json_dict
+
+    assert response.status_code == kwargs['expected_status_code']
+
+    if 'expected_content' in kwargs:
+        assert response.data == kwargs['expected_content']
+    else:
+        assert_and_save_jsons_if_failed(response.json, kwargs.get('expected_json_dict'))
+
+    values_of_set_cookie = response.headers.getlist('Set-Cookie')
+    assert_and_save_jsons_if_failed(values_of_set_cookie_to_dict(values_of_set_cookie), kwargs.get('expected_set_cookie', {}))

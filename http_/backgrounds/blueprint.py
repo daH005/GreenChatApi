@@ -18,12 +18,13 @@ from http_.apidocs_constants import (
 from http_.user_images_common import get_user_image, edit_user_image
 
 __all__ = (
+    'DEFAULT_BACKGROUND_PATH',
     'bp',
 )
 
 bp: Blueprint = Blueprint('backgrounds', __name__)
 
-_DEFAULT_BACKGROUND_PATH: Final[Path] = STATIC_FOLDER.joinpath('default_background.jpg')
+DEFAULT_BACKGROUND_PATH: Final[Path] = STATIC_FOLDER.joinpath('default_background.jpg')
 _BACKGROUNDS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('backgrounds')
 
 
@@ -34,7 +35,7 @@ _BACKGROUNDS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('backgrounds')
 def user_background() -> Response:
     return get_user_image(
         user_id_as_str=str(get_current_user().id),
-        default_path=_DEFAULT_BACKGROUND_PATH,
+        default_path=DEFAULT_BACKGROUND_PATH,
         folder_path=_BACKGROUNDS_PATH,
     )
 

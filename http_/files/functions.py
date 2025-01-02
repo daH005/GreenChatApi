@@ -5,6 +5,7 @@ from flask_jwt_extended import get_current_user
 from pathlib import Path
 from typing import Final
 from os import listdir
+from shutil import rmtree
 from functools import wraps
 
 from common.json_ import JSONKey
@@ -13,6 +14,7 @@ from config import MEDIA_FOLDER
 from db.models import User, ChatMessage, UserChatMatch
 
 __all__ = (
+    'STORAGE_ID_PATH',
     'save_chat_message_files',
     'chat_message_filenames',
     'chat_message_file_path',
@@ -20,11 +22,11 @@ __all__ = (
 )
 
 _FILES_PATH: Final[Path] = MEDIA_FOLDER.joinpath('files')
-_STORAGE_ID_PATH: Final[Path] = _FILES_PATH.joinpath('storage_id')
+STORAGE_ID_PATH: Final[Path] = _FILES_PATH.joinpath('storage_id')
 _MAX_CONTENT_LENGTH: Final[int] = 300 * 1024 * 1024
 
 
-def save_chat_message_files() -> int | None:
+def save_chat_message_files(storage_id: int | None = None) -> int | None:
     if request.content_length > _MAX_CONTENT_LENGTH:
         return abort(HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
 
@@ -32,11 +34,13 @@ def save_chat_message_files() -> int | None:
     if not files:
         return abort(HTTPStatus.BAD_REQUEST)
 
-    storage_id: int = _next_storage_id()
+    if storage_id is None:
+        storage_id: int = _next_storage_id()
 
     file_folder_path = _FILES_PATH.joinpath(str(storage_id))
-    if not file_folder_path.exists():
-        file_folder_path.mkdir()
+    if file_folder_path.exists():
+        rmtree(file_folder_path)
+    file_folder_path.mkdir()
 
     secured_filename: str
     for file in files:
@@ -50,11 +54,11 @@ def save_chat_message_files() -> int | None:
 
 
 def _next_storage_id() -> int:
-    if not _STORAGE_ID_PATH.exists():
-        _STORAGE_ID_PATH.write_text('0')
+    if not STORAGE_ID_PATH.exists():
+        STORAGE_ID_PATH.write_text('0')
 
-    storage_id: int = int(_STORAGE_ID_PATH.read_text())
-    _STORAGE_ID_PATH.write_text(str(storage_id + 1))
+    storage_id: int = int(STORAGE_ID_PATH.read_text())
+    STORAGE_ID_PATH.write_text(str(storage_id + 1))
 
     return storage_id
 

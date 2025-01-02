@@ -34,27 +34,24 @@ class JSONKey(StrEnum):
     USER_ID = 'userId'
     CHAT_ID = 'chatId'
     CHAT_MESSAGE_ID = 'chatMessageId'
+    CHAT_MESSAGES_IDS = 'chatMessagesIds'
+    STORAGE_ID = 'storageId'
 
+    EMAIL = 'email'
     FIRST_NAME = 'firstName'
     LAST_NAME = 'lastName'
 
     TEXT = 'text'
     CREATING_DATETIME = 'creatingDatetime'
     IS_READ = 'isRead'
-    STORAGE_ID = 'storageId'
 
     FILENAME = 'filename'
     FILENAMES = 'filenames'
 
-    USERNAME = 'username'
-    PASSWORD = 'password'
-    EMAIL = 'email'
-
+    MESSAGES = 'messages'
     OFFSET_FROM_END = 'offsetFromEnd'
 
     CHATS = 'chats'
-
-    MESSAGES = 'messages'
 
     NAME = 'name'
     IS_GROUP = 'isGroup'
@@ -62,16 +59,14 @@ class JSONKey(StrEnum):
     USERS_IDS = 'usersIds'
     UNREAD_COUNT = 'unreadCount'
 
-    CHAT_MESSAGES_IDS = 'chatMessagesIds'
-
     IS_ALREADY_TAKEN = 'isAlreadyTaken'
-
-    CODE_KEY = 'codeKey'
-    CODE = 'code'
     CODE_IS_VALID = 'codeIsValid'
 
     TYPE = 'type'
     DATA = 'data'
+
+    def __repr__(self) -> str:
+        return '\'' + str(self) + '\''
 
 
 class AbstractJSONDictMaker(ABC):

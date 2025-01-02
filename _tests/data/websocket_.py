@@ -1,489 +1,440 @@
-from _tests.data.db import USERS
-from _tests.common_ import COMMON_DATETIME
+from db.models import User
+from _tests.common.anything_place import anything
 
 __all__ = (
-    'ONLINE_USERS_IDS',
-    'USERS_IDS_AND_POTENTIAL_INTERLOCUTORS_IDS',
-    'EACH_CONNECTION_HANDLER_KWARGS_AND_SERVER_MESSAGES',
-    'FULL_DISCONNECTION_HANDLER_KWARGS_AND_SERVER_MESSAGES',
-    'ONLINE_STATUS_TRACING_ADDING_HANDLER_KWARGS_AND_SERVER_MESSAGES',
-    'NEW_CHAT_HANDLER_KWARGS_AND_SERVER_MESSAGES',
-    'NEW_CHAT_HANDLER_KWARGS_AND_EXCEPTIONS',
-    'NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES',
-    'NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_EXCEPTIONS',
-    'NEW_CHAT_MESSAGE_TYPING_HANDLER_KWARGS_AND_SERVER_MESSAGES',
-    'NEW_CHAT_MESSAGE_TYPING_HANDLER_KWARGS_AND_EXCEPTIONS',
-    'CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_SERVER_MESSAGES',
-    'CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_EXCEPTIONS',
-    'RAW_AND_HANDLED_MESSAGES_TEXTS',
+    'ORMObjects',
+    'Params',
+    'SetForTest',
 )
 
-ONLINE_USERS_IDS = [
-    1, 2, 3, 5
-]
 
-USERS_IDS_AND_POTENTIAL_INTERLOCUTORS_IDS = {
-    1: [
-        5,
-    ],
-}
+class ORMObjects:
 
-EACH_CONNECTION_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
-    (
-        dict(
-            user=USERS[1],
+    users = [
+        User(
+            email='user1@mail.ru',
         ),
-        {
-            1: [
-                {'type': 'interlocutorsOnlineStatuses',
-                 'data': {
-                     2: True,
-                 }
-                 }
-            ],
-            2: [
-                {'type': 'interlocutorsOnlineStatuses',
-                 'data': {
-                     1: True,
-                 }
-                 }
-            ],
-            4: [
-                {'type': 'interlocutorsOnlineStatuses',
-                 'data': {
-                     1: True,
-                 }
-                 }
-            ],
-            5: [
-                {'type': 'interlocutorsOnlineStatuses',
-                 'data': {
-                     1: True,
-                 }
-                 }
-            ],
-        }
-    ),
-]
+        User(
+            email='user2@mail.ru',
+        ),
+        User(
+            email='user3@mail.ru',
+        ),
+    ]
 
-FULL_DISCONNECTION_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
-    (
-        dict(
-            user=USERS[1],
-        ),
-        {
-            2: [
-                {'type': 'interlocutorsOnlineStatuses',
-                 'data': {
-                     1: False,
-                 }
-                 }
-            ],
-            4: [
-                {'type': 'interlocutorsOnlineStatuses',
-                 'data': {
-                     1: False,
-                 }
-                 }
-            ],
-            5: [
-                {'type': 'interlocutorsOnlineStatuses',
-                 'data': {
-                     1: False,
-                 }
-                 }
-            ],
-        }
-    ),
-]
 
-ONLINE_STATUS_TRACING_ADDING_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
-    (
-        dict(
-            user=USERS[1],
-            data={
-                'userId': 3,
-            }
-        ),
-        {
-            1: [
-                {'type': 'interlocutorsOnlineStatuses',
-                 'data': {
-                     3: True,
-                 }
-                 }
-            ]
-        }
-    ),
-]
+class Params:
 
-NEW_CHAT_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
-    (
-        dict(
-            user=USERS[1],
-            data={
-                'usersIds': [1, 5],
-            }
-        ),
-        {
-            1: [
-                {'type': 'newChat',
-                 'data': {
-                     'id': 5,
-                     'name': None,
-                     'isGroup': False,
-                     'unreadCount': 0,
-                     'lastMessage': None,
-                     'usersIds': [1, 5]
-                 }
-                 },
-                {'type': 'interlocutorsOnlineStatuses',
-                 'data': {
-                     5: True,
-                 }
-                 }
-            ],
-            5: [
-                {'type': 'newChat',
-                 'data': {
-                     'id': 5,
-                     'name': None,
-                     'isGroup': False,
-                     'unreadCount': 0,
-                     'lastMessage': None,
-                     'usersIds': [1, 5]
-                 }
-                 },
-                {'type': 'interlocutorsOnlineStatuses',
-                 'data': {
-                     1: True,
-                 }
-                 }
-            ],
-        }
-    ),
-]
+    online_user_ids = [
+        1, 2,
+    ]
 
-NEW_CHAT_HANDLER_KWARGS_AND_EXCEPTIONS = [
-    (
-        dict(
-            user=USERS[1],
-            data={
-                'usersIds': [2],
-                'name': None,
-                'isGroup': False,
-            }
-        ),
-        ValueError
-    ),
-    (
-        dict(
-            user=USERS[1],
-            data={
-                'usersIds': [1, 5, 7],
-                'name': None,
-                'isGroup': False,
-            }
-        ),
-        ValueError
-    ),
-    (
-        dict(
-            user=USERS[1],
-            data={
-                'usersIds': [1, 5],
-                'name': None,
-                'isGroup': False,
-            }
-        ),
-        ValueError
-    ),
-]
+    user_ids_and_potential_interlocutor_ids = {
+        3: [
+            1,
+        ],
+    }
 
-NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
-    (
-        dict(
-            user=USERS[1],
-            data={
-                'chatId': 5,
-                'text': 'Hello...',
-            }
-        ),
-        {
-            1: [
-                {'type': 'newChatMessage',
-                 'data': {
-                     'id': 5,
-                     'chatId': 5,
-                     'text': 'Hello...',
-                     'creatingDatetime': COMMON_DATETIME.isoformat(),
-                     'userId': 1,
-                     'isRead': False,
-                     'storageId': None,
-                 }
-                 }
-            ],
-            5: [
-                {'type': 'newUnreadCount',
-                 'data': {
-                     'chatId': 5,
-                     'unreadCount': 1,
-                 }
-                 },
-                {'type': 'newChatMessage',
-                 'data': {
-                     'id': 5,
-                     'chatId': 5,
-                     'text': 'Hello...',
-                     'creatingDatetime': COMMON_DATETIME.isoformat(),
-                     'userId': 1,
-                     'isRead': False,
-                     'storageId': None,
-                 }
-                 },
-            ],
-        }
-    ),
-    (
-        dict(
-            user=USERS[1],
-            data={
-                'chatId': 5,
-                'text': 'Hello 2...',
-            }
-        ),
-        {
-            1: [
-                {'type': 'newChatMessage',
-                 'data': {
-                     'id': 6,
-                     'chatId': 5,
-                     'text': 'Hello 2...',
-                     'creatingDatetime': COMMON_DATETIME.isoformat(),
-                     'userId': 1,
-                     'isRead': False,
-                     'storageId': None,
-                 }
-                 }
-            ],
-            5: [
-                {'type': 'newUnreadCount',
-                 'data': {
-                     'chatId': 5,
-                     'unreadCount': 2,
-                 }
-                 },
-                {'type': 'newChatMessage',
-                 'data': {
-                     'id': 6,
-                     'chatId': 5,
-                     'text': 'Hello 2...',
-                     'creatingDatetime': COMMON_DATETIME.isoformat(),
-                     'userId': 1,
-                     'isRead': False,
-                     'storageId': None,
-                 }
-                 },
-            ],
-        }
-    ),
-    (
-        dict(
-            user=USERS[1],
-            data={
-                'chatId': 1,
-                'text': '',
-                'storageId': 10,
-            }
-        ),
-        {
-            1: [
-                {'type': 'newChatMessage',
-                 'data': {
-                     'id': 7,
-                     'chatId': 1,
-                     'text': '',
-                     'creatingDatetime': COMMON_DATETIME.isoformat(),
-                     'userId': 1,
-                     'isRead': False,
-                     'storageId': 10,
-                 }
-                 }
-            ],
-            2: [
-                {'type': 'newUnreadCount',
-                 'data': {
-                     'chatId': 1,
-                     'unreadCount': 1,
-                 }
-                 },
-                {'type': 'newChatMessage',
-                 'data': {
-                     'id': 7,
-                     'chatId': 1,
-                     'text': '',
-                     'creatingDatetime': COMMON_DATETIME.isoformat(),
-                     'userId': 1,
-                     'isRead': False,
-                     'storageId': 10,
-                 }
-                 },
-            ],
-        }
-    ),
-]
 
-NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_EXCEPTIONS = [
-    (
-        dict(
-            user=USERS[2],
-            data={
-                'chatId': 5,
-                'text': 'Hi!',
-            }
-        ),
-        PermissionError
-    ),
-]
+class SetForTest:
 
-NEW_CHAT_MESSAGE_TYPING_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
-    (
-        dict(
-            user=USERS[1],
-            data={
-                'chatId': 1,
-            }
+    online_status_tracing_adding_input_and_output = [
+        (
+            (
+                ORMObjects.users[2],
+                {
+                    'type': 'onlineStatusTracingAdding',
+                    'data': {
+                        'userId': 1,
+                    },
+                },
+            ),
+            {
+                3: [
+                    {
+                        'type': 'interlocutorsOnlineStatuses',
+                        'data': {
+                            1: True,
+                        },
+                    },
+                ],
+            },
         ),
-        {
-            2: [
-                {'type': 'newChatMessageTyping',
-                 'data': {
-                     'chatId': 1,
-                     'userId': 1
-                 }
-                 }
-            ]
-        }
-    ),
-    (
-        dict(
-            user=USERS[2],
-            data={
-                'chatId': 1,
-            }
+        (
+            (
+                ORMObjects.users[1],
+                {
+                    'type': 'onlineStatusTracingAdding',
+                    'data': {
+                        'userId': 3,
+                    },
+                },
+            ),
+            {
+                2: [
+                    {
+                        'type': 'interlocutorsOnlineStatuses',
+                        'data': {
+                            3: False,
+                        },
+                    },
+                ],
+            },
         ),
-        {
-            1: [
-                {'type': 'newChatMessageTyping',
-                 'data': {
-                     'chatId': 1,
-                     'userId': 2
-                 }
-                 }
-            ]
-        }
-    ),
-]
+    ]
 
-NEW_CHAT_MESSAGE_TYPING_HANDLER_KWARGS_AND_EXCEPTIONS = [
-    (
-        dict(
-            user=USERS[2],
-            data={
-                'chatId': 5,
-            }
+    new_chat_input_and_output = [
+        (
+            (
+                ORMObjects.users[0],
+                {
+                    'type': 'newChat',
+                    'data': {
+                        'usersIds': [2],
+                    },
+                },
+            ),
+            {
+                1: [
+                    {
+                        'type': 'newChat',
+                        'data': {
+                            'id': 1,
+                            'isGroup': False,
+                            'lastMessage': None,
+                            'name': None,
+                            'unreadCount': 0,
+                            'usersIds': [2, 1],
+                        },
+                    },
+                    {
+                        'type': 'interlocutorsOnlineStatuses',
+                        'data': {
+                            2: True,
+                        },
+                    },
+                ],
+                2: [
+                    {
+                        'type': 'newChat',
+                        'data': {
+                            'id': 1,
+                            'isGroup': False,
+                            'lastMessage': None,
+                            'name': None,
+                            'unreadCount': 0,
+                            'usersIds': [2, 1],
+                        },
+                    },
+                    {
+                        'type': 'interlocutorsOnlineStatuses',
+                        'data': {
+                            1: True,
+                        },
+                    },
+                ],
+            },
         ),
-        PermissionError
-    ),
-]
+    ]
 
-CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_SERVER_MESSAGES = [
-    (
-        dict(
-            user=USERS[5],
-            data={
-                'chatId': 5,
-                'chatMessageId': 1,
-            }
+    new_chat_message_input_and_output = [
+        (
+            (
+                ORMObjects.users[0],
+                {
+                    'type': 'newChatMessage',
+                    'data': {
+                        'chatId': 1,
+                        'text': 'Hello!',
+                    },
+                },
+            ),
+            {
+                2: [
+                    {
+                        'type': 'newUnreadCount',
+                        'data': {
+                            'chatId': 1,
+                            'unreadCount': 1,
+                        },
+                    },
+                    {
+                        'type': 'newChatMessage',
+                        'data': {
+                            'id': 1,
+                            'chatId': 1,
+                            'userId': 1,
+                            'text': 'Hello!',
+                            'isRead': False,
+                            'storageId': None,
+                            'creatingDatetime': anything,
+                        },
+                    },
+                ],
+                1: [
+                    {
+                        'type': 'newChatMessage',
+                        'data': {
+                            'id': 1,
+                            'chatId': 1,
+                            'userId': 1,
+                            'text': 'Hello!',
+                            'isRead': False,
+                            'storageId': None,
+                            'creatingDatetime': anything,
+                        },
+                    },
+                ],
+            },
         ),
-        {}
-    ),
-    (
-        dict(
-            user=USERS[5],
-            data={
-                'chatId': 5,
-                'chatMessageId': 5,
-            }
-        ),
-        {
-            1: [
-                {'type': 'readChatMessages',
-                 'data': {
-                     'chatId': 5,
-                     'chatMessagesIds': [5],
-                 }
-                 },
-            ],
-            5: [
-                {'type': 'newUnreadCount',
-                 'data': {
-                     'chatId': 5,
-                     'unreadCount': 1,
-                 }
-                 }
-            ]
-        }
-    ),
-    (
-        dict(
-            user=USERS[5],
-            data={
-                'chatId': 5,
-                'chatMessageId': 6,
-            }
-        ),
-        {
-            1: [
-                {'type': 'readChatMessages',
-                 'data': {
-                     'chatId': 5,
-                     'chatMessagesIds': [6],
-                 }
-                 },
-            ],
-            5: [
-                {'type': 'newUnreadCount',
-                 'data': {
-                     'chatId': 5,
-                     'unreadCount': 0,
-                 }
-                 }
-            ]
-        }
-    ),
-]
 
-CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_EXCEPTIONS = [
-    (
-        dict(
-            user=USERS[2],
-            data={
-                'chatId': 5,
-                'chatMessageId': 5,
-            }
+        (
+            (
+                ORMObjects.users[0],
+                {
+                    'type': 'newChatMessage',
+                    'data': {
+                        'chatId': 1,
+                        'text': 'Hello!',
+                    },
+                },
+            ),
+            {
+                2: [
+                    {
+                        'type': 'newUnreadCount',
+                        'data': {
+                            'chatId': 1,
+                            'unreadCount': 2,
+                        },
+                    },
+                    {
+                        'type': 'newChatMessage',
+                        'data': {
+                            'id': 2,
+                            'chatId': 1,
+                            'userId': 1,
+                            'text': 'Hello!',
+                            'isRead': False,
+                            'storageId': None,
+                            'creatingDatetime': anything,
+                        },
+                    },
+                ],
+                1: [
+                    {
+                        'type': 'newChatMessage',
+                        'data': {
+                            'id': 2,
+                            'chatId': 1,
+                            'userId': 1,
+                            'text': 'Hello!',
+                            'isRead': False,
+                            'storageId': None,
+                            'creatingDatetime': anything,
+                        },
+                    },
+                ],
+            },
         ),
-        PermissionError
-    ),
-]
+    ]
 
-RAW_AND_HANDLED_MESSAGES_TEXTS = [
-    (
-        'Hi! 1 2 3\n1 2 3',
-        'Hi! 1 2 3\n1 2 3',
-    ),
-    (
-        '   Hello!   How are u??\n  \n\n   My name is Danil!  \n',
-        'Hello! How are u??\nMy name is Danil!',
-    ),
-]
+    new_chat_message_typing_input_and_output = [
+        (
+            (
+                ORMObjects.users[0],
+                {
+                    'type': 'newChatMessageTyping',
+                    'data': {
+                        'chatId': 1,
+                    },
+                },
+            ),
+            {
+                2: [
+                    {
+                        'type': 'newChatMessageTyping',
+                        'data': {
+                            'chatId': 1,
+                            'userId': 1,
+                        },
+                    },
+                ],
+            },
+        ),
+    ]
+
+    chat_message_was_read_input_and_output = [
+        (
+            (
+                ORMObjects.users[1],
+                {
+                    'type': 'chatMessageWasRead',
+                    'data': {
+                        'chatId': 1,
+                        'chatMessageId': 2,
+                    },
+                },
+            ),
+            {
+                2: [
+                    {
+                        'type': 'newUnreadCount',
+                        'data': {
+                            'chatId': 1,
+                            'unreadCount': 0,
+                        },
+                    },
+                ],
+                1: [
+                    {
+                        'type': 'readChatMessages',
+                        'data': {
+                            'chatId': 1,
+                            'chatMessagesIds': [1, 2],
+                        },
+                    },
+                ],
+            },
+        ),
+    ]
+
+    all_input_and_output = (online_status_tracing_adding_input_and_output +
+                            new_chat_input_and_output +   # type: ignore
+                            new_chat_message_input_and_output +
+                            new_chat_message_typing_input_and_output +
+                            chat_message_was_read_input_and_output)
+
+    new_chat_input_and_raises = [
+        (
+            (
+                ORMObjects.users[0],
+                {
+                    'type': 'newChat',
+                    'data': {
+                        'usersIds': [1, 2],
+                    },
+                },
+            ),
+            ValueError,  # the chat already exists
+        ),
+    ]
+
+    new_chat_message_input_and_raises = [
+        (
+            (
+                ORMObjects.users[2],
+                {
+                    'type': 'newChatMessage',
+                    'data': {
+                        'chatId': 1,
+                        'text': 'Hi! Can I?',
+                    },
+                },
+            ),
+            PermissionError,
+        ),
+    ]
+
+    new_chat_message_typing_input_and_raises = [
+        (
+            (
+                ORMObjects.users[2],
+                {
+                    'type': 'newChatMessageTyping',
+                    'data': {
+                        'chatId': 1,
+                    },
+                },
+            ),
+            PermissionError,
+        ),
+    ]
+
+    chat_message_was_read_input_and_raises = [
+        (
+            (
+                ORMObjects.users[2],
+                {
+                    'type': 'chatMessageWasRead',
+                    'data': {
+                        'chatId': 1,
+                        'chatMessageId': 100,
+                    },
+                },
+            ),
+            PermissionError,
+        ),
+    ]
+
+    all_input_and_raises = (new_chat_input_and_raises +
+                            new_chat_message_input_and_raises +  # type: ignore
+                            new_chat_message_typing_input_and_raises +
+                            chat_message_was_read_input_and_raises)
+
+    new_connects = [
+        (
+            ORMObjects.users[0],
+            {
+                2: [
+                    {
+                        'type': 'interlocutorsOnlineStatuses',
+                        'data': {
+                            1: True,
+                        },
+                    },
+                ],
+                3: [
+                    {
+                        'type': 'interlocutorsOnlineStatuses',
+                        'data': {
+                            1: True,
+                        },
+                    },
+                ],
+                1: [
+                    {
+                        'type': 'interlocutorsOnlineStatuses',
+                        'data': {
+                            2: True,
+                        },
+                    },
+                ],
+            },
+        ),
+    ]
+
+    full_disconnects = [
+        (
+            ORMObjects.users[0],
+            {
+                2: [
+                    {
+                        'type': 'interlocutorsOnlineStatuses',
+                        'data': {
+                            1: False,
+                        },
+                    },
+                ],
+                3: [
+                    {
+                        'type': 'interlocutorsOnlineStatuses',
+                        'data': {
+                            1: False,
+                        },
+                    },
+                ],
+            },
+        ),
+    ]
+
+    raw_and_handled_texts = [
+        (
+            'Hi! 1 2 3\n1 2 3',
+            'Hi! 1 2 3\n1 2 3',
+        ),
+        (
+            '   Hello!   How are u??\n  \n\n   My name is Danil!  \n',
+            'Hello! How are u??\nMy name is Danil!',
+        ),
+    ]

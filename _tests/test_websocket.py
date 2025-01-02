@@ -1,165 +1,90 @@
 import pytest
 from unittest.mock import patch
 
-from websocket_.base.typing_ import CommonHandlerFuncT, ConnectAndDisconnectHandlerFuncT
+from db.models import User
 from websocket_.common import clear_message_text
-from websocket_.server_handlers import (
-    users_ids_and_potential_interlocutors_ids,
-    each_connection_handler,
-    full_disconnection_handler,
-    online_status_tracing_adding,
-    new_chat,
-    new_chat_message,
-    new_chat_message_typing,
-    chat_message_was_read,
-)
+from websocket_.server_handlers import server, users_ids_and_potential_interlocutors_ids
+from _tests.common.create_test_db import create_test_db
+from _tests.common.assert_and_save_jsons_if_failed import assert_and_save_jsons_if_failed
 from _tests.data.websocket_ import (
-    ONLINE_USERS_IDS,
-    USERS_IDS_AND_POTENTIAL_INTERLOCUTORS_IDS,
-    EACH_CONNECTION_HANDLER_KWARGS_AND_SERVER_MESSAGES,
-    FULL_DISCONNECTION_HANDLER_KWARGS_AND_SERVER_MESSAGES,
-    ONLINE_STATUS_TRACING_ADDING_HANDLER_KWARGS_AND_SERVER_MESSAGES,
-    NEW_CHAT_HANDLER_KWARGS_AND_SERVER_MESSAGES,
-    NEW_CHAT_HANDLER_KWARGS_AND_EXCEPTIONS,
-    NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES,
-    NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_EXCEPTIONS,
-    NEW_CHAT_MESSAGE_TYPING_HANDLER_KWARGS_AND_SERVER_MESSAGES,
-    NEW_CHAT_MESSAGE_TYPING_HANDLER_KWARGS_AND_EXCEPTIONS,
-    CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_SERVER_MESSAGES,
-    CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_EXCEPTIONS,
-    RAW_AND_HANDLED_MESSAGES_TEXTS,
+    ORMObjects,
+    Params,
+    SetForTest,
 )
 
-saved_server_messages = {}
+real_output = {}
 
 
 def setup_module() -> None:
+    create_test_db(ORMObjects.users)
 
     def websocket_server_user_have_connections_method_mock(self, user_id: int) -> bool:
-        return user_id in ONLINE_USERS_IDS
+        return user_id in Params.online_user_ids
+
+    patch('websocket_.base.server.WebSocketServer.user_have_connections',
+          websocket_server_user_have_connections_method_mock).start()
 
     async def websocket_server_send_to_one_user_method_mock(self, user_id: int,
                                                             message: dict,
                                                             ) -> None:
-        saved_server_messages.setdefault(user_id, []).append(message)
+        real_output.setdefault(user_id, []).append(message)
 
-    patch('websocket_.base.server.WebSocketServer.user_have_connections', websocket_server_user_have_connections_method_mock).start()
-    patch('websocket_.base.server.WebSocketServer.send_to_one_user', websocket_server_send_to_one_user_method_mock).start()
-    users_ids_and_potential_interlocutors_ids.update(USERS_IDS_AND_POTENTIAL_INTERLOCUTORS_IDS)
+    patch('websocket_.base.server.WebSocketServer.send_to_one_user',
+          websocket_server_send_to_one_user_method_mock).start()
+
+    users_ids_and_potential_interlocutors_ids.update(Params.user_ids_and_potential_interlocutor_ids)
 
 
-@pytest.mark.parametrize(('handler_kwargs', 'expected_server_messages'),
-                         EACH_CONNECTION_HANDLER_KWARGS_AND_SERVER_MESSAGES)
+def teardown_module() -> None:
+    patch('websocket_.base.server.WebSocketServer.user_have_connections').stop()
+    patch('websocket_.base.server.WebSocketServer.send_to_one_user').stop()
+    users_ids_and_potential_interlocutors_ids.clear()
+
+
+def teardown_function() -> None:
+    real_output.clear()
+
+
+@pytest.mark.parametrize(('input_', 'expected_output'), SetForTest.all_input_and_output)
 @pytest.mark.asyncio
-async def test_positive_each_connection_handler(handler_kwargs: dict,
-                                                expected_server_messages,
-                                                ) -> None:
-    await _test_positive_handler_and_server_messages(each_connection_handler, handler_kwargs, expected_server_messages)
+async def test_handle_message(input_,
+                              expected_output,
+                              ) -> None:
+    user, message = input_
+    await server.common_handlers_funcs[message['type']](user, message['data'])
+    assert_and_save_jsons_if_failed(real_output, expected_output)
 
 
-@pytest.mark.parametrize(('handler_kwargs', 'expected_server_messages'),
-                         FULL_DISCONNECTION_HANDLER_KWARGS_AND_SERVER_MESSAGES)
+@pytest.mark.parametrize(('input_', 'expected_exception'), SetForTest.all_input_and_raises)
 @pytest.mark.asyncio
-async def test_positive_full_disconnection_handler(handler_kwargs: dict,
-                                                   expected_server_messages,
-                                                   ) -> None:
-    await _test_positive_handler_and_server_messages(full_disconnection_handler, handler_kwargs,
-                                                     expected_server_messages)
-
-
-@pytest.mark.parametrize(('handler_kwargs', 'expected_server_messages'),
-                         ONLINE_STATUS_TRACING_ADDING_HANDLER_KWARGS_AND_SERVER_MESSAGES)
-@pytest.mark.asyncio
-async def test_positive_online_status_tracing_adding_handler(handler_kwargs: dict,
-                                                             expected_server_messages,
-                                                             ) -> None:
-    await _test_positive_handler_and_server_messages(online_status_tracing_adding, handler_kwargs,
-                                                     expected_server_messages)
-
-
-@pytest.mark.parametrize(('handler_kwargs', 'expected_server_messages'), NEW_CHAT_HANDLER_KWARGS_AND_SERVER_MESSAGES)
-@pytest.mark.asyncio
-async def test_positive_new_chat_handler(handler_kwargs: dict,
-                                         expected_server_messages,
-                                         ) -> None:
-    await _test_positive_handler_and_server_messages(new_chat, handler_kwargs, expected_server_messages)
-
-
-@pytest.mark.parametrize(('handler_kwargs', 'expected_exception'), NEW_CHAT_HANDLER_KWARGS_AND_EXCEPTIONS)
-@pytest.mark.asyncio
-async def test_negative_new_chat_handler(handler_kwargs: dict,
-                                         expected_exception: type[Exception],
-                                         ) -> None:
+async def test_handle_message_raises_exception(input_,
+                                               expected_exception: type[Exception],
+                                               ) -> None:
+    user, message = input_
     with pytest.raises(expected_exception):
-        await new_chat(**handler_kwargs)
+        await server.common_handlers_funcs[message['type']](user, message['data'])
 
 
-@pytest.mark.parametrize(('handler_kwargs', 'expected_server_messages'),
-                         NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_SERVER_MESSAGES)
+@pytest.mark.parametrize(('user', 'expected_output'), SetForTest.new_connects)
 @pytest.mark.asyncio
-async def test_positive_new_chat_message_handler(handler_kwargs: dict,
-                                                 expected_server_messages,
-                                                 ) -> None:
-    await _test_positive_handler_and_server_messages(new_chat_message, handler_kwargs, expected_server_messages)
+async def test_each_connection_handler(user: User,
+                                       expected_output,
+                                       ) -> None:
+    await server.each_connection_handler_func(user)
+    assert_and_save_jsons_if_failed(real_output, expected_output)
 
 
-@pytest.mark.parametrize(('handler_kwargs', 'expected_exception'), NEW_CHAT_MESSAGE_HANDLER_KWARGS_AND_EXCEPTIONS)
+@pytest.mark.parametrize(('user', 'expected_output'), SetForTest.full_disconnects)
 @pytest.mark.asyncio
-async def test_negative_new_chat_message_handler(handler_kwargs: dict,
-                                                 expected_exception: type[Exception],
-                                                 ) -> None:
-    with pytest.raises(expected_exception):
-        await new_chat_message(**handler_kwargs)
+async def test_full_disconnection_handler(user: User,
+                                          expected_output,
+                                          ) -> None:
+    await server.full_disconnection_handler_func(user)
+    assert_and_save_jsons_if_failed(real_output, expected_output)
 
 
-@pytest.mark.parametrize(('handler_kwargs', 'expected_server_messages'),
-                         NEW_CHAT_MESSAGE_TYPING_HANDLER_KWARGS_AND_SERVER_MESSAGES)
-@pytest.mark.asyncio
-async def test_positive_new_chat_message_typing_handler(handler_kwargs: dict,
-                                                        expected_server_messages,
-                                                        ) -> None:
-    await _test_positive_handler_and_server_messages(new_chat_message_typing, handler_kwargs, expected_server_messages)
-
-
-@pytest.mark.parametrize(('handler_kwargs', 'expected_exception'), NEW_CHAT_MESSAGE_TYPING_HANDLER_KWARGS_AND_EXCEPTIONS)
-@pytest.mark.asyncio
-async def test_negative_new_chat_message_typing_handler(handler_kwargs: dict,
-                                                        expected_exception: type[Exception],
-                                                        ) -> None:
-    with pytest.raises(expected_exception):
-        await new_chat_message_typing(**handler_kwargs)
-
-
-@pytest.mark.parametrize(('handler_kwargs', 'expected_server_messages'),
-                         CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_SERVER_MESSAGES)
-@pytest.mark.asyncio
-async def test_positive_chat_message_was_read_handler(handler_kwargs: dict,
-                                                      expected_server_messages,
-                                                      ) -> None:
-    await _test_positive_handler_and_server_messages(chat_message_was_read, handler_kwargs, expected_server_messages)
-
-
-@pytest.mark.parametrize(('handler_kwargs', 'expected_exception'), CHAT_MESSAGE_WAS_READ_HANDLER_KWARGS_AND_EXCEPTIONS)
-@pytest.mark.asyncio
-async def test_negative_chat_message_was_read_handler(handler_kwargs: dict,
-                                                      expected_exception: type[Exception],
-                                                      ) -> None:
-    with pytest.raises(expected_exception):
-        await chat_message_was_read(**handler_kwargs)
-
-
-@pytest.mark.parametrize(('raw_text', 'expected_text'), RAW_AND_HANDLED_MESSAGES_TEXTS)
-def test_positive_message_text_clearing(raw_text: str,
-                                        expected_text: str,
-                                        ) -> None:
+@pytest.mark.parametrize(('raw_text', 'expected_text'), SetForTest.raw_and_handled_texts)
+def test_message_text_clearing(raw_text: str,
+                               expected_text: str,
+                               ) -> None:
     assert clear_message_text(raw_text) == expected_text
-
-
-async def _test_positive_handler_and_server_messages(
-        handler_func: ConnectAndDisconnectHandlerFuncT | CommonHandlerFuncT,
-        handler_kwargs: dict,
-        expected_server_messages,
-        ) -> None:
-    saved_server_messages.clear()
-    await handler_func(**handler_kwargs)
-    assert saved_server_messages == expected_server_messages

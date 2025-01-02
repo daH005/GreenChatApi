@@ -17,11 +17,15 @@ __all__ = (
 
 
 @raises(ValueError)
-def make_and_save_email_code(identify: str) -> int:
+def make_and_save_email_code(identify: str,
+                             code: int | None = None,
+                             ) -> int:
     if KeyPrefix.EMAIL_CODE.exists(identify):
         raise ValueError
 
-    code: int = _make_random_four_digit_number()
+    if code is None:
+        code: int = _make_random_four_digit_number()
+
     KeyPrefix.EMAIL_CODE.set(identify, code, EMAIL_CODES_EXPIRES)
     KeyPrefix.EMAIL_CODE_COUNT.set(identify, 0)
 

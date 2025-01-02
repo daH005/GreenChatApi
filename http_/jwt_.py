@@ -9,6 +9,7 @@ __all__ = (
 
 jwt: JWTManager = JWTManager()
 
+
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data) -> User | None:
     email: str = jwt_data['sub']

@@ -34,9 +34,9 @@ bp: Blueprint = Blueprint('files', __name__)
 @jwt_required()
 @swag_from(CHAT_MESSAGES_FILES_SAVE_SPECS)
 @profile
-def chat_messages_files_save() -> ChatMessageStorageIdJSONDictMaker.Dict:
+def chat_messages_files_save() -> tuple[ChatMessageStorageIdJSONDictMaker.Dict, HTTPStatus]:
     storage_id: int = save_chat_message_files()
-    return ChatMessageStorageIdJSONDictMaker.make(storage_id)
+    return ChatMessageStorageIdJSONDictMaker.make(storage_id), HTTPStatus.CREATED
 
 
 @bp.route(Url.CHAT_MESSAGES_FILES_NAMES, methods=[HTTPMethod.GET])

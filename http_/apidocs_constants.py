@@ -168,6 +168,7 @@ LOGOUT_SPECS = {
     'tags': _USER_TAGS,
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
+        _CSRF_TOKEN_HEADER,
     ],
     'responses': {
         200: _SIMPLE_REQUEST_RESPONSES[200],
@@ -281,7 +282,6 @@ USER_AVATAR_EDIT_SPECS = {
     ],
     'responses': {
         200: _SIMPLE_REQUEST_RESPONSES[200],
-        400: _SIMPLE_REQUEST_RESPONSES[400],
     }
 }
 
@@ -301,7 +301,6 @@ USER_BACKGROUND_EDIT_SPECS = {
     ],
     'responses': {
         200: _SIMPLE_REQUEST_RESPONSES[200],
-        400: _SIMPLE_REQUEST_RESPONSES[400],
     }
 }
 

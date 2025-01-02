@@ -116,6 +116,7 @@ class Chat(BaseModel):
     def interlocutor_of_user(self, user_id: int) -> User:
         return UserChatMatch.interlocutor_of_user_of_chat(chat_id=self.id, user_id=user_id)
 
+    @raises(PermissionError)
     def unread_count_of_user(self, user_id: int) -> UnreadCount:
         return UserChatMatch.unread_count_of_user_of_chat(user_id=user_id, chat_id=self.id)
 

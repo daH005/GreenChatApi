@@ -164,3 +164,15 @@ class WebSocketServer:
     @staticmethod
     async def _full_disconnection_handler(user: User) -> None:
         pass
+
+    @property
+    def each_connection_handler_func(self):
+        return self._each_connection_handler
+
+    @property
+    def full_disconnection_handler_func(self):
+        return self._full_disconnection_handler
+
+    @property
+    def common_handlers_funcs(self):
+        return self._common_handlers_funcs
