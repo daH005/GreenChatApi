@@ -91,20 +91,20 @@ class Params:
 
     chat_messages = [
         dict(
-            user_id=user['_id'],
-            chat_id=1,
-            text='Hello_1!',
+            _user_id=user['_id'],
+            _chat_id=1,
+            _text='Hello_1!',
         ),
         dict(
-            user_id=user['_id'],
-            chat_id=1,
-            text='Hello_2!',
-            storage_id=STORAGE_ID,
+            _user_id=user['_id'],
+            _chat_id=1,
+            _text='Hello_2!',
+            _storage_id=STORAGE_ID,
         ),
         dict(
-            user_id=user['_id'],
-            chat_id=1,
-            text='Hello_3!',
+            _user_id=user['_id'],
+            _chat_id=1,
+            _text='Hello_3!',
         ),
     ]
 
@@ -128,8 +128,8 @@ class ORMObjects:
 
     user_chat_matches = [
         UserChatMatch(
-            user_id=Params.user['_id'],
-            chat_id=1,
+            _user_id=Params.user['_id'],
+            _chat_id=1,
         ),
     ]
 
@@ -555,7 +555,7 @@ class SetForTest:
                             'id': 3,
                             'chatId': 1,
                             'userId': Params.user['_id'],
-                            'text': Params.chat_messages[-1]['text'],
+                            'text': Params.chat_messages[-1]['_text'],
                             'storageId': None,
                             'isRead': False,
                             'creatingDatetime': anything,
@@ -761,7 +761,7 @@ class SetForTest:
                         'id': 3,
                         'chatId': 1,
                         'userId': Params.user['_id'],
-                        'text': Params.chat_messages[2]['text'],
+                        'text': Params.chat_messages[2]['_text'],
                         'storageId': None,
                         'isRead': False,
                         'creatingDatetime': anything,
@@ -770,7 +770,7 @@ class SetForTest:
                         'id': 2,
                         'chatId': 1,
                         'userId': Params.user['_id'],
-                        'text': Params.chat_messages[1]['text'],
+                        'text': Params.chat_messages[1]['_text'],
                         'storageId': Params.STORAGE_ID,
                         'isRead': False,
                         'creatingDatetime': anything,
@@ -779,7 +779,7 @@ class SetForTest:
                         'id': 1,
                         'chatId': 1,
                         'userId': Params.user['_id'],
-                        'text': Params.chat_messages[0]['text'],
+                        'text': Params.chat_messages[0]['_text'],
                         'storageId': None,
                         'isRead': False,
                         'creatingDatetime': anything,

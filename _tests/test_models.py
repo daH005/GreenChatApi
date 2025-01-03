@@ -48,6 +48,21 @@ class TestChat:
         assert chat.users() == expected_users
 
     @staticmethod
+    @pytest.mark.parametrize(('chat', 'user'), SetForTest.Chat.check_user_access)
+    def test_check_user_access(chat: Chat,
+                               user: User,
+                               ) -> None:
+        chat.check_user_access(user.id)
+
+    @staticmethod
+    @pytest.mark.parametrize(('chat', 'user'), SetForTest.Chat.check_user_access_raises_permission_error)
+    def test_check_user_access_raises_permission_error(chat: Chat,
+                                                       user: User,
+                                                       ) -> None:
+        with pytest.raises(PermissionError):
+            chat.check_user_access(user.id)
+
+    @staticmethod
     @pytest.mark.parametrize(('chat', 'user', 'expected_messages'), SetForTest.Chat.unread_messages_of_user)
     def test_unread_messages_of_user(chat: Chat,
                                      user: User,

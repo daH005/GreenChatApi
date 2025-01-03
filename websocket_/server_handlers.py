@@ -156,10 +156,10 @@ async def new_chat_message(user: User, data: dict) -> None:
     )
 
     chat_message: ChatMessage = ChatMessage(
-        user_id=user.id,
-        chat_id=data.chat_id,
-        text=data.text,
-        storage_id=data.storage_id,
+        _user=user,
+        _chat=chat,
+        _text=data.text,
+        _storage_id=data.storage_id,
     )
     db_builder.session.add(chat_message)
 
@@ -233,7 +233,7 @@ async def chat_message_was_read(user: User, data: dict) -> None:
     senders_ids: set[int] = set()
     for chat_message in unread_messages_in_ascending_order_by_id:
         read_messages_ids.append(chat_message.id)
-        senders_ids.add(chat_message.user_id)
+        senders_ids.add(chat_message.user.id)
 
         if not chat_message.is_read:
             unread_count.decrease()

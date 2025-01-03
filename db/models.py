@@ -69,12 +69,11 @@ class User(BaseModel, UserJSONMixin, UserJWTMixin):
     _last_name: Mapped[str] = mapped_column(String(100), nullable=False, default='User')
 
     _chats_messages: Mapped[list['ChatMessage']] = relationship(
-        back_populates='user',
-        order_by='ChatMessage.creating_datetime',
+        back_populates='_user',
         cascade='all, delete',
     )
     _user_chats_matches: Mapped[list['UserChatMatch']] = relationship(
-        back_populates='user',
+        back_populates='_user',
         cascade='all, delete',
     )
 
@@ -116,13 +115,13 @@ class Chat(BaseModel, ChatJSONMixin):
     _is_group: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     _messages: Mapped[list['ChatMessage']] = relationship(
-        back_populates='chat',
+        back_populates='_chat',
         order_by='-ChatMessage._id',
         cascade='all, delete',
         lazy='dynamic',
     )
     _users_chats_matches: Mapped[list['UserChatMatch']] = relationship(
-        back_populates='chat',
+        back_populates='_chat',
         cascade='all, delete',
     )
 
@@ -135,8 +134,8 @@ class Chat(BaseModel, ChatJSONMixin):
 
         for user_id in user_ids:
             match: UserChatMatch = UserChatMatch(
-                user_id=user_id,
-                chat=chat,
+                _user_id=user_id,
+                _chat=chat,
             )
 
             unread_count: UnreadCount = UnreadCount(
@@ -162,8 +161,12 @@ class Chat(BaseModel, ChatJSONMixin):
     def users(self) -> list[User]:
         return UserChatMatch.users_of_chat(chat_id=self.id)
 
+    @raises(PermissionError)
+    def check_user_access(self, user_id: int) -> None:
+        UserChatMatch.chat_if_user_has_access(user_id, self.id)
+
     def unread_messages_of_user(self, user_id: int) -> ChatMessageList:
-        messages = self._messages.filter(ChatMessage.is_read == False, ChatMessage.user_id != user_id).all()  # noqa
+        messages = self._messages.filter(ChatMessage._is_read == False, ChatMessage._user_id != user_id).all()  # noqa
         return ChatMessageList(messages)
 
     @raises(ValueError)
@@ -178,41 +181,65 @@ class Chat(BaseModel, ChatJSONMixin):
 class ChatMessage(BaseModel, ChatMessageJSONMixin):
     __tablename__ = 'chats_messages'
 
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
-    chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id'), nullable=False)
-    text: Mapped[str] = mapped_column(Text, nullable=False)
-    creating_datetime: Mapped[datetime] = mapped_column(DATETIME(fsp=6), default=datetime.utcnow)
-    is_read: Mapped[bool] = mapped_column(Boolean, default=False)
-    storage_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    _user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+    _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id'), nullable=False)
+    _text: Mapped[str] = mapped_column(Text, nullable=False)
+    _creating_datetime: Mapped[datetime] = mapped_column(DATETIME(fsp=6), default=datetime.utcnow)
+    _is_read: Mapped[bool] = mapped_column(Boolean, default=False)
+    _storage_id: Mapped[int] = mapped_column(Integer, nullable=True)
 
-    user: Mapped['User'] = relationship(back_populates='_chats_messages', uselist=False)
-    chat: Mapped['Chat'] = relationship(back_populates='_messages', uselist=False)
+    _user: Mapped['User'] = relationship(back_populates='_chats_messages', uselist=False)
+    _chat: Mapped['Chat'] = relationship(back_populates='_messages', uselist=False)
 
     @classmethod
     @raises(ValueError)
     def by_storage_id(cls, storage_id: int) -> ChatMessage:
-        chat_message: ChatMessage | None = db_builder.session.query(cls).filter(cls.storage_id == storage_id).first()
+        chat_message: ChatMessage | None = db_builder.session.query(cls).filter(cls._storage_id == storage_id).first()
         if not chat_message:
             raise ValueError
         return chat_message
 
+    @property
+    def is_read(self) -> bool:
+        return self._is_read
+
+    @property
+    def user(self) -> User:
+        return self._user
+
+    @property
+    def chat(self) -> Chat:
+        return self._chat
+
     def read(self) -> None:
-        self.is_read = True
+        self._is_read = True
 
 
 class UserChatMatch(BaseModel):
     __tablename__ = 'users_chats'
 
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
-    chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id'), nullable=False)
+    _user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+    _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id'), nullable=False)
 
-    user: Mapped['User'] = relationship(back_populates='_user_chats_matches', uselist=False)
-    chat: Mapped['Chat'] = relationship(back_populates='_users_chats_matches', uselist=False)
-    unread_count: Mapped['UnreadCount'] = relationship(
+    _user: Mapped['User'] = relationship(back_populates='_user_chats_matches', uselist=False)
+    _chat: Mapped['Chat'] = relationship(back_populates='_users_chats_matches', uselist=False)
+    _unread_count: Mapped['UnreadCount'] = relationship(
         back_populates='_user_chat_match',
         cascade='all, delete',
         uselist=False,
     )
+
+    @property
+    def user(self) -> User:
+        return self._user
+
+    @property
+    def chat(self) -> Chat:
+        return self._chat
+
+    @property
+    def unread_count(self) -> UnreadCount:
+        return self._unread_count
 
     @classmethod
     @raises(PermissionError)
@@ -220,7 +247,7 @@ class UserChatMatch(BaseModel):
                                 chat_id: int,
                                 ) -> Chat:
         match: UserChatMatch | None = db_builder.session.query(cls).filter(
-            cls.user_id == user_id, cls.chat_id == chat_id
+            cls._user_id == user_id, cls._chat_id == chat_id
         ).first()
         if match is not None:
             return match.chat
@@ -228,19 +255,19 @@ class UserChatMatch(BaseModel):
 
     @classmethod
     def users_of_chat(cls, chat_id: int) -> list[User]:
-        matches: list[cls] = db_builder.session.query(cls).filter(cls.chat_id == chat_id).all()  # type: ignore
+        matches: list[cls] = db_builder.session.query(cls).filter(cls._chat_id == chat_id).all()  # type: ignore
         return [match.user for match in matches]
 
     @classmethod
     def chats_of_user(cls, user_id: int) -> ChatList:
-        matches: list[cls] = db_builder.session.query(cls).filter(cls.user_id == user_id).all()  # type: ignore
+        matches: list[cls] = db_builder.session.query(cls).filter(cls._user_id == user_id).all()  # type: ignore
         chats = sorted([match.chat for match in matches], key=cls._value_for_user_chats_sort, reverse=True)
         return ChatList(chats, user_id)
 
     @staticmethod
     def _value_for_user_chats_sort(chat: Chat) -> float:
         try:
-            return chat.last_message.creating_datetime.timestamp()
+            return chat.last_message._creating_datetime.timestamp()
         except IndexError:
             return 0.0
 
@@ -249,8 +276,8 @@ class UserChatMatch(BaseModel):
     def interlocutor_of_user_of_chat(cls, user_id: int,
                                      chat_id: int,
                                      ) -> User:
-        interlocutor_match: cls | None = db_builder.session.query(cls).filter(cls.user_id != user_id,
-                                                                              cls.chat_id == chat_id,
+        interlocutor_match: cls | None = db_builder.session.query(cls).filter(cls._user_id != user_id,
+                                                                              cls._chat_id == chat_id,
                                                                               ).first()  # type: ignore
         if interlocutor_match is not None:
             return interlocutor_match.user
@@ -264,14 +291,14 @@ class UserChatMatch(BaseModel):
         chats_ids = []
 
         matches: list[cls] = db_builder.session.query(cls).filter(  # type: ignore
-            (cls.user_id == first_user_id) | (cls.user_id == second_user_id),
+            (cls._user_id == first_user_id) | (cls._user_id == second_user_id),
         ).all()
         for match in matches:
             if match.chat.is_group:
                 continue
-            if match.chat_id in chats_ids:
+            if match._chat_id in chats_ids:
                 return match.chat
-            chats_ids.append(match.chat_id)
+            chats_ids.append(match._chat_id)
 
         raise ValueError
 
@@ -295,8 +322,8 @@ class UserChatMatch(BaseModel):
     def unread_count_of_user_of_chat(cls, user_id: int,
                                      chat_id: int,
                                      ) -> UnreadCount:
-        match: cls | None = db_builder.session.query(cls).filter(cls.user_id == user_id,
-                                                                 cls.chat_id == chat_id,
+        match: cls | None = db_builder.session.query(cls).filter(cls._user_id == user_id,
+                                                                 cls._chat_id == chat_id,
                                                                  ).first()  # type: ignore
         if match is None:
             raise PermissionError
@@ -310,7 +337,7 @@ class UnreadCount(BaseModel, UnreadCountJSONMixin):
     _user_chat_match_id: Mapped[int] = mapped_column(ForeignKey('users_chats.id'), nullable=False)
     _value: Mapped[int] = mapped_column(Integer, default=0)
 
-    _user_chat_match: Mapped['UserChatMatch'] = relationship(back_populates='unread_count', uselist=False)
+    _user_chat_match: Mapped['UserChatMatch'] = relationship(back_populates='_unread_count', uselist=False)
 
     @property
     def value(self) -> int:

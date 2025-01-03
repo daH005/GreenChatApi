@@ -41,40 +41,40 @@ class ORMObjects:
 
     chat_messages = [
         ChatMessage(
-            user_id=1,
-            chat_id=1,
-            text='Hello!',
-            storage_id=Params.STORAGE_ID,
+            _user_id=1,
+            _chat_id=1,
+            _text='Hello!',
+            _storage_id=Params.STORAGE_ID,
         ),
         ChatMessage(
-            user_id=2,
-            chat_id=1,
-            text='Hello too!',
+            _user_id=2,
+            _chat_id=1,
+            _text='Hello too!',
         ),
     ]
 
     user_chat_matches = [
         UserChatMatch(
-            user_id=1,
-            chat_id=1,
+            _user_id=1,
+            _chat_id=1,
         ),
         UserChatMatch(
-            user_id=2,
-            chat_id=1,
-        ),
-
-        UserChatMatch(
-            user_id=2,
-            chat_id=2,
-        ),
-        UserChatMatch(
-            user_id=3,
-            chat_id=2,
+            _user_id=2,
+            _chat_id=1,
         ),
 
         UserChatMatch(
-            user_id=1,
-            chat_id=3,
+            _user_id=2,
+            _chat_id=2,
+        ),
+        UserChatMatch(
+            _user_id=3,
+            _chat_id=2,
+        ),
+
+        UserChatMatch(
+            _user_id=1,
+            _chat_id=3,
         ),
     ]
 
@@ -137,6 +137,38 @@ class UserSetForTest:
 
 
 class ChatSetForTest:
+
+    check_user_access = [
+        (
+            ORMObjects.chats[0],
+            ORMObjects.users[0],
+        ),
+        (
+            ORMObjects.chats[0],
+            ORMObjects.users[1],
+        ),
+
+        (
+            ORMObjects.chats[1],
+            ORMObjects.users[1],
+        ),
+        (
+            ORMObjects.chats[1],
+            ORMObjects.users[2],
+        ),
+    ]
+
+    check_user_access_raises_permission_error = [
+        (
+            ORMObjects.chats[1],
+            ORMObjects.users[0],
+        ),
+
+        (
+            ORMObjects.chats[0],
+            ORMObjects.users[2],
+        ),
+    ]
 
     users = [
         (
@@ -233,37 +265,9 @@ class ChatMessageSetForTest:
 
 class UserChatMatchSetForTest:
 
-    chat_if_user_has_access = [
-        (
-            ORMObjects.chats[0],
-            ORMObjects.users[0],
-        ),
-        (
-            ORMObjects.chats[0],
-            ORMObjects.users[1],
-        ),
+    chat_if_user_has_access = ChatSetForTest.check_user_access
 
-        (
-            ORMObjects.chats[1],
-            ORMObjects.users[1],
-        ),
-        (
-            ORMObjects.chats[1],
-            ORMObjects.users[2],
-        ),
-    ]
-
-    chat_if_user_has_access_raises_permission_error = [
-        (
-            ORMObjects.chats[1],
-            ORMObjects.users[0],
-        ),
-
-        (
-            ORMObjects.chats[0],
-            ORMObjects.users[2],
-        ),
-    ]
+    chat_if_user_has_access_raises_permission_error = ChatSetForTest.check_user_access_raises_permission_error
 
     users_of_chat = ChatSetForTest.users
 

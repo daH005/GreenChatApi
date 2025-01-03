@@ -30,7 +30,7 @@ class UserJSONMixin(AbstractJSONMixin):
 
     def as_json(self):
         return {
-            JSONKey.ID: self.id,
+            JSONKey.ID: self._id,
             JSONKey.FIRST_NAME: self._first_name,
             JSONKey.LAST_NAME: self._last_name,
         }
@@ -50,7 +50,7 @@ class ChatJSONMixin(AbstractJSONMixin):
         except IndexError:
             last_message = None
         return {
-            JSONKey.ID: self.id,
+            JSONKey.ID: self._id,
             JSONKey.NAME: self._name,
             JSONKey.IS_GROUP: self._is_group,
             JSONKey.LAST_CHAT_MESSAGE: last_message,
@@ -63,13 +63,13 @@ class ChatMessageJSONMixin(AbstractJSONMixin):
 
     def as_json(self):
         return {
-            JSONKey.ID: self.id,
-            JSONKey.CHAT_ID: self.chat_id,
-            JSONKey.TEXT: self.text,
-            JSONKey.CREATING_DATETIME: self.creating_datetime.isoformat(),
-            JSONKey.USER_ID: self.user_id,
-            JSONKey.IS_READ: self.is_read,
-            JSONKey.STORAGE_ID: self.storage_id,
+            JSONKey.ID: self._id,
+            JSONKey.CHAT_ID: self._chat_id,
+            JSONKey.USER_ID: self._user_id,
+            JSONKey.TEXT: self._text,
+            JSONKey.CREATING_DATETIME: self._creating_datetime.isoformat(),
+            JSONKey.IS_READ: self._is_read,
+            JSONKey.STORAGE_ID: self._storage_id,
         }
 
 
@@ -83,7 +83,7 @@ class UnreadCountJSONMixin(AbstractJSONMixin):
 
     def as_json(self):
         return {
-            JSONKey.CHAT_ID: self._user_chat_match.chat_id,
+            JSONKey.CHAT_ID: self._user_chat_match._chat_id,
             JSONKey.UNREAD_COUNT: self.value,
         }
 
