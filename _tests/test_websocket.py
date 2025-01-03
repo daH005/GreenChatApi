@@ -18,11 +18,11 @@ real_output = {}
 def setup_module() -> None:
     create_test_db(ORMObjects.users)
 
-    def websocket_server_user_have_connections_method_mock(self, user_id: int) -> bool:
+    def websocket_server_user_has_connections_method_mock(self, user_id: int) -> bool:
         return user_id in Params.online_user_ids
 
-    patch('websocket_.base.server.WebSocketServer.user_have_connections',
-          websocket_server_user_have_connections_method_mock).start()
+    patch('websocket_.base.server.WebSocketServer.user_has_connections',
+          websocket_server_user_has_connections_method_mock).start()
 
     async def websocket_server_send_to_one_user_method_mock(self, user_id: int,
                                                             message: dict,
@@ -36,7 +36,7 @@ def setup_module() -> None:
 
 
 def teardown_module() -> None:
-    patch('websocket_.base.server.WebSocketServer.user_have_connections').stop()
+    patch('websocket_.base.server.WebSocketServer.user_has_connections').stop()
     patch('websocket_.base.server.WebSocketServer.send_to_one_user').stop()
     users_ids_and_potential_interlocutors_ids.clear()
 

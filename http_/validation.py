@@ -11,7 +11,7 @@ from pydantic import (
 from flask import request, abort
 from http import HTTPStatus
 
-from common.json_ import JSONKey
+from common.json_keys import JSONKey
 
 __all__ = (
     'BaseValidator',

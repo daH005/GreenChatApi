@@ -12,13 +12,13 @@ class ORMObjects:
 
     users = [
         User(
-            email='user1@mail.ru',
+            _email='user1@mail.ru',
         ),
         User(
-            email='user2@mail.ru',
+            _email='user2@mail.ru',
         ),
         User(
-            email='user3@mail.ru',
+            _email='user3@mail.ru',
         ),
     ]
 

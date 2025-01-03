@@ -1,15 +1,9 @@
-from line_profiler import profile
 from flask import Blueprint, request, abort
 from http import HTTPMethod, HTTPStatus
-
-from kombu.asynchronous.http import Response
 from pydantic import validate_email
 from flasgger import swag_from
 
-from common.json_ import (
-    JSONKey,
-    CodeIsValidFlagJSONDictMaker,
-)
+from common.json_keys import JSONKey
 from http_.simple_response import make_simple_response
 from http_.urls import Url
 from http_.email.tasks import send_code_task
@@ -29,8 +23,7 @@ bp: Blueprint = Blueprint('email', __name__)
 
 @bp.route(Url.CODE_SEND, methods=[HTTPMethod.POST])
 @swag_from(CODE_SEND_SPECS)
-@profile
-def code_send() -> Response | None:
+def code_send():
     try:
         email: str = validate_email(request.json[JSONKey.EMAIL])[1]
     except (ValueError, KeyError):
@@ -47,9 +40,10 @@ def code_send() -> Response | None:
 
 @bp.route(Url.CODE_CHECK, methods=[HTTPMethod.GET])
 @swag_from(CODE_CHECK_SPECS)
-@profile
-def code_check() -> CodeIsValidFlagJSONDictMaker.Dict:
+def code_check():
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_args()
 
     flag: bool = email_code_is_valid(identify=user_data.email, code=user_data.code)
-    return CodeIsValidFlagJSONDictMaker.make(flag=flag)
+    return {
+        JSONKey.CODE_IS_VALID: flag,
+    }

@@ -1,9 +1,7 @@
-from line_profiler import profile
 from flask import (
     Blueprint,
     request,
     abort,
-    Response,
 )
 from http import HTTPMethod, HTTPStatus
 from flask_jwt_extended import jwt_required
@@ -12,7 +10,7 @@ from typing import Final
 from pathlib import Path
 
 from config import STATIC_FOLDER, MEDIA_FOLDER
-from common.json_ import JSONKey
+from common.json_keys import JSONKey
 from http_.urls import Url
 from http_.apidocs_constants import (
     USER_AVATAR_SPECS,
@@ -34,8 +32,7 @@ _AVATARS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('avatars')
 @bp.route(Url.USER_AVATAR, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_AVATAR_SPECS)
-@profile
-def user_avatar() -> Response | None:
+def user_avatar():
     try:
         user_id_as_str: str = request.args[JSONKey.USER_ID]
     except KeyError:
@@ -51,6 +48,5 @@ def user_avatar() -> Response | None:
 @bp.route(Url.USER_AVATAR_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_AVATAR_EDIT_SPECS)
-@profile
-def user_avatar_edit() -> Response:
+def user_avatar_edit():
     return edit_user_image(folder_path=_AVATARS_PATH)

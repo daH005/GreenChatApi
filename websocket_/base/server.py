@@ -6,7 +6,7 @@ import re
 from jwt import decode as decode_jwt
 
 from common.hinting import raises
-from common.json_ import WebSocketMessageJSONDictMaker
+from websocket_.base.websocket_message import WebSocketMessageJSONDict
 from db.builder import db_builder
 from db.models import User
 from websocket_.base.typing_ import CommonHandlerFuncT, ConnectAndDisconnectHandlerFuncT
@@ -80,7 +80,7 @@ class WebSocketServer:
             await client.listen()
         except ConnectionClosed:
             self._del_client(client)
-            if not self.user_have_connections(client.user.id):
+            if not self.user_has_connections(client.user.id):
                 await self._full_disconnection_handler(client.user)
             raise
 
@@ -118,25 +118,25 @@ class WebSocketServer:
         except (KeyError, ValueError):
             return
 
-    def user_have_connections(self, user_id: int) -> bool:
+    def user_has_connections(self, user_id: int) -> bool:
         return len(self._clients.get(user_id, [])) != 0
 
     async def send_to_many_users(self, users_ids: list[int] | set[int],
-                                 message: WebSocketMessageJSONDictMaker.Dict,
+                                 message: WebSocketMessageJSONDict,
                                  ) -> None:
         users_ids = set(users_ids)
         for id_ in users_ids:
             await self.send_to_one_user(id_, message)
 
     async def send_to_one_user(self, user_id: int,
-                               message: WebSocketMessageJSONDictMaker.Dict,
+                               message: WebSocketMessageJSONDict,
                                ) -> None:
         for client in self._clients.get(user_id, []):
             await self.send_to_one_client(client, message)
 
     @staticmethod
     async def send_to_one_client(client: WebSocketClientHandler,
-                                 message: WebSocketMessageJSONDictMaker.Dict,
+                                 message: WebSocketMessageJSONDict,
                                  ) -> None:
         try:
             await client.send(message)

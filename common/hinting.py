@@ -4,16 +4,10 @@ __all__ = (
     'raises',
 )
 
-func_T = TypeVar('func_T')
+FuncT = TypeVar('FuncT')
 
 
-def raises(*_exceptions: Unpack[Exception]) -> Callable[[func_T], func_T]:
-    """A decorator for annotations of exceptions.
-
-    @raises(ValueError, KeyError)
-    def any_func():
-        ...
-    """
-    def wrapper(func: func_T) -> func_T:
+def raises(*_exceptions: Unpack[Exception]) -> Callable[[FuncT], FuncT]:
+    def wrapper(func: FuncT) -> FuncT:
         return func
     return wrapper

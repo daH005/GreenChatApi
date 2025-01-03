@@ -8,7 +8,7 @@ from os import listdir
 from shutil import rmtree
 from functools import wraps
 
-from common.json_ import JSONKey
+from common.json_keys import JSONKey
 from common.hinting import raises
 from config import MEDIA_FOLDER
 from db.models import User, ChatMessage, UserChatMatch

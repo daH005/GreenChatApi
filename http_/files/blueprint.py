@@ -1,15 +1,10 @@
-from line_profiler import profile
-from flask import Response, Blueprint, request, abort, send_file
+from flask import Blueprint, request, abort, send_file
 from http import HTTPMethod, HTTPStatus
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required
 from pathlib import Path
 
-from common.json_ import (
-    JSONKey,
-    ChatMessageStorageIdJSONDictMaker,
-    ChatMessageFilenamesJSONDictMaker,
-)
+from common.json_keys import JSONKey
 from http_.urls import Url
 from http_.apidocs_constants import (
     CHAT_MESSAGES_FILES_SAVE_SPECS,
@@ -33,32 +28,31 @@ bp: Blueprint = Blueprint('files', __name__)
 @bp.route(Url.CHAT_MESSAGES_FILES_SAVE, methods=[HTTPMethod.POST])
 @jwt_required()
 @swag_from(CHAT_MESSAGES_FILES_SAVE_SPECS)
-@profile
-def chat_messages_files_save() -> tuple[ChatMessageStorageIdJSONDictMaker.Dict, HTTPStatus]:
+def chat_messages_files_save():
     storage_id: int = save_chat_message_files()
-    return ChatMessageStorageIdJSONDictMaker.make(storage_id), HTTPStatus.CREATED
+    return {
+        JSONKey.STORAGE_ID: storage_id,
+    }, HTTPStatus.CREATED
 
 
 @bp.route(Url.CHAT_MESSAGES_FILES_NAMES, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(CHAT_MESSAGES_FILES_NAMES_SPECS)
 @check_permissions_decorator
-@profile
-def chat_messages_files_names(storage_id: int) -> ChatMessageFilenamesJSONDictMaker.Dict:
+def chat_messages_files_names(storage_id: int):
     try:
-        filenames: list[str] = chat_message_filenames(storage_id)
+        return {
+            JSONKey.FILENAMES: chat_message_filenames(storage_id),
+        }
     except FileNotFoundError:
         return abort(HTTPStatus.NOT_FOUND)
-
-    return ChatMessageFilenamesJSONDictMaker.make(filenames)
 
 
 @bp.route(Url.CHAT_MESSAGES_FILES_GET, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(CHAT_MESSAGES_FILES_GET_SPECS)
 @check_permissions_decorator
-@profile
-def chat_messages_files_get(storage_id: int) -> Response:
+def chat_messages_files_get(storage_id: int):
     try:
         filename: str = request.args[JSONKey.FILENAME]
     except (KeyError, ValueError):

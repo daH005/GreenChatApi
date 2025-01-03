@@ -23,13 +23,13 @@ class ORMObjects:
 
     users = [
         User(
-            email=Params.EMAIL,
+            _email=Params.EMAIL,
         ),
         User(
-            email='email2@mail.ru',
+            _email='email2@mail.ru',
         ),
         User(
-            email='email3@mail.ru',
+            _email='email3@mail.ru',
         ),
     ]
 
@@ -80,18 +80,18 @@ class ORMObjects:
 
     unread_counts = [
         UnreadCount(
-            user_chat_match_id=1,
-            value=Params.UNREAD_COUNT,
+            _user_chat_match_id=1,
+            _value=Params.UNREAD_COUNT,
         ),
         UnreadCount(
-            user_chat_match_id=2,
+            _user_chat_match_id=2,
         ),
 
         UnreadCount(
-            user_chat_match_id=3,
+            _user_chat_match_id=3,
         ),
         UnreadCount(
-            user_chat_match_id=4,
+            _user_chat_match_id=4,
         ),
     ]
 
@@ -116,6 +116,23 @@ class UserSetForTest:
             'whatafu...??',
             False,
         )
+    ]
+
+    chats = [
+        (
+            ORMObjects.users[0],
+            [
+                ORMObjects.chats[0],
+                ORMObjects.chats[2],
+            ],
+        ),
+        (
+            ORMObjects.users[1],
+            [
+                ORMObjects.chats[0],
+                ORMObjects.chats[1],
+            ],
+        ),
     ]
 
 
@@ -250,22 +267,7 @@ class UserChatMatchSetForTest:
 
     users_of_chat = ChatSetForTest.users
 
-    chats_of_user = [
-        (
-            ORMObjects.users[0],
-            [
-                ORMObjects.chats[0],
-                ORMObjects.chats[2],
-            ],
-        ),
-        (
-            ORMObjects.users[1],
-            [
-                ORMObjects.chats[0],
-                ORMObjects.chats[1],
-            ],
-        ),
-    ]
+    chats_of_user = UserSetForTest.chats
 
     interlocutor_of_user_of_chat = ChatSetForTest.interlocutor_of_user
 

@@ -41,7 +41,7 @@ def make_online_statuses_data(server: WebSocketServer,
                               ) -> dict[int, bool]:
     result_data = {}
     for user_id in users_ids:
-        if server.user_have_connections(user_id):
+        if server.user_has_connections(user_id):
             result_data[user_id] = True
 
     return result_data

@@ -1,4 +1,3 @@
-from line_profiler import profile
 from flask import (
     Blueprint,
     request,
@@ -7,8 +6,6 @@ from flask import (
 )
 from http import HTTPMethod, HTTPStatus
 from flask_jwt_extended import (
-    create_access_token,
-    create_refresh_token,
     set_access_cookies,
     set_refresh_cookies,
     unset_jwt_cookies,
@@ -20,13 +17,7 @@ from flasgger import swag_from
 
 from db.builder import db_builder
 from db.models import User, UserChatMatch, BlacklistToken
-from common.json_ import (
-    JSONKey,
-    ChatHistoryJSONDictMaker,
-    UserChatsJSONDictMaker,
-    UserJSONDictMaker,
-    AlreadyTakenFlagJSONDictMaker,
-)
+from common.json_keys import JSONKey
 from http_.simple_response import make_simple_response
 from http_.validation import EmailAndCodeJSONValidator, UserJSONValidator
 from http_.email.codes.functions import (
@@ -55,22 +46,18 @@ bp: Blueprint = Blueprint('general', __name__)
 
 @bp.route(Url.EMAIL_CHECK, methods=[HTTPMethod.GET])
 @swag_from(EMAIL_CHECK_SPECS)
-@profile
-def email_check() -> AlreadyTakenFlagJSONDictMaker.Dict | None:
+def email_check():
     try:
         email: str = str(request.args[JSONKey.EMAIL])
     except KeyError:
         return abort(HTTPStatus.BAD_REQUEST)
 
-    return AlreadyTakenFlagJSONDictMaker.make(
-        flag=User.email_is_already_taken(email=email),
-    )
+    return User.email_is_already_taken_as_json(email)
 
 
 @bp.route(Url.LOGIN, methods=[HTTPMethod.POST])
 @swag_from(LOGIN_SPECS)
-@profile
-def login() -> Response | None:
+def login():
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_json()
 
     if email_code_is_valid(identify=user_data.email, code=user_data.code):
@@ -84,24 +71,19 @@ def login() -> Response | None:
         status_code = HTTPStatus.OK
     except ValueError:
         user: User = User(
-            email=user_data.email,
+            _email=user_data.email,
         )
         db_builder.session.add(user)
         db_builder.session.commit()
         status_code = HTTPStatus.CREATED
 
-    response: Response = make_simple_response(status_code)
-    set_access_cookies(response, create_access_token(identity=user.email))
-    set_refresh_cookies(response, create_refresh_token(identity=user.email))
-
-    return response
+    return _make_access_response(user, status_code)
 
 
 @bp.route(Url.LOGOUT, methods=[HTTPMethod.POST])
 @jwt_required()
 @swag_from(LOGOUT_SPECS)
-@profile
-def logout() -> Response:
+def logout():
     response: Response = make_simple_response(HTTPStatus.OK)
     unset_jwt_cookies(response)
 
@@ -111,17 +93,20 @@ def logout() -> Response:
 @bp.route(Url.REFRESH_ACCESS, methods=[HTTPMethod.POST])
 @jwt_required(refresh=True)
 @swag_from(REFRESH_ACCESS_SPECS)
-@profile
-def refresh_access() -> Response:
-    response: Response = make_simple_response(HTTPStatus.OK)
-
-    current_user: User = get_current_user()
-    set_access_cookies(response, create_access_token(identity=current_user.email))
-    set_refresh_cookies(response, create_refresh_token(identity=current_user.email))
-
-    blacklist_token: BlacklistToken = BlacklistToken(jti=get_jwt()['jti'])
+def refresh_access():
+    blacklist_token: BlacklistToken = BlacklistToken(_jti=get_jwt()['jti'])
     db_builder.session.add(blacklist_token)
     db_builder.session.commit()
+
+    return _make_access_response(get_current_user(), HTTPStatus.OK)
+
+
+def _make_access_response(user: User,
+                          status_code: HTTPStatus | int,
+                          ) -> Response:
+    response: Response = make_simple_response(status_code)
+    set_access_cookies(response, user.create_access_token())
+    set_refresh_cookies(response, user.create_refresh_token())
 
     return response
 
@@ -129,11 +114,10 @@ def refresh_access() -> Response:
 @bp.route(Url.USER_INFO, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_INFO_SPECS)
-@profile
-def user_info() -> UserJSONDictMaker.Dict | None:
+def user_info():
     user_id_as_str: str | None = request.args.get(JSONKey.USER_ID)
     if user_id_as_str is None:
-        return UserJSONDictMaker.make(user=get_current_user(), exclude_important_info=False)
+        return get_current_user().as_full_json()
 
     try:
         user: User | None = db_builder.session.get(User, int(user_id_as_str))
@@ -143,19 +127,19 @@ def user_info() -> UserJSONDictMaker.Dict | None:
     if user is None:
         return abort(HTTPStatus.NOT_FOUND)
 
-    return UserJSONDictMaker.make(user=user)
+    return user.as_json()
 
 
 @bp.route(Url.USER_INFO_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_INFO_EDIT_SPECS)
-@profile
-def user_info_edit() -> Response:
+def user_info_edit():
     data: UserJSONValidator = UserJSONValidator.from_json()
 
-    current_user: User = get_current_user()
-    current_user.first_name = data.first_name
-    current_user.last_name = data.last_name
+    get_current_user().set_info(
+        first_name=data.first_name,
+        last_name=data.last_name,
+    )
     db_builder.session.commit()
 
     return make_simple_response(HTTPStatus.OK)
@@ -164,22 +148,14 @@ def user_info_edit() -> Response:
 @bp.route(Url.USER_CHATS, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_CHATS_SPECS)
-@profile
-def user_chats() -> UserChatsJSONDictMaker.Dict:
-    # return current_user.chats().as_json()
-
-    current_user: User = get_current_user()
-    return UserChatsJSONDictMaker.make(
-        user_chats=UserChatMatch.chats_of_user(user_id=current_user.id),
-        user_id=current_user.id,
-    )
+def user_chats():
+    return get_current_user().chats().as_json()
 
 
 @bp.route(Url.CHAT_HISTORY, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(CHAT_HISTORY_SPECS)
-@profile
-def chat_history() -> ChatHistoryJSONDictMaker.Dict | None:
+def chat_history():
     try:
         chat_id: int = int(request.args[JSONKey.CHAT_ID])
     except (ValueError, KeyError):
@@ -196,10 +172,6 @@ def chat_history() -> ChatHistoryJSONDictMaker.Dict | None:
         return abort(HTTPStatus.BAD_REQUEST)
 
     try:
-        chat_messages = UserChatMatch.chat_if_user_has_access(user_id=get_current_user().id,
-                                                              chat_id=chat_id).messages[offset_from_end:]
-        return ChatHistoryJSONDictMaker.make(
-            chat_messages=chat_messages,
-        )
+        return UserChatMatch.chat_if_user_has_access(get_current_user().id, chat_id).messages().as_json(offset_from_end)
     except PermissionError:
         return abort(HTTPStatus.FORBIDDEN)

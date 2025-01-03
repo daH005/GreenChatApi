@@ -17,7 +17,7 @@ _teardown_appcontext_funcs_backup = app.teardown_appcontext_funcs.copy()
 def setup_module() -> None:
     create_test_db(ORMObjects.all)
 
-    delete_email_code(Params.user['email'])
+    delete_email_code(Params.user['_email'])
     delete_email_code(Params.EMAIL_WITH_CODE)
     make_and_save_email_code(Params.EMAIL_WITH_CODE, Params.EMAIL_CODE)
 

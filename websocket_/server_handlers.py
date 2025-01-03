@@ -1,15 +1,8 @@
-from line_profiler import profile
 from pydantic import ValidationError
 
 from config import HOST, WEBSOCKET_PORT, JWT_SECRET_KEY, JWT_ALGORITHM, SSL_CERTFILE, SSL_KEYFILE
 from common.hinting import raises
-from common.json_ import (
-    ChatJSONDictMaker,
-    ChatMessageJSONDictMaker,
-    ChatMessageTypingJSONDictMaker,
-    NewUnreadCountJSONDictMaker,
-    ReadChatMessagesIdsJSONDictMaker,
-)
+from common.json_keys import JSONKey
 from db.models import (
     User,
     Chat,
@@ -32,7 +25,7 @@ from websocket_.validation import (
     ChatIdJSONValidator,
     ChatMessageWasReadJSONValidator,
 )
-from common.ssl_context import get_ssl_context
+from common.ssl_context import create_ssl_context
 
 __all__ = (
     'server',
@@ -43,14 +36,13 @@ server = WebSocketServer(
     port=WEBSOCKET_PORT,
     jwt_secret_key=JWT_SECRET_KEY,
     jwt_algorithm=JWT_ALGORITHM,
-    ssl_context=get_ssl_context(SSL_CERTFILE, SSL_KEYFILE),
+    ssl_context=create_ssl_context(SSL_CERTFILE, SSL_KEYFILE),
 )
 
 users_ids_and_potential_interlocutors_ids = {}
 
 
 @server.each_connection_handler
-@profile
 async def each_connection_handler(user: User) -> None:
     interlocutors_ids: list[int] = interlocutors_ids_for_user_by_id(user_id=user.id)
 
@@ -73,7 +65,6 @@ async def each_connection_handler(user: User) -> None:
 
 
 @server.full_disconnection_handler
-@profile
 async def full_disconnection_handler(user: User) -> None:
     interlocutors_ids: list[int] = interlocutors_ids_for_user_by_id(user_id=user.id)
 
@@ -86,7 +77,6 @@ async def full_disconnection_handler(user: User) -> None:
 
 
 @server.common_handler(MessageType.ONLINE_STATUS_TRACING_ADDING)
-@profile
 @raises(ValidationError)
 async def online_status_tracing_adding(user: User, data: dict) -> None:
     data: UserIdJSONValidator = UserIdJSONValidator(**data)
@@ -95,13 +85,12 @@ async def online_status_tracing_adding(user: User, data: dict) -> None:
     await server.send_to_one_user(
         user_id=user.id,
         message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict({
-            data.user_id: server.user_have_connections(user_id=data.user_id)
+            data.user_id: server.user_has_connections(user_id=data.user_id)
         })
     )
 
 
 @server.common_handler(MessageType.NEW_CHAT)
-@profile
 @raises(ValidationError, ValueError)
 async def new_chat(user: User, data: dict) -> None:
     data: NewChatJSONValidator = NewChatJSONValidator(**data)
@@ -120,31 +109,17 @@ async def new_chat(user: User, data: dict) -> None:
         else:
             raise ValueError(f'private chat between {data.users_ids} already exists')
 
-    chat: Chat = Chat(
-        name=data.name,
-        is_group=data.is_group,
+    chat, *objects = Chat.new_with_all_dependencies(
+        data.users_ids,
+        _name=data.name,
+        _is_group=data.is_group,
     )
-    db_builder.session.add(chat)
-    db_builder.session.flush()
 
-    for user_id in data.users_ids:
-        match: UserChatMatch = UserChatMatch(
-            user_id=user_id,
-            chat_id=chat.id,
-        )
-        db_builder.session.add(match)
-        db_builder.session.flush()
-
-        unread_count: UnreadCount = UnreadCount(
-            user_chat_match_id=match.id,
-            value=0,
-        )
-        db_builder.session.add(unread_count)
-
+    db_builder.session.add_all([chat, *objects])
     db_builder.session.commit()
 
     for user_id in data.users_ids:
-        result_data = ChatJSONDictMaker.make(chat=chat, user_id=user_id)
+        result_data = chat.as_json(user_id)
         await server.send_to_one_user(
             user_id=user_id,
             message=MessageType.NEW_CHAT.make_json_dict(result_data)
@@ -171,7 +146,6 @@ async def new_chat(user: User, data: dict) -> None:
 
 
 @server.common_handler(MessageType.NEW_CHAT_MESSAGE)
-@profile
 @raises(ValidationError, PermissionError)
 async def new_chat_message(user: User, data: dict) -> None:
     data: NewChatMessageJSONValidator = NewChatMessageJSONValidator(**data)
@@ -195,9 +169,9 @@ async def new_chat_message(user: User, data: dict) -> None:
             continue
 
         unread_count: UnreadCount = chat.unread_count_of_user(user_id=chat_user.id)
-        unread_count.value += 1
+        unread_count.increase()
 
-        result_data = NewUnreadCountJSONDictMaker.make(chat_id=chat.id, unread_count=unread_count.value)
+        result_data = unread_count.as_json()
         await server.send_to_one_user(
             user_id=chat_user.id,
             message=MessageType.NEW_UNREAD_COUNT.make_json_dict(result_data)
@@ -206,7 +180,7 @@ async def new_chat_message(user: User, data: dict) -> None:
     db_builder.session.commit()
 
     chat_users_ids: list[int] = [chat_user.id for chat_user in chat_users]
-    result_data = ChatMessageJSONDictMaker.make(chat_message=chat_message)
+    result_data = chat_message.as_json()
     await server.send_to_many_users(
         users_ids=chat_users_ids,
         message=MessageType.NEW_CHAT_MESSAGE.make_json_dict(result_data)
@@ -214,7 +188,6 @@ async def new_chat_message(user: User, data: dict) -> None:
 
 
 @server.common_handler(MessageType.NEW_CHAT_MESSAGE_TYPING)
-@profile
 @raises(ValidationError, PermissionError)
 async def new_chat_message_typing(user: User, data: dict) -> None:
     data: ChatIdJSONValidator = ChatIdJSONValidator(**data)
@@ -227,7 +200,10 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
     users_ids = users_ids_of_chat_by_id(chat_id=chat.id)
     users_ids.remove(user.id)
 
-    result_data = ChatMessageTypingJSONDictMaker.make(chat_id=chat.id, user_id=user.id)
+    result_data = {
+        JSONKey.CHAT_ID: chat.id,
+        JSONKey.USER_ID: user.id,
+    }
     await server.send_to_many_users(
         users_ids=users_ids,
         message=MessageType.NEW_CHAT_MESSAGE_TYPING.make_json_dict(result_data)
@@ -235,7 +211,6 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
 
 
 @server.common_handler(MessageType.CHAT_MESSAGE_WAS_READ)
-@profile
 @raises(ValidationError, PermissionError)
 async def chat_message_was_read(user: User, data: dict) -> None:
     data: ChatMessageWasReadJSONValidator = ChatMessageWasReadJSONValidator(**data)
@@ -247,7 +222,7 @@ async def chat_message_was_read(user: User, data: dict) -> None:
 
     unread_count: UnreadCount = chat.unread_count_of_user(user_id=user.id)
 
-    unread_messages_in_ascending_order_by_id: list[ChatMessage] = chat.unread_messages_of_user(user_id=user.id)
+    unread_messages_in_ascending_order_by_id = chat.unread_messages_of_user(user_id=user.id)
     unread_messages_in_ascending_order_by_id.reverse()
 
     message_was_read_earlier: bool = data.chat_message_id < unread_messages_in_ascending_order_by_id[0].id
@@ -261,34 +236,28 @@ async def chat_message_was_read(user: User, data: dict) -> None:
         senders_ids.add(chat_message.user_id)
 
         if not chat_message.is_read:
-            unread_count.value -= 1
-        chat_message.is_read = True
+            unread_count.decrease()
+        chat_message.read()
 
         if chat_message.id == data.chat_message_id:
             break
-
-    if unread_count.value < 0:
-        unread_count.value = 0
 
     if not read_messages_ids:
         return
 
     db_builder.session.commit()
 
-    result_data = NewUnreadCountJSONDictMaker.make(
-        chat_id=chat.id,
-        unread_count=unread_count.value,
-    )
+    result_data = unread_count.as_json()
     await server.send_to_one_user(
         user_id=user.id,
         message=MessageType.NEW_UNREAD_COUNT.make_json_dict(result_data),
     )
 
     for sender_id in senders_ids:
-        result_data = ReadChatMessagesIdsJSONDictMaker.make(
-            chat_id=chat.id,
-            chat_messages_ids=read_messages_ids,
-        )
+        result_data = {
+            JSONKey.CHAT_ID: chat.id,
+            JSONKey.CHAT_MESSAGES_IDS: read_messages_ids,
+        }
         await server.send_to_one_user(
             user_id=sender_id,
             message=MessageType.READ_CHAT_MESSAGES.make_json_dict(result_data),

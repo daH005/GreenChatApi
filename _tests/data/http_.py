@@ -76,15 +76,13 @@ class Params:
     ]
 
     user = dict(
-        email='user1@mail.ru',
-        first_name='first_name',
-        last_name='last_name',
+        _email='user1@mail.ru',
     )
 
-    ACCESS_TOKEN = create_access_token(user['email'])
+    ACCESS_TOKEN = create_access_token(user['_email'])
     ACCESS_CSRF_TOKEN = get_csrf_token(ACCESS_TOKEN)
 
-    REFRESH_TOKEN = create_refresh_token(user['email'])
+    REFRESH_TOKEN = create_refresh_token(user['_email'])
     REFRESH_CSRF_TOKEN = get_csrf_token(REFRESH_TOKEN)
 
     SECOND_ACCESS_TOKEN = create_access_token(EMAIL_WITH_CODE)
@@ -136,8 +134,8 @@ class ORMObjects:
 
     unread_counts = [
         UnreadCount(
-            user_chat_match_id=1,
-            value=Params.UNREAD_COUNT,
+            _user_chat_match_id=1,
+            _value=Params.UNREAD_COUNT,
         ),
     ]
 
@@ -163,7 +161,7 @@ class SetForTest:
             url=Params.Urls.USER_LOGIN_EMAIL_CHECK,
             method='GET',
             query_string={
-                'email': Params.user['email'],
+                'email': Params.user['_email'],
             },
 
             expected_status_code=200,
@@ -225,7 +223,7 @@ class SetForTest:
             url=Params.Urls.USER_LOGIN_EMAIL_CODE_SEND,
             method='POST',
             json_dict={
-                'email': Params.user['email'],
+                'email': Params.user['_email'],
             },
 
             expected_status_code=200,
@@ -237,7 +235,7 @@ class SetForTest:
             url=Params.Urls.USER_LOGIN_EMAIL_CODE_SEND,
             method='POST',
             json_dict={
-                'email': Params.user['email'],
+                'email': Params.user['_email'],
             },
 
             expected_status_code=409,
@@ -361,6 +359,19 @@ class SetForTest:
             url=Params.Urls.USER_REFRESH_ACCESS,
             method='POST',
             cookies={
+                'refresh_token_cookie': Params.REFRESH_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.REFRESH_CSRF_TOKEN,
+            },
+
+            expected_status_code=401,  # check blacklist
+            expected_json_dict=anything,
+        ),
+        dict(
+            url=Params.Urls.USER_REFRESH_ACCESS,
+            method='POST',
+            cookies={
                 'refresh_token_cookie': create_refresh_token('what'),
             },
             headers={
@@ -460,7 +471,7 @@ class SetForTest:
             expected_status_code=200,
             expected_json_dict={
                 'id': 1,
-                'email': Params.user['email'],
+                'email': Params.user['_email'],
                 'firstName': Params.FIRST_NAME,
                 'lastName': Params.LAST_NAME,
             },
@@ -481,8 +492,8 @@ class SetForTest:
             expected_status_code=200,
             expected_json_dict={
                 'id': 2,
-                'firstName': User.first_name.default.arg,
-                'lastName': User.last_name.default.arg,
+                'firstName': User._first_name.default.arg,
+                'lastName': User._last_name.default.arg,
             },
         ),
         dict(

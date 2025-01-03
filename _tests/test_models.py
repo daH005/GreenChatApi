@@ -18,9 +18,9 @@ class TestUser:
 
     @staticmethod
     @pytest.mark.parametrize(('email', 'expected_user'), SetForTest.User.by_email)
-    def test_user_by_email(email: str,
-                           expected_user: User,
-                           ) -> None:
+    def test_by_email(email: str,
+                      expected_user: User,
+                      ) -> None:
         assert User.by_email(email) == expected_user
 
     @staticmethod
@@ -29,6 +29,13 @@ class TestUser:
                                     expected_flag: bool,
                                     ) -> None:
         assert User.email_is_already_taken(email) == expected_flag
+
+    @staticmethod
+    @pytest.mark.parametrize(('user', 'expected_chats'), SetForTest.User.chats)
+    def test_chats(user: User,
+                   expected_chats: list[Chat],
+                   ) -> None:
+        assert user.chats() == expected_chats
 
 
 class TestChat:
@@ -85,9 +92,9 @@ class TestChatMessage:
 
     @staticmethod
     @pytest.mark.parametrize(('storage_id', 'expected_message'), SetForTest.ChatMessage.by_storage_id)
-    def test_message_by_storage_id(storage_id: int,
-                                   expected_message: ChatMessage,
-                                   ) -> None:
+    def test_by_storage_id(storage_id: int,
+                           expected_message: ChatMessage,
+                           ) -> None:
         assert ChatMessage.by_storage_id(storage_id) == expected_message
 
 
