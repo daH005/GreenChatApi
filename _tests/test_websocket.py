@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from db.models import User
 from websocket_.common import clear_message_text
-from websocket_.server_handlers import server, users_ids_and_potential_interlocutors_ids
+from websocket_.server_handlers import server, user_ids_and_potential_interlocutor_ids
 from _tests.common.create_test_db import create_test_db
 from _tests.common.assert_and_save_jsons_if_failed import assert_and_save_jsons_if_failed
 from _tests.data.websocket_ import (
@@ -32,13 +32,13 @@ def setup_module() -> None:
     patch('websocket_.base.server.WebSocketServer.send_to_one_user',
           websocket_server_send_to_one_user_method_mock).start()
 
-    users_ids_and_potential_interlocutors_ids.update(Params.user_ids_and_potential_interlocutor_ids)
+    user_ids_and_potential_interlocutor_ids.update(Params.user_ids_and_potential_interlocutor_ids)
 
 
 def teardown_module() -> None:
     patch('websocket_.base.server.WebSocketServer.user_has_connections').stop()
     patch('websocket_.base.server.WebSocketServer.send_to_one_user').stop()
-    users_ids_and_potential_interlocutors_ids.clear()
+    user_ids_and_potential_interlocutor_ids.clear()
 
 
 def teardown_function() -> None:

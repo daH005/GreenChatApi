@@ -7,7 +7,7 @@ class JSONKey(StrEnum):
     USER_ID = 'userId'
     CHAT_ID = 'chatId'
     CHAT_MESSAGE_ID = 'chatMessageId'
-    CHAT_MESSAGES_IDS = 'chatMessagesIds'
+    CHAT_MESSAGE_IDS = 'chatMessagesIds'
     STORAGE_ID = 'storageId'
 
     EMAIL = 'email'
@@ -29,7 +29,7 @@ class JSONKey(StrEnum):
     NAME = 'name'
     IS_GROUP = 'isGroup'
     LAST_CHAT_MESSAGE = 'lastMessage'
-    USERS_IDS = 'usersIds'
+    USER_IDS = 'usersIds'
     UNREAD_COUNT = 'unreadCount'
 
     IS_ALREADY_TAKEN = 'isAlreadyTaken'

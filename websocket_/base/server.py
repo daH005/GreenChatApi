@@ -121,11 +121,11 @@ class WebSocketServer:
     def user_has_connections(self, user_id: int) -> bool:
         return len(self._clients.get(user_id, [])) != 0
 
-    async def send_to_many_users(self, users_ids: list[int] | set[int],
+    async def send_to_many_users(self, user_ids: list[int] | set[int],
                                  message: WebSocketMessageJSONDict,
                                  ) -> None:
-        users_ids = set(users_ids)
-        for id_ in users_ids:
+        user_ids = set(user_ids)
+        for id_ in user_ids:
             await self.send_to_one_user(id_, message)
 
     async def send_to_one_user(self, user_id: int,

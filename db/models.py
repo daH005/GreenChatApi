@@ -5,6 +5,7 @@ from sqlalchemy import (
     Text,
     Boolean,
     ForeignKey,
+    desc,
 )
 from sqlalchemy.dialects.mysql import DATETIME
 from sqlalchemy.orm import (
@@ -68,7 +69,7 @@ class User(BaseModel, UserJSONMixin, UserJWTMixin):
     _first_name: Mapped[str] = mapped_column(String(100), nullable=False, default='New')
     _last_name: Mapped[str] = mapped_column(String(100), nullable=False, default='User')
 
-    _chats_messages: Mapped[list['ChatMessage']] = relationship(
+    _chat_messages: Mapped[list['ChatMessage']] = relationship(
         back_populates='_user',
         cascade='all, delete',
     )
@@ -179,7 +180,7 @@ class Chat(BaseModel, ChatJSONMixin):
 
 
 class ChatMessage(BaseModel, ChatMessageJSONMixin):
-    __tablename__ = 'chats_messages'
+    __tablename__ = 'chat_messages'
 
     _user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
     _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id'), nullable=False)
@@ -188,7 +189,7 @@ class ChatMessage(BaseModel, ChatMessageJSONMixin):
     _is_read: Mapped[bool] = mapped_column(Boolean, default=False)
     _storage_id: Mapped[int] = mapped_column(Integer, nullable=True)
 
-    _user: Mapped['User'] = relationship(back_populates='_chats_messages', uselist=False)
+    _user: Mapped['User'] = relationship(back_populates='_chat_messages', uselist=False)
     _chat: Mapped['Chat'] = relationship(back_populates='_messages', uselist=False)
 
     @classmethod
@@ -260,16 +261,13 @@ class UserChatMatch(BaseModel):
 
     @classmethod
     def chats_of_user(cls, user_id: int) -> ChatList:
-        matches: list[cls] = db_builder.session.query(cls).filter(cls._user_id == user_id).all()  # type: ignore
-        chats = sorted([match.chat for match in matches], key=cls._value_for_user_chats_sort, reverse=True)
+        chats = db_builder.session.query(cls, Chat, ChatMessage)\
+                                  .join(Chat, Chat._id == cls._chat_id)\
+                                  .join(ChatMessage, Chat._id == ChatMessage._chat_id, full=True)\
+                                  .filter(cls._user_id == user_id)\
+                                  .order_by(desc(ChatMessage._creating_datetime))\
+                                  .with_entities(Chat).all()
         return ChatList(chats, user_id)
-
-    @staticmethod
-    def _value_for_user_chats_sort(chat: Chat) -> float:
-        try:
-            return chat.last_message._creating_datetime.timestamp()
-        except IndexError:
-            return 0.0
 
     @classmethod
     @raises(ValueError)
@@ -288,7 +286,7 @@ class UserChatMatch(BaseModel):
     def private_chat_between_users(cls, first_user_id: int,
                                    second_user_id: int,
                                    ) -> Chat:
-        chats_ids = []
+        chat_ids = []
 
         matches: list[cls] = db_builder.session.query(cls).filter(  # type: ignore
             (cls._user_id == first_user_id) | (cls._user_id == second_user_id),
@@ -296,9 +294,9 @@ class UserChatMatch(BaseModel):
         for match in matches:
             if match.chat.is_group:
                 continue
-            if match._chat_id in chats_ids:
+            if match._chat_id in chat_ids:
                 return match.chat
-            chats_ids.append(match._chat_id)
+            chat_ids.append(match._chat_id)
 
         raise ValueError
 
