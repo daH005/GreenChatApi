@@ -76,6 +76,7 @@ class Params:
     ]
 
     user = dict(
+        _id=500000,
         _email='user1@mail.ru',
     )
 
@@ -90,18 +91,18 @@ class Params:
 
     chat_messages = [
         dict(
-            user_id=1,
+            user_id=user['_id'],
             chat_id=1,
             text='Hello_1!',
         ),
         dict(
-            user_id=1,
+            user_id=user['_id'],
             chat_id=1,
             text='Hello_2!',
             storage_id=STORAGE_ID,
         ),
         dict(
-            user_id=1,
+            user_id=user['_id'],
             chat_id=1,
             text='Hello_3!',
         ),
@@ -127,7 +128,7 @@ class ORMObjects:
 
     user_chat_matches = [
         UserChatMatch(
-            user_id=1,
+            user_id=Params.user['_id'],
             chat_id=1,
         ),
     ]
@@ -470,7 +471,7 @@ class SetForTest:
 
             expected_status_code=200,
             expected_json_dict={
-                'id': 1,
+                'id': Params.user['_id'],
                 'email': Params.user['_email'],
                 'firstName': Params.FIRST_NAME,
                 'lastName': Params.LAST_NAME,
@@ -480,7 +481,7 @@ class SetForTest:
             url=Params.Urls.USER_INFO,
             method='GET',
             query_string={
-                'userId': 2,
+                'userId': Params.user['_id'] + 1,
             },
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -491,7 +492,7 @@ class SetForTest:
 
             expected_status_code=200,
             expected_json_dict={
-                'id': 2,
+                'id': Params.user['_id'] + 1,
                 'firstName': User._first_name.default.arg,
                 'lastName': User._last_name.default.arg,
             },
@@ -500,7 +501,7 @@ class SetForTest:
             url=Params.Urls.USER_INFO,
             method='GET',
             query_string={
-                'userId': 1,
+                'userId': Params.user['_id'],
             },
             cookies={
                 'access_token_cookie': create_access_token('what'),
@@ -553,13 +554,13 @@ class SetForTest:
                         'lastMessage': {
                             'id': 3,
                             'chatId': 1,
-                            'userId': 1,
+                            'userId': Params.user['_id'],
                             'text': Params.chat_messages[-1]['text'],
                             'storageId': None,
                             'isRead': False,
                             'creatingDatetime': anything,
                         },
-                        'usersIds': [1],
+                        'usersIds': [Params.user['_id']],
                         'unreadCount': Params.UNREAD_COUNT,
                     }
                 ],
@@ -618,7 +619,7 @@ class SetForTest:
             url=Params.Urls.USER_AVATAR,
             method='GET',
             query_string={
-                'userId': 1,
+                'userId':Params.user['_id'],
             },
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -650,7 +651,7 @@ class SetForTest:
             url=Params.Urls.USER_AVATAR,
             method='GET',
             query_string={
-                'userId': 1,
+                'userId': Params.user['_id'],
             },
             cookies={
                 'access_token_cookie': create_access_token('what'),
@@ -759,7 +760,7 @@ class SetForTest:
                     {
                         'id': 3,
                         'chatId': 1,
-                        'userId': 1,
+                        'userId': Params.user['_id'],
                         'text': Params.chat_messages[2]['text'],
                         'storageId': None,
                         'isRead': False,
@@ -768,7 +769,7 @@ class SetForTest:
                     {
                         'id': 2,
                         'chatId': 1,
-                        'userId': 1,
+                        'userId': Params.user['_id'],
                         'text': Params.chat_messages[1]['text'],
                         'storageId': Params.STORAGE_ID,
                         'isRead': False,
@@ -777,7 +778,7 @@ class SetForTest:
                     {
                         'id': 1,
                         'chatId': 1,
-                        'userId': 1,
+                        'userId': Params.user['_id'],
                         'text': Params.chat_messages[0]['text'],
                         'storageId': None,
                         'isRead': False,
