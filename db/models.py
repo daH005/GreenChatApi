@@ -121,7 +121,7 @@ class Chat(BaseModel, ChatJSONMixin):
         cascade='all, delete',
         lazy='dynamic',
     )
-    _users_chats_matches: Mapped[list['UserChatMatch']] = relationship(
+    _user_chat_matches: Mapped[list['UserChatMatch']] = relationship(
         back_populates='_chat',
         cascade='all, delete',
     )
@@ -182,8 +182,8 @@ class Chat(BaseModel, ChatJSONMixin):
 class ChatMessage(BaseModel, ChatMessageJSONMixin):
     __tablename__ = 'chat_messages'
 
-    _user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
-    _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id'), nullable=False)
+    _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id', ondelete='CASCADE'), nullable=False)
     _text: Mapped[str] = mapped_column(Text, nullable=False)
     _creating_datetime: Mapped[datetime] = mapped_column(DATETIME(fsp=6), default=datetime.utcnow)
     _is_read: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -217,13 +217,13 @@ class ChatMessage(BaseModel, ChatMessageJSONMixin):
 
 
 class UserChatMatch(BaseModel):
-    __tablename__ = 'users_chats'
+    __tablename__ = 'user_chat_matches'
 
-    _user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
-    _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id'), nullable=False)
+    _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id', ondelete='CASCADE'), nullable=False)
 
     _user: Mapped['User'] = relationship(back_populates='_user_chats_matches', uselist=False)
-    _chat: Mapped['Chat'] = relationship(back_populates='_users_chats_matches', uselist=False)
+    _chat: Mapped['Chat'] = relationship(back_populates='_user_chat_matches', uselist=False)
     _unread_count: Mapped['UnreadCount'] = relationship(
         back_populates='_user_chat_match',
         cascade='all, delete',
@@ -332,7 +332,7 @@ class UserChatMatch(BaseModel):
 class UnreadCount(BaseModel, UnreadCountJSONMixin):
     __tablename__ = 'unread_counts'
 
-    _user_chat_match_id: Mapped[int] = mapped_column(ForeignKey('users_chats.id'), nullable=False)
+    _user_chat_match_id: Mapped[int] = mapped_column(ForeignKey('user_chat_matches.id', ondelete='CASCADE'), nullable=False)
     _value: Mapped[int] = mapped_column(Integer, default=0)
 
     _user_chat_match: Mapped['UserChatMatch'] = relationship(back_populates='_unread_count', uselist=False)
