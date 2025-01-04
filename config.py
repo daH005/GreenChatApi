@@ -20,6 +20,7 @@ __all__ = (
     'JWT_ACCESS_TOKEN_EXPIRES',
     'JWT_REFRESH_TOKEN_EXPIRES',
     'DB_URL',
+    'DB_TEST_URL',
     'REDIS_HOST',
     'REDIS_PORT',
     'REDIS_URL',
@@ -61,6 +62,9 @@ DB_URL: URL = URL.create(
     host=environ['DB_HOST'],
     port=int(environ['DB_PORT']),
     database=environ['DB_NAME'],
+)
+DB_TEST_URL: URL = DB_URL.set(
+    database=environ['DB_TEST_NAME'],
 )
 
 REDIS_HOST: Final[str] = environ['REDIS_HOST']

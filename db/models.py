@@ -263,7 +263,7 @@ class UserChatMatch(BaseModel):
     def chats_of_user(cls, user_id: int) -> ChatList:
         chats = db_builder.session.query(cls, Chat, ChatMessage)\
                                   .join(Chat, Chat._id == cls._chat_id)\
-                                  .join(ChatMessage, Chat._id == ChatMessage._chat_id, full=True)\
+                                  .join(ChatMessage, Chat._id == ChatMessage._chat_id, isouter=True)\
                                   .filter(cls._user_id == user_id)\
                                   .order_by(desc(ChatMessage._creating_datetime))\
                                   .with_entities(Chat).all()

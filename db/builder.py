@@ -9,8 +9,8 @@ __all__ = (
 
 
 class DBBuilder:
-    _engine: Engine
-    _session: scoped_session
+    _engine: Engine = None
+    _session: scoped_session = None
 
     def init_session(self, url: str | URL,
                      isolation_level: str | None = 'READ COMMITTED',
