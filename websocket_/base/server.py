@@ -6,9 +6,9 @@ import re
 from jwt import decode as decode_jwt
 
 from common.hinting import raises
-from websocket_.base.websocket_message import WebSocketMessageJSONDict
 from db.builder import db_builder
 from db.models import User
+from websocket_.base.websocket_message import WebSocketMessageJSONDict
 from websocket_.base.typing_ import CommonHandlerFuncT, ConnectAndDisconnectHandlerFuncT
 from websocket_.base.client_handler import WebSocketClientHandler
 from websocket_.base.logs import init_logs, logger
@@ -143,10 +143,19 @@ class WebSocketServer:
         except ConnectionClosed:
             return
 
+    def make_online_statuses(self, user_ids: list[int]) -> dict[int, bool]:
+        result_data = {}
+        for user_id in user_ids:
+            if self.user_has_connections(user_id):
+                result_data[user_id] = True
+
+        return result_data
+
     def common_handler(self, type_: str) -> Callable[[CommonHandlerFuncT], CommonHandlerFuncT]:
         def func_decorator(func: CommonHandlerFuncT) -> CommonHandlerFuncT:
             self._common_handlers_funcs[type_] = func
             return func
+
         return func_decorator
 
     def each_connection_handler(self, func: ConnectAndDisconnectHandlerFuncT) -> ConnectAndDisconnectHandlerFuncT:

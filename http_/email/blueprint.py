@@ -4,24 +4,24 @@ from pydantic import validate_email
 from flasgger import swag_from
 
 from common.json_keys import JSONKey
-from http_.simple_response import make_simple_response
-from http_.urls import Url
+from http_.common.simple_response import make_simple_response
+from http_.common.urls import Url
 from http_.email.tasks import send_code_task
 from http_.email.codes.functions import make_and_save_email_code, email_code_is_valid
-from http_.validation import EmailAndCodeJSONValidator
-from http_.apidocs_constants import (
+from http_.common.validation import EmailAndCodeJSONValidator
+from http_.common.apidocs_constants import (
     CODE_SEND_SPECS,
     CODE_CHECK_SPECS,
 )
 
 __all__ = (
-    'bp',
+    'email_bp',
 )
 
-bp: Blueprint = Blueprint('email', __name__)
+email_bp: Blueprint = Blueprint('email', __name__)
 
 
-@bp.route(Url.CODE_SEND, methods=[HTTPMethod.POST])
+@email_bp.route(Url.USER_CODE_SEND, methods=[HTTPMethod.POST])
 @swag_from(CODE_SEND_SPECS)
 def code_send():
     try:
@@ -30,7 +30,7 @@ def code_send():
         return abort(HTTPStatus.BAD_REQUEST)
 
     try:
-        code: int = make_and_save_email_code(identify=email)
+        code: int = make_and_save_email_code(email)
     except ValueError:
         raise abort(HTTPStatus.CONFLICT)
     send_code_task.delay(to=email, code=code)
@@ -38,12 +38,12 @@ def code_send():
     return make_simple_response(HTTPStatus.OK)
 
 
-@bp.route(Url.CODE_CHECK, methods=[HTTPMethod.GET])
+@email_bp.route(Url.USER_CODE_CHECK, methods=[HTTPMethod.GET])
 @swag_from(CODE_CHECK_SPECS)
 def code_check():
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_args()
 
-    flag: bool = email_code_is_valid(identify=user_data.email, code=user_data.code)
+    flag: bool = email_code_is_valid(user_data.email, user_data.code)
     return {
         JSONKey.CODE_IS_VALID: flag,
     }

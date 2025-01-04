@@ -1,7 +1,13 @@
-from abc import abstractmethod
-from datetime import datetime
-
 from common.json_keys import JSONKey
+from db.i import (
+    UserI,
+    ChatI,
+    ChatMessageI,
+    UnreadCountI,
+    UserListI,
+    ChatListI,
+    ChatMessageListI,
+)
 
 __all__ = (
     'UserJSONMixin',
@@ -13,20 +19,13 @@ __all__ = (
 )
 
 
-class AbstractJSONMixin:
+class JSONMixinI:
 
-    @abstractmethod
     def as_json(self, *args, **kwargs) -> dict:
         raise NotImplementedError
 
 
-class UserJSONMixin(AbstractJSONMixin):
-
-    id: int
-    _id: int
-    _email: str
-    _first_name: str
-    _last_name: str
+class UserJSONMixin(JSONMixinI, UserI):
 
     def as_full_json(self):
         return {
@@ -41,23 +40,12 @@ class UserJSONMixin(AbstractJSONMixin):
             JSONKey.LAST_NAME: self._last_name,
         }
 
-    @classmethod
-    def email_is_already_taken_as_json(cls, email):
-        return {
-            JSONKey.IS_ALREADY_TAKEN: cls.email_is_already_taken(email),
-        }
 
-    @classmethod
-    def email_is_already_taken(cls, email: str) -> bool:
+class ChatJSONMixin(JSONMixinI, ChatI):
+
+    @property
+    def last_message(self) -> 'ChatMessageJSONMixin':
         raise NotImplementedError
-
-
-class ChatJSONMixin(AbstractJSONMixin):
-
-    _id: int
-    _name: str | None
-    _is_group: bool
-    last_message: 'ChatMessageJSONMixin'
 
     def as_json(self, user_id: int):
         try:
@@ -73,22 +61,8 @@ class ChatJSONMixin(AbstractJSONMixin):
             JSONKey.UNREAD_COUNT: self.unread_count_of_user(user_id=user_id).value,
         }
 
-    def users(self) -> list['UserJSONMixin']:
-        raise NotImplementedError
 
-    def unread_count_of_user(self, user_id: int) -> 'UnreadCountJSONMixin':
-        raise NotImplementedError
-
-
-class ChatMessageJSONMixin(AbstractJSONMixin):
-
-    _id: int
-    _chat_id: int
-    _user_id: int
-    _text: str
-    _creating_datetime: datetime
-    _is_read: bool
-    _storage_id: int | None
+class ChatMessageJSONMixin(JSONMixinI, ChatMessageI):
 
     def as_json(self):
         return {
@@ -102,34 +76,32 @@ class ChatMessageJSONMixin(AbstractJSONMixin):
         }
 
 
-class UnreadCountJSONMixin(AbstractJSONMixin):
-
-    value: int
-    _user_chat_match: object
+class UnreadCountJSONMixin(JSONMixinI, UnreadCountI):
 
     def as_json(self):
         return {
-            JSONKey.CHAT_ID: self._user_chat_match._chat_id,
+            JSONKey.CHAT_ID: self._user_chat_match.chat.id,
             JSONKey.UNREAD_COUNT: self.value,
         }
 
 
-class ChatListJSONMixin(AbstractJSONMixin):
+class UserListJSONMixin(JSONMixinI, UserListI, list['UserJSONMixin']):
 
-    _user_id: int
-    _items: list['ChatJSONMixin']
+    def as_json(self):
+        raise NotImplementedError
+
+
+class ChatListJSONMixin(JSONMixinI, ChatListI, list['ChatJSONMixin']):
 
     def as_json(self):
         return {
-            JSONKey.CHATS: [chat.as_json(self._user_id) for chat in self._items]
+            JSONKey.CHATS: [chat.as_json(self._user_id) for chat in self]
         }
 
 
-class ChatMessageListJSONMixin(AbstractJSONMixin):
-
-    _items: list['ChatMessageJSONMixin']
+class ChatMessageListJSONMixin(JSONMixinI, ChatMessageListI, list['ChatMessageJSONMixin']):
 
     def as_json(self, offset_from_end: int = 0):
         return {
-            JSONKey.MESSAGES: [msg.as_json() for msg in self._items[offset_from_end:]]
+            JSONKey.MESSAGES: [msg.as_json() for msg in self[offset_from_end:]]
         }

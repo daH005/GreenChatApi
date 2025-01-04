@@ -19,7 +19,7 @@ __all__ = (
 app: Celery = Celery(broker=REDIS_URL, broker_connection_retry_on_startup=True)
 
 
-@app.task(name='send_code_task')
+@app.task(name='send_code_task', max_retries=0)
 def send_code_task(to: str,
                    code: int | str,
                    ) -> None:

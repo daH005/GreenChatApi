@@ -14,8 +14,8 @@ from db.models import (
     UserChatMatch,
     UnreadCount,
 )
-from http_.avatars.blueprint import DEFAULT_AVATAR_PATH
-from http_.backgrounds.blueprint import DEFAULT_BACKGROUND_PATH
+from http_.avatars.blueprint import _DEFAULT_AVATAR_PATH
+from http_.backgrounds.blueprint import _DEFAULT_BACKGROUND_PATH
 from _tests.common.anything_place import anything
 
 __all__ = (
@@ -645,7 +645,7 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_content=DEFAULT_AVATAR_PATH.read_bytes(),
+            expected_content=_DEFAULT_AVATAR_PATH.read_bytes(),
         ),
         dict(
             url=Params.Urls.USER_AVATAR,
@@ -723,7 +723,7 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_content=DEFAULT_BACKGROUND_PATH.read_bytes(),
+            expected_content=_DEFAULT_BACKGROUND_PATH.read_bytes(),
         ),
         dict(
             url=Params.Urls.USER_BACKGROUND,

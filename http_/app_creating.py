@@ -9,23 +9,13 @@ from config import (
     JWT_ACCESS_TOKEN_EXPIRES,
     JWT_REFRESH_TOKEN_EXPIRES,
 )
-from http_.urls import Url
+from http_.common.urls import Url
 from http_.jwt_ import jwt
-from http_.email.blueprint import (
-    bp as email_bp,
-)
-from http_.avatars.blueprint import (
-    bp as avatars_bp,
-)
-from http_.backgrounds.blueprint import (
-    bp as backgrounds_bp,
-)
-from http_.general.blueprint import (
-    bp as general_bp,
-)
-from http_.files.blueprint import (
-    bp as files_bp,
-)
+from http_.email.blueprint import email_bp
+from http_.avatars.blueprint import avatars_bp
+from http_.backgrounds.blueprint import backgrounds_bp
+from http_.general.blueprint import general_bp
+from http_.files.blueprint import files_bp
 
 __all__ = (
     'create_app',
@@ -50,7 +40,7 @@ def _init_app_config_and_options(app: Flask) -> None:
         JWT_COOKIE_SAMESITE='None',
         JWT_TOKEN_LOCATION=['cookies'],
         JWT_ACCESS_COOKIE_PATH='/',
-        JWT_REFRESH_COOKIE_PATH=Url.REFRESH_ACCESS,
+        JWT_REFRESH_COOKIE_PATH=Url.USER_REFRESH_ACCESS,
         JWT_SECRET_KEY=JWT_SECRET_KEY,
         JWT_ALGORITHM=JWT_ALGORITHM,
         JWT_ACCESS_TOKEN_EXPIRES=JWT_ACCESS_TOKEN_EXPIRES,

@@ -4,11 +4,11 @@ from flask import (
     Response,
 )
 from http import HTTPStatus
-from flask_jwt_extended import get_current_user
 from typing import Final
 from pathlib import Path
 
-from http_.simple_response import make_simple_response
+from http_.common.get_current_user import get_current_user
+from http_.common.simple_response import make_simple_response
 
 __all__ = (
     'get_user_image',

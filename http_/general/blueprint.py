@@ -10,7 +10,6 @@ from flask_jwt_extended import (
     set_refresh_cookies,
     unset_jwt_cookies,
     get_jwt,
-    get_current_user,
     jwt_required,
 )
 from flasgger import swag_from
@@ -18,13 +17,14 @@ from flasgger import swag_from
 from db.builder import db_builder
 from db.models import User, UserChatMatch, BlacklistToken
 from common.json_keys import JSONKey
-from http_.simple_response import make_simple_response
-from http_.validation import EmailAndCodeJSONValidator, UserJSONValidator
+from http_.common.get_current_user import get_current_user
+from http_.common.simple_response import make_simple_response
+from http_.common.validation import EmailAndCodeJSONValidator, UserJSONValidator
 from http_.email.codes.functions import (
     email_code_is_valid,
     delete_email_code,
 )
-from http_.apidocs_constants import (
+from http_.common.apidocs_constants import (
     EMAIL_CHECK_SPECS,
     LOGIN_SPECS,
     LOGOUT_SPECS,
@@ -34,17 +34,17 @@ from http_.apidocs_constants import (
     USER_CHATS_SPECS,
     CHAT_HISTORY_SPECS,
 )
-from http_.urls import Url
+from http_.common.urls import Url
 
 
 __all__ = (
-    'bp',
+    'general_bp',
 )
 
-bp: Blueprint = Blueprint('general', __name__)
+general_bp: Blueprint = Blueprint('general', __name__)
 
 
-@bp.route(Url.EMAIL_CHECK, methods=[HTTPMethod.GET])
+@general_bp.route(Url.USER_EMAIL_CHECK, methods=[HTTPMethod.GET])
 @swag_from(EMAIL_CHECK_SPECS)
 def email_check():
     try:
@@ -52,22 +52,24 @@ def email_check():
     except KeyError:
         return abort(HTTPStatus.BAD_REQUEST)
 
-    return User.email_is_already_taken_as_json(email)
+    return {
+        JSONKey.IS_ALREADY_TAKEN: User.email_is_already_taken(email),
+    }
 
 
-@bp.route(Url.LOGIN, methods=[HTTPMethod.POST])
+@general_bp.route(Url.USER_LOGIN, methods=[HTTPMethod.POST])
 @swag_from(LOGIN_SPECS)
 def login():
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_json()
 
-    if email_code_is_valid(identify=user_data.email, code=user_data.code):
-        delete_email_code(identify=user_data.email)
+    if email_code_is_valid(user_data.email, user_data.code):
+        delete_email_code(user_data.email)
     else:
         return abort(HTTPStatus.BAD_REQUEST)
 
     status_code: HTTPStatus
     try:
-        user: User = User.by_email(email=user_data.email)
+        user: User = User.by_email(user_data.email)
         status_code = HTTPStatus.OK
     except ValueError:
         user: User = User(
@@ -80,7 +82,7 @@ def login():
     return _make_access_response(user, status_code)
 
 
-@bp.route(Url.LOGOUT, methods=[HTTPMethod.POST])
+@general_bp.route(Url.USER_LOGOUT, methods=[HTTPMethod.POST])
 @jwt_required()
 @swag_from(LOGOUT_SPECS)
 def logout():
@@ -90,7 +92,7 @@ def logout():
     return response
 
 
-@bp.route(Url.REFRESH_ACCESS, methods=[HTTPMethod.POST])
+@general_bp.route(Url.USER_REFRESH_ACCESS, methods=[HTTPMethod.POST])
 @jwt_required(refresh=True)
 @swag_from(REFRESH_ACCESS_SPECS)
 def refresh_access():
@@ -111,7 +113,7 @@ def _make_access_response(user: User,
     return response
 
 
-@bp.route(Url.USER_INFO, methods=[HTTPMethod.GET])
+@general_bp.route(Url.USER_INFO, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_INFO_SPECS)
 def user_info():
@@ -130,29 +132,29 @@ def user_info():
     return user.as_json()
 
 
-@bp.route(Url.USER_INFO_EDIT, methods=[HTTPMethod.PUT])
+@general_bp.route(Url.USER_INFO_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_INFO_EDIT_SPECS)
 def user_info_edit():
     data: UserJSONValidator = UserJSONValidator.from_json()
 
     get_current_user().set_info(
-        first_name=data.first_name,
-        last_name=data.last_name,
+        data.first_name,
+        data.last_name,
     )
     db_builder.session.commit()
 
     return make_simple_response(HTTPStatus.OK)
 
 
-@bp.route(Url.USER_CHATS, methods=[HTTPMethod.GET])
+@general_bp.route(Url.USER_CHATS, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_CHATS_SPECS)
 def user_chats():
     return get_current_user().chats().as_json()
 
 
-@bp.route(Url.CHAT_HISTORY, methods=[HTTPMethod.GET])
+@general_bp.route(Url.CHAT_HISTORY, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(CHAT_HISTORY_SPECS)
 def chat_history():

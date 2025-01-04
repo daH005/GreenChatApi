@@ -1,5 +1,10 @@
+from typing import TypedDict
 
-class WebSocketMessageJSONDict:
+__all__ = (
+    'WebSocketMessageJSONDict',
+)
 
+
+class WebSocketMessageJSONDict(TypedDict):
     type: str
     data: dict

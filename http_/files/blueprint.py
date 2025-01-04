@@ -5,8 +5,8 @@ from flask_jwt_extended import jwt_required
 from pathlib import Path
 
 from common.json_keys import JSONKey
-from http_.urls import Url
-from http_.apidocs_constants import (
+from http_.common.urls import Url
+from http_.common.apidocs_constants import (
     CHAT_MESSAGES_FILES_SAVE_SPECS,
     CHAT_MESSAGES_FILES_NAMES_SPECS,
     CHAT_MESSAGES_FILES_GET_SPECS,
@@ -19,13 +19,13 @@ from http_.files.functions import (
 )
 
 __all__ = (
-    'bp',
+    'files_bp',
 )
 
-bp: Blueprint = Blueprint('files', __name__)
+files_bp: Blueprint = Blueprint('files', __name__)
 
 
-@bp.route(Url.CHAT_MESSAGES_FILES_SAVE, methods=[HTTPMethod.POST])
+@files_bp.route(Url.CHAT_MESSAGES_FILES_SAVE, methods=[HTTPMethod.POST])
 @jwt_required()
 @swag_from(CHAT_MESSAGES_FILES_SAVE_SPECS)
 def chat_messages_files_save():
@@ -35,7 +35,7 @@ def chat_messages_files_save():
     }, HTTPStatus.CREATED
 
 
-@bp.route(Url.CHAT_MESSAGES_FILES_NAMES, methods=[HTTPMethod.GET])
+@files_bp.route(Url.CHAT_MESSAGES_FILES_NAMES, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(CHAT_MESSAGES_FILES_NAMES_SPECS)
 @check_permissions_decorator
@@ -48,7 +48,7 @@ def chat_messages_files_names(storage_id: int):
         return abort(HTTPStatus.NOT_FOUND)
 
 
-@bp.route(Url.CHAT_MESSAGES_FILES_GET, methods=[HTTPMethod.GET])
+@files_bp.route(Url.CHAT_MESSAGES_FILES_GET, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(CHAT_MESSAGES_FILES_GET_SPECS)
 @check_permissions_decorator

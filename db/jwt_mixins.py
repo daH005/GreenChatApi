@@ -3,12 +3,14 @@ from flask_jwt_extended import (
     create_refresh_token,
 )
 
+from db.i import UserI
+
 __all__ = (
     'UserJWTMixin',
 )
 
 
-class UserJWTMixin:
+class UserJWTMixin(UserI):
 
     def create_access_token(self):
         return create_access_token(self._email)

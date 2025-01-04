@@ -5,7 +5,7 @@ from flask import (
 from werkzeug.exceptions import HTTPException
 
 from db.builder import db_builder
-from http_.simple_response import make_simple_response
+from http_.common.simple_response import make_simple_response
 from http_.app_creating import create_app
 
 __all__ = (

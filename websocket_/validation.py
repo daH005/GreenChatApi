@@ -1,7 +1,8 @@
 from pydantic import BaseModel, Field, field_validator
+from typing import Final
+from re import sub
 
 from common.json_keys import JSONKey
-from websocket_.common import clear_message_text
 
 __all__ = (
     'UserIdJSONValidator',
@@ -28,6 +29,7 @@ class ChatIdJSONValidator(BaseModel):
 
 
 class NewChatMessageJSONValidator(ChatIdJSONValidator):
+    _TEXT_MAX_LENGTH: Final[int] = 10_000
 
     storage_id: int | None = Field(alias=JSONKey.STORAGE_ID, default=None)
     text: str
@@ -37,6 +39,14 @@ class NewChatMessageJSONValidator(ChatIdJSONValidator):
     def _validate_text(cls, text: str, values) -> str:
         if not text and not values.data.get('storage_id'):
             raise AssertionError
+        return cls.clear_text(text)
+
+    @classmethod
+    def clear_text(cls, text: str) -> str:
+        text = text[:cls._TEXT_MAX_LENGTH]
+        text = sub(r' {2,}', ' ', text)
+        text = sub(r'( ?\n ?)+', '\n', text)
+        text = text.strip()
         return text
 
 

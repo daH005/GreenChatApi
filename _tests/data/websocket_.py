@@ -145,7 +145,7 @@ class SetForTest:
                     'type': 'newChatMessage',
                     'data': {
                         'chatId': 1,
-                        'text': 'Hello!',
+                        'text': 'a' * 15_000,
                     },
                 },
             ),
@@ -164,7 +164,7 @@ class SetForTest:
                             'id': 1,
                             'chatId': 1,
                             'userId': 1,
-                            'text': 'Hello!',
+                            'text': 'a' * 10_000,
                             'isRead': False,
                             'storageId': None,
                             'creatingDatetime': anything,
@@ -178,7 +178,7 @@ class SetForTest:
                             'id': 1,
                             'chatId': 1,
                             'userId': 1,
-                            'text': 'Hello!',
+                            'text': 'a' * 10_000,
                             'isRead': False,
                             'storageId': None,
                             'creatingDatetime': anything,
@@ -437,4 +437,8 @@ class SetForTest:
             '   Hello!   How are u??\n  \n\n   My name is Danil!  \n',
             'Hello! How are u??\nMy name is Danil!',
         ),
+        (
+            'g' * 15_000,
+            'g' * 10_000,
+        )
     ]

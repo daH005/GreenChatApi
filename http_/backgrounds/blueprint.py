@@ -1,42 +1,42 @@
 from flask import Blueprint
 from http import HTTPMethod
-from flask_jwt_extended import jwt_required, get_current_user
+from flask_jwt_extended import jwt_required
 from flasgger import swag_from
 from typing import Final
 from pathlib import Path
 
 from config import STATIC_FOLDER, MEDIA_FOLDER
-from http_.urls import Url
-from http_.apidocs_constants import (
+from http_.common.get_current_user import get_current_user
+from http_.common.urls import Url
+from http_.common.apidocs_constants import (
     USER_BACKGROUND_SPECS,
     USER_BACKGROUND_EDIT_SPECS,
 )
-from http_.user_images_common import get_user_image, edit_user_image
+from http_.common.user_images_abstract_endpoints import get_user_image, edit_user_image
 
 __all__ = (
-    'DEFAULT_BACKGROUND_PATH',
-    'bp',
+    'backgrounds_bp',
 )
 
-bp: Blueprint = Blueprint('backgrounds', __name__)
+backgrounds_bp: Blueprint = Blueprint('backgrounds', __name__)
 
-DEFAULT_BACKGROUND_PATH: Final[Path] = STATIC_FOLDER.joinpath('default_background.jpg')
+_DEFAULT_BACKGROUND_PATH: Final[Path] = STATIC_FOLDER.joinpath('default_background.jpg')
 _BACKGROUNDS_PATH: Final[Path] = MEDIA_FOLDER.joinpath('backgrounds')
 
 
-@bp.route(Url.USER_BACKGROUND, methods=[HTTPMethod.GET])
+@backgrounds_bp.route(Url.USER_BACKGROUND, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_BACKGROUND_SPECS)
 def user_background():
     return get_user_image(
-        user_id_as_str=str(get_current_user().id),
-        default_path=DEFAULT_BACKGROUND_PATH,
-        folder_path=_BACKGROUNDS_PATH,
+        str(get_current_user().id),
+        _DEFAULT_BACKGROUND_PATH,
+        _BACKGROUNDS_PATH,
     )
 
 
-@bp.route(Url.USER_BACKGROUND_EDIT, methods=[HTTPMethod.PUT])
+@backgrounds_bp.route(Url.USER_BACKGROUND_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_BACKGROUND_EDIT_SPECS)
 def user_background_edit():
-    return edit_user_image(folder_path=_BACKGROUNDS_PATH)
+    return edit_user_image(_BACKGROUNDS_PATH)

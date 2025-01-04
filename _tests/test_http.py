@@ -23,13 +23,13 @@ def setup_module() -> None:
 
     STORAGE_ID_PATH.write_text(str(Params.STORAGE_ID))
 
-    patch('http_.email.tasks.send_code_task').start()
+    patch('http_.email.tasks.send_code_task.delay').start()
     app.teardown_appcontext_funcs.clear()
 
 
 def teardown_module() -> None:
     patch('db.builder.db_builder.session.remove').stop()
-    patch('http_.email.tasks.send_code_task').stop()
+    patch('http_.email.tasks.send_code_task.delay').stop()
     app.teardown_appcontext_funcs.extend(_teardown_appcontext_funcs_backup)
 
 

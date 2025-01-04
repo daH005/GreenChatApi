@@ -1,7 +1,6 @@
 from flask import request, abort
 from http import HTTPStatus
 from werkzeug.utils import secure_filename
-from flask_jwt_extended import get_current_user
 from pathlib import Path
 from typing import Final
 from os import listdir
@@ -11,7 +10,8 @@ from functools import wraps
 from common.json_keys import JSONKey
 from common.hinting import raises
 from config import MEDIA_FOLDER
-from db.models import User, ChatMessage, UserChatMatch
+from db.models import User, ChatMessage
+from http_.common.get_current_user import get_current_user
 
 __all__ = (
     'STORAGE_ID_PATH',

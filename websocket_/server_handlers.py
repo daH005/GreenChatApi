@@ -12,12 +12,7 @@ from db.models import (
 )
 from db.builder import db_builder
 from websocket_.base.server import WebSocketServer
-from websocket_.messages_types import MessageType
-from websocket_.common import (
-    user_ids_of_chat_by_id,
-    interlocutor_ids_for_user_by_id,
-    make_online_statuses_data,
-)
+from websocket_.message_types import MessageType
 from websocket_.validation import (
     UserIdJSONValidator,
     NewChatJSONValidator,
@@ -29,6 +24,7 @@ from common.ssl_context import create_ssl_context
 
 __all__ = (
     'server',
+    'user_ids_and_potential_interlocutor_ids',
 )
 
 server = WebSocketServer(
@@ -44,7 +40,7 @@ user_ids_and_potential_interlocutor_ids = {}
 
 @server.each_connection_handler
 async def each_connection_handler(user: User) -> None:
-    interlocutor_ids: list[int] = interlocutor_ids_for_user_by_id(user_id=user.id)
+    interlocutor_ids: list[int] = UserChatMatch.all_interlocutors_of_user(user.id).ids()
 
     await server.send_to_many_users(
         user_ids=interlocutor_ids + user_ids_and_potential_interlocutor_ids.get(user.id, []),
@@ -53,10 +49,7 @@ async def each_connection_handler(user: User) -> None:
         })
     )
 
-    result_data = make_online_statuses_data(
-        server=server,
-        user_ids=interlocutor_ids,
-    )
+    result_data = server.make_online_statuses(interlocutor_ids)
     if result_data:
         await server.send_to_one_user(
             user_id=user.id,
@@ -66,7 +59,7 @@ async def each_connection_handler(user: User) -> None:
 
 @server.full_disconnection_handler
 async def full_disconnection_handler(user: User) -> None:
-    interlocutor_ids: list[int] = interlocutor_ids_for_user_by_id(user_id=user.id)
+    interlocutor_ids: list[int] = UserChatMatch.all_interlocutors_of_user(user.id).ids()
 
     await server.send_to_many_users(
         user_ids=interlocutor_ids + user_ids_and_potential_interlocutor_ids.get(user.id, []),
@@ -85,7 +78,7 @@ async def online_status_tracing_adding(user: User, data: dict) -> None:
     await server.send_to_one_user(
         user_id=user.id,
         message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict({
-            data.user_id: server.user_has_connections(user_id=data.user_id)
+            data.user_id: server.user_has_connections(data.user_id)
         })
     )
 
@@ -125,7 +118,7 @@ async def new_chat(user: User, data: dict) -> None:
             message=MessageType.NEW_CHAT.make_json_dict(result_data)
         )
 
-    result_data = make_online_statuses_data(server, data.user_ids)
+    result_data = server.make_online_statuses(data.user_ids)
     for user_id in data.user_ids:
         if user_id not in result_data:  # we are not online
             continue
@@ -156,12 +149,12 @@ async def new_chat_message(user: User, data: dict) -> None:
     )
     db_builder.session.add(chat_message)
 
-    chat_users: list[User] = chat.users()
+    chat_users = chat.users()
     for chat_user in chat_users:
         if chat_user.id == user.id:
             continue
 
-        unread_count: UnreadCount = chat.unread_count_of_user(user_id=chat_user.id)
+        unread_count: UnreadCount = chat.unread_count_of_user(chat_user.id)
         unread_count.increase()
 
         result_data = unread_count.as_json()
@@ -172,10 +165,9 @@ async def new_chat_message(user: User, data: dict) -> None:
 
     db_builder.session.commit()
 
-    chat_user_ids: list[int] = [chat_user.id for chat_user in chat_users]
     result_data = chat_message.as_json()
     await server.send_to_many_users(
-        user_ids=chat_user_ids,
+        user_ids=chat_users.ids(),
         message=MessageType.NEW_CHAT_MESSAGE.make_json_dict(result_data)
     )
 
@@ -186,7 +178,7 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
     data: ChatIdJSONValidator = ChatIdJSONValidator(**data)
     chat: Chat = UserChatMatch.chat_if_user_has_access(user.id, data.chat_id)
 
-    user_ids = user_ids_of_chat_by_id(chat_id=chat.id)
+    user_ids = chat.users().ids()
     user_ids.remove(user.id)
 
     result_data = {

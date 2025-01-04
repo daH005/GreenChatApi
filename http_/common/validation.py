@@ -1,4 +1,4 @@
-from __future__ import annotations
+from typing import Union
 from pydantic import (
     BaseModel,
     constr,
@@ -23,15 +23,15 @@ __all__ = (
 class BaseValidator(BaseModel):
 
     @classmethod
-    def from_json(cls) -> BaseValidator | None:
+    def from_json(cls) -> Union['BaseValidator', None]:
         return cls._from('json')
 
     @classmethod
-    def from_args(cls) -> BaseValidator | None:
+    def from_args(cls) -> Union['BaseValidator', None]:
         return cls._from('args')
 
     @classmethod
-    def _from(cls, attr_name: str) -> BaseValidator | None:
+    def _from(cls, attr_name: str) -> Union['BaseValidator', None]:
         try:
             return cls(**getattr(request, attr_name))
         except ValidationError:

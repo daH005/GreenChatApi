@@ -1,14 +1,13 @@
 import json
 from json import JSONDecodeError
 from traceback import print_exc
-from jwt import decode
 from websockets import WebSocketServerProtocol, ConnectionClosed
 
 from common.hinting import raises
-from websocket_.base.websocket_message import WebSocketMessageJSONDict
 from common.json_keys import JSONKey
 from db.builder import db_builder
 from db.models import User
+from websocket_.base.websocket_message import WebSocketMessageJSONDict
 from websocket_.base.typing_ import CommonHandlerFuncT
 from websocket_.base.logs import logger
 

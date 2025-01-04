@@ -1,41 +1,45 @@
+from typing import Union
+
 from db.json_mixins import (
+    UserListJSONMixin,
     ChatListJSONMixin,
     ChatMessageListJSONMixin,
 )
 
 
 __all__ = (
+    'UserList',
     'ChatList',
     'ChatMessageList',
 )
 
 
-class AbstractList:
+class AbstractList(list[Union['User', 'Chat', 'ChatMessage']]):
 
-    def __init__(self, items):
-        self._items = items
-
-    def __eq__(self, other):
-        if isinstance(other, list):
-            return self._items == other
-        return super().__eq__(other)
-
-    def __iter__(self):
-        return iter(self._items)
-
-    def __getitem__(self, item):
-        return self._items[item]
-
-    def reverse(self):
-        self._items.reverse()
+    def ids(self) -> list[int]:
+        ids = []
+        for obj in self:
+            ids.append(obj.id)
+        return ids
 
 
-class ChatList(AbstractList, ChatListJSONMixin):
+class UserList(AbstractList, UserListJSONMixin, list['User']):
+    pass
+
+
+class ChatList(AbstractList, ChatListJSONMixin, list['Chat']):
 
     def __init__(self, items, user_id):
         super().__init__(items)
         self._user_id = user_id
 
 
-class ChatMessageList(AbstractList, ChatMessageListJSONMixin):
+class ChatMessageList(AbstractList, ChatMessageListJSONMixin, list['ChatMessage']):
     pass
+
+
+from db.models import (
+    User,
+    Chat,
+    ChatMessage,
+)
