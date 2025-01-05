@@ -35,7 +35,7 @@ server = WebSocketServer(
     ssl_context=create_ssl_context(SSL_CERTFILE, SSL_KEYFILE),
 )
 
-user_ids_and_potential_interlocutor_ids = {}
+user_ids_and_potential_interlocutor_ids: dict[int, list[int]] = {}
 
 
 @server.each_connection_handler
@@ -46,14 +46,14 @@ async def each_connection_handler(user: User) -> None:
         user_ids=interlocutor_ids + user_ids_and_potential_interlocutor_ids.get(user.id, []),
         message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict({
             user.id: True,
-        })
+        }),
     )
 
     result_data = server.make_online_statuses(interlocutor_ids)
     if result_data:
         await server.send_to_one_user(
             user_id=user.id,
-            message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict(result_data)
+            message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict(result_data),
         )
 
 
@@ -65,7 +65,7 @@ async def full_disconnection_handler(user: User) -> None:
         user_ids=interlocutor_ids + user_ids_and_potential_interlocutor_ids.get(user.id, []),
         message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict({
             user.id: False,
-        })
+        }),
     )
 
 
@@ -78,8 +78,8 @@ async def online_status_tracing_adding(user: User, data: dict) -> None:
     await server.send_to_one_user(
         user_id=user.id,
         message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict({
-            data.user_id: server.user_has_connections(data.user_id)
-        })
+            data.user_id: server.user_has_connections(data.user_id),
+        }),
     )
 
 
@@ -112,10 +112,11 @@ async def new_chat(user: User, data: dict) -> None:
     db_builder.session.commit()
 
     for user_id in data.user_ids:
-        result_data = chat.as_json(user_id)
         await server.send_to_one_user(
             user_id=user_id,
-            message=MessageType.NEW_CHAT.make_json_dict(result_data)
+            message=MessageType.NEW_CHAT.make_json_dict(
+                chat.as_json(user_id),
+            ),
         )
 
     result_data = server.make_online_statuses(data.user_ids)
@@ -131,7 +132,7 @@ async def new_chat(user: User, data: dict) -> None:
 
         await server.send_to_one_user(
             user_id=user_id,
-            message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict(cur_result_data)
+            message=MessageType.INTERLOCUTORS_ONLINE_STATUSES.make_json_dict(cur_result_data),
         )
 
 
@@ -149,26 +150,29 @@ async def new_chat_message(user: User, data: dict) -> None:
     )
     db_builder.session.add(chat_message)
 
+    unread_count: UnreadCount
     chat_users = chat.users()
     for chat_user in chat_users:
         if chat_user.id == user.id:
             continue
 
-        unread_count: UnreadCount = chat.unread_count_of_user(chat_user.id)
+        unread_count = chat.unread_count_of_user(chat_user.id)
         unread_count.increase()
 
-        result_data = unread_count.as_json()
         await server.send_to_one_user(
             user_id=chat_user.id,
-            message=MessageType.NEW_UNREAD_COUNT.make_json_dict(result_data)
+            message=MessageType.NEW_UNREAD_COUNT.make_json_dict(
+                unread_count.as_json(),
+            ),
         )
 
     db_builder.session.commit()
 
-    result_data = chat_message.as_json()
     await server.send_to_many_users(
         user_ids=chat_users.ids(),
-        message=MessageType.NEW_CHAT_MESSAGE.make_json_dict(result_data)
+        message=MessageType.NEW_CHAT_MESSAGE.make_json_dict(
+            chat_message.as_json(),
+        ),
     )
 
 
@@ -178,16 +182,15 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
     data: ChatIdJSONValidator = ChatIdJSONValidator(**data)
     chat: Chat = UserChatMatch.chat_if_user_has_access(user.id, data.chat_id)
 
-    user_ids = chat.users().ids()
+    user_ids: list[int] = chat.users().ids()
     user_ids.remove(user.id)
 
-    result_data = {
-        JSONKey.CHAT_ID: chat.id,
-        JSONKey.USER_ID: user.id,
-    }
     await server.send_to_many_users(
         user_ids=user_ids,
-        message=MessageType.NEW_CHAT_MESSAGE_TYPING.make_json_dict(result_data)
+        message=MessageType.NEW_CHAT_MESSAGE_TYPING.make_json_dict({
+            JSONKey.CHAT_ID: chat.id,
+            JSONKey.USER_ID: user.id,
+        }),
     )
 
 
@@ -224,18 +227,18 @@ async def chat_message_was_read(user: User, data: dict) -> None:
 
     db_builder.session.commit()
 
-    result_data = unread_count.as_json()
     await server.send_to_one_user(
         user_id=user.id,
-        message=MessageType.NEW_UNREAD_COUNT.make_json_dict(result_data),
+        message=MessageType.NEW_UNREAD_COUNT.make_json_dict(
+            unread_count.as_json(),
+        ),
     )
 
     for sender_id in sender_ids:
-        result_data = {
-            JSONKey.CHAT_ID: chat.id,
-            JSONKey.CHAT_MESSAGE_IDS: read_message_ids,
-        }
         await server.send_to_one_user(
             user_id=sender_id,
-            message=MessageType.READ_CHAT_MESSAGES.make_json_dict(result_data),
+            message=MessageType.READ_CHAT_MESSAGES.make_json_dict({
+                JSONKey.CHAT_ID: chat.id,
+                JSONKey.CHAT_MESSAGE_IDS: read_message_ids,
+            }),
         )

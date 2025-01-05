@@ -11,6 +11,5 @@ def run_celery() -> NoReturn:
     argv = [
         'worker',
         '--loglevel=INFO',
-        '--pool=solo',  # Было сказано, что на Windows есть некий баг, который избегается этим параметром.
     ]
     app.worker_main(argv)

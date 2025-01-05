@@ -16,12 +16,12 @@ app: Flask = create_app(__name__)
 
 
 @app.teardown_appcontext
-def shutdown_db_session(exception=None) -> None:
+def teardown_appcontext(exception: Exception | None = None) -> None:
     if exception:
         print(exception)
     db_builder.session.remove()
 
 
 @app.errorhandler(HTTPException)
-def handle_exception(exception: HTTPException) -> Response:
+def errorhandler(exception: HTTPException) -> Response:
     return make_simple_response(exception.code)

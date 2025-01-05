@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Self
 from sqlalchemy import (
     Integer,
     String,
@@ -100,8 +100,8 @@ class User(BaseModel, UserJSONMixin, UserJWTMixin, UserI):
 
     @classmethod
     @raises(ValueError)
-    def by_email(cls, email: str) -> 'User':
-        user: User | None = db_builder.session.query(cls).filter(cls._email == email).first()
+    def by_email(cls, email: str) -> Self:
+        user: cls | None = db_builder.session.query(cls).filter(cls._email == email).first()
         if user is None:
             raise ValueError
         return user
@@ -114,7 +114,7 @@ class User(BaseModel, UserJSONMixin, UserJWTMixin, UserI):
     def _data_is_already_taken(cls, field_name: str,
                                value: str,
                                ) -> bool:
-        user: User | None = db_builder.session.query(cls).filter(getattr(cls, field_name) == value).first()
+        user: cls | None = db_builder.session.query(cls).filter(getattr(cls, field_name) == value).first()
         return user is not None
 
     def chats(self) -> 'ChatList':
@@ -157,10 +157,10 @@ class Chat(BaseModel, ChatJSONMixin, ChatI):
     @classmethod
     def new_with_all_dependencies(cls, user_ids: list[int],
                                   **kwargs,
-                                  ) -> list[Union['Chat', 'UserChatMatch', 'UnreadCount']]:
-        objects: list[Chat | UserChatMatch | UnreadCount] = []
+                                  ) -> list[Union[Self, 'UserChatMatch', 'UnreadCount']]:
+        objects: list[cls | UserChatMatch | UnreadCount] = []
 
-        chat = cls(**kwargs)
+        chat: cls = cls(**kwargs)
         objects.append(chat)
 
         for user_id in user_ids:
@@ -244,8 +244,8 @@ class ChatMessage(BaseModel, ChatMessageJSONMixin, ChatMessageI):
 
     @classmethod
     @raises(ValueError)
-    def by_storage_id(cls, storage_id: int) -> 'ChatMessage':
-        chat_message: ChatMessage | None = db_builder.session.query(cls).filter(cls._storage_id == storage_id).first()
+    def by_storage_id(cls, storage_id: int) -> Self:
+        chat_message: cls | None = db_builder.session.query(cls).filter(cls._storage_id == storage_id).first()
         if not chat_message:
             raise ValueError
         return chat_message
@@ -285,7 +285,7 @@ class UserChatMatch(BaseModel, UserChatMatchI):
     def chat_if_user_has_access(cls, user_id: int,
                                 chat_id: int,
                                 ) -> 'Chat':
-        match: UserChatMatch | None = db_builder.session.query(cls).filter(
+        match: cls | None = db_builder.session.query(cls).filter(
             cls._user_id == user_id, cls._chat_id == chat_id
         ).first()
         if match is not None:
@@ -299,12 +299,23 @@ class UserChatMatch(BaseModel, UserChatMatchI):
 
     @classmethod
     def chats_of_user(cls, user_id: int) -> 'ChatList':
-        chats = db_builder.session.query(cls, Chat, ChatMessage) \
-            .join(Chat, Chat._id == cls._chat_id) \
-            .join(ChatMessage, Chat._id == ChatMessage._chat_id, isouter=True) \
-            .filter(cls._user_id == user_id) \
-            .order_by(desc(ChatMessage._creating_datetime)) \
-            .with_entities(Chat).all()
+        query = db_builder.session.query(cls, Chat, ChatMessage)
+
+        joined_query = query.join(
+            Chat, Chat._id == cls._chat_id,
+        ).join(
+            ChatMessage, Chat._id == ChatMessage._chat_id,
+            isouter=True,
+        )
+
+        filtered_and_ordered_query = joined_query.filter(
+            cls._user_id == user_id,
+        ).order_by(
+            desc(ChatMessage._creating_datetime),
+        )
+
+        chats: list[Chat] = filtered_and_ordered_query.with_entities(Chat).all()  # type: ignore
+
         return ChatList(chats, user_id)
 
     @classmethod
@@ -324,7 +335,7 @@ class UserChatMatch(BaseModel, UserChatMatchI):
     def private_chat_between_users(cls, first_user_id: int,
                                    second_user_id: int,
                                    ) -> 'Chat':
-        chat_ids = []
+        chat_ids: list[int] = []
 
         matches: list[cls] = db_builder.session.query(cls).filter(  # type: ignore
             (cls._user_id == first_user_id) | (cls._user_id == second_user_id),
@@ -340,18 +351,18 @@ class UserChatMatch(BaseModel, UserChatMatchI):
 
     @classmethod
     def all_interlocutors_of_user(cls, user_id: int) -> 'UserList':
-        interlocutors = set()
+        interlocutors: set[User] = set()  # type: ignore
 
-        chats = cls.chats_of_user(user_id)
+        chats: ChatList = cls.chats_of_user(user_id)
         for chat in chats:
-            users = cls.users_of_chat(chat.id)
-            interlocutors.update(users)
+            users: UserList = cls.users_of_chat(chat.id)
+            interlocutors.update(users)  # type: ignore
 
-        self_user: User = db_builder.session.get(User, user_id)  # noqa
+        self_user: User = db_builder.session.get(User, user_id)  # type: ignore
         if self_user in interlocutors:
-            interlocutors.remove(self_user)
+            interlocutors.remove(self_user)  # type: ignore
 
-        return UserList(interlocutors)
+        return UserList(interlocutors)  # type: ignore
 
     @classmethod
     @raises(PermissionError)
@@ -392,7 +403,7 @@ class UnreadCount(BaseModel, UnreadCountJSONMixin, UnreadCountI):
             self._value = 0  # type: ignore
 
 
-from db.lists import (
+from db.lists import (  # noqa
     UserList,
     ChatList,
     ChatMessageList,

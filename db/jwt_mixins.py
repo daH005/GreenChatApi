@@ -12,8 +12,8 @@ __all__ = (
 
 class UserJWTMixin(UserI):
 
-    def create_access_token(self):
+    def create_access_token(self) -> str:
         return create_access_token(self._email)
 
-    def create_refresh_token(self):
+    def create_refresh_token(self) -> str:
         return create_refresh_token(self._email)

@@ -14,19 +14,18 @@ from db.models import User, ChatMessage
 from http_.common.get_current_user import get_current_user
 
 __all__ = (
-    'STORAGE_ID_PATH',
-    'save_chat_message_files',
+    'save_chat_message_files_and_get_storage_id',
     'chat_message_filenames',
     'chat_message_file_path',
     'check_permissions_decorator',
 )
 
 _FILES_PATH: Final[Path] = MEDIA_FOLDER.joinpath('files')
-STORAGE_ID_PATH: Final[Path] = _FILES_PATH.joinpath('storage_id')
+_STORAGE_ID_PATH: Final[Path] = _FILES_PATH.joinpath('storage_id')
 _MAX_CONTENT_LENGTH: Final[int] = 300 * 1024 * 1024
 
 
-def save_chat_message_files(storage_id: int | None = None) -> int | None:
+def save_chat_message_files_and_get_storage_id(storage_id: int | None = None) -> int:
     if request.content_length > _MAX_CONTENT_LENGTH:
         return abort(HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
 
@@ -37,7 +36,7 @@ def save_chat_message_files(storage_id: int | None = None) -> int | None:
     if storage_id is None:
         storage_id: int = _next_storage_id()
 
-    file_folder_path = _FILES_PATH.joinpath(str(storage_id))
+    file_folder_path: Path = _FILES_PATH.joinpath(str(storage_id))
     if file_folder_path.exists():
         rmtree(file_folder_path)
     file_folder_path.mkdir()
@@ -54,11 +53,11 @@ def save_chat_message_files(storage_id: int | None = None) -> int | None:
 
 
 def _next_storage_id() -> int:
-    if not STORAGE_ID_PATH.exists():
-        STORAGE_ID_PATH.write_text('0')
+    if not _STORAGE_ID_PATH.exists():
+        _STORAGE_ID_PATH.write_text('0')
 
-    storage_id: int = int(STORAGE_ID_PATH.read_text())
-    STORAGE_ID_PATH.write_text(str(storage_id + 1))
+    storage_id: int = int(_STORAGE_ID_PATH.read_text())
+    _STORAGE_ID_PATH.write_text(str(storage_id + 1))
 
     return storage_id
 
@@ -88,7 +87,6 @@ def check_permissions_decorator(func):
             return abort(HTTPStatus.BAD_REQUEST)
 
         user: User = get_current_user()
-
         try:
             ChatMessage.by_storage_id(storage_id).chat.check_user_access(user.id)
         except ValueError:

@@ -25,10 +25,10 @@ from http_.email.codes.functions import (
     delete_email_code,
 )
 from http_.common.apidocs_constants import (
-    EMAIL_CHECK_SPECS,
-    LOGIN_SPECS,
-    LOGOUT_SPECS,
-    REFRESH_ACCESS_SPECS,
+    USER_EMAIL_CHECK_SPECS,
+    USER_LOGIN_SPECS,
+    USER_LOGOUT_SPECS,
+    USER_REFRESH_ACCESS_SPECS,
     USER_INFO_SPECS,
     USER_INFO_EDIT_SPECS,
     USER_CHATS_SPECS,
@@ -45,7 +45,7 @@ general_bp: Blueprint = Blueprint('general', __name__)
 
 
 @general_bp.route(Url.USER_EMAIL_CHECK, methods=[HTTPMethod.GET])
-@swag_from(EMAIL_CHECK_SPECS)
+@swag_from(USER_EMAIL_CHECK_SPECS)
 def email_check():
     try:
         email: str = str(request.args[JSONKey.EMAIL])
@@ -58,7 +58,7 @@ def email_check():
 
 
 @general_bp.route(Url.USER_LOGIN, methods=[HTTPMethod.POST])
-@swag_from(LOGIN_SPECS)
+@swag_from(USER_LOGIN_SPECS)
 def login():
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_json()
 
@@ -68,11 +68,12 @@ def login():
         return abort(HTTPStatus.BAD_REQUEST)
 
     status_code: HTTPStatus
+    user: User
     try:
-        user: User = User.by_email(user_data.email)
+        user = User.by_email(user_data.email)
         status_code = HTTPStatus.OK
     except ValueError:
-        user: User = User(
+        user = User(
             _email=user_data.email,
         )
         db_builder.session.add(user)
@@ -84,17 +85,16 @@ def login():
 
 @general_bp.route(Url.USER_LOGOUT, methods=[HTTPMethod.POST])
 @jwt_required()
-@swag_from(LOGOUT_SPECS)
+@swag_from(USER_LOGOUT_SPECS)
 def logout():
     response: Response = make_simple_response(HTTPStatus.OK)
     unset_jwt_cookies(response)
-
     return response
 
 
 @general_bp.route(Url.USER_REFRESH_ACCESS, methods=[HTTPMethod.POST])
 @jwt_required(refresh=True)
-@swag_from(REFRESH_ACCESS_SPECS)
+@swag_from(USER_REFRESH_ACCESS_SPECS)
 def refresh_access():
     blacklist_token: BlacklistToken = BlacklistToken(_jti=get_jwt()['jti'])
     db_builder.session.add(blacklist_token)
@@ -117,15 +117,14 @@ def _make_access_response(user: User,
 @jwt_required()
 @swag_from(USER_INFO_SPECS)
 def user_info():
-    user_id_as_str: str | None = request.args.get(JSONKey.USER_ID)
-    if user_id_as_str is None:
-        return get_current_user().as_full_json()
-
     try:
-        user: User | None = db_builder.session.get(User, int(user_id_as_str))
+        user_id: int = int(request.args[JSONKey.USER_ID])
+    except KeyError:
+        return get_current_user().as_full_json()
     except ValueError:
         return abort(HTTPStatus.BAD_REQUEST)
 
+    user: User | None = db_builder.session.get(User, user_id)
     if user is None:
         return abort(HTTPStatus.NOT_FOUND)
 

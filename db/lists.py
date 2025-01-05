@@ -29,7 +29,9 @@ class UserList(AbstractList, UserListJSONMixin, list['User']):
 
 class ChatList(AbstractList, ChatListJSONMixin, list['Chat']):
 
-    def __init__(self, items, user_id):
+    def __init__(self, items: list['Chat'],
+                 user_id: int,
+                 ) -> None:
         super().__init__(items)
         self._user_id = user_id
 
@@ -39,7 +41,7 @@ class ChatMessageList(AbstractList, ChatMessageListJSONMixin, list['ChatMessage'
 
 
 from db.models import (
-    User,
-    Chat,
-    ChatMessage,
+    User,  # noqa
+    Chat,  # noqa
+    ChatMessage,  # noqa
 )

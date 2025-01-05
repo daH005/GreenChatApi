@@ -4,7 +4,11 @@ from _tests.common.anything_place import anything
 __all__ = (
     'ORMObjects',
     'Params',
-    'SetForTest',
+    'SetForTestCommonHandlers',
+    'SetForTestCommonHandlersRaises',
+    'SetForTestNewConnects',
+    'SetForTestFullDisconnects',
+    'SetForTestTextHandling',
 )
 
 
@@ -36,7 +40,7 @@ class Params:
     }
 
 
-class SetForTest:
+class SetForTestCommonHandlers:
 
     online_status_tracing_adding_input_and_output = [
         (
@@ -299,11 +303,8 @@ class SetForTest:
         ),
     ]
 
-    all_input_and_output = (online_status_tracing_adding_input_and_output +
-                            new_chat_input_and_output +   # type: ignore
-                            new_chat_message_input_and_output +
-                            new_chat_message_typing_input_and_output +
-                            chat_message_was_read_input_and_output)
+
+class SetForTestCommonHandlersRaises:
 
     new_chat_input_and_raises = [
         (
@@ -367,10 +368,8 @@ class SetForTest:
         ),
     ]
 
-    all_input_and_raises = (new_chat_input_and_raises +
-                            new_chat_message_input_and_raises +  # type: ignore
-                            new_chat_message_typing_input_and_raises +
-                            chat_message_was_read_input_and_raises)
+
+class SetForTestNewConnects:
 
     new_connects = [
         (
@@ -404,6 +403,9 @@ class SetForTest:
         ),
     ]
 
+
+class SetForTestFullDisconnects:
+
     full_disconnects = [
         (
             ORMObjects.users[0],
@@ -427,6 +429,9 @@ class SetForTest:
             },
         ),
     ]
+
+
+class SetForTestTextHandling:
 
     raw_and_handled_texts = [
         (

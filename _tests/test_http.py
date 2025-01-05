@@ -5,10 +5,11 @@ from unittest.mock import patch
 
 from http_.app import app
 from http_.email.codes.functions import delete_email_code, make_and_save_email_code
-from http_.files.functions import STORAGE_ID_PATH
+from http_.files.functions import _STORAGE_ID_PATH
 from _tests.common.assert_and_save_jsons_if_failed import assert_and_save_jsons_if_failed
 from _tests.common.create_test_db import create_test_db
 from _tests.common.values_of_set_cookie_to_dict import values_of_set_cookie_to_dict
+from _tests.common.set_for_test_to_values_and_ids import set_for_test_to_values_and_ids
 from _tests.data.http_ import Params, ORMObjects, SetForTest
 
 _teardown_appcontext_funcs_backup = app.teardown_appcontext_funcs.copy()
@@ -21,7 +22,7 @@ def setup_module() -> None:
     delete_email_code(Params.EMAIL_WITH_CODE)
     make_and_save_email_code(Params.EMAIL_WITH_CODE, Params.EMAIL_CODE)
 
-    STORAGE_ID_PATH.write_text(str(Params.STORAGE_ID))
+    _STORAGE_ID_PATH.write_text(str(Params.STORAGE_ID))
 
     patch('http_.email.tasks.send_code_task.delay').start()
     app.teardown_appcontext_funcs.clear()
@@ -38,7 +39,7 @@ def test_client() -> FlaskClient:
     return app.test_client()
 
 
-@pytest.mark.parametrize('kwargs', SetForTest.all)
+@pytest.mark.parametrize('kwargs', **set_for_test_to_values_and_ids(SetForTest))
 def test_endpoints(test_client: FlaskClient, kwargs) -> None:
     for key, value in kwargs.get('cookies', {}).items():
         test_client.set_cookie(key, value)

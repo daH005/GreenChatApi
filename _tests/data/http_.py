@@ -217,6 +217,32 @@ class SetForTest:
                 'status': 400,
             },
         ),
+        dict(
+            url=Params.Urls.USER_LOGIN_EMAIL_CODE_CHECK,
+            method='GET',
+            query_string={
+                'email': Params.EMAIL_WITH_CODE,
+                'code': Params.EMAIL_CODE * 1000,
+            },
+
+            expected_status_code=400,
+            expected_json_dict={
+                'status': 400,
+            },
+        ),
+        dict(
+            url=Params.Urls.USER_LOGIN_EMAIL_CODE_CHECK,
+            method='GET',
+            query_string={
+                'email': Params.EMAIL_WITH_CODE,
+                'code': 'text',
+            },
+
+            expected_status_code=400,
+            expected_json_dict={
+                'status': 400,
+            },
+        ),
     ]
 
     user_login_email_code_send = [
@@ -230,6 +256,18 @@ class SetForTest:
             expected_status_code=200,
             expected_json_dict={
                 'status': 200,
+            },
+        ),
+        dict(
+            url=Params.Urls.USER_LOGIN_EMAIL_CODE_SEND,
+            method='POST',
+            json_dict={
+                'email': 'what',
+            },
+
+            expected_status_code=400,
+            expected_json_dict={
+                'status': 400,
             },
         ),
         dict(
@@ -495,6 +533,24 @@ class SetForTest:
                 'id': Params.user['_id'] + 1,
                 'firstName': User._first_name.default.arg,
                 'lastName': User._last_name.default.arg,
+            },
+        ),
+        dict(
+            url=Params.Urls.USER_INFO,
+            method='GET',
+            query_string={
+                'userId': 'text',
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+            expected_json_dict={
+                'status': 400,
             },
         ),
         dict(
@@ -922,6 +978,39 @@ class SetForTest:
             url=Params.Urls.CHAT_MESSAGES_FILES_NAMES,
             method='GET',
             query_string={
+                'storageId': '',
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+            expected_json_dict={
+                'status': 400,
+            },
+        ),
+        dict(
+            url=Params.Urls.CHAT_MESSAGES_FILES_NAMES,
+            method='GET',
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+            expected_json_dict={
+                'status': 400,
+            },
+        ),
+        dict(
+            url=Params.Urls.CHAT_MESSAGES_FILES_NAMES,
+            method='GET',
+            query_string={
                 'storageId': Params.STORAGE_ID,
             },
             cookies={
@@ -1011,6 +1100,43 @@ class SetForTest:
             url=Params.Urls.CHAT_MESSAGES_FILES_GET,
             method='GET',
             query_string={
+                'storageId': '',
+                'filename': Params.FILES[0][1],
+            },
+            cookies={
+                'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.SECOND_ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+            expected_json_dict={
+                'status': 400,
+            },
+        ),
+        dict(
+            url=Params.Urls.CHAT_MESSAGES_FILES_GET,
+            method='GET',
+            query_string={
+                'storageId': Params.STORAGE_ID,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+            expected_json_dict={
+                'status': 400,
+            },
+        ),
+        dict(
+            url=Params.Urls.CHAT_MESSAGES_FILES_GET,
+            method='GET',
+            query_string={
                 'storageId': Params.STORAGE_ID,
                 'filename': Params.FILES[1][1],
             },
@@ -1082,21 +1208,3 @@ class SetForTest:
             },
         ),
     ]
-
-    all = (user_login_email_check +
-           user_login_email_code_check +
-           user_login_email_code_send +  # type: ignore
-           user_login +
-           user_logout +
-           user_refresh_access +
-           user_info_edit +
-           user_info +
-           user_chats +
-           user_avatar_edit +
-           user_avatar +
-           user_background_edit +
-           user_background +
-           chat_history +
-           chat_messages_files_save +
-           chat_messages_files_names +
-           chat_messages_files_get)

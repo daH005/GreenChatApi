@@ -6,10 +6,15 @@ from websocket_.validation import NewChatMessageJSONValidator
 from websocket_.server_handlers import server, user_ids_and_potential_interlocutor_ids
 from _tests.common.create_test_db import create_test_db
 from _tests.common.assert_and_save_jsons_if_failed import assert_and_save_jsons_if_failed
+from _tests.common.set_for_test_to_values_and_ids import set_for_test_to_values_and_ids
 from _tests.data.websocket_ import (
     ORMObjects,
     Params,
-    SetForTest,
+    SetForTestCommonHandlers,
+    SetForTestCommonHandlersRaises,
+    SetForTestNewConnects,
+    SetForTestFullDisconnects,
+    SetForTestTextHandling,
 )
 
 real_output = {}
@@ -45,7 +50,7 @@ def teardown_function() -> None:
     real_output.clear()
 
 
-@pytest.mark.parametrize(('input_', 'expected_output'), SetForTest.all_input_and_output)
+@pytest.mark.parametrize(('input_', 'expected_output'), **set_for_test_to_values_and_ids(SetForTestCommonHandlers))
 @pytest.mark.asyncio
 async def test_handle_message(input_,
                               expected_output,
@@ -55,7 +60,7 @@ async def test_handle_message(input_,
     assert_and_save_jsons_if_failed(real_output, expected_output)
 
 
-@pytest.mark.parametrize(('input_', 'expected_exception'), SetForTest.all_input_and_raises)
+@pytest.mark.parametrize(('input_', 'expected_exception'), **set_for_test_to_values_and_ids(SetForTestCommonHandlersRaises))
 @pytest.mark.asyncio
 async def test_handle_message_raises_exception(input_,
                                                expected_exception: type[Exception],
@@ -65,7 +70,7 @@ async def test_handle_message_raises_exception(input_,
         await server.common_handlers_funcs[message['type']](user, message['data'])
 
 
-@pytest.mark.parametrize(('user', 'expected_output'), SetForTest.new_connects)
+@pytest.mark.parametrize(('user', 'expected_output'), **set_for_test_to_values_and_ids(SetForTestNewConnects))
 @pytest.mark.asyncio
 async def test_each_connection_handler(user: User,
                                        expected_output,
@@ -74,7 +79,7 @@ async def test_each_connection_handler(user: User,
     assert_and_save_jsons_if_failed(real_output, expected_output)
 
 
-@pytest.mark.parametrize(('user', 'expected_output'), SetForTest.full_disconnects)
+@pytest.mark.parametrize(('user', 'expected_output'), **set_for_test_to_values_and_ids(SetForTestFullDisconnects))
 @pytest.mark.asyncio
 async def test_full_disconnection_handler(user: User,
                                           expected_output,
@@ -83,7 +88,7 @@ async def test_full_disconnection_handler(user: User,
     assert_and_save_jsons_if_failed(real_output, expected_output)
 
 
-@pytest.mark.parametrize(('raw_text', 'expected_text'), SetForTest.raw_and_handled_texts)
+@pytest.mark.parametrize(('raw_text', 'expected_text'), **set_for_test_to_values_and_ids(SetForTestTextHandling))
 def test_message_text_clearing(raw_text: str,
                                expected_text: str,
                                ) -> None:

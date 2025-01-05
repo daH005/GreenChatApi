@@ -1,8 +1,8 @@
 __all__ = (
-    'EMAIL_CHECK_SPECS',
-    'LOGIN_SPECS',
-    'LOGOUT_SPECS',
-    'REFRESH_ACCESS_SPECS',
+    'USER_EMAIL_CHECK_SPECS',
+    'USER_LOGIN_SPECS',
+    'USER_LOGOUT_SPECS',
+    'USER_REFRESH_ACCESS_SPECS',
     'USER_INFO_SPECS',
     'USER_AVATAR_SPECS',
     'USER_BACKGROUND_SPECS',
@@ -10,8 +10,9 @@ __all__ = (
     'USER_AVATAR_EDIT_SPECS',
     'USER_BACKGROUND_EDIT_SPECS',
     'USER_CHATS_SPECS',
-    'CODE_SEND_SPECS',
-    'CODE_CHECK_SPECS',
+    'USER_EMAIL_CODE_SEND_SPECS',
+    'USER_EMAIL_CODE_CHECK_SPECS',
+
     'CHAT_HISTORY_SPECS',
     'CHAT_MESSAGES_FILES_SAVE_SPECS',
     'CHAT_MESSAGES_FILES_NAMES_SPECS',
@@ -111,7 +112,7 @@ _CHAT_MESSAGE_SCHEMA = {
     },
 }
 
-EMAIL_CHECK_SPECS = {
+USER_EMAIL_CHECK_SPECS = {
     'tags': _USER_TAGS,
     'parameters': [
         {
@@ -136,7 +137,7 @@ EMAIL_CHECK_SPECS = {
     },
 }
 
-LOGIN_SPECS = {
+USER_LOGIN_SPECS = {
     'tags': _USER_TAGS,
     'parameters': [
         {
@@ -164,7 +165,7 @@ LOGIN_SPECS = {
     },
 }
 
-LOGOUT_SPECS = {
+USER_LOGOUT_SPECS = {
     'tags': _USER_TAGS,
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
@@ -175,7 +176,7 @@ LOGOUT_SPECS = {
     },
 }
 
-REFRESH_ACCESS_SPECS = {
+USER_REFRESH_ACCESS_SPECS = {
     'tags': _USER_TAGS,
     'parameters': [
         _REFRESH_TOKEN_COOKIE,
@@ -338,7 +339,7 @@ USER_CHATS_SPECS = {
     }
 }
 
-CODE_SEND_SPECS = {
+USER_EMAIL_CODE_SEND_SPECS = {
     'tags': _USER_TAGS,
     'parameters': [
         _CSRF_TOKEN_HEADER,
@@ -363,7 +364,7 @@ CODE_SEND_SPECS = {
     },
 }
 
-CODE_CHECK_SPECS = {
+USER_EMAIL_CODE_CHECK_SPECS = {
     'tags': _USER_TAGS,
     'parameters': [
         {

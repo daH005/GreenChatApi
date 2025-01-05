@@ -14,6 +14,7 @@ __all__ = (
     'ChatJSONMixin',
     'ChatMessageJSONMixin',
     'UnreadCountJSONMixin',
+    'UserListJSONMixin',
     'ChatListJSONMixin',
     'ChatMessageListJSONMixin'
 )

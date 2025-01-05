@@ -10,8 +10,8 @@ from http_.email.tasks import send_code_task
 from http_.email.codes.functions import make_and_save_email_code, email_code_is_valid
 from http_.common.validation import EmailAndCodeJSONValidator
 from http_.common.apidocs_constants import (
-    CODE_SEND_SPECS,
-    CODE_CHECK_SPECS,
+    USER_EMAIL_CODE_SEND_SPECS,
+    USER_EMAIL_CODE_CHECK_SPECS,
 )
 
 __all__ = (
@@ -22,7 +22,7 @@ email_bp: Blueprint = Blueprint('email', __name__)
 
 
 @email_bp.route(Url.USER_CODE_SEND, methods=[HTTPMethod.POST])
-@swag_from(CODE_SEND_SPECS)
+@swag_from(USER_EMAIL_CODE_SEND_SPECS)
 def code_send():
     try:
         email: str = validate_email(request.json[JSONKey.EMAIL])[1]
@@ -39,11 +39,9 @@ def code_send():
 
 
 @email_bp.route(Url.USER_CODE_CHECK, methods=[HTTPMethod.GET])
-@swag_from(CODE_CHECK_SPECS)
+@swag_from(USER_EMAIL_CODE_CHECK_SPECS)
 def code_check():
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_args()
-
-    flag: bool = email_code_is_valid(user_data.email, user_data.code)
     return {
-        JSONKey.CODE_IS_VALID: flag,
+        JSONKey.CODE_IS_VALID: email_code_is_valid(user_data.email, user_data.code),
     }

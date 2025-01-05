@@ -12,7 +12,7 @@ from http_.common.apidocs_constants import (
     CHAT_MESSAGES_FILES_GET_SPECS,
 )
 from http_.files.functions import (
-    save_chat_message_files,
+    save_chat_message_files_and_get_storage_id,
     chat_message_filenames,
     chat_message_file_path,
     check_permissions_decorator,
@@ -29,7 +29,7 @@ files_bp: Blueprint = Blueprint('files', __name__)
 @jwt_required()
 @swag_from(CHAT_MESSAGES_FILES_SAVE_SPECS)
 def chat_messages_files_save():
-    storage_id: int = save_chat_message_files()
+    storage_id: int = save_chat_message_files_and_get_storage_id()
     return {
         JSONKey.STORAGE_ID: storage_id,
     }, HTTPStatus.CREATED
