@@ -31,8 +31,7 @@ def get_user_image(user_id_as_str: str,
 
 def edit_user_image(folder_path: Path) -> Response:
     avatar_path: Path = _make_user_image_path(str(get_current_user().id), folder_path)
-    with open(avatar_path, 'wb') as f:
-        f.write(request.data)
+    avatar_path.write_bytes(request.data)
 
     return make_simple_response(HTTPStatus.OK)
 
