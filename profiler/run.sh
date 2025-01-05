@@ -1,1 +1,1 @@
-python -m kernprof -l ../main.py
+python -m kernprof -l ./main.py
