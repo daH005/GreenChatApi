@@ -94,7 +94,7 @@ class SetForTestCommonHandlers:
                 {
                     'type': 'newChat',
                     'data': {
-                        'usersIds': [2],
+                        'userIds': [2],
                     },
                 },
             ),
@@ -108,7 +108,7 @@ class SetForTestCommonHandlers:
                             'lastMessage': None,
                             'name': None,
                             'unreadCount': 0,
-                            'usersIds': [2, 1],
+                            'userIds': [2, 1],
                         },
                     },
                     {
@@ -127,7 +127,7 @@ class SetForTestCommonHandlers:
                             'lastMessage': None,
                             'name': None,
                             'unreadCount': 0,
-                            'usersIds': [2, 1],
+                            'userIds': [2, 1],
                         },
                     },
                     {
@@ -295,7 +295,7 @@ class SetForTestCommonHandlers:
                         'type': 'readChatMessages',
                         'data': {
                             'chatId': 1,
-                            'chatMessagesIds': [1, 2],
+                            'chatMessageIds': [1, 2],
                         },
                     },
                 ],
@@ -313,7 +313,7 @@ class SetForTestCommonHandlersRaises:
                 {
                     'type': 'newChat',
                     'data': {
-                        'usersIds': [1, 2],
+                        'userIds': [1, 2],
                     },
                 },
             ),

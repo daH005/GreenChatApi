@@ -75,6 +75,10 @@ class Params:
         ),
     ]
 
+    AVATAR_MAX_BYTES = bytes(300)
+    BACKGROUND_MAX_BYTES = bytes(1000)
+    FILES_MAX_BYTES = bytes(500)
+
     user = dict(
         _id=500000,
         _email='user1@mail.ru',
@@ -616,7 +620,7 @@ class SetForTest:
                             'isRead': False,
                             'creatingDatetime': anything,
                         },
-                        'usersIds': [Params.user['_id']],
+                        'userIds': [Params.user['_id']],
                         'unreadCount': Params.UNREAD_COUNT,
                     }
                 ],
@@ -667,6 +671,22 @@ class SetForTest:
 
             expected_status_code=401,
             expected_json_dict=anything,
+        ),
+        dict(
+            url=Params.Urls.USER_AVATAR_EDIT,
+            method='PUT',
+            data=Params.AVATAR_MAX_BYTES * 2,
+            cookies={
+                'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.SECOND_ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=413,
+            expected_json_dict={
+                'status': 413,
+            },
         ),
     ]
 
@@ -751,6 +771,22 @@ class SetForTest:
 
             expected_status_code=401,
             expected_json_dict=anything,
+        ),
+        dict(
+            url=Params.Urls.USER_BACKGROUND_EDIT,
+            method='PUT',
+            data=Params.BACKGROUND_MAX_BYTES * 2,
+            cookies={
+                'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.SECOND_ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=413,
+            expected_json_dict={
+                'status': 413,
+            },
         ),
     ]
 
@@ -949,6 +985,33 @@ class SetForTest:
 
             expected_status_code=401,
             expected_content=anything,
+        ),
+        dict(
+            url=Params.Urls.CHAT_MESSAGES_FILES_SAVE,
+            method='POST',
+            data={
+                'files': [
+                    (
+                        BytesIO(Params.FILES_MAX_BYTES[:len(Params.FILES_MAX_BYTES) // 4]),
+                        'large1.txt',
+                    ),
+                    (
+                        BytesIO(Params.FILES_MAX_BYTES),
+                        'large2.txt',
+                    ),
+                ],
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=413,
+            expected_json_dict={
+                'status': 413,
+            },
         ),
     ]
 

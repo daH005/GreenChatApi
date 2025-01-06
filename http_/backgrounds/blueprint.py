@@ -5,13 +5,18 @@ from flasgger import swag_from
 from typing import Final
 from pathlib import Path
 
-from config import STATIC_FOLDER, MEDIA_FOLDER
+from config import (
+    STATIC_FOLDER,
+    MEDIA_FOLDER,
+    USER_BACKGROUND_MAX_CONTENT_LENGTH,
+)
 from http_.common.get_current_user import get_current_user
 from http_.common.urls import Url
 from http_.common.apidocs_constants import (
     USER_BACKGROUND_SPECS,
     USER_BACKGROUND_EDIT_SPECS,
 )
+from http_.common.content_length_check_decorator import content_length_check_decorator
 from http_.common.user_images_abstract_endpoints import get_user_image, edit_user_image
 
 __all__ = (
@@ -38,5 +43,6 @@ def user_background():
 @backgrounds_bp.route(Url.USER_BACKGROUND_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_BACKGROUND_EDIT_SPECS)
+@content_length_check_decorator(USER_BACKGROUND_MAX_CONTENT_LENGTH)
 def user_background_edit():
     return edit_user_image(_BACKGROUNDS_PATH)

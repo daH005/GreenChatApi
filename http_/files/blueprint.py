@@ -4,6 +4,7 @@ from flasgger import swag_from
 from flask_jwt_extended import jwt_required
 from pathlib import Path
 
+from config import CHAT_MESSAGE_FILES_MAX_CONTENT_LENGTH
 from common.json_keys import JSONKey
 from http_.common.urls import Url
 from http_.common.apidocs_constants import (
@@ -11,8 +12,9 @@ from http_.common.apidocs_constants import (
     CHAT_MESSAGES_FILES_NAMES_SPECS,
     CHAT_MESSAGES_FILES_GET_SPECS,
 )
+from http_.common.content_length_check_decorator import content_length_check_decorator
 from http_.files.functions import (
-    save_chat_message_files_and_get_storage_id,
+    save_files_and_get_storage_id,
     chat_message_filenames,
     chat_message_file_path,
     check_permissions_decorator,
@@ -28,8 +30,13 @@ files_bp: Blueprint = Blueprint('files', __name__)
 @files_bp.route(Url.CHAT_MESSAGES_FILES_SAVE, methods=[HTTPMethod.POST])
 @jwt_required()
 @swag_from(CHAT_MESSAGES_FILES_SAVE_SPECS)
+@content_length_check_decorator(CHAT_MESSAGE_FILES_MAX_CONTENT_LENGTH)
 def chat_messages_files_save():
-    storage_id: int = save_chat_message_files_and_get_storage_id()
+    files = request.files.getlist('files')
+    if not files:
+        return abort(HTTPStatus.BAD_REQUEST)
+
+    storage_id: int = save_files_and_get_storage_id(files)
     return {
         JSONKey.STORAGE_ID: storage_id,
     }, HTTPStatus.CREATED

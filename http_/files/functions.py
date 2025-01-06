@@ -1,4 +1,5 @@
 from flask import request, abort
+from werkzeug.datastructures.file_storage import FileStorage
 from http import HTTPStatus
 from werkzeug.utils import secure_filename
 from pathlib import Path
@@ -14,7 +15,7 @@ from db.models import User, ChatMessage
 from http_.common.get_current_user import get_current_user
 
 __all__ = (
-    'save_chat_message_files_and_get_storage_id',
+    'save_files_and_get_storage_id',
     'chat_message_filenames',
     'chat_message_file_path',
     'check_permissions_decorator',
@@ -22,17 +23,11 @@ __all__ = (
 
 _FILES_PATH: Final[Path] = MEDIA_FOLDER.joinpath('files')
 _STORAGE_ID_PATH: Final[Path] = _FILES_PATH.joinpath('storage_id')
-_MAX_CONTENT_LENGTH: Final[int] = 300 * 1024 * 1024
 
 
-def save_chat_message_files_and_get_storage_id(storage_id: int | None = None) -> int:
-    if request.content_length > _MAX_CONTENT_LENGTH:
-        return abort(HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-
-    files = request.files.getlist('files')
-    if not files:
-        return abort(HTTPStatus.BAD_REQUEST)
-
+def save_files_and_get_storage_id(files: list[FileStorage],
+                                  storage_id: int | None = None,
+                                  ) -> int:
     if storage_id is None:
         storage_id: int = _next_storage_id()
 

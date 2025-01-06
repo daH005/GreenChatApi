@@ -328,7 +328,7 @@ USER_CHATS_SPECS = {
                     'unreadCount': {
                         'type': 'integer',
                     },
-                    'usersIds': {
+                    'userIds': {
                         'type': 'array',
                         'items': {'type': 'integer'},
                     },

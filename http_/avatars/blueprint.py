@@ -9,13 +9,18 @@ from flasgger import swag_from
 from typing import Final
 from pathlib import Path
 
-from config import STATIC_FOLDER, MEDIA_FOLDER
+from config import (
+    STATIC_FOLDER,
+    MEDIA_FOLDER,
+    USER_AVATAR_MAX_CONTENT_LENGTH,
+)
 from common.json_keys import JSONKey
 from http_.common.urls import Url
 from http_.common.apidocs_constants import (
     USER_AVATAR_SPECS,
     USER_AVATAR_EDIT_SPECS,
 )
+from http_.common.content_length_check_decorator import content_length_check_decorator
 from http_.common.user_images_abstract_endpoints import get_user_image, edit_user_image
 
 __all__ = (
@@ -47,5 +52,6 @@ def user_avatar():
 @avatars_bp.route(Url.USER_AVATAR_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_AVATAR_EDIT_SPECS)
+@content_length_check_decorator(USER_AVATAR_MAX_CONTENT_LENGTH)
 def user_avatar_edit():
     return edit_user_image(_AVATARS_PATH)
