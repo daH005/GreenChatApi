@@ -27,26 +27,26 @@ __all__ = (
 
 class Params:
 
-    class Urls:
+    class UrlsAndMethods:
 
-        USER_LOGIN_EMAIL_CHECK = '/user/login/email/check'
-        USER_LOGIN_EMAIL_CODE_CHECK = '/user/login/email/code/check'
-        USER_LOGIN_EMAIL_CODE_SEND = '/user/login/email/code/send'
-        USER_LOGIN = '/user/login'
-        USER_LOGOUT = '/user/logout'
-        USER_REFRESH_ACCESS = '/user/refreshAccess'
-        USER_INFO_EDIT = '/user/info/edit'
-        USER_INFO = '/user/info'
-        USER_CHATS = '/user/chats'
-        USER_AVATAR_EDIT = '/user/avatar/edit'
-        USER_AVATAR = '/user/avatar'
-        USER_BACKGROUND_EDIT = '/user/background/edit'
-        USER_BACKGROUND = '/user/background'
+        USER_LOGIN_EMAIL_CHECK = '/user/login/email/check', 'GET'
+        USER_LOGIN_EMAIL_CODE_CHECK = '/user/login/email/code/check', 'GET'
+        USER_LOGIN_EMAIL_CODE_SEND = '/user/login/email/code/send', 'POST'
+        USER_LOGIN = '/user/login', 'POST'
+        USER_LOGOUT = '/user/logout', 'POST'
+        USER_REFRESH_ACCESS = '/user/refreshAccess', 'POST'
+        USER_INFO_EDIT = '/user/info/edit', 'PUT'
+        USER_INFO = '/user/info', 'GET'
+        USER_CHATS = '/user/chats', 'GET'
+        USER_AVATAR_EDIT = '/user/avatar/edit', 'PUT'
+        USER_AVATAR = '/user/avatar', 'GET'
+        USER_BACKGROUND_EDIT = '/user/background/edit', 'PUT'
+        USER_BACKGROUND = '/user/background', 'GET'
 
-        CHAT_HISTORY = '/chat/history'
-        CHAT_MESSAGES_FILES_SAVE = '/chat/messages/files/save'
-        CHAT_MESSAGES_FILES_NAMES = '/chat/messages/files/names'
-        CHAT_MESSAGES_FILES_GET = '/chat/messages/files/get'
+        CHAT_HISTORY = '/chat/history', 'GET'
+        CHAT_MESSAGES_FILES_SAVE = '/chat/messages/files/save', 'POST'
+        CHAT_MESSAGES_FILES_NAMES = '/chat/messages/files/names', 'GET'
+        CHAT_MESSAGES_FILES_GET = '/chat/messages/files/get', 'GET'
 
     STORAGE_ID = 100
     UNREAD_COUNT = 70
@@ -151,8 +151,8 @@ class SetForTest:
 
     user_login_email_check = [
         dict(
-            url=Params.Urls.USER_LOGIN_EMAIL_CHECK,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CHECK[0],
+            method=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CHECK[1],
             query_string={
                 'email': 'anyemail@yandex.ru',
             },
@@ -163,8 +163,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.Urls.USER_LOGIN_EMAIL_CHECK,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CHECK[0],
+            method=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CHECK[1],
             query_string={
                 'email': Params.user['_email'],
             },
@@ -175,20 +175,17 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.Urls.USER_LOGIN_EMAIL_CHECK,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CHECK[0],
+            method=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CHECK[1],
 
             expected_status_code=400,
-            expected_json_dict={
-                'status': 400,
-            },
         ),
     ]
 
     user_login_email_code_check = [
         dict(
-            url=Params.Urls.USER_LOGIN_EMAIL_CODE_CHECK,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_CHECK[0],
+            method=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_CHECK[1],
             query_string={
                 'email': 'blabla@mail.ru',
                 'code': 1001,
@@ -200,8 +197,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.Urls.USER_LOGIN_EMAIL_CODE_CHECK,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_CHECK[0],
+            method=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_CHECK[1],
             query_string={
                 'email': Params.EMAIL_WITH_CODE,
                 'code': Params.EMAIL_CODE,
@@ -213,94 +210,73 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.Urls.USER_LOGIN_EMAIL_CODE_CHECK,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_CHECK[0],
+            method=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_CHECK[1],
 
             expected_status_code=400,
-            expected_json_dict={
-                'status': 400,
-            },
         ),
         dict(
-            url=Params.Urls.USER_LOGIN_EMAIL_CODE_CHECK,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_CHECK[0],
+            method=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_CHECK[1],
             query_string={
                 'email': Params.EMAIL_WITH_CODE,
                 'code': Params.EMAIL_CODE * 1000,
             },
 
             expected_status_code=400,
-            expected_json_dict={
-                'status': 400,
-            },
         ),
         dict(
-            url=Params.Urls.USER_LOGIN_EMAIL_CODE_CHECK,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_CHECK[0],
+            method=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_CHECK[1],
             query_string={
                 'email': Params.EMAIL_WITH_CODE,
                 'code': 'text',
             },
 
             expected_status_code=400,
-            expected_json_dict={
-                'status': 400,
-            },
         ),
     ]
 
     user_login_email_code_send = [
         dict(
-            url=Params.Urls.USER_LOGIN_EMAIL_CODE_SEND,
-            method='POST',
+            url=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_SEND[0],
+            method=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_SEND[1],
             json_dict={
                 'email': Params.user['_email'],
             },
 
-            expected_status_code=200,
-            expected_json_dict={
-                'status': 200,
-            },
+            expected_status_code=202,
         ),
         dict(
-            url=Params.Urls.USER_LOGIN_EMAIL_CODE_SEND,
-            method='POST',
+            url=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_SEND[0],
+            method=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_SEND[1],
             json_dict={
                 'email': 'what',
             },
 
             expected_status_code=400,
-            expected_json_dict={
-                'status': 400,
-            },
         ),
         dict(
-            url=Params.Urls.USER_LOGIN_EMAIL_CODE_SEND,
-            method='POST',
+            url=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_SEND[0],
+            method=Params.UrlsAndMethods.USER_LOGIN_EMAIL_CODE_SEND[1],
             json_dict={
                 'email': Params.user['_email'],
             },
 
             expected_status_code=409,
-            expected_json_dict={
-                'status': 409,
-            },
         ),
     ]
 
     user_login = [
         dict(
-            url=Params.Urls.USER_LOGIN,
-            method='POST',
+            url=Params.UrlsAndMethods.USER_LOGIN[0],
+            method=Params.UrlsAndMethods.USER_LOGIN[1],
             json_dict={
                 'email': Params.EMAIL_WITH_CODE,
                 'code': Params.EMAIL_CODE,
             },
 
             expected_status_code=201,
-            expected_json_dict={
-                'status': 201,
-            },
             expected_set_cookie={
                 'access_token_cookie': anything,
                 'csrf_access_token': anything,
@@ -309,17 +285,14 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.Urls.USER_LOGIN,
-            method='POST',
+            url=Params.UrlsAndMethods.USER_LOGIN[0],
+            method=Params.UrlsAndMethods.USER_LOGIN[1],
             json_dict={
                 'email': Params.EMAIL_WITH_CODE,
                 'code': EMAIL_PASS_CODE,
             },
 
             expected_status_code=200,
-            expected_json_dict={
-                'status': 200,
-            },
             expected_set_cookie={
                 'access_token_cookie': anything,
                 'csrf_access_token': anything,
@@ -328,21 +301,18 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.Urls.USER_LOGIN,
-            method='POST',
+            url=Params.UrlsAndMethods.USER_LOGIN[0],
+            method=Params.UrlsAndMethods.USER_LOGIN[1],
             json_dict={},
 
             expected_status_code=400,
-            expected_json_dict={
-                'status': 400,
-            },
         ),
     ]
 
     user_logout = [
         dict(
-            url=Params.Urls.USER_LOGOUT,
-            method='POST',
+            url=Params.UrlsAndMethods.USER_LOGOUT[0],
+            method=Params.UrlsAndMethods.USER_LOGOUT[1],
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
             },
@@ -351,9 +321,6 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
-                'status': 200,
-            },
             expected_set_cookie={
                 'access_token_cookie': anything,
                 'csrf_access_token': anything,
@@ -362,8 +329,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.Urls.USER_LOGOUT,
-            method='POST',
+            url=Params.UrlsAndMethods.USER_LOGOUT[0],
+            method=Params.UrlsAndMethods.USER_LOGOUT[1],
             cookies={
                 'access_token_cookie': create_access_token('what'),
             },
@@ -378,8 +345,8 @@ class SetForTest:
 
     user_refresh_access = [
         dict(
-            url=Params.Urls.USER_REFRESH_ACCESS,
-            method='POST',
+            url=Params.UrlsAndMethods.USER_REFRESH_ACCESS[0],
+            method=Params.UrlsAndMethods.USER_REFRESH_ACCESS[1],
             cookies={
                 'refresh_token_cookie': Params.REFRESH_TOKEN,
             },
@@ -388,9 +355,6 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
-                'status': 200,
-            },
             expected_set_cookie={
                 'access_token_cookie': anything,
                 'csrf_access_token': anything,
@@ -399,8 +363,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.Urls.USER_REFRESH_ACCESS,
-            method='POST',
+            url=Params.UrlsAndMethods.USER_REFRESH_ACCESS[0],
+            method=Params.UrlsAndMethods.USER_REFRESH_ACCESS[1],
             cookies={
                 'refresh_token_cookie': Params.REFRESH_TOKEN,
             },
@@ -412,8 +376,8 @@ class SetForTest:
             expected_json_dict=anything,
         ),
         dict(
-            url=Params.Urls.USER_REFRESH_ACCESS,
-            method='POST',
+            url=Params.UrlsAndMethods.USER_REFRESH_ACCESS[0],
+            method=Params.UrlsAndMethods.USER_REFRESH_ACCESS[1],
             cookies={
                 'refresh_token_cookie': create_refresh_token('what'),
             },
@@ -428,8 +392,8 @@ class SetForTest:
 
     user_info_edit = [
         dict(
-            url=Params.Urls.USER_INFO_EDIT,
-            method='PUT',
+            url=Params.UrlsAndMethods.USER_INFO_EDIT[0],
+            method=Params.UrlsAndMethods.USER_INFO_EDIT[1],
             json_dict={
                 'firstName': Params.FIRST_NAME,
                 'lastName': Params.LAST_NAME,
@@ -442,13 +406,10 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
-                'status': 200,
-            },
         ),
         dict(
-            url=Params.Urls.USER_INFO_EDIT,
-            method='PUT',
+            url=Params.UrlsAndMethods.USER_INFO_EDIT[0],
+            method=Params.UrlsAndMethods.USER_INFO_EDIT[1],
             json_dict={
                 'firstName': '',
                 'lastName': ''
@@ -461,13 +422,10 @@ class SetForTest:
             },
 
             expected_status_code=400,
-            expected_json_dict={
-                'status': 400,
-            },
         ),
         dict(
-            url=Params.Urls.USER_INFO_EDIT,
-            method='PUT',
+            url=Params.UrlsAndMethods.USER_INFO_EDIT[0],
+            method=Params.UrlsAndMethods.USER_INFO_EDIT[1],
             json_dict={},
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -477,13 +435,10 @@ class SetForTest:
             },
 
             expected_status_code=400,
-            expected_json_dict={
-                'status': 400,
-            },
         ),
         dict(
-            url=Params.Urls.USER_INFO_EDIT,
-            method='PUT',
+            url=Params.UrlsAndMethods.USER_INFO_EDIT[0],
+            method=Params.UrlsAndMethods.USER_INFO_EDIT[1],
             json_dict={
                 'firstName': 'fff',
                 'lastName': 'fff'
@@ -502,8 +457,8 @@ class SetForTest:
 
     user_info = [
         dict(
-            url=Params.Urls.USER_INFO,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_INFO[0],
+            method=Params.UrlsAndMethods.USER_INFO[1],
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
             },
@@ -520,8 +475,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.Urls.USER_INFO,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_INFO[0],
+            method=Params.UrlsAndMethods.USER_INFO[1],
             query_string={
                 'userId': Params.user['_id'] + 1,
             },
@@ -540,8 +495,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.Urls.USER_INFO,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_INFO[0],
+            method=Params.UrlsAndMethods.USER_INFO[1],
             query_string={
                 'userId': 'text',
             },
@@ -553,13 +508,10 @@ class SetForTest:
             },
 
             expected_status_code=400,
-            expected_json_dict={
-                'status': 400,
-            },
         ),
         dict(
-            url=Params.Urls.USER_INFO,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_INFO[0],
+            method=Params.UrlsAndMethods.USER_INFO[1],
             query_string={
                 'userId': Params.user['_id'],
             },
@@ -574,8 +526,8 @@ class SetForTest:
             expected_json_dict=anything,
         ),
         dict(
-            url=Params.Urls.USER_INFO,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_INFO[0],
+            method=Params.UrlsAndMethods.USER_INFO[1],
             query_string={
                 'userId': 1333,
             },
@@ -587,16 +539,13 @@ class SetForTest:
             },
 
             expected_status_code=404,
-            expected_json_dict={
-                'status': 404,
-            },
         ),
     ]
 
     user_chats = [
         dict(
-            url=Params.Urls.USER_CHATS,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_CHATS[0],
+            method=Params.UrlsAndMethods.USER_CHATS[1],
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
             },
@@ -627,8 +576,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.Urls.USER_CHATS,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_CHATS[0],
+            method=Params.UrlsAndMethods.USER_CHATS[1],
             cookies={
                 'access_token_cookie': create_access_token('what'),
             },
@@ -643,8 +592,8 @@ class SetForTest:
 
     user_avatar_edit = [
         dict(
-            url=Params.Urls.USER_AVATAR_EDIT,
-            method='PUT',
+            url=Params.UrlsAndMethods.USER_AVATAR_EDIT[0],
+            method=Params.UrlsAndMethods.USER_AVATAR_EDIT[1],
             data=Params.AVATAR_BYTES,
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -654,13 +603,10 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
-                'status': 200,
-            },
         ),
         dict(
-            url=Params.Urls.USER_AVATAR_EDIT,
-            method='PUT',
+            url=Params.UrlsAndMethods.USER_AVATAR_EDIT[0],
+            method=Params.UrlsAndMethods.USER_AVATAR_EDIT[1],
             data=Params.AVATAR_BYTES,
             cookies={
                 'access_token_cookie': create_access_token('what'),
@@ -673,8 +619,8 @@ class SetForTest:
             expected_json_dict=anything,
         ),
         dict(
-            url=Params.Urls.USER_AVATAR_EDIT,
-            method='PUT',
+            url=Params.UrlsAndMethods.USER_AVATAR_EDIT[0],
+            method=Params.UrlsAndMethods.USER_AVATAR_EDIT[1],
             data=Params.AVATAR_MAX_BYTES * 2,
             cookies={
                 'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
@@ -684,16 +630,13 @@ class SetForTest:
             },
 
             expected_status_code=413,
-            expected_json_dict={
-                'status': 413,
-            },
         ),
     ]
 
     user_avatar = [
         dict(
-            url=Params.Urls.USER_AVATAR,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_AVATAR[0],
+            method=Params.UrlsAndMethods.USER_AVATAR[1],
             query_string={
                 'userId':Params.user['_id'],
             },
@@ -708,8 +651,8 @@ class SetForTest:
             expected_content=Params.AVATAR_BYTES,
         ),
         dict(
-            url=Params.Urls.USER_AVATAR,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_AVATAR[0],
+            method=Params.UrlsAndMethods.USER_AVATAR[1],
             query_string={
                 'userId': 1333,
             },
@@ -724,8 +667,8 @@ class SetForTest:
             expected_content=_DEFAULT_AVATAR_PATH.read_bytes(),
         ),
         dict(
-            url=Params.Urls.USER_AVATAR,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_AVATAR[0],
+            method=Params.UrlsAndMethods.USER_AVATAR[1],
             query_string={
                 'userId': Params.user['_id'],
             },
@@ -743,8 +686,8 @@ class SetForTest:
 
     user_background_edit = [
         dict(
-            url=Params.Urls.USER_BACKGROUND_EDIT,
-            method='PUT',
+            url=Params.UrlsAndMethods.USER_BACKGROUND_EDIT[0],
+            method=Params.UrlsAndMethods.USER_BACKGROUND_EDIT[1],
             data=Params.BACKGROUND_BYTES,
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -754,13 +697,10 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
-                'status': 200,
-            },
         ),
         dict(
-            url=Params.Urls.USER_BACKGROUND_EDIT,
-            method='PUT',
+            url=Params.UrlsAndMethods.USER_BACKGROUND_EDIT[0],
+            method=Params.UrlsAndMethods.USER_BACKGROUND_EDIT[1],
             data=Params.BACKGROUND_BYTES,
             cookies={
                 'access_token_cookie': create_access_token('what'),
@@ -773,8 +713,8 @@ class SetForTest:
             expected_json_dict=anything,
         ),
         dict(
-            url=Params.Urls.USER_BACKGROUND_EDIT,
-            method='PUT',
+            url=Params.UrlsAndMethods.USER_BACKGROUND_EDIT[0],
+            method=Params.UrlsAndMethods.USER_BACKGROUND_EDIT[1],
             data=Params.BACKGROUND_MAX_BYTES * 2,
             cookies={
                 'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
@@ -784,16 +724,13 @@ class SetForTest:
             },
 
             expected_status_code=413,
-            expected_json_dict={
-                'status': 413,
-            },
         ),
     ]
 
     user_background = [
         dict(
-            url=Params.Urls.USER_BACKGROUND,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_BACKGROUND[0],
+            method=Params.UrlsAndMethods.USER_BACKGROUND[1],
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
             },
@@ -805,8 +742,8 @@ class SetForTest:
             expected_content=Params.BACKGROUND_BYTES,
         ),
         dict(
-            url=Params.Urls.USER_BACKGROUND,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_BACKGROUND[0],
+            method=Params.UrlsAndMethods.USER_BACKGROUND[1],
             cookies={
                 'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
             },
@@ -818,8 +755,8 @@ class SetForTest:
             expected_content=_DEFAULT_BACKGROUND_PATH.read_bytes(),
         ),
         dict(
-            url=Params.Urls.USER_BACKGROUND,
-            method='GET',
+            url=Params.UrlsAndMethods.USER_BACKGROUND[0],
+            method=Params.UrlsAndMethods.USER_BACKGROUND[1],
             cookies={
                 'access_token_cookie': create_access_token('what'),
             },
@@ -834,8 +771,8 @@ class SetForTest:
 
     chat_history = [
         dict(
-            url=Params.Urls.CHAT_HISTORY,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
+            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
             query_string={
                 'chatId': 1,
             },
@@ -880,8 +817,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.Urls.CHAT_HISTORY,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
+            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
             query_string={
                 'chatId': 2,
             },
@@ -893,13 +830,10 @@ class SetForTest:
             },
 
             expected_status_code=403,
-            expected_json_dict={
-                'status': 403,
-            },
         ),
         dict(
-            url=Params.Urls.CHAT_HISTORY,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
+            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
             query_string={
                 'chatId': 3333,  # instead of 404
             },
@@ -911,13 +845,10 @@ class SetForTest:
             },
 
             expected_status_code=403,
-            expected_json_dict={
-                'status': 403,
-            },
         ),
         dict(
-            url=Params.Urls.CHAT_HISTORY,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
+            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
             query_string={
                 'chatId': 1,
             },
@@ -932,8 +863,8 @@ class SetForTest:
             expected_json_dict=anything,
         ),
         dict(
-            url=Params.Urls.CHAT_HISTORY,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
+            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
             query_string={
                 'chatId': 'what',
             },
@@ -945,16 +876,13 @@ class SetForTest:
             },
 
             expected_status_code=400,
-            expected_json_dict={
-                'status': 400,
-            },
         ),
     ]
 
     chat_messages_files_save = [
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_SAVE,
-            method='POST',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_SAVE[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_SAVE[1],
             data={
                 'files': deepcopy(Params.FILES),
             },
@@ -971,8 +899,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_SAVE,
-            method='POST',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_SAVE[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_SAVE[1],
             data={
                 'files': deepcopy(Params.FILES),
             },
@@ -987,8 +915,8 @@ class SetForTest:
             expected_content=anything,
         ),
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_SAVE,
-            method='POST',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_SAVE[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_SAVE[1],
             data={
                 'files': [
                     (
@@ -1009,16 +937,13 @@ class SetForTest:
             },
 
             expected_status_code=413,
-            expected_json_dict={
-                'status': 413,
-            },
         ),
     ]
 
     chat_messages_files_names = [
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_NAMES,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_NAMES[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
             },
@@ -1038,8 +963,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_NAMES,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_NAMES[1],
             query_string={
                 'storageId': '',
             },
@@ -1051,13 +976,10 @@ class SetForTest:
             },
 
             expected_status_code=400,
-            expected_json_dict={
-                'status': 400,
-            },
         ),
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_NAMES,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_NAMES[1],
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
             },
@@ -1066,13 +988,10 @@ class SetForTest:
             },
 
             expected_status_code=400,
-            expected_json_dict={
-                'status': 400,
-            },
         ),
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_NAMES,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_NAMES[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
             },
@@ -1087,8 +1006,8 @@ class SetForTest:
             expected_json_dict=anything,
         ),
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_NAMES,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_NAMES[1],
             query_string={
                 'storageId': 3333,
             },
@@ -1100,13 +1019,10 @@ class SetForTest:
             },
 
             expected_status_code=404,
-            expected_json_dict={
-                'status': 404,
-            },
         ),
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_NAMES,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_NAMES[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
             },
@@ -1118,16 +1034,13 @@ class SetForTest:
             },
 
             expected_status_code=403,
-            expected_json_dict={
-                'status': 403,
-            },
         ),
     ]
 
     chat_messages_files_get = [
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_GET,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
                 'filename': Params.FILES[0][1],
@@ -1143,8 +1056,8 @@ class SetForTest:
             expected_content=Params.FILE_CONTENTS[0],
         ),
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_GET,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
                 'filename': Params.FILES[1][1],
@@ -1160,8 +1073,8 @@ class SetForTest:
             expected_content=Params.FILE_CONTENTS[1],
         ),
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_GET,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[1],
             query_string={
                 'storageId': '',
                 'filename': Params.FILES[0][1],
@@ -1174,13 +1087,10 @@ class SetForTest:
             },
 
             expected_status_code=400,
-            expected_json_dict={
-                'status': 400,
-            },
         ),
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_GET,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
             },
@@ -1192,13 +1102,10 @@ class SetForTest:
             },
 
             expected_status_code=400,
-            expected_json_dict={
-                'status': 400,
-            },
         ),
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_GET,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
                 'filename': Params.FILES[1][1],
@@ -1214,8 +1121,8 @@ class SetForTest:
             expected_content=anything,
         ),
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_GET,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
                 'filename': Params.FILES[0][1],
@@ -1228,13 +1135,10 @@ class SetForTest:
             },
 
             expected_status_code=403,
-            expected_json_dict={
-                'status': 403,
-            },
         ),
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_GET,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
                 'filename': 'blabla.txt',
@@ -1247,13 +1151,10 @@ class SetForTest:
             },
 
             expected_status_code=404,
-            expected_json_dict={
-                'status': 404,
-            },
         ),
         dict(
-            url=Params.Urls.CHAT_MESSAGES_FILES_GET,
-            method='GET',
+            url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_GET[1],
             query_string={
                 'storageId': 13333,
                 'filename': 'blabla.txt',
@@ -1266,8 +1167,5 @@ class SetForTest:
             },
 
             expected_status_code=404,
-            expected_json_dict={
-                'status': 404,
-            },
         ),
     ]
