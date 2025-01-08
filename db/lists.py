@@ -5,7 +5,11 @@ from db.json_mixins import (
     ChatListJSONMixin,
     ChatMessageListJSONMixin,
 )
-
+from db.i import (
+    UserListI,
+    ChatListI,
+    ChatMessageListI,
+)
 
 __all__ = (
     'UserList',
@@ -23,11 +27,11 @@ class AbstractList(list[Union['User', 'Chat', 'ChatMessage']]):
         return ids
 
 
-class UserList(AbstractList, UserListJSONMixin, list['User']):
+class UserList(AbstractList, UserListJSONMixin, UserListI, list['User']):
     pass
 
 
-class ChatList(AbstractList, ChatListJSONMixin, list['Chat']):
+class ChatList(AbstractList, ChatListJSONMixin, ChatListI, list['Chat']):
 
     def __init__(self, items: list['Chat'],
                  user_id: int,
@@ -36,7 +40,7 @@ class ChatList(AbstractList, ChatListJSONMixin, list['Chat']):
         self._user_id = user_id
 
 
-class ChatMessageList(AbstractList, ChatMessageListJSONMixin, list['ChatMessage']):
+class ChatMessageList(AbstractList, ChatMessageListJSONMixin, ChatMessageListI, list['ChatMessage']):
     pass
 
 
