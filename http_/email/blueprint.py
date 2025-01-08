@@ -35,7 +35,7 @@ def code_send():
         raise abort(HTTPStatus.CONFLICT)
     send_code_task.delay(to=email, code=code)
 
-    return make_simple_response(HTTPStatus.OK)
+    return make_simple_response(HTTPStatus.ACCEPTED)
 
 
 @email_bp.route(Url.USER_CODE_CHECK, methods=[HTTPMethod.GET])
