@@ -1,4 +1,4 @@
-from flask import Response, make_response, jsonify
+from flask import Response, make_response
 from http import HTTPStatus
 
 __all__ = (
@@ -7,4 +7,4 @@ __all__ = (
 
 
 def make_simple_response(status: HTTPStatus | int) -> Response:
-    return make_response(jsonify(status=status), status)
+    return make_response('', status)
