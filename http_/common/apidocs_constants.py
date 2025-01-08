@@ -20,28 +20,18 @@ __all__ = (
 )
 
 
-def _make_simple_request_response(status_code: int) -> dict:
-    return {
-        'schema': {
-            'type': 'object',
-            'properties': {
-                'status': {'type': 'integer', 'example': status_code}
-            },
-        }
-    }
-
-
 _USER_TAGS = ['User']
 _CHAT_TAGS = ['Chat']
 
 _SIMPLE_REQUEST_RESPONSES = {
-    200: _make_simple_request_response(200),
-    201: _make_simple_request_response(201),
-    400: _make_simple_request_response(400),
-    403: _make_simple_request_response(403),
-    404: _make_simple_request_response(404),
-    409: _make_simple_request_response(409),
-    413: _make_simple_request_response(413),
+    200: {},
+    201: {},
+    202: {},
+    400: {},
+    403: {},
+    404: {},
+    409: {},
+    413: {},
 }
 
 _ACCESS_TOKEN_COOKIE = {
@@ -358,7 +348,7 @@ USER_EMAIL_CODE_SEND_SPECS = {
         },
     ],
     'responses': {
-        200: _SIMPLE_REQUEST_RESPONSES[200],
+        202: _SIMPLE_REQUEST_RESPONSES[202],
         400: _SIMPLE_REQUEST_RESPONSES[400],
         409: _SIMPLE_REQUEST_RESPONSES[409],
     },
