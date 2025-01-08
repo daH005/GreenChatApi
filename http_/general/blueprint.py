@@ -75,9 +75,7 @@ def login():
         user = User.by_email(user_data.email)
         status_code = HTTPStatus.OK
     except ValueError:
-        user = User(
-            _email=user_data.email,
-        )
+        user = User.create(user_data.email)
         db_builder.session.add(user)
         db_builder.session.commit()
         status_code = HTTPStatus.CREATED
@@ -99,7 +97,8 @@ def logout():
 @swag_from(USER_REFRESH_ACCESS_SPECS)
 @transaction_retry_decorator()
 def refresh_access():
-    blacklist_token: BlacklistToken = BlacklistToken(_jti=get_jwt()['jti'])
+    jti: str = get_jwt()['jti']
+    blacklist_token: BlacklistToken = BlacklistToken.create(jti)
     db_builder.session.add(blacklist_token)
     db_builder.session.commit()
 

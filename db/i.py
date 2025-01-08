@@ -25,6 +25,10 @@ class BaseI:
 class BlacklistTokenI:
     _jti: str
 
+    @classmethod
+    def create(cls, jti: str) -> Self:
+        raise NotImplementedError
+
     @property
     def jti(self) -> str:
         raise NotImplementedError
@@ -42,6 +46,10 @@ class UserI(BaseI):
 
     _chat_messages: list['ChatMessageI']
     _user_chats_matches: list['UserChatMatchI']
+
+    @classmethod
+    def create(cls, email: str) -> Self:
+        raise NotImplementedError
 
     @property
     def email(self) -> str:
@@ -85,6 +93,12 @@ class ChatI(BaseI):
 
     _messages: list['ChatMessageI']
     _user_chat_matches: list['UserChatMatchI']
+
+    @classmethod
+    def create(cls, name: str | None = None,
+               is_group: bool = False,
+               ) -> Self:
+        raise NotImplementedError
 
     @property
     def name(self) -> str | None:
@@ -134,6 +148,14 @@ class ChatMessageI(BaseI):
 
     _user: 'UserI'
     _chat: 'ChatI'
+
+    @classmethod
+    def create(cls, text: str,
+               user: 'UserI',
+               chat: 'ChatI',
+               storage_id: int,
+               ) -> Self:
+        raise NotImplementedError
 
     @property
     def text(self) -> str:

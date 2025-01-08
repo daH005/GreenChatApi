@@ -106,8 +106,8 @@ async def new_chat(user: User, data: dict) -> None:
 
     chat, *objects = Chat.new_with_all_dependencies(
         data.user_ids,
-        _name=data.name,
-        _is_group=data.is_group,
+        name=data.name,
+        is_group=data.is_group,
     )
 
     db_builder.session.add_all([chat, *objects])
@@ -145,11 +145,11 @@ async def new_chat_message(user: User, data: dict) -> None:
     data: NewChatMessageJSONValidator = NewChatMessageJSONValidator(**data)
 
     chat: Chat = UserChatMatch.chat_if_user_has_access(user.id, data.chat_id)
-    chat_message: ChatMessage = ChatMessage(
-        _user=user,
-        _chat=chat,
-        _text=data.text,
-        _storage_id=data.storage_id,
+    chat_message: ChatMessage = ChatMessage.create(
+        text=data.text,
+        user=user,
+        chat=chat,
+        storage_id=data.storage_id,
     )
     db_builder.session.add(chat_message)
 

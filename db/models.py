@@ -61,6 +61,10 @@ class BlacklistToken(BaseModel, BlacklistTokenI):
 
     _jti: Mapped[str] = mapped_column(String(500), unique=True)
 
+    @classmethod
+    def create(cls, jti: str) -> Self:
+        return cls(_jti=jti)
+
     @property
     def jti(self) -> str:
         return self._jti
@@ -85,6 +89,10 @@ class User(BaseModel, UserJSONMixin, UserJWTMixin, UserI):
         back_populates='_user',
         cascade='all, delete',
     )
+
+    @classmethod
+    def create(cls, email: str) -> Self:
+        return cls(_email=email)
 
     @property
     def email(self) -> str:
@@ -146,21 +154,13 @@ class Chat(BaseModel, ChatJSONMixin, ChatI):
         cascade='all, delete',
     )
 
-    @property
-    def name(self) -> str | None:
-        return self._name
-
-    @property
-    def is_group(self) -> bool:
-        return self._is_group
-
     @classmethod
     def new_with_all_dependencies(cls, user_ids: list[int],
                                   **kwargs,
                                   ) -> list[Union[Self, 'UserChatMatch', 'UnreadCount']]:
         objects: list[cls | UserChatMatch | UnreadCount] = []
 
-        chat: cls = cls(**kwargs)
+        chat: cls = cls.create(**kwargs)
         objects.append(chat)
 
         for user_id in user_ids:
@@ -176,6 +176,20 @@ class Chat(BaseModel, ChatJSONMixin, ChatI):
             objects += [match, unread_count]
 
         return objects
+
+    @classmethod
+    def create(cls, name: str | None = None,
+               is_group: bool = False,
+               ) -> Self:
+        return cls(_name=name, _is_group=is_group)
+
+    @property
+    def name(self) -> str | None:
+        return self._name
+
+    @property
+    def is_group(self) -> bool:
+        return self._is_group
 
     @property
     @raises(IndexError)
@@ -217,6 +231,14 @@ class ChatMessage(BaseModel, ChatMessageJSONMixin, ChatMessageI):
 
     _user: Mapped['User'] = relationship(back_populates='_chat_messages', uselist=False)
     _chat: Mapped['Chat'] = relationship(back_populates='_messages', uselist=False)
+
+    @classmethod
+    def create(cls, text: str,
+               user: 'User',
+               chat: 'Chat',
+               storage_id: int,
+               ) -> Self:
+        return cls(_text=text, _user=user, _chat=chat, _storage_id=storage_id)
 
     @property
     def text(self) -> str:
