@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Union
+from typing import Union, Self
 
 __all__ = (
     'BlacklistTokenI',
@@ -56,7 +56,7 @@ class UserI(BaseI):
         raise NotImplementedError
 
     @classmethod
-    def by_email(cls, email: str) -> 'UserI':
+    def by_email(cls, email: str) -> Self:
         raise NotImplementedError
 
     @classmethod
@@ -69,7 +69,7 @@ class UserI(BaseI):
                                ) -> bool:
         raise NotImplementedError
 
-    def chats(self) -> list['ChatI']:
+    def chats(self) -> 'ChatListI':
         raise NotImplementedError
 
     def set_info(self, first_name: str | None = None,
@@ -97,23 +97,23 @@ class ChatI(BaseI):
     @classmethod
     def new_with_all_dependencies(cls, user_ids: list[int],
                                   **kwargs,
-                                  ) -> list[Union['ChatI', 'UserChatMatchI', 'UnreadCountI']]:
+                                  ) -> list[Union[Self, 'UserChatMatchI', 'UnreadCountI']]:
         raise NotImplementedError
 
     @property
     def last_message(self) -> 'ChatMessageI':
         raise NotImplementedError
 
-    def messages(self) -> list['ChatMessageI']:
+    def messages(self) -> 'ChatMessageListI':
         raise NotImplementedError
 
-    def users(self) -> list['UserI']:
+    def users(self) -> 'UserListI':
         raise NotImplementedError
 
     def check_user_access(self, user_id: int) -> None:
         raise NotImplementedError
 
-    def unread_messages_of_user(self, user_id: int) -> list['ChatMessageI']:
+    def unread_messages_of_user(self, user_id: int) -> 'ChatMessageListI':
         raise NotImplementedError
 
     def interlocutor_of_user(self, user_id: int) -> 'UserI':
@@ -160,7 +160,7 @@ class ChatMessageI(BaseI):
         raise NotImplementedError
 
     @classmethod
-    def by_storage_id(cls, storage_id: int) -> 'ChatMessageI':
+    def by_storage_id(cls, storage_id: int) -> Self:
         raise NotImplementedError
 
     def read(self) -> None:
@@ -195,11 +195,11 @@ class UserChatMatchI(BaseI):
         raise NotImplementedError
 
     @classmethod
-    def users_of_chat(cls, chat_id: int) -> list['UserI']:
+    def users_of_chat(cls, chat_id: int) -> 'UserListI':
         raise NotImplementedError
 
     @classmethod
-    def chats_of_user(cls, user_id: int) -> list['ChatI']:
+    def chats_of_user(cls, user_id: int) -> 'ChatListI':
         raise NotImplementedError
 
     @classmethod
@@ -215,7 +215,7 @@ class UserChatMatchI(BaseI):
         raise NotImplementedError
 
     @classmethod
-    def all_interlocutors_of_user(cls, user_id: int) -> list['UserI']:
+    def all_interlocutors_of_user(cls, user_id: int) -> 'UserListI':
         raise NotImplementedError
 
     @classmethod
