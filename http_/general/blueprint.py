@@ -16,6 +16,7 @@ from flasgger import swag_from
 
 from db.builder import db_builder
 from db.models import User, UserChatMatch, BlacklistToken
+from db.transaction_retry_decorator import transaction_retry_decorator
 from common.json_keys import JSONKey
 from http_.common.get_current_user import get_current_user
 from http_.common.simple_response import make_simple_response
@@ -59,6 +60,7 @@ def email_check():
 
 @general_bp.route(Url.USER_LOGIN, methods=[HTTPMethod.POST])
 @swag_from(USER_LOGIN_SPECS)
+@transaction_retry_decorator()
 def login():
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_json()
 
@@ -95,6 +97,7 @@ def logout():
 @general_bp.route(Url.USER_REFRESH_ACCESS, methods=[HTTPMethod.POST])
 @jwt_required(refresh=True)
 @swag_from(USER_REFRESH_ACCESS_SPECS)
+@transaction_retry_decorator()
 def refresh_access():
     blacklist_token: BlacklistToken = BlacklistToken(_jti=get_jwt()['jti'])
     db_builder.session.add(blacklist_token)
@@ -134,6 +137,7 @@ def user_info():
 @general_bp.route(Url.USER_INFO_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_INFO_EDIT_SPECS)
+@transaction_retry_decorator()
 def user_info_edit():
     data: UserJSONValidator = UserJSONValidator.from_json()
 

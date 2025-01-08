@@ -11,6 +11,7 @@ from db.models import (
     UnreadCount,
 )
 from db.builder import db_builder
+from db.transaction_retry_decorator import transaction_retry_decorator
 from websocket_.base.server import WebSocketServer
 from websocket_.message_types import MessageType
 from websocket_.validation import (
@@ -84,6 +85,7 @@ async def online_status_tracing_adding(user: User, data: dict) -> None:
 
 
 @server.common_handler(MessageType.NEW_CHAT)
+@transaction_retry_decorator()
 @raises(ValidationError, ValueError)
 async def new_chat(user: User, data: dict) -> None:
     data: NewChatJSONValidator = NewChatJSONValidator(**data)
@@ -137,6 +139,7 @@ async def new_chat(user: User, data: dict) -> None:
 
 
 @server.common_handler(MessageType.NEW_CHAT_MESSAGE)
+@transaction_retry_decorator()
 @raises(ValidationError, PermissionError)
 async def new_chat_message(user: User, data: dict) -> None:
     data: NewChatMessageJSONValidator = NewChatMessageJSONValidator(**data)
@@ -195,6 +198,7 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
 
 
 @server.common_handler(MessageType.CHAT_MESSAGE_WAS_READ)
+@transaction_retry_decorator()
 @raises(ValidationError, PermissionError)
 async def chat_message_was_read(user: User, data: dict) -> None:
     data: ChatMessageWasReadJSONValidator = ChatMessageWasReadJSONValidator(**data)
