@@ -59,7 +59,7 @@ class BaseModel(DeclarativeBase):
 class BlacklistToken(BaseModel, BlacklistTokenI):
     __tablename__ = 'blacklist_tokens'
 
-    _jti: Mapped[str] = mapped_column(String(500), unique=True)
+    _jti: Mapped[str] = mapped_column(String(500), name='jti', unique=True)
 
     @classmethod
     def create(cls, jti: str) -> Self:
@@ -77,9 +77,9 @@ class BlacklistToken(BaseModel, BlacklistTokenI):
 class User(BaseModel, UserJSONMixin, UserJWTMixin, UserI):
     __tablename__ = 'users'
 
-    _email: Mapped[str] = mapped_column(String(200), nullable=False, unique=True)
-    _first_name: Mapped[str] = mapped_column(String(100), nullable=False, default='New')
-    _last_name: Mapped[str] = mapped_column(String(100), nullable=False, default='User')
+    _email: Mapped[str] = mapped_column(String(200), name='email', nullable=False, unique=True)
+    _first_name: Mapped[str] = mapped_column(String(100), name='first_name', nullable=False, default='New')
+    _last_name: Mapped[str] = mapped_column(String(100), name='last_name', nullable=False, default='User')
 
     _chat_messages: Mapped[list['ChatMessage']] = relationship(
         back_populates='_user',
@@ -140,8 +140,8 @@ class User(BaseModel, UserJSONMixin, UserJWTMixin, UserI):
 class Chat(BaseModel, ChatJSONMixin, ChatI):
     __tablename__ = 'chats'
 
-    _name: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    _is_group: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    _name: Mapped[str | None] = mapped_column(String(100), name='name', nullable=True)
+    _is_group: Mapped[bool] = mapped_column(Boolean, name='is_group', nullable=False, default=False)
 
     _messages: Mapped[list['ChatMessage']] = relationship(
         back_populates='_chat',
@@ -222,12 +222,13 @@ class Chat(BaseModel, ChatJSONMixin, ChatI):
 class ChatMessage(BaseModel, ChatMessageJSONMixin, ChatMessageI):
     __tablename__ = 'chat_messages'
 
-    _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-    _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id', ondelete='CASCADE'), nullable=False)
-    _text: Mapped[str] = mapped_column(Text, nullable=False)
-    _creating_datetime: Mapped[datetime] = mapped_column(DATETIME(fsp=6), default=datetime.utcnow)
-    _is_read: Mapped[bool] = mapped_column(Boolean, default=False)
-    _storage_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), name='user_id', nullable=False)
+    _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id', ondelete='CASCADE'), name='chat_id', nullable=False)
+    _text: Mapped[str] = mapped_column(Text, name='text', nullable=False)
+    _creating_datetime: Mapped[datetime] = mapped_column(DATETIME(fsp=6), name='creating_datetime',
+                                                         default=datetime.utcnow)
+    _is_read: Mapped[bool] = mapped_column(Boolean, name='is_read', default=False)
+    _storage_id: Mapped[int | None] = mapped_column(Integer, name='storage_id', nullable=True)
 
     _user: Mapped['User'] = relationship(back_populates='_chat_messages', uselist=False)
     _chat: Mapped['Chat'] = relationship(back_populates='_messages', uselist=False)
@@ -279,8 +280,8 @@ class ChatMessage(BaseModel, ChatMessageJSONMixin, ChatMessageI):
 class UserChatMatch(BaseModel, UserChatMatchI):
     __tablename__ = 'user_chat_matches'
 
-    _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-    _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id', ondelete='CASCADE'), nullable=False)
+    _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), name='user_id', nullable=False)
+    _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id', ondelete='CASCADE'), name='chat_id', nullable=False)
 
     _user: Mapped['User'] = relationship(back_populates='_user_chats_matches', uselist=False)
     _chat: Mapped['Chat'] = relationship(back_populates='_user_chat_matches', uselist=False)
@@ -326,14 +327,14 @@ class UserChatMatch(BaseModel, UserChatMatchI):
         joined_query = query.join(
             Chat, Chat._id == cls._chat_id,
         ).join(
-            ChatMessage, Chat._id == ChatMessage._chat_id,
+            ChatMessage, Chat._id == ChatMessage._chat_id,  # noqa
             isouter=True,
         )
 
         filtered_and_ordered_query = joined_query.filter(
             cls._user_id == user_id,
         ).order_by(
-            desc(ChatMessage._creating_datetime),
+            desc(ChatMessage._creating_datetime),  # noqa
         )
 
         chats: list[Chat] = filtered_and_ordered_query.with_entities(Chat).all()  # type: ignore
@@ -404,8 +405,8 @@ class UnreadCount(BaseModel, UnreadCountJSONMixin, UnreadCountI):
     __tablename__ = 'unread_counts'
 
     _user_chat_match_id: Mapped[int] = mapped_column(ForeignKey('user_chat_matches.id', ondelete='CASCADE'),
-                                                     nullable=False)
-    _value: Mapped[int] = mapped_column(Integer, default=0)
+                                                     name='user_chat_match_id', nullable=False)
+    _value: Mapped[int] = mapped_column(Integer, name='value', default=0)
 
     _user_chat_match: Mapped['UserChatMatch'] = relationship(back_populates='_unread_count', uselist=False)
 
