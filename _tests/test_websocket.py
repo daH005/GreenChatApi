@@ -20,29 +20,31 @@ from _tests.data.websocket_ import (
 real_output = {}
 
 
-def setup_module() -> None:
+def setup_module(module) -> None:
     create_test_db(ORMObjects.users)
 
     def websocket_server_user_has_connections_method_mock(self, user_id: int) -> bool:
         return user_id in Params.online_user_ids
 
-    patch('websocket_.base.server.WebSocketServer.user_has_connections',
-          websocket_server_user_has_connections_method_mock).start()
+    module.ws_user_has_connections_patcher = patch('websocket_.base.server.WebSocketServer.user_has_connections',
+                                                   websocket_server_user_has_connections_method_mock)
+    module.ws_user_has_connections_patcher.start()
 
     async def websocket_server_send_to_one_user_method_mock(self, user_id: int,
                                                             message: dict,
                                                             ) -> None:
         real_output.setdefault(user_id, []).append(message)
 
-    patch('websocket_.base.server.WebSocketServer.send_to_one_user',
-          websocket_server_send_to_one_user_method_mock).start()
+    module.ws_send_to_one_user_patcher = patch('websocket_.base.server.WebSocketServer.send_to_one_user',
+                                               websocket_server_send_to_one_user_method_mock)
+    module.ws_send_to_one_user_patcher.start()
 
     user_ids_and_potential_interlocutor_ids.update(Params.user_ids_and_potential_interlocutor_ids)
 
 
-def teardown_module() -> None:
-    patch('websocket_.base.server.WebSocketServer.user_has_connections').stop()
-    patch('websocket_.base.server.WebSocketServer.send_to_one_user').stop()
+def teardown_module(module) -> None:
+    module.ws_user_has_connections_patcher.stop()
+    module.ws_send_to_one_user_patcher.stop()
     user_ids_and_potential_interlocutor_ids.clear()
 
 

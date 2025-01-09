@@ -48,7 +48,7 @@ class Params:
         CHAT_MESSAGES_FILES_NAMES = '/chat/messages/files/names', 'GET'
         CHAT_MESSAGES_FILES_GET = '/chat/messages/files/get', 'GET'
 
-    STORAGE_ID = 100
+    STORAGE_ID = 50000
     UNREAD_COUNT = 70
 
     EMAIL_WITH_CODE = 'email@gmail.com'

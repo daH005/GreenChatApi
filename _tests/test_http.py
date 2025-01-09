@@ -13,30 +13,32 @@ from _tests.common.values_of_set_cookie_to_dict import values_of_set_cookie_to_d
 from _tests.common.set_for_test_to_values_and_ids import set_for_test_to_values_and_ids
 from _tests.data.http_ import Params, ORMObjects, SetForTest
 
-_teardown_appcontext_funcs_backup = app.teardown_appcontext_funcs.copy()
 
-
-def setup_module() -> None:
+def setup_module(module) -> None:
     create_test_db(ORMObjects.all)
 
     delete_email_code(Params.user['_email'])
     delete_email_code(Params.EMAIL_WITH_CODE)
     make_and_save_email_code(Params.EMAIL_WITH_CODE, Params.EMAIL_CODE)
 
+    module.storage_id_backup = _STORAGE_ID_PATH.read_text()
     _STORAGE_ID_PATH.write_text(str(Params.STORAGE_ID))
 
-    _max_lengths['user_avatar_edit'] = len(Params.AVATAR_MAX_BYTES)
-    _max_lengths['user_background_edit'] = len(Params.BACKGROUND_MAX_BYTES)
-    _max_lengths['chat_messages_files_save'] = len(Params.FILES_MAX_BYTES)
+    module.max_lengths_patcher = patch.dict(_max_lengths, {
+        'user_avatar_edit': len(Params.AVATAR_MAX_BYTES),
+        'user_background_edit': len(Params.BACKGROUND_MAX_BYTES),
+        'chat_messages_files_save': len(Params.FILES_MAX_BYTES),
+    })
+    module.max_lengths_patcher.start()
 
-    patch('http_.email.tasks.send_code_task.delay').start()
-    app.teardown_appcontext_funcs.clear()
+    module.send_code_task_delay_patcher = patch('http_.email.tasks.send_code_task.delay')
+    module.send_code_task_delay_patcher.start()
 
 
-def teardown_module() -> None:
-    patch('db.builder.db_builder.session.remove').stop()
-    patch('http_.email.tasks.send_code_task.delay').stop()
-    app.teardown_appcontext_funcs.extend(_teardown_appcontext_funcs_backup)
+def teardown_module(module) -> None:
+    _STORAGE_ID_PATH.write_text(module.storage_id_backup)
+    module.max_lengths_patcher.stop()
+    module.send_code_task_delay_patcher.stop()
 
 
 @pytest.fixture
