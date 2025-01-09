@@ -57,8 +57,12 @@ class Params:
     FIRST_NAME = 'fname'
     LAST_NAME = 'lname'
 
-    AVATAR_BYTES = b'avatar'
-    BACKGROUND_BYTES = b'background'
+    AVATAR_BYTES = b'\x89PNG\r\n\x1a\n\x00\x00\x00\r' \
+                   b'IHDR\x00\x00\x00\x01\x00\x00\x00\x01\x01\x03\x00\x00\x00%\xdbV\xca\x00\x00\x00\x03' \
+                   b'PLTE\x00\x00\x00\xa7z=\xda\x00\x00\x00\x01' \
+                   b'tRNS\x00@\xe6\xd8f\x00\x00\x00\n' \
+                   b'IDAT\x08\xd7c`\x00\x00\x00\x02\x00\x01\xe2!\xbc3\x00\x00\x00\x00IEND\xaeB`\x82'
+    BACKGROUND_BYTES = AVATAR_BYTES
 
     FILE_CONTENTS = [
         b'file1',
@@ -599,10 +603,51 @@ class SetForTest:
                 'access_token_cookie': Params.ACCESS_TOKEN,
             },
             headers={
+                'Content-Type': 'image/png',
                 'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
             },
 
             expected_status_code=200,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.USER_AVATAR_EDIT[0],
+            method=Params.UrlsAndMethods.USER_AVATAR_EDIT[1],
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'Content-Type': 'image/png',
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.USER_AVATAR_EDIT[0],
+            method=Params.UrlsAndMethods.USER_AVATAR_EDIT[1],
+            data=Params.AVATAR_BYTES,
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.USER_AVATAR_EDIT[0],
+            method=Params.UrlsAndMethods.USER_AVATAR_EDIT[1],
+            data=b'blabla',
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'Content-Type': 'image/png',
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
         ),
         dict(
             url=Params.UrlsAndMethods.USER_AVATAR_EDIT[0],
@@ -638,7 +683,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.USER_AVATAR[0],
             method=Params.UrlsAndMethods.USER_AVATAR[1],
             query_string={
-                'userId':Params.user['_id'],
+                'userId': Params.user['_id'],
             },
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -693,10 +738,51 @@ class SetForTest:
                 'access_token_cookie': Params.ACCESS_TOKEN,
             },
             headers={
+                'Content-Type': 'image/png',
                 'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
             },
 
             expected_status_code=200,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.USER_BACKGROUND_EDIT[0],
+            method=Params.UrlsAndMethods.USER_BACKGROUND_EDIT[1],
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'Content-Type': 'image/png',
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.USER_BACKGROUND_EDIT[0],
+            method=Params.UrlsAndMethods.USER_BACKGROUND_EDIT[1],
+            data=Params.BACKGROUND_BYTES,
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.USER_BACKGROUND_EDIT[0],
+            method=Params.UrlsAndMethods.USER_BACKGROUND_EDIT[1],
+            data=b'blabla',
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'Content-Type': 'image/png',
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
         ),
         dict(
             url=Params.UrlsAndMethods.USER_BACKGROUND_EDIT[0],
