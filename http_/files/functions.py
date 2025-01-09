@@ -72,7 +72,6 @@ def chat_message_file_path(storage_id: int,
     return path
 
 
-@raises(PermissionError)
 def check_permissions_decorator(func):
     @wraps(func)
     def wrapper():

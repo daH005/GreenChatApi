@@ -32,7 +32,7 @@ def code_send():
     try:
         code: int = make_and_save_email_code(email)
     except ValueError:
-        raise abort(HTTPStatus.CONFLICT)
+        return abort(HTTPStatus.CONFLICT)
     send_code_task.delay(to=email, code=code)
 
     return make_simple_response(HTTPStatus.ACCEPTED)
