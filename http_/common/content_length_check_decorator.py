@@ -13,7 +13,8 @@ def content_length_check_decorator(max_length: int):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            if request.content_length > _max_lengths[func.__name__]:
+            content_length: int = request.content_length if request.content_length else 0
+            if content_length > _max_lengths[func.__name__]:
                 return abort(HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
             return func(*args, **kwargs)
 
