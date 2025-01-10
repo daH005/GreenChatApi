@@ -6,6 +6,9 @@ from pathlib import Path
 
 from config import CHAT_MESSAGE_FILES_MAX_CONTENT_LENGTH
 from common.json_keys import JSONKey
+from db.transaction_retry_decorator import transaction_retry_decorator
+from db.models import ChatMessageStorage
+from db.builder import db_builder
 from http_.common.urls import Url
 from http_.common.apidocs_constants import (
     CHAT_MESSAGES_FILES_SAVE_SPECS,
@@ -13,12 +16,7 @@ from http_.common.apidocs_constants import (
     CHAT_MESSAGES_FILES_GET_SPECS,
 )
 from http_.common.content_length_check_decorator import content_length_check_decorator
-from http_.files.functions import (
-    save_files_and_get_storage_id,
-    chat_message_filenames,
-    chat_message_file_path,
-    check_permissions_decorator,
-)
+from http_.files.check_permissions_decorator import check_permissions_decorator
 
 __all__ = (
     'files_bp',
@@ -31,14 +29,19 @@ files_bp: Blueprint = Blueprint('files', __name__)
 @jwt_required()
 @swag_from(CHAT_MESSAGES_FILES_SAVE_SPECS)
 @content_length_check_decorator(CHAT_MESSAGE_FILES_MAX_CONTENT_LENGTH)
+@transaction_retry_decorator()
 def chat_messages_files_save():
     files = request.files.getlist('files')
     if not files:
         return abort(HTTPStatus.BAD_REQUEST)
 
-    storage_id: int = save_files_and_get_storage_id(files)
+    storage: ChatMessageStorage = ChatMessageStorage()
+    db_builder.session.add(storage)
+    db_builder.session.commit()
+
+    storage.save(files)
     return {
-        JSONKey.STORAGE_ID: storage_id,
+        JSONKey.STORAGE_ID: storage.id,
     }, HTTPStatus.CREATED
 
 
@@ -46,10 +49,10 @@ def chat_messages_files_save():
 @jwt_required()
 @swag_from(CHAT_MESSAGES_FILES_NAMES_SPECS)
 @check_permissions_decorator
-def chat_messages_files_names(storage_id: int):
+def chat_messages_files_names(storage: ChatMessageStorage):
     try:
         return {
-            JSONKey.FILENAMES: chat_message_filenames(storage_id),
+            JSONKey.FILENAMES: storage.filenames(),
         }
     except FileNotFoundError:
         return abort(HTTPStatus.NOT_FOUND)
@@ -59,14 +62,14 @@ def chat_messages_files_names(storage_id: int):
 @jwt_required()
 @swag_from(CHAT_MESSAGES_FILES_GET_SPECS)
 @check_permissions_decorator
-def chat_messages_files_get(storage_id: int):
+def chat_messages_files_get(storage: ChatMessageStorage):
     try:
         filename: str = request.args[JSONKey.FILENAME]
     except (KeyError, ValueError):
         return abort(HTTPStatus.BAD_REQUEST)
 
     try:
-        file_path: Path = chat_message_file_path(storage_id, filename)
+        file_path: Path = storage.full_path(filename)
     except FileNotFoundError:
         return abort(HTTPStatus.NOT_FOUND)
 

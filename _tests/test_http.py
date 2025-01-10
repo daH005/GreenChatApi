@@ -5,8 +5,9 @@ from unittest.mock import patch
 
 from http_.app import app
 from http_.email.codes.functions import delete_email_code, make_and_save_email_code
-from http_.files.functions import _STORAGE_ID_PATH
 from http_.common.content_length_check_decorator import _max_lengths
+from db.models import ChatMessageStorage
+from _tests.common.set_initial_autoincrement_value import set_initial_autoincrement_value
 from _tests.common.assert_and_save_jsons_if_failed import assert_and_save_jsons_if_failed
 from _tests.common.create_test_db import create_test_db
 from _tests.common.values_of_set_cookie_to_dict import values_of_set_cookie_to_dict
@@ -16,13 +17,20 @@ from _tests.data.http_ import Params, ORMObjects, SetForTest
 
 def setup_module(module) -> None:
     create_test_db(ORMObjects.all)
+    set_initial_autoincrement_value(ChatMessageStorage.__tablename__, Params.STORAGE_ID)
 
     delete_email_code(Params.user['_email'])
     delete_email_code(Params.EMAIL_WITH_CODE)
     make_and_save_email_code(Params.EMAIL_WITH_CODE, Params.EMAIL_CODE)
 
-    module.storage_id_backup = _STORAGE_ID_PATH.read_text()
-    _STORAGE_ID_PATH.write_text(str(Params.STORAGE_ID))
+    def chat_message_storage_init_mock(self):
+        module.chat_message_storage_init_patcher.temp_original(
+            self, _chat_message_id=Params.CHAT_MESSAGE_ID_WITH_STORAGE,
+        )
+
+    module.chat_message_storage_init_patcher = patch('db.models.ChatMessageStorage.__init__',
+                                                     chat_message_storage_init_mock)
+    module.chat_message_storage_init_patcher.start()
 
     module.max_lengths_patcher = patch.dict(_max_lengths, {
         'user_avatar_edit': len(Params.AVATAR_MAX_BYTES),
@@ -36,7 +44,7 @@ def setup_module(module) -> None:
 
 
 def teardown_module(module) -> None:
-    _STORAGE_ID_PATH.write_text(module.storage_id_backup)
+    module.chat_message_storage_init_patcher.stop()
     module.max_lengths_patcher.stop()
     module.send_code_task_delay_patcher.stop()
 

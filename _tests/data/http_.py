@@ -11,6 +11,7 @@ from db.models import (
     User,
     Chat,
     ChatMessage,
+    ChatMessageStorage,
     UserChatMatch,
     UnreadCount,
 )
@@ -48,6 +49,7 @@ class Params:
         CHAT_MESSAGES_FILES_NAMES = '/chat/messages/files/names', 'GET'
         CHAT_MESSAGES_FILES_GET = '/chat/messages/files/get', 'GET'
 
+    CHAT_MESSAGE_ID_WITH_STORAGE = 2
     STORAGE_ID = 50000
     UNREAD_COUNT = 70
 
@@ -107,7 +109,7 @@ class Params:
             _user_id=user['_id'],
             _chat_id=1,
             _text='Hello_2!',
-            _storage_id=STORAGE_ID,
+
         ),
         dict(
             _user_id=user['_id'],
@@ -855,116 +857,6 @@ class SetForTest:
         ),
     ]
 
-    chat_history = [
-        dict(
-            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
-            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
-            query_string={
-                'chatId': 1,
-            },
-            cookies={
-                'access_token_cookie': Params.ACCESS_TOKEN,
-            },
-            headers={
-                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
-            },
-
-            expected_status_code=200,
-            expected_json_dict={
-                'messages': [
-                    {
-                        'id': 3,
-                        'chatId': 1,
-                        'userId': Params.user['_id'],
-                        'text': Params.chat_messages[2]['_text'],
-                        'storageId': None,
-                        'isRead': False,
-                        'creatingDatetime': anything,
-                    },
-                    {
-                        'id': 2,
-                        'chatId': 1,
-                        'userId': Params.user['_id'],
-                        'text': Params.chat_messages[1]['_text'],
-                        'storageId': Params.STORAGE_ID,
-                        'isRead': False,
-                        'creatingDatetime': anything,
-                    },
-                    {
-                        'id': 1,
-                        'chatId': 1,
-                        'userId': Params.user['_id'],
-                        'text': Params.chat_messages[0]['_text'],
-                        'storageId': None,
-                        'isRead': False,
-                        'creatingDatetime': anything,
-                    },
-                ],
-            },
-        ),
-        dict(
-            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
-            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
-            query_string={
-                'chatId': 2,
-            },
-            cookies={
-                'access_token_cookie': Params.ACCESS_TOKEN,
-            },
-            headers={
-                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
-            },
-
-            expected_status_code=403,
-        ),
-        dict(
-            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
-            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
-            query_string={
-                'chatId': 3333,  # instead of 404
-            },
-            cookies={
-                'access_token_cookie': Params.ACCESS_TOKEN,
-            },
-            headers={
-                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
-            },
-
-            expected_status_code=403,
-        ),
-        dict(
-            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
-            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
-            query_string={
-                'chatId': 1,
-            },
-            cookies={
-                'access_token_cookie': create_access_token('what'),
-            },
-            headers={
-                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
-            },
-
-            expected_status_code=401,
-            expected_json_dict=anything,
-        ),
-        dict(
-            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
-            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
-            query_string={
-                'chatId': 'what',
-            },
-            cookies={
-                'access_token_cookie': Params.ACCESS_TOKEN,
-            },
-            headers={
-                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
-            },
-
-            expected_status_code=400,
-        ),
-    ]
-
     chat_messages_files_save = [
         dict(
             url=Params.UrlsAndMethods.CHAT_MESSAGES_FILES_SAVE[0],
@@ -1253,5 +1145,115 @@ class SetForTest:
             },
 
             expected_status_code=404,
+        ),
+    ]
+
+    chat_history = [
+        dict(
+            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
+            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
+            query_string={
+                'chatId': 1,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=200,
+            expected_json_dict={
+                'messages': [
+                    {
+                        'id': 3,
+                        'chatId': 1,
+                        'userId': Params.user['_id'],
+                        'text': Params.chat_messages[2]['_text'],
+                        'storageId': None,
+                        'isRead': False,
+                        'creatingDatetime': anything,
+                    },
+                    {
+                        'id': 2,
+                        'chatId': 1,
+                        'userId': Params.user['_id'],
+                        'text': Params.chat_messages[1]['_text'],
+                        'storageId': Params.STORAGE_ID,
+                        'isRead': False,
+                        'creatingDatetime': anything,
+                    },
+                    {
+                        'id': 1,
+                        'chatId': 1,
+                        'userId': Params.user['_id'],
+                        'text': Params.chat_messages[0]['_text'],
+                        'storageId': None,
+                        'isRead': False,
+                        'creatingDatetime': anything,
+                    },
+                ],
+            },
+        ),
+        dict(
+            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
+            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
+            query_string={
+                'chatId': 2,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=403,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
+            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
+            query_string={
+                'chatId': 3333,  # instead of 404
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=403,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
+            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
+            query_string={
+                'chatId': 1,
+            },
+            cookies={
+                'access_token_cookie': create_access_token('what'),
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=401,
+            expected_json_dict=anything,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
+            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
+            query_string={
+                'chatId': 'what',
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
         ),
     ]

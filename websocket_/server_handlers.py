@@ -7,6 +7,7 @@ from db.models import (
     User,
     Chat,
     ChatMessage,
+    ChatMessageStorage,
     UserChatMatch,
     UnreadCount,
 )
@@ -145,11 +146,12 @@ async def new_chat_message(user: User, data: dict) -> None:
     data: NewChatMessageJSONValidator = NewChatMessageJSONValidator(**data)
 
     chat: Chat = UserChatMatch.chat_if_user_has_access(user.id, data.chat_id)
+    storage: ChatMessageStorage | None = db_builder.session.get(ChatMessageStorage, data.storage_id)
     chat_message: ChatMessage = ChatMessage.create(
         text=data.text,
         user=user,
         chat=chat,
-        storage_id=data.storage_id,
+        storage=storage,
     )
     db_builder.session.add(chat_message)
 

@@ -1,11 +1,15 @@
 from datetime import datetime
-from typing import Union, Self
+from pathlib import Path
+from typing import Union, Self, Protocol
+from os import PathLike
 
 __all__ = (
     'BlacklistTokenI',
     'UserI',
     'ChatI',
     'ChatMessageI',
+    'ChatMessageStorageI',
+    'ChatMessageStorageFileI',
     'UserChatMatchI',
     'UnreadCountI',
     'UserListI',
@@ -144,16 +148,16 @@ class ChatMessageI(BaseI):
     _text: str
     _creating_datetime: datetime
     _is_read: bool
-    _storage_id: int | None
 
     _user: 'UserI'
     _chat: 'ChatI'
+    _storage: Union['ChatMessageStorageI', None]
 
     @classmethod
     def create(cls, text: str,
                user: 'UserI',
                chat: 'ChatI',
-               storage_id: int,
+               storage: Union['ChatMessageStorageI', None] = None,
                ) -> Self:
         raise NotImplementedError
 
@@ -170,10 +174,6 @@ class ChatMessageI(BaseI):
         raise NotImplementedError
 
     @property
-    def storage_id(self) -> int | None:
-        raise NotImplementedError
-
-    @property
     def user(self) -> 'UserI':
         raise NotImplementedError
 
@@ -181,12 +181,38 @@ class ChatMessageI(BaseI):
     def chat(self) -> 'ChatI':
         raise NotImplementedError
 
-    @classmethod
-    def by_storage_id(cls, storage_id: int) -> Self:
+    @property
+    def storage(self) -> Union['ChatMessageStorageI', None]:
         raise NotImplementedError
 
     def read(self) -> None:
         raise NotImplementedError
+
+
+class ChatMessageStorageI(BaseI):
+
+    _chat_message_id: int | None
+    _message: Union['ChatMessageI', None]
+
+    @property
+    def message(self) -> Union['ChatMessageI', None]:
+        raise NotImplementedError
+
+    def save(self, files: list['ChatMessageStorageFileI']) -> None:
+        raise NotImplementedError
+
+    def filenames(self) -> list[str]:
+        raise NotImplementedError
+
+    def full_path(self, filename: str) -> Path:
+        raise NotImplementedError
+
+
+class ChatMessageStorageFileI(Protocol):
+    filename: str
+
+    def save(self, path: PathLike[str]) -> None:
+        pass
 
 
 class UserChatMatchI(BaseI):

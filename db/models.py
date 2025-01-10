@@ -1,4 +1,5 @@
-from typing import Union, Self
+from os import listdir
+from typing import Union, Self, Final
 from sqlalchemy import (
     Integer,
     String,
@@ -15,7 +16,11 @@ from sqlalchemy.orm import (
     relationship,
 )
 from datetime import datetime
+from pathlib import Path
+from base64 import b64encode, b64decode
+from shutil import rmtree
 
+from config import MEDIA_FOLDER
 from common.hinting import raises
 from db.builder import db_builder
 from db.i import (
@@ -23,6 +28,8 @@ from db.i import (
     UserI,
     ChatI,
     ChatMessageI,
+    ChatMessageStorageI,
+    ChatMessageStorageFileI,
     UserChatMatchI,
     UnreadCountI,
 )
@@ -40,6 +47,7 @@ __all__ = (
     'User',
     'Chat',
     'ChatMessage',
+    'ChatMessageStorage',
     'UserChatMatch',
     'UnreadCount',
 )
@@ -228,18 +236,22 @@ class ChatMessage(BaseModel, ChatMessageJSONMixin, ChatMessageI):
     _creating_datetime: Mapped[datetime] = mapped_column(DATETIME(fsp=6), name='creating_datetime',
                                                          default=datetime.utcnow)
     _is_read: Mapped[bool] = mapped_column(Boolean, name='is_read', default=False)
-    _storage_id: Mapped[int | None] = mapped_column(Integer, name='storage_id', nullable=True)
 
     _user: Mapped['User'] = relationship(back_populates='_chat_messages', uselist=False)
     _chat: Mapped['Chat'] = relationship(back_populates='_messages', uselist=False)
+    _storage: Mapped[Union['ChatMessageStorage', None]] = relationship(
+        back_populates='_message',
+        cascade='all, delete',
+        uselist=False,
+    )
 
     @classmethod
     def create(cls, text: str,
                user: 'User',
                chat: 'Chat',
-               storage_id: int,
+               storage: Union['ChatMessageStorage', None] = None,
                ) -> Self:
-        return cls(_text=text, _user=user, _chat=chat, _storage_id=storage_id)
+        return cls(_text=text, _user=user, _chat=chat, _storage=storage)
 
     @property
     def text(self) -> str:
@@ -254,10 +266,6 @@ class ChatMessage(BaseModel, ChatMessageJSONMixin, ChatMessageI):
         return self._is_read
 
     @property
-    def storage_id(self) -> int | None:
-        return self._storage_id
-
-    @property
     def user(self) -> User:
         return self._user
 
@@ -265,16 +273,63 @@ class ChatMessage(BaseModel, ChatMessageJSONMixin, ChatMessageI):
     def chat(self) -> Chat:
         return self._chat
 
-    @classmethod
-    @raises(ValueError)
-    def by_storage_id(cls, storage_id: int) -> Self:
-        chat_message: cls | None = db_builder.session.query(cls).filter(cls._storage_id == storage_id).first()
-        if not chat_message:
-            raise ValueError
-        return chat_message
+    @property
+    def storage(self) -> Union['ChatMessageStorage', None]:
+        return self._storage
 
     def read(self) -> None:
         self._is_read = True  # type: ignore
+
+
+class ChatMessageStorage(BaseModel, ChatMessageStorageI):
+    __tablename__ = 'chat_message_storages'
+    _FILES_PATH: Final[Path] = MEDIA_FOLDER.joinpath('files')
+
+    _chat_message_id: Mapped[int | None] = mapped_column(ForeignKey('chat_messages.id', ondelete='CASCADE'),
+                                                         name='chat_message_id')
+    _message: Mapped[Union['ChatMessage', None]] = relationship(back_populates='_storage', uselist=False)
+
+    @property
+    def message(self) -> Union['ChatMessage', None]:
+        return self._message
+
+    def save(self, files: list['ChatMessageStorageFileI']) -> None:
+        file_folder_path: Path = self.path()
+        if file_folder_path.exists():
+            rmtree(file_folder_path)
+        file_folder_path.mkdir()
+
+        secured_filename: str
+        for file in files:
+            if not file.filename:
+                continue
+
+            secured_filename = self._encode_filename(file.filename)
+            file.save(file_folder_path.joinpath(secured_filename))
+
+    @raises(FileNotFoundError)
+    def filenames(self) -> list[str]:
+        filenames: list[str] = listdir(self.path())
+        return [self._decode_filename(filename) for filename in filenames]
+
+    @raises(FileNotFoundError)
+    def full_path(self, filename: str) -> Path:
+        filename: str = self._encode_filename(filename)
+        path: Path = self.path().joinpath(filename)
+        if not path.exists():
+            raise FileNotFoundError
+        return path
+
+    def path(self) -> Path:
+        return self._FILES_PATH.joinpath(str(self._id))
+
+    @staticmethod
+    def _encode_filename(filename: str) -> str:
+        return b64encode(filename.encode()).decode()
+
+    @staticmethod
+    def _decode_filename(filename: str) -> str:
+        return b64decode(filename).decode()
 
 
 class UserChatMatch(BaseModel, UserChatMatchI):
