@@ -1,5 +1,6 @@
 from json import dumps as json_dumps
 from pathlib import Path
+from uuid import uuid4
 
 from config import BASE_DIR
 
@@ -19,14 +20,16 @@ def assert_and_save_jsons_if_failed(real, expected) -> None:
 
 
 def _save_jsons(real, expected) -> None:
-    _SAVE_FOLDER.joinpath('real.json').write_text(
+    uuid: str = str(uuid4())
+
+    _SAVE_FOLDER.joinpath(uuid + '_real.json').write_text(
         json_dumps(real,
                    indent=2,
                    ensure_ascii=False,
                    )
     )
 
-    _SAVE_FOLDER.joinpath('expected.json').write_text(
+    _SAVE_FOLDER.joinpath(uuid + '_expected.json').write_text(
         json_dumps(expected,
                    indent=2,
                    ensure_ascii=False,
