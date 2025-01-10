@@ -1043,8 +1043,8 @@ class SetForTest:
             expected_status_code=200,
             expected_json_dict={
                 'filenames': [
-                    Params.FILES[1][1],
                     Params.FILES[0][1],
+                    Params.FILES[1][1],
                 ],
             },
         ),

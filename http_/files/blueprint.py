@@ -70,4 +70,4 @@ def chat_messages_files_get(storage_id: int):
     except FileNotFoundError:
         return abort(HTTPStatus.NOT_FOUND)
 
-    return send_file(file_path, as_attachment=True)
+    return send_file(file_path, download_name=filename, as_attachment=True)

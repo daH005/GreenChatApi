@@ -1,12 +1,12 @@
 from flask import request, abort
 from werkzeug.datastructures.file_storage import FileStorage
 from http import HTTPStatus
-from werkzeug.utils import secure_filename
 from pathlib import Path
 from typing import Final
 from os import listdir
 from shutil import rmtree
 from functools import wraps
+from base64 import b64encode, b64decode
 
 from common.json_keys import JSONKey
 from common.hinting import raises
@@ -19,6 +19,7 @@ __all__ = (
     'chat_message_filenames',
     'chat_message_file_path',
     'check_permissions_decorator',
+    'decode_filename',
 )
 
 _FILES_PATH: Final[Path] = MEDIA_FOLDER.joinpath('files')
@@ -41,7 +42,7 @@ def save_files_and_get_storage_id(files: list[FileStorage],
         if not file.filename:
             continue
 
-        secured_filename = secure_filename(file.filename)
+        secured_filename = _encode_filename(file.filename)
         file.save(file_folder_path.joinpath(secured_filename))
 
     return storage_id
@@ -59,17 +60,27 @@ def _next_storage_id() -> int:
 
 @raises(FileNotFoundError)
 def chat_message_filenames(storage_id: int) -> list[str]:
-    return listdir(_FILES_PATH.joinpath(str(storage_id)))
+    filenames: list[str] = listdir(_FILES_PATH.joinpath(str(storage_id)))
+    return [_decode_filename(filename) for filename in filenames]
 
 
 @raises(FileNotFoundError)
 def chat_message_file_path(storage_id: int,
                            filename: str,
                            ) -> Path:
+    filename = _encode_filename(filename)
     path: Path = _FILES_PATH.joinpath(str(storage_id), filename)
     if not path.exists():
         raise FileNotFoundError
     return path
+
+
+def _encode_filename(filename: str) -> str:
+    return b64encode(filename.encode()).decode()
+
+
+def _decode_filename(filename: str) -> str:
+    return b64decode(filename).decode()
 
 
 def check_permissions_decorator(func):
