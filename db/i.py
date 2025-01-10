@@ -207,6 +207,17 @@ class ChatMessageStorageI(BaseI):
     def full_path(self, filename: str) -> Path:
         raise NotImplementedError
 
+    def path(self) -> Path:
+        raise NotImplementedError
+
+    @staticmethod
+    def _encode_filename(filename: str) -> str:
+        raise NotImplementedError
+
+    @staticmethod
+    def _decode_filename(filename: str) -> str:
+        raise NotImplementedError
+
 
 class ChatMessageStorageFileI(Protocol):
     filename: str
