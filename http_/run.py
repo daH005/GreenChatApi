@@ -7,12 +7,12 @@ from db.init import init_db
 from http_.app import app
 
 __all__ = (
-    'run_http_with_gunicorn',
+    'run_http_wsgi',
     'run_default_http',
 )
 
 
-def run_http_with_gunicorn() -> NoReturn:
+def run_http_wsgi() -> NoReturn:
     run_subprocess([
         'gunicorn',
         f'--certfile={SSL_CERTFILE}', f'--keyfile={SSL_KEYFILE}',
