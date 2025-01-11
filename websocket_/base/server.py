@@ -41,7 +41,7 @@ class WebSocketServer:
         asyncio.run(self._run())
 
     async def _run(self) -> NoReturn:
-        async with serve(ws_handler=self._handler, host=self._host, port=self._port, origins=self._origins, ssl=self._ssl_context):  # noqa
+        async with serve(ws_handler=self._handler, host=self._host, port=self._port, ssl=self._ssl_context):  # noqa
             logger.info(f'WebSocketServer is serving on wss://{self._host}:{self._port}')
             await asyncio.Future()  # run forever
 
@@ -56,6 +56,11 @@ class WebSocketServer:
     @raises(ConnectionClosed)
     async def _handle_protocol(self, protocol: WebSocketServerProtocol) -> None:
         if 'Cookie' not in protocol.request_headers:
+            return
+
+        try:
+            self._check_origin(protocol.request_headers['Origin'])
+        except (KeyError, ValueError):
             return
 
         try:
@@ -85,6 +90,13 @@ class WebSocketServer:
             if not self.user_has_connections(client.user.id):
                 await self._full_disconnection_handler(client.user)
             raise
+
+    @raises(ValueError)
+    def _check_origin(self, origin: str) -> None:
+        for origin_regex in self._origins:
+            if re.match(origin_regex, origin):
+                return
+        raise ValueError
 
     @raises(ValueError)
     def _extract_jwt_from_cookies(self, cookies: str) -> str:
