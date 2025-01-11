@@ -23,12 +23,14 @@ class WebSocketServer:
 
     def __init__(self, host: str, port: int,
                  jwt_secret_key: str, jwt_algorithm: str,
+                 origins: list[str],
                  ssl_context: SSLContext,
                  ) -> None:
         self._host = host
         self._port = port
         self._jwt_secret_key = jwt_secret_key
         self._jwt_algorithm = jwt_algorithm
+        self._origins = origins
         self._ssl_context = ssl_context
 
         self._clients: dict[int, list[WebSocketClientHandler]] = {}
@@ -39,7 +41,7 @@ class WebSocketServer:
         asyncio.run(self._run())
 
     async def _run(self) -> NoReturn:
-        async with serve(ws_handler=self._handler, host=self._host, port=self._port, ssl=self._ssl_context):
+        async with serve(ws_handler=self._handler, host=self._host, port=self._port, origins=self._origins, ssl=self._ssl_context):  # noqa
             logger.info(f'WebSocketServer is serving on wss://{self._host}:{self._port}')
             await asyncio.Future()  # run forever
 

@@ -1,6 +1,14 @@
 from pydantic import ValidationError
 
-from config import HOST, WEBSOCKET_PORT, JWT_SECRET_KEY, JWT_ALGORITHM, SSL_CERTFILE, SSL_KEYFILE
+from config import (
+    HOST,
+    WEBSOCKET_PORT,
+    JWT_SECRET_KEY,
+    JWT_ALGORITHM,
+    CORS_ORIGINS,
+    SSL_CERTFILE,
+    SSL_KEYFILE,
+)
 from common.hinting import raises
 from common.json_keys import JSONKey
 from db.models import (
@@ -34,6 +42,7 @@ server = WebSocketServer(
     port=WEBSOCKET_PORT,
     jwt_secret_key=JWT_SECRET_KEY,
     jwt_algorithm=JWT_ALGORITHM,
+    origins=CORS_ORIGINS,
     ssl_context=create_ssl_context(SSL_CERTFILE, SSL_KEYFILE),
 )
 
