@@ -25,7 +25,7 @@ __all__ = (
 files_bp: Blueprint = Blueprint('files', __name__)
 
 
-@files_bp.route(Url.MESSAGES_FILES_SAVE, methods=[HTTPMethod.POST])
+@files_bp.route(Url.CHAT_MESSAGE_FILES_SAVE, methods=[HTTPMethod.POST])
 @jwt_required()
 @swag_from(MESSAGES_FILES_SAVE_SPECS)
 @content_length_check_decorator(MESSAGE_FILES_MAX_CONTENT_LENGTH)
@@ -45,7 +45,7 @@ def messages_files_save():
     }, HTTPStatus.CREATED
 
 
-@files_bp.route(Url.MESSAGES_FILES_NAMES, methods=[HTTPMethod.GET])
+@files_bp.route(Url.CHAT_MESSAGE_FILES_NAMES, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(MESSAGES_FILES_NAMES_SPECS)
 @check_permissions_decorator
@@ -58,7 +58,7 @@ def messages_files_names(storage: MessageStorage):
         return abort(HTTPStatus.NOT_FOUND)
 
 
-@files_bp.route(Url.MESSAGES_FILES_GET, methods=[HTTPMethod.GET])
+@files_bp.route(Url.CHAT_MESSAGE_FILES_GET, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(MESSAGES_FILES_GET_SPECS)
 @check_permissions_decorator

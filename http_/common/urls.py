@@ -22,6 +22,6 @@ class Url(StrEnum):
     USER_CHATS = '/user/chats'
 
     CHAT_MESSAGES = '/chat/messages'
-    MESSAGES_FILES_SAVE = '/chat/messages/files/save'
-    MESSAGES_FILES_NAMES = '/chat/messages/files/names'
-    MESSAGES_FILES_GET = '/chat/messages/files/get'
+    CHAT_MESSAGE_FILES_SAVE = '/chat/message/files/save'
+    CHAT_MESSAGE_FILES_NAMES = '/chat/message/files/names'
+    CHAT_MESSAGE_FILES_GET = '/chat/message/files/get'

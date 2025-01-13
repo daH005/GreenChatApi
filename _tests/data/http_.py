@@ -45,9 +45,9 @@ class Params:
         USER_BACKGROUND = '/user/background', 'GET'
 
         CHAT_MESSAGES = '/chat/messages', 'GET'
-        MESSAGES_FILES_SAVE = '/chat/messages/files/save', 'POST'
-        MESSAGES_FILES_NAMES = '/chat/messages/files/names', 'GET'
-        MESSAGES_FILES_GET = '/chat/messages/files/get', 'GET'
+        CHAT_MESSAGE_FILES_SAVE = '/chat/message/files/save', 'POST'
+        CHAT_MESSAGE_FILES_NAMES = '/chat/message/files/names', 'GET'
+        CHAT_MESSAGE_FILES_GET = '/chat/message/files/get', 'GET'
 
     MESSAGE_ID_WITH_STORAGE = 2
     STORAGE_ID = 50000
@@ -859,8 +859,8 @@ class SetForTest:
 
     messages_files_save = [
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_SAVE[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_SAVE[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_SAVE[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_SAVE[1],
             data={
                 'files': deepcopy(Params.FILES),
             },
@@ -877,8 +877,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_SAVE[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_SAVE[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_SAVE[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_SAVE[1],
             data={
                 'files': deepcopy(Params.FILES),
             },
@@ -893,8 +893,8 @@ class SetForTest:
             expected_content=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_SAVE[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_SAVE[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_SAVE[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_SAVE[1],
             data={
                 'files': [
                     (
@@ -920,8 +920,8 @@ class SetForTest:
 
     messages_files_names = [
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_NAMES[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_NAMES[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
             },
@@ -941,8 +941,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_NAMES[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_NAMES[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[1],
             query_string={
                 'storageId': '',
             },
@@ -956,8 +956,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_NAMES[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_NAMES[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[1],
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
             },
@@ -968,8 +968,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_NAMES[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_NAMES[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
             },
@@ -984,8 +984,8 @@ class SetForTest:
             expected_json_dict=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_NAMES[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_NAMES[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[1],
             query_string={
                 'storageId': 3333,
             },
@@ -999,8 +999,8 @@ class SetForTest:
             expected_status_code=404,
         ),
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_NAMES[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_NAMES[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
             },
@@ -1017,8 +1017,8 @@ class SetForTest:
 
     messages_files_get = [
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_GET[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_GET[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
                 'filename': Params.FILES[0][1],
@@ -1034,8 +1034,8 @@ class SetForTest:
             expected_content=Params.FILE_CONTENTS[0],
         ),
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_GET[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_GET[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
                 'filename': Params.FILES[1][1],
@@ -1051,8 +1051,8 @@ class SetForTest:
             expected_content=Params.FILE_CONTENTS[1],
         ),
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_GET[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_GET[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': '',
                 'filename': Params.FILES[0][1],
@@ -1067,8 +1067,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_GET[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_GET[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
             },
@@ -1082,8 +1082,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_GET[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_GET[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
                 'filename': Params.FILES[1][1],
@@ -1099,8 +1099,8 @@ class SetForTest:
             expected_content=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_GET[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_GET[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
                 'filename': Params.FILES[0][1],
@@ -1115,8 +1115,8 @@ class SetForTest:
             expected_status_code=403,
         ),
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_GET[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_GET[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': Params.STORAGE_ID,
                 'filename': 'blabla.txt',
@@ -1131,8 +1131,8 @@ class SetForTest:
             expected_status_code=404,
         ),
         dict(
-            url=Params.UrlsAndMethods.MESSAGES_FILES_GET[0],
-            method=Params.UrlsAndMethods.MESSAGES_FILES_GET[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': 13333,
                 'filename': 'blabla.txt',
