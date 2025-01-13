@@ -167,7 +167,7 @@ def chat_history():
 
     offset_from_end: int | None
     try:
-        offset_from_end = int(request.args[JSONKey.OFFSET_FROM_END])
+        offset_from_end = int(request.args[JSONKey.OFFSET])
         if offset_from_end < 0:
             raise ValueError
     except KeyError:

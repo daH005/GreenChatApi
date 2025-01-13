@@ -397,7 +397,7 @@ CHAT_HISTORY_SPECS = {
             'required': True,
         },
         {
-            'name': 'offsetFromEnd',
+            'name': 'offset',
             'in': 'query',
             'type': 'integer',
             'required': False,

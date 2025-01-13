@@ -22,7 +22,7 @@ class JSONKey(StrEnum):
     FILENAMES = 'filenames'
 
     MESSAGES = 'messages'
-    OFFSET_FROM_END = 'offsetFromEnd'
+    OFFSET = 'offset'
 
     CHATS = 'chats'
 
