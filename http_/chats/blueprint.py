@@ -30,17 +30,17 @@ def chat_messages():
     except (ValueError, KeyError):
         return abort(HTTPStatus.BAD_REQUEST)
 
-    offset_from_end: int | None
+    offset: int | None
     try:
-        offset_from_end = int(request.args[JSONKey.OFFSET])
-        if offset_from_end < 0:
+        offset = int(request.args[JSONKey.OFFSET])
+        if offset < 0:
             raise ValueError
     except KeyError:
-        offset_from_end = None
+        offset = None
     except ValueError:
         return abort(HTTPStatus.BAD_REQUEST)
 
     try:
-        return UserChatMatch.chat_if_user_has_access(get_current_user().id, chat_id).messages().as_json(offset_from_end)
+        return UserChatMatch.chat_if_user_has_access(get_current_user().id, chat_id).messages().as_json(offset)
     except PermissionError:
         return abort(HTTPStatus.FORBIDDEN)

@@ -106,7 +106,7 @@ class ChatListJSONMixin(JSONMixinI, ChatListI, list['ChatJSONMixin']):
 
 class MessageListJSONMixin(JSONMixinI, MessageListI, list['MessageJSONMixin']):
 
-    def as_json(self, offset_from_end: int = 0):
+    def as_json(self, offset: int = 0):
         return {
-            JSONKey.MESSAGES: [msg.as_json() for msg in self[offset_from_end:]]
+            JSONKey.MESSAGES: [msg.as_json() for msg in self[offset:]]
         }
