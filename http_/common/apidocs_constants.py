@@ -3,10 +3,10 @@ __all__ = (
     'USER_LOGIN_SPECS',
     'USER_LOGOUT_SPECS',
     'USER_REFRESH_ACCESS_SPECS',
-    'USER_INFO_SPECS',
+    'USER_SPECS',
     'USER_AVATAR_SPECS',
     'USER_BACKGROUND_SPECS',
-    'USER_INFO_EDIT_SPECS',
+    'USER_EDIT_SPECS',
     'USER_AVATAR_EDIT_SPECS',
     'USER_BACKGROUND_EDIT_SPECS',
     'USER_CHATS_SPECS',
@@ -55,7 +55,7 @@ _CSRF_TOKEN_HEADER = {
     'type': 'string',
 }
 
-_USER_INFO_SCHEMA = {
+_USER_SCHEMA = {
     'type': 'object',
     'required': [
         'id',
@@ -177,7 +177,7 @@ USER_REFRESH_ACCESS_SPECS = {
     },
 }
 
-USER_INFO_SPECS = {
+USER_SPECS = {
     'tags': _USER_TAGS,
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
@@ -190,7 +190,7 @@ USER_INFO_SPECS = {
     ],
     'responses': {
         200: {
-            'schema': _USER_INFO_SCHEMA,
+            'schema': _USER_SCHEMA,
         },
         400: _SIMPLE_REQUEST_RESPONSES[400],
         404: _SIMPLE_REQUEST_RESPONSES[404],
@@ -229,7 +229,7 @@ USER_BACKGROUND_SPECS = {
     }
 }
 
-USER_INFO_EDIT_SPECS = {
+USER_EDIT_SPECS = {
     'tags': _USER_TAGS,
     'parameters': [
         _ACCESS_TOKEN_COOKIE,

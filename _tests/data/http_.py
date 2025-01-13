@@ -36,8 +36,8 @@ class Params:
         USER_LOGIN = '/user/login', 'POST'
         USER_LOGOUT = '/user/logout', 'POST'
         USER_REFRESH_ACCESS = '/user/refreshAccess', 'POST'
-        USER_INFO_EDIT = '/user/info/edit', 'PUT'
-        USER_INFO = '/user/info', 'GET'
+        USER_EDIT = '/user/edit', 'PUT'
+        USER = '/user', 'GET'
         USER_CHATS = '/user/chats', 'GET'
         USER_AVATAR_EDIT = '/user/avatar/edit', 'PUT'
         USER_AVATAR = '/user/avatar', 'GET'
@@ -396,10 +396,10 @@ class SetForTest:
         ),
     ]
 
-    user_info_edit = [
+    user_edit = [
         dict(
-            url=Params.UrlsAndMethods.USER_INFO_EDIT[0],
-            method=Params.UrlsAndMethods.USER_INFO_EDIT[1],
+            url=Params.UrlsAndMethods.USER_EDIT[0],
+            method=Params.UrlsAndMethods.USER_EDIT[1],
             json_dict={
                 'firstName': Params.FIRST_NAME,
                 'lastName': Params.LAST_NAME,
@@ -414,8 +414,8 @@ class SetForTest:
             expected_status_code=200,
         ),
         dict(
-            url=Params.UrlsAndMethods.USER_INFO_EDIT[0],
-            method=Params.UrlsAndMethods.USER_INFO_EDIT[1],
+            url=Params.UrlsAndMethods.USER_EDIT[0],
+            method=Params.UrlsAndMethods.USER_EDIT[1],
             json_dict={
                 'firstName': '',
                 'lastName': ''
@@ -430,8 +430,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.USER_INFO_EDIT[0],
-            method=Params.UrlsAndMethods.USER_INFO_EDIT[1],
+            url=Params.UrlsAndMethods.USER_EDIT[0],
+            method=Params.UrlsAndMethods.USER_EDIT[1],
             json_dict={},
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -443,8 +443,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.USER_INFO_EDIT[0],
-            method=Params.UrlsAndMethods.USER_INFO_EDIT[1],
+            url=Params.UrlsAndMethods.USER_EDIT[0],
+            method=Params.UrlsAndMethods.USER_EDIT[1],
             json_dict={
                 'firstName': 'fff',
                 'lastName': 'fff'
@@ -461,10 +461,10 @@ class SetForTest:
         ),
     ]
 
-    user_info = [
+    user = [
         dict(
-            url=Params.UrlsAndMethods.USER_INFO[0],
-            method=Params.UrlsAndMethods.USER_INFO[1],
+            url=Params.UrlsAndMethods.USER[0],
+            method=Params.UrlsAndMethods.USER[1],
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
             },
@@ -481,8 +481,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.UrlsAndMethods.USER_INFO[0],
-            method=Params.UrlsAndMethods.USER_INFO[1],
+            url=Params.UrlsAndMethods.USER[0],
+            method=Params.UrlsAndMethods.USER[1],
             query_string={
                 'userId': Params.user['_id'] + 1,
             },
@@ -501,8 +501,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.UrlsAndMethods.USER_INFO[0],
-            method=Params.UrlsAndMethods.USER_INFO[1],
+            url=Params.UrlsAndMethods.USER[0],
+            method=Params.UrlsAndMethods.USER[1],
             query_string={
                 'userId': 'text',
             },
@@ -516,8 +516,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.USER_INFO[0],
-            method=Params.UrlsAndMethods.USER_INFO[1],
+            url=Params.UrlsAndMethods.USER[0],
+            method=Params.UrlsAndMethods.USER[1],
             query_string={
                 'userId': Params.user['_id'],
             },
@@ -532,8 +532,8 @@ class SetForTest:
             expected_json_dict=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.USER_INFO[0],
-            method=Params.UrlsAndMethods.USER_INFO[1],
+            url=Params.UrlsAndMethods.USER[0],
+            method=Params.UrlsAndMethods.USER[1],
             query_string={
                 'userId': 1333,
             },

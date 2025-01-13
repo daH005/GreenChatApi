@@ -30,8 +30,8 @@ from http_.common.apidocs_constants import (
     USER_LOGIN_SPECS,
     USER_LOGOUT_SPECS,
     USER_REFRESH_ACCESS_SPECS,
-    USER_INFO_SPECS,
-    USER_INFO_EDIT_SPECS,
+    USER_SPECS,
+    USER_EDIT_SPECS,
     USER_CHATS_SPECS,
     CHAT_HISTORY_SPECS,
 )
@@ -115,10 +115,10 @@ def _make_access_response(user: User,
     return response
 
 
-@general_bp.route(Url.USER_INFO, methods=[HTTPMethod.GET])
+@general_bp.route(Url.USER, methods=[HTTPMethod.GET])
 @jwt_required()
-@swag_from(USER_INFO_SPECS)
-def user_info():
+@swag_from(USER_SPECS)
+def user():
     try:
         user_id: int = int(request.args[JSONKey.USER_ID])
     except KeyError:
@@ -133,11 +133,11 @@ def user_info():
     return user.as_json()
 
 
-@general_bp.route(Url.USER_INFO_EDIT, methods=[HTTPMethod.PUT])
+@general_bp.route(Url.USER_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
-@swag_from(USER_INFO_EDIT_SPECS)
+@swag_from(USER_EDIT_SPECS)
 @transaction_retry_decorator()
-def user_info_edit():
+def user_edit():
     data: UserJSONValidator = UserJSONValidator.from_json()
 
     get_current_user().set_info(
