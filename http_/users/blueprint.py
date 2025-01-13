@@ -15,7 +15,7 @@ from flask_jwt_extended import (
 from flasgger import swag_from
 
 from db.builder import db_builder
-from db.models import User, UserChatMatch, BlacklistToken
+from db.models import User, BlacklistToken
 from db.transaction_retry_decorator import transaction_retry_decorator
 from common.json_keys import JSONKey
 from http_.common.get_current_user import get_current_user
@@ -33,19 +33,18 @@ from http_.common.apidocs_constants import (
     USER_SPECS,
     USER_EDIT_SPECS,
     USER_CHATS_SPECS,
-    CHAT_MESSAGES_SPECS,
 )
 from http_.common.urls import Url
 
 
 __all__ = (
-    'general_bp',
+    'users_bp',
 )
 
-general_bp: Blueprint = Blueprint('general', __name__)
+users_bp: Blueprint = Blueprint('users', __name__)
 
 
-@general_bp.route(Url.USER_EMAIL_CHECK, methods=[HTTPMethod.GET])
+@users_bp.route(Url.USER_EMAIL_CHECK, methods=[HTTPMethod.GET])
 @swag_from(USER_EMAIL_CHECK_SPECS)
 def email_check():
     try:
@@ -58,7 +57,7 @@ def email_check():
     }
 
 
-@general_bp.route(Url.USER_LOGIN, methods=[HTTPMethod.POST])
+@users_bp.route(Url.USER_LOGIN, methods=[HTTPMethod.POST])
 @swag_from(USER_LOGIN_SPECS)
 @transaction_retry_decorator()
 def login():
@@ -83,7 +82,7 @@ def login():
     return _make_access_response(user, status_code)
 
 
-@general_bp.route(Url.USER_LOGOUT, methods=[HTTPMethod.POST])
+@users_bp.route(Url.USER_LOGOUT, methods=[HTTPMethod.POST])
 @jwt_required()
 @swag_from(USER_LOGOUT_SPECS)
 def logout():
@@ -92,7 +91,7 @@ def logout():
     return response
 
 
-@general_bp.route(Url.USER_REFRESH_ACCESS, methods=[HTTPMethod.POST])
+@users_bp.route(Url.USER_REFRESH_ACCESS, methods=[HTTPMethod.POST])
 @jwt_required(refresh=True)
 @swag_from(USER_REFRESH_ACCESS_SPECS)
 @transaction_retry_decorator()
@@ -115,7 +114,7 @@ def _make_access_response(user: User,
     return response
 
 
-@general_bp.route(Url.USER, methods=[HTTPMethod.GET])
+@users_bp.route(Url.USER, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_SPECS)
 def user():
@@ -133,7 +132,7 @@ def user():
     return user.as_json()
 
 
-@general_bp.route(Url.USER_EDIT, methods=[HTTPMethod.PUT])
+@users_bp.route(Url.USER_EDIT, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(USER_EDIT_SPECS)
 @transaction_retry_decorator()
@@ -149,33 +148,8 @@ def user_edit():
     return make_simple_response(HTTPStatus.OK)
 
 
-@general_bp.route(Url.USER_CHATS, methods=[HTTPMethod.GET])
+@users_bp.route(Url.USER_CHATS, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_CHATS_SPECS)
 def user_chats():
     return get_current_user().chats().as_json()
-
-
-@general_bp.route(Url.CHAT_MESSAGES, methods=[HTTPMethod.GET])
-@jwt_required()
-@swag_from(CHAT_MESSAGES_SPECS)
-def chat_messages():
-    try:
-        chat_id: int = int(request.args[JSONKey.CHAT_ID])
-    except (ValueError, KeyError):
-        return abort(HTTPStatus.BAD_REQUEST)
-
-    offset_from_end: int | None
-    try:
-        offset_from_end = int(request.args[JSONKey.OFFSET])
-        if offset_from_end < 0:
-            raise ValueError
-    except KeyError:
-        offset_from_end = None
-    except ValueError:
-        return abort(HTTPStatus.BAD_REQUEST)
-
-    try:
-        return UserChatMatch.chat_if_user_has_access(get_current_user().id, chat_id).messages().as_json(offset_from_end)
-    except PermissionError:
-        return abort(HTTPStatus.FORBIDDEN)

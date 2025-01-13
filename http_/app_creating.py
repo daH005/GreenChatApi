@@ -14,8 +14,9 @@ from http_.jwt_ import jwt
 from http_.email.blueprint import email_bp
 from http_.avatars.blueprint import avatars_bp
 from http_.backgrounds.blueprint import backgrounds_bp
-from http_.general.blueprint import general_bp
 from http_.files.blueprint import files_bp
+from http_.users.blueprint import users_bp
+from http_.chats.blueprint import chats_bp
 
 __all__ = (
     'create_app',
@@ -63,5 +64,5 @@ def _init_swagger(app: Flask) -> None:
 
 
 def _init_blueprints(app: Flask) -> None:
-    for bp in (general_bp, email_bp, avatars_bp, backgrounds_bp, files_bp):
+    for bp in (users_bp, chats_bp, email_bp, avatars_bp, backgrounds_bp, files_bp):
         app.register_blueprint(bp)
