@@ -7,9 +7,9 @@ from common.json_keys import JSONKey
 __all__ = (
     'UserIdJSONValidator',
     'NewChatJSONValidator',
-    'NewChatMessageJSONValidator',
+    'NewMessageJSONValidator',
     'ChatIdJSONValidator',
-    'ChatMessageWasReadJSONValidator',
+    'MessageWasReadJSONValidator',
 )
 
 
@@ -28,7 +28,7 @@ class ChatIdJSONValidator(BaseModel):
     chat_id: int = Field(alias=JSONKey.CHAT_ID)
 
 
-class NewChatMessageJSONValidator(ChatIdJSONValidator):
+class NewMessageJSONValidator(ChatIdJSONValidator):
     _TEXT_MAX_LENGTH: Final[int] = 10_000
 
     storage_id: int | None = Field(alias=JSONKey.STORAGE_ID, default=None)
@@ -50,5 +50,5 @@ class NewChatMessageJSONValidator(ChatIdJSONValidator):
         return text
 
 
-class ChatMessageWasReadJSONValidator(ChatIdJSONValidator):
-    chat_message_id: int = Field(alias=JSONKey.CHAT_MESSAGE_ID)
+class MessageWasReadJSONValidator(ChatIdJSONValidator):
+    message_id: int = Field(alias=JSONKey.MESSAGE_ID)

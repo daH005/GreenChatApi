@@ -14,8 +14,8 @@ from common.json_keys import JSONKey
 from db.models import (
     User,
     Chat,
-    ChatMessage,
-    ChatMessageStorage,
+    Message,
+    MessageStorage,
     UserChatMatch,
     UnreadCount,
 )
@@ -26,9 +26,9 @@ from websocket_.message_types import MessageType
 from websocket_.validation import (
     UserIdJSONValidator,
     NewChatJSONValidator,
-    NewChatMessageJSONValidator,
+    NewMessageJSONValidator,
     ChatIdJSONValidator,
-    ChatMessageWasReadJSONValidator,
+    MessageWasReadJSONValidator,
 )
 from common.ssl_context import create_ssl_context
 
@@ -148,21 +148,21 @@ async def new_chat(user: User, data: dict) -> None:
         )
 
 
-@server.common_handler(MessageType.NEW_CHAT_MESSAGE)
+@server.common_handler(MessageType.NEW_MESSAGE)
 @transaction_retry_decorator()
 @raises(ValidationError, PermissionError)
-async def new_chat_message(user: User, data: dict) -> None:
-    data: NewChatMessageJSONValidator = NewChatMessageJSONValidator(**data)
+async def new_message(user: User, data: dict) -> None:
+    data: NewMessageJSONValidator = NewMessageJSONValidator(**data)
 
     chat: Chat = UserChatMatch.chat_if_user_has_access(user.id, data.chat_id)
-    storage: ChatMessageStorage | None = db_builder.session.get(ChatMessageStorage, data.storage_id)
-    chat_message: ChatMessage = ChatMessage.create(
+    storage: MessageStorage | None = db_builder.session.get(MessageStorage, data.storage_id)
+    message: Message = Message.create(
         text=data.text,
         user=user,
         chat=chat,
         storage=storage,
     )
-    db_builder.session.add(chat_message)
+    db_builder.session.add(message)
 
     unread_count: UnreadCount
     chat_users = chat.users()
@@ -184,15 +184,15 @@ async def new_chat_message(user: User, data: dict) -> None:
 
     await server.send_to_many_users(
         user_ids=chat_users.ids(),
-        message=MessageType.NEW_CHAT_MESSAGE.make_json_dict(
-            chat_message.as_json(),
+        message=MessageType.NEW_MESSAGE.make_json_dict(
+            message.as_json(),
         ),
     )
 
 
-@server.common_handler(MessageType.NEW_CHAT_MESSAGE_TYPING)
+@server.common_handler(MessageType.NEW_MESSAGE_TYPING)
 @raises(ValidationError, PermissionError)
-async def new_chat_message_typing(user: User, data: dict) -> None:
+async def new_message_typing(user: User, data: dict) -> None:
     data: ChatIdJSONValidator = ChatIdJSONValidator(**data)
     chat: Chat = UserChatMatch.chat_if_user_has_access(user.id, data.chat_id)
 
@@ -201,18 +201,18 @@ async def new_chat_message_typing(user: User, data: dict) -> None:
 
     await server.send_to_many_users(
         user_ids=user_ids,
-        message=MessageType.NEW_CHAT_MESSAGE_TYPING.make_json_dict({
+        message=MessageType.NEW_MESSAGE_TYPING.make_json_dict({
             JSONKey.CHAT_ID: chat.id,
             JSONKey.USER_ID: user.id,
         }),
     )
 
 
-@server.common_handler(MessageType.CHAT_MESSAGE_WAS_READ)
+@server.common_handler(MessageType.MESSAGE_WAS_READ)
 @transaction_retry_decorator()
 @raises(ValidationError, PermissionError)
-async def chat_message_was_read(user: User, data: dict) -> None:
-    data: ChatMessageWasReadJSONValidator = ChatMessageWasReadJSONValidator(**data)
+async def message_was_read(user: User, data: dict) -> None:
+    data: MessageWasReadJSONValidator = MessageWasReadJSONValidator(**data)
 
     chat: Chat = UserChatMatch.chat_if_user_has_access(user.id, data.chat_id)
     unread_count: UnreadCount = chat.unread_count_of_user(user.id)
@@ -220,21 +220,21 @@ async def chat_message_was_read(user: User, data: dict) -> None:
     unread_messages_in_ascending_order_by_id = chat.unread_messages_of_user(user.id)
     unread_messages_in_ascending_order_by_id.reverse()
 
-    message_was_read_earlier: bool = data.chat_message_id < unread_messages_in_ascending_order_by_id[0].id
+    message_was_read_earlier: bool = data.message_id < unread_messages_in_ascending_order_by_id[0].id
     if message_was_read_earlier:
         return
 
     read_message_ids: list[int] = []
     sender_ids: set[int] = set()
-    for chat_message in unread_messages_in_ascending_order_by_id:
-        read_message_ids.append(chat_message.id)
-        sender_ids.add(chat_message.user.id)
+    for message in unread_messages_in_ascending_order_by_id:
+        read_message_ids.append(message.id)
+        sender_ids.add(message.user.id)
 
-        if not chat_message.is_read:
+        if not message.is_read:
             unread_count.decrease()
-        chat_message.read()
+        message.read()
 
-        if chat_message.id == data.chat_message_id:
+        if message.id == data.message_id:
             break
 
     if not read_message_ids:
@@ -252,8 +252,8 @@ async def chat_message_was_read(user: User, data: dict) -> None:
     for sender_id in sender_ids:
         await server.send_to_one_user(
             user_id=sender_id,
-            message=MessageType.READ_CHAT_MESSAGES.make_json_dict({
+            message=MessageType.READ_MESSAGES.make_json_dict({
                 JSONKey.CHAT_ID: chat.id,
-                JSONKey.CHAT_MESSAGE_IDS: read_message_ids,
+                JSONKey.MESSAGE_IDS: read_message_ids,
             }),
         )

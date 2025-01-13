@@ -4,7 +4,7 @@ from functools import wraps
 
 from common.json_keys import JSONKey
 from db.builder import db_builder
-from db.models import ChatMessageStorage
+from db.models import MessageStorage
 from http_.common.get_current_user import get_current_user
 
 __all__ = (
@@ -20,7 +20,7 @@ def check_permissions_decorator(func):
         except (KeyError, ValueError):
             return abort(HTTPStatus.BAD_REQUEST)
 
-        storage: ChatMessageStorage | None = db_builder.session.get(ChatMessageStorage, storage_id)
+        storage: MessageStorage | None = db_builder.session.get(MessageStorage, storage_id)
         if storage is None:
             return abort(HTTPStatus.NOT_FOUND)
 

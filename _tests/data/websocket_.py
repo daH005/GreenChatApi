@@ -141,12 +141,12 @@ class SetForTestCommonHandlers:
         ),
     ]
 
-    new_chat_message_input_and_output = [
+    new_message_input_and_output = [
         (
             (
                 ORMObjects.users[0],
                 {
-                    'type': 'newChatMessage',
+                    'type': 'newMessage',
                     'data': {
                         'chatId': 1,
                         'text': 'a' * 15_000,
@@ -163,7 +163,7 @@ class SetForTestCommonHandlers:
                         },
                     },
                     {
-                        'type': 'newChatMessage',
+                        'type': 'newMessage',
                         'data': {
                             'id': 1,
                             'chatId': 1,
@@ -177,7 +177,7 @@ class SetForTestCommonHandlers:
                 ],
                 1: [
                     {
-                        'type': 'newChatMessage',
+                        'type': 'newMessage',
                         'data': {
                             'id': 1,
                             'chatId': 1,
@@ -196,7 +196,7 @@ class SetForTestCommonHandlers:
             (
                 ORMObjects.users[0],
                 {
-                    'type': 'newChatMessage',
+                    'type': 'newMessage',
                     'data': {
                         'chatId': 1,
                         'text': 'Hello!',
@@ -213,7 +213,7 @@ class SetForTestCommonHandlers:
                         },
                     },
                     {
-                        'type': 'newChatMessage',
+                        'type': 'newMessage',
                         'data': {
                             'id': 2,
                             'chatId': 1,
@@ -227,7 +227,7 @@ class SetForTestCommonHandlers:
                 ],
                 1: [
                     {
-                        'type': 'newChatMessage',
+                        'type': 'newMessage',
                         'data': {
                             'id': 2,
                             'chatId': 1,
@@ -243,12 +243,12 @@ class SetForTestCommonHandlers:
         ),
     ]
 
-    new_chat_message_typing_input_and_output = [
+    new_message_typing_input_and_output = [
         (
             (
                 ORMObjects.users[0],
                 {
-                    'type': 'newChatMessageTyping',
+                    'type': 'newMessageTyping',
                     'data': {
                         'chatId': 1,
                     },
@@ -257,7 +257,7 @@ class SetForTestCommonHandlers:
             {
                 2: [
                     {
-                        'type': 'newChatMessageTyping',
+                        'type': 'newMessageTyping',
                         'data': {
                             'chatId': 1,
                             'userId': 1,
@@ -268,15 +268,15 @@ class SetForTestCommonHandlers:
         ),
     ]
 
-    chat_message_was_read_input_and_output = [
+    message_was_read_input_and_output = [
         (
             (
                 ORMObjects.users[1],
                 {
-                    'type': 'chatMessageWasRead',
+                    'type': 'messageWasRead',
                     'data': {
                         'chatId': 1,
-                        'chatMessageId': 2,
+                        'messageId': 2,
                     },
                 },
             ),
@@ -292,10 +292,10 @@ class SetForTestCommonHandlers:
                 ],
                 1: [
                     {
-                        'type': 'readChatMessages',
+                        'type': 'readMessages',
                         'data': {
                             'chatId': 1,
-                            'chatMessageIds': [1, 2],
+                            'messageIds': [1, 2],
                         },
                     },
                 ],
@@ -321,12 +321,12 @@ class SetForTestCommonHandlersRaises:
         ),
     ]
 
-    new_chat_message_input_and_raises = [
+    new_message_input_and_raises = [
         (
             (
                 ORMObjects.users[2],
                 {
-                    'type': 'newChatMessage',
+                    'type': 'newMessage',
                     'data': {
                         'chatId': 1,
                         'text': 'Hi! Can I?',
@@ -337,12 +337,12 @@ class SetForTestCommonHandlersRaises:
         ),
     ]
 
-    new_chat_message_typing_input_and_raises = [
+    new_message_typing_input_and_raises = [
         (
             (
                 ORMObjects.users[2],
                 {
-                    'type': 'newChatMessageTyping',
+                    'type': 'newMessageTyping',
                     'data': {
                         'chatId': 1,
                     },
@@ -352,15 +352,15 @@ class SetForTestCommonHandlersRaises:
         ),
     ]
 
-    chat_message_was_read_input_and_raises = [
+    message_was_read_input_and_raises = [
         (
             (
                 ORMObjects.users[2],
                 {
-                    'type': 'chatMessageWasRead',
+                    'type': 'messageWasRead',
                     'data': {
                         'chatId': 1,
-                        'chatMessageId': 100,
+                        'messageId': 100,
                     },
                 },
             ),

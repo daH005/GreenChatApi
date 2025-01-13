@@ -6,7 +6,7 @@ from unittest.mock import patch
 from http_.app import app
 from http_.email.codes.functions import delete_email_code, make_and_save_email_code
 from http_.common.content_length_check_decorator import _max_lengths
-from db.models import ChatMessageStorage
+from db.models import MessageStorage
 from _tests.common.set_initial_autoincrement_value import set_initial_autoincrement_value
 from _tests.common.assert_and_save_jsons_if_failed import assert_and_save_jsons_if_failed
 from _tests.common.create_test_db import create_test_db
@@ -17,25 +17,25 @@ from _tests.data.http_ import Params, ORMObjects, SetForTest
 
 def setup_module(module) -> None:
     create_test_db(ORMObjects.all)
-    set_initial_autoincrement_value(ChatMessageStorage.__tablename__, Params.STORAGE_ID)
+    set_initial_autoincrement_value(MessageStorage.__tablename__, Params.STORAGE_ID)
 
     delete_email_code(Params.user['_email'])
     delete_email_code(Params.EMAIL_WITH_CODE)
     make_and_save_email_code(Params.EMAIL_WITH_CODE, Params.EMAIL_CODE)
 
-    def chat_message_storage_init_mock(self):
-        module.chat_message_storage_init_patcher.temp_original(
-            self, _chat_message_id=Params.CHAT_MESSAGE_ID_WITH_STORAGE,
+    def message_storage_init_mock(self):
+        module.message_storage_init_patcher.temp_original(
+            self, _message_id=Params.MESSAGE_ID_WITH_STORAGE,
         )
 
-    module.chat_message_storage_init_patcher = patch('db.models.ChatMessageStorage.__init__',
-                                                     chat_message_storage_init_mock)
-    module.chat_message_storage_init_patcher.start()
+    module.message_storage_init_patcher = patch('db.models.MessageStorage.__init__',
+                                                     message_storage_init_mock)
+    module.message_storage_init_patcher.start()
 
     module.max_lengths_patcher = patch.dict(_max_lengths, {
         'user_avatar_edit': len(Params.AVATAR_MAX_BYTES),
         'user_background_edit': len(Params.BACKGROUND_MAX_BYTES),
-        'chat_messages_files_save': len(Params.FILES_MAX_BYTES),
+        'messages_files_save': len(Params.FILES_MAX_BYTES),
     })
     module.max_lengths_patcher.start()
 
@@ -44,7 +44,7 @@ def setup_module(module) -> None:
 
 
 def teardown_module(module) -> None:
-    module.chat_message_storage_init_patcher.stop()
+    module.message_storage_init_patcher.stop()
     module.max_lengths_patcher.stop()
     module.send_code_task_delay_patcher.stop()
 

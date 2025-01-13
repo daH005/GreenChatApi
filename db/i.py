@@ -7,14 +7,14 @@ __all__ = (
     'BlacklistTokenI',
     'UserI',
     'ChatI',
-    'ChatMessageI',
-    'ChatMessageStorageI',
-    'ChatMessageStorageFileI',
+    'MessageI',
+    'MessageStorageI',
+    'MessageStorageFileI',
     'UserChatMatchI',
     'UnreadCountI',
     'UserListI',
     'ChatListI',
-    'ChatMessageListI',
+    'MessageListI',
 )
 
 
@@ -48,7 +48,7 @@ class UserI(BaseI):
     _first_name: str
     _last_name: str
 
-    _chat_messages: list['ChatMessageI']
+    _messages: list['MessageI']
     _user_chats_matches: list['UserChatMatchI']
 
     @classmethod
@@ -95,7 +95,7 @@ class ChatI(BaseI):
     _name: str | None
     _is_group: bool
 
-    _messages: list['ChatMessageI']
+    _messages: list['MessageI']
     _user_chat_matches: list['UserChatMatchI']
 
     @classmethod
@@ -119,10 +119,10 @@ class ChatI(BaseI):
         raise NotImplementedError
 
     @property
-    def last_message(self) -> 'ChatMessageI':
+    def last_message(self) -> 'MessageI':
         raise NotImplementedError
 
-    def messages(self) -> 'ChatMessageListI':
+    def messages(self) -> 'MessageListI':
         raise NotImplementedError
 
     def users(self) -> 'UserListI':
@@ -131,7 +131,7 @@ class ChatI(BaseI):
     def check_user_access(self, user_id: int) -> None:
         raise NotImplementedError
 
-    def unread_messages_of_user(self, user_id: int) -> 'ChatMessageListI':
+    def unread_messages_of_user(self, user_id: int) -> 'MessageListI':
         raise NotImplementedError
 
     def interlocutor_of_user(self, user_id: int) -> 'UserI':
@@ -141,7 +141,7 @@ class ChatI(BaseI):
         raise NotImplementedError
 
 
-class ChatMessageI(BaseI):
+class MessageI(BaseI):
 
     _user_id: int
     _chat_id: int
@@ -151,13 +151,13 @@ class ChatMessageI(BaseI):
 
     _user: 'UserI'
     _chat: 'ChatI'
-    _storage: Union['ChatMessageStorageI', None]
+    _storage: Union['MessageStorageI', None]
 
     @classmethod
     def create(cls, text: str,
                user: 'UserI',
                chat: 'ChatI',
-               storage: Union['ChatMessageStorageI', None] = None,
+               storage: Union['MessageStorageI', None] = None,
                ) -> Self:
         raise NotImplementedError
 
@@ -182,23 +182,23 @@ class ChatMessageI(BaseI):
         raise NotImplementedError
 
     @property
-    def storage(self) -> Union['ChatMessageStorageI', None]:
+    def storage(self) -> Union['MessageStorageI', None]:
         raise NotImplementedError
 
     def read(self) -> None:
         raise NotImplementedError
 
 
-class ChatMessageStorageI(BaseI):
+class MessageStorageI(BaseI):
 
-    _chat_message_id: int | None
-    _message: Union['ChatMessageI', None]
+    _message_id: int | None
+    _message: Union['MessageI', None]
 
     @property
-    def message(self) -> Union['ChatMessageI', None]:
+    def message(self) -> Union['MessageI', None]:
         raise NotImplementedError
 
-    def save(self, files: list['ChatMessageStorageFileI']) -> None:
+    def save(self, files: list['MessageStorageFileI']) -> None:
         raise NotImplementedError
 
     def filenames(self) -> list[str]:
@@ -219,7 +219,7 @@ class ChatMessageStorageI(BaseI):
         raise NotImplementedError
 
 
-class ChatMessageStorageFileI(Protocol):
+class MessageStorageFileI(Protocol):
     filename: str
 
     def save(self, path: PathLike[str]) -> None:
@@ -313,5 +313,5 @@ class ChatListI(list['ChatI']):
     _user_id: int
 
 
-class ChatMessageListI(list['ChatMessageI']):
+class MessageListI(list['MessageI']):
     pass

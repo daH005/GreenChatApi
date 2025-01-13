@@ -2,21 +2,21 @@ from common.json_keys import JSONKey
 from db.i import (
     UserI,
     ChatI,
-    ChatMessageI,
+    MessageI,
     UnreadCountI,
     UserListI,
     ChatListI,
-    ChatMessageListI,
+    MessageListI,
 )
 
 __all__ = (
     'UserJSONMixin',
     'ChatJSONMixin',
-    'ChatMessageJSONMixin',
+    'MessageJSONMixin',
     'UnreadCountJSONMixin',
     'UserListJSONMixin',
     'ChatListJSONMixin',
-    'ChatMessageListJSONMixin'
+    'MessageListJSONMixin'
 )
 
 
@@ -45,7 +45,7 @@ class UserJSONMixin(JSONMixinI, UserI):
 class ChatJSONMixin(JSONMixinI, ChatI):
 
     @property
-    def last_message(self) -> 'ChatMessageJSONMixin':
+    def last_message(self) -> 'MessageJSONMixin':
         raise NotImplementedError
 
     def as_json(self, user_id: int):
@@ -57,13 +57,13 @@ class ChatJSONMixin(JSONMixinI, ChatI):
             JSONKey.ID: self._id,
             JSONKey.NAME: self._name,
             JSONKey.IS_GROUP: self._is_group,
-            JSONKey.LAST_CHAT_MESSAGE: last_message,
+            JSONKey.LAST_MESSAGE: last_message,
             JSONKey.USER_IDS: [user.id for user in self.users()],
             JSONKey.UNREAD_COUNT: self.unread_count_of_user(user_id=user_id).value,
         }
 
 
-class ChatMessageJSONMixin(JSONMixinI, ChatMessageI):
+class MessageJSONMixin(JSONMixinI, MessageI):
 
     def as_json(self):
         try:
@@ -104,7 +104,7 @@ class ChatListJSONMixin(JSONMixinI, ChatListI, list['ChatJSONMixin']):
         }
 
 
-class ChatMessageListJSONMixin(JSONMixinI, ChatMessageListI, list['ChatMessageJSONMixin']):
+class MessageListJSONMixin(JSONMixinI, MessageListI, list['MessageJSONMixin']):
 
     def as_json(self, offset_from_end: int = 0):
         return {

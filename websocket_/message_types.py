@@ -12,12 +12,12 @@ class MessageType(StrEnum):
 
     INTERLOCUTORS_ONLINE_STATUSES = 'interlocutorsOnlineStatuses'
     ONLINE_STATUS_TRACING_ADDING = 'onlineStatusTracingAdding'
-    CHAT_MESSAGE_WAS_READ = 'chatMessageWasRead'
+    MESSAGE_WAS_READ = 'messageWasRead'
     NEW_UNREAD_COUNT = 'newUnreadCount'
-    READ_CHAT_MESSAGES = 'readChatMessages'
+    READ_MESSAGES = 'readMessages'
     NEW_CHAT = 'newChat'
-    NEW_CHAT_MESSAGE = 'newChatMessage'
-    NEW_CHAT_MESSAGE_TYPING = 'newChatMessageTyping'
+    NEW_MESSAGE = 'newMessage'
+    NEW_MESSAGE_TYPING = 'newMessageTyping'
 
     def make_json_dict(self, data: dict) -> WebSocketMessageJSONDict:
         return {

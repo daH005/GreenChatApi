@@ -27,16 +27,16 @@ from db.i import (
     BlacklistTokenI,
     UserI,
     ChatI,
-    ChatMessageI,
-    ChatMessageStorageI,
-    ChatMessageStorageFileI,
+    MessageI,
+    MessageStorageI,
+    MessageStorageFileI,
     UserChatMatchI,
     UnreadCountI,
 )
 from db.json_mixins import (
     UserJSONMixin,
     ChatJSONMixin,
-    ChatMessageJSONMixin,
+    MessageJSONMixin,
     UnreadCountJSONMixin,
 )
 from db.jwt_mixins import UserJWTMixin
@@ -46,8 +46,8 @@ __all__ = (
     'BlacklistToken',
     'User',
     'Chat',
-    'ChatMessage',
-    'ChatMessageStorage',
+    'Message',
+    'MessageStorage',
     'UserChatMatch',
     'UnreadCount',
 )
@@ -89,7 +89,7 @@ class User(BaseModel, UserJSONMixin, UserJWTMixin, UserI):
     _first_name: Mapped[str] = mapped_column(String(100), name='first_name', nullable=False, default='New')
     _last_name: Mapped[str] = mapped_column(String(100), name='last_name', nullable=False, default='User')
 
-    _chat_messages: Mapped[list['ChatMessage']] = relationship(
+    _messages: Mapped[list['Message']] = relationship(
         back_populates='_user',
         cascade='all, delete',
     )
@@ -151,9 +151,9 @@ class Chat(BaseModel, ChatJSONMixin, ChatI):
     _name: Mapped[str | None] = mapped_column(String(100), name='name', nullable=True)
     _is_group: Mapped[bool] = mapped_column(Boolean, name='is_group', nullable=False, default=False)
 
-    _messages: Mapped[list['ChatMessage']] = relationship(
+    _messages: Mapped[list['Message']] = relationship(
         back_populates='_chat',
-        order_by='-ChatMessage._id',
+        order_by='-Message._id',
         cascade='all, delete',
         lazy='dynamic',
     )
@@ -201,11 +201,11 @@ class Chat(BaseModel, ChatJSONMixin, ChatI):
 
     @property
     @raises(IndexError)
-    def last_message(self) -> 'ChatMessage':
+    def last_message(self) -> 'Message':
         return self._messages[0]  # type: ignore
 
-    def messages(self) -> 'ChatMessageList':
-        return ChatMessageList(self._messages)
+    def messages(self) -> 'MessageList':
+        return MessageList(self._messages)
 
     def users(self) -> 'UserList':
         return UserList(UserChatMatch.users_of_chat(self.id))
@@ -214,9 +214,9 @@ class Chat(BaseModel, ChatJSONMixin, ChatI):
     def check_user_access(self, user_id: int) -> None:
         UserChatMatch.chat_if_user_has_access(user_id, self.id)
 
-    def unread_messages_of_user(self, user_id: int) -> 'ChatMessageList':
-        messages = self._messages.filter(ChatMessage._is_read == False, ChatMessage._user_id != user_id).all()  # noqa
-        return ChatMessageList(messages)
+    def unread_messages_of_user(self, user_id: int) -> 'MessageList':
+        messages = self._messages.filter(Message._is_read == False, Message._user_id != user_id).all()  # noqa
+        return MessageList(messages)
 
     @raises(ValueError)
     def interlocutor_of_user(self, user_id: int) -> 'User':
@@ -227,8 +227,8 @@ class Chat(BaseModel, ChatJSONMixin, ChatI):
         return UserChatMatch.unread_count_of_user_of_chat(user_id, self.id)
 
 
-class ChatMessage(BaseModel, ChatMessageJSONMixin, ChatMessageI):
-    __tablename__ = 'chat_messages'
+class Message(BaseModel, MessageJSONMixin, MessageI):
+    __tablename__ = 'messages'
 
     _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), name='user_id', nullable=False)
     _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id', ondelete='CASCADE'), name='chat_id', nullable=False)
@@ -237,9 +237,9 @@ class ChatMessage(BaseModel, ChatMessageJSONMixin, ChatMessageI):
                                                          default=datetime.utcnow)
     _is_read: Mapped[bool] = mapped_column(Boolean, name='is_read', default=False)
 
-    _user: Mapped['User'] = relationship(back_populates='_chat_messages', uselist=False)
+    _user: Mapped['User'] = relationship(back_populates='_messages', uselist=False)
     _chat: Mapped['Chat'] = relationship(back_populates='_messages', uselist=False)
-    _storage: Mapped[Union['ChatMessageStorage', None]] = relationship(
+    _storage: Mapped[Union['MessageStorage', None]] = relationship(
         back_populates='_message',
         cascade='all, delete',
         uselist=False,
@@ -249,7 +249,7 @@ class ChatMessage(BaseModel, ChatMessageJSONMixin, ChatMessageI):
     def create(cls, text: str,
                user: 'User',
                chat: 'Chat',
-               storage: Union['ChatMessageStorage', None] = None,
+               storage: Union['MessageStorage', None] = None,
                ) -> Self:
         return cls(_text=text, _user=user, _chat=chat, _storage=storage)
 
@@ -274,26 +274,26 @@ class ChatMessage(BaseModel, ChatMessageJSONMixin, ChatMessageI):
         return self._chat
 
     @property
-    def storage(self) -> Union['ChatMessageStorage', None]:
+    def storage(self) -> Union['MessageStorage', None]:
         return self._storage
 
     def read(self) -> None:
         self._is_read = True  # type: ignore
 
 
-class ChatMessageStorage(BaseModel, ChatMessageStorageI):
-    __tablename__ = 'chat_message_storages'
+class MessageStorage(BaseModel, MessageStorageI):
+    __tablename__ = 'message_storages'
     _FILES_PATH: Final[Path] = MEDIA_FOLDER.joinpath('files')
 
-    _chat_message_id: Mapped[int | None] = mapped_column(ForeignKey('chat_messages.id', ondelete='CASCADE'),
-                                                         name='chat_message_id')
-    _message: Mapped[Union['ChatMessage', None]] = relationship(back_populates='_storage', uselist=False)
+    _message_id: Mapped[int | None] = mapped_column(ForeignKey('messages.id', ondelete='CASCADE'),
+                                                         name='message_id')
+    _message: Mapped[Union['Message', None]] = relationship(back_populates='_storage', uselist=False)
 
     @property
-    def message(self) -> Union['ChatMessage', None]:
+    def message(self) -> Union['Message', None]:
         return self._message
 
-    def save(self, files: list['ChatMessageStorageFileI']) -> None:
+    def save(self, files: list['MessageStorageFileI']) -> None:
         file_folder_path: Path = self.path()
         if file_folder_path.exists():
             rmtree(file_folder_path)
@@ -377,19 +377,19 @@ class UserChatMatch(BaseModel, UserChatMatchI):
 
     @classmethod
     def chats_of_user(cls, user_id: int) -> 'ChatList':
-        query = db_builder.session.query(cls, Chat, ChatMessage)
+        query = db_builder.session.query(cls, Chat, Message)
 
         joined_query = query.join(
             Chat, Chat._id == cls._chat_id,
         ).join(
-            ChatMessage, Chat._id == ChatMessage._chat_id,  # noqa
+            Message, Chat._id == Message._chat_id,  # noqa
             isouter=True,
         )
 
         filtered_and_ordered_query = joined_query.filter(
             cls._user_id == user_id,
         ).order_by(
-            desc(ChatMessage._creating_datetime),  # noqa
+            desc(Message._creating_datetime),  # noqa
         )
 
         chats: list[Chat] = filtered_and_ordered_query.with_entities(Chat).all()  # type: ignore
@@ -484,5 +484,5 @@ class UnreadCount(BaseModel, UnreadCountJSONMixin, UnreadCountI):
 from db.lists import (  # noqa
     UserList,
     ChatList,
-    ChatMessageList,
+    MessageList,
 )

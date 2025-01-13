@@ -3,22 +3,22 @@ from typing import Union
 from db.json_mixins import (
     UserListJSONMixin,
     ChatListJSONMixin,
-    ChatMessageListJSONMixin,
+    MessageListJSONMixin,
 )
 from db.i import (
     UserListI,
     ChatListI,
-    ChatMessageListI,
+    MessageListI,
 )
 
 __all__ = (
     'UserList',
     'ChatList',
-    'ChatMessageList',
+    'MessageList',
 )
 
 
-class AbstractList(list[Union['User', 'Chat', 'ChatMessage']]):
+class AbstractList(list[Union['User', 'Chat', 'Message']]):
 
     def ids(self) -> list[int]:
         ids = []
@@ -40,12 +40,12 @@ class ChatList(AbstractList, ChatListJSONMixin, ChatListI, list['Chat']):
         self._user_id = user_id
 
 
-class ChatMessageList(AbstractList, ChatMessageListJSONMixin, ChatMessageListI, list['ChatMessage']):
+class MessageList(AbstractList, MessageListJSONMixin, MessageListI, list['Message']):
     pass
 
 
 from db.models import (
     User,  # noqa
     Chat,  # noqa
-    ChatMessage,  # noqa
+    Message,  # noqa
 )

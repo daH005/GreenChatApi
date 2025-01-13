@@ -14,9 +14,9 @@ __all__ = (
     'USER_EMAIL_CODE_CHECK_SPECS',
 
     'CHAT_HISTORY_SPECS',
-    'CHAT_MESSAGES_FILES_SAVE_SPECS',
-    'CHAT_MESSAGES_FILES_NAMES_SPECS',
-    'CHAT_MESSAGES_FILES_GET_SPECS',
+    'MESSAGES_FILES_SAVE_SPECS',
+    'MESSAGES_FILES_NAMES_SPECS',
+    'MESSAGES_FILES_GET_SPECS',
 )
 
 
@@ -78,7 +78,7 @@ _USER_SCHEMA = {
     },
 }
 
-_CHAT_MESSAGE_SCHEMA = {
+_MESSAGE_SCHEMA = {
     'type': 'object',
     'properties': {
         'id': {
@@ -322,7 +322,7 @@ USER_CHATS_SPECS = {
                         'type': 'array',
                         'items': {'type': 'integer'},
                     },
-                    'lastMessage': _CHAT_MESSAGE_SCHEMA,
+                    'lastMessage': _MESSAGE_SCHEMA,
                 },
             }
         },
@@ -410,7 +410,7 @@ CHAT_HISTORY_SPECS = {
                 'properties': {
                     'messages': {
                         'type': 'array',
-                        'items': _CHAT_MESSAGE_SCHEMA,
+                        'items': _MESSAGE_SCHEMA,
                     }
                 }
             }
@@ -420,7 +420,7 @@ CHAT_HISTORY_SPECS = {
     }
 }
 
-CHAT_MESSAGES_FILES_SAVE_SPECS = {
+MESSAGES_FILES_SAVE_SPECS = {
     'tags': _CHAT_TAGS,
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
@@ -447,7 +447,7 @@ CHAT_MESSAGES_FILES_SAVE_SPECS = {
     },
 }
 
-CHAT_MESSAGES_FILES_NAMES_SPECS = {
+MESSAGES_FILES_NAMES_SPECS = {
     'tags': _CHAT_TAGS,
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
@@ -477,7 +477,7 @@ CHAT_MESSAGES_FILES_NAMES_SPECS = {
     },
 }
 
-CHAT_MESSAGES_FILES_GET_SPECS = {
+MESSAGES_FILES_GET_SPECS = {
     'tags': _CHAT_TAGS,
     'parameters': [
         _ACCESS_TOKEN_COOKIE,

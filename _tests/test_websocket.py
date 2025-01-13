@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 
 from db.models import User
-from websocket_.validation import NewChatMessageJSONValidator
+from websocket_.validation import NewMessageJSONValidator
 from websocket_.server_handlers import server, user_ids_and_potential_interlocutor_ids
 from _tests.common.create_test_db import create_test_db
 from _tests.common.assert_and_save_jsons_if_failed import assert_and_save_jsons_if_failed
@@ -94,4 +94,4 @@ async def test_full_disconnection_handler(user: User,
 def test_message_text_clearing(raw_text: str,
                                expected_text: str,
                                ) -> None:
-    assert NewChatMessageJSONValidator.clear_text(raw_text) == expected_text
+    assert NewMessageJSONValidator.clear_text(raw_text) == expected_text
