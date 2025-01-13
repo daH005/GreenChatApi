@@ -44,7 +44,7 @@ class Params:
         USER_BACKGROUND_EDIT = '/user/background/edit', 'PUT'
         USER_BACKGROUND = '/user/background', 'GET'
 
-        CHAT_HISTORY = '/chat/history', 'GET'
+        CHAT_MESSAGES = '/chat/messages', 'GET'
         MESSAGES_FILES_SAVE = '/chat/messages/files/save', 'POST'
         MESSAGES_FILES_NAMES = '/chat/messages/files/names', 'GET'
         MESSAGES_FILES_GET = '/chat/messages/files/get', 'GET'
@@ -1148,10 +1148,10 @@ class SetForTest:
         ),
     ]
 
-    chat_history = [
+    chat_messages = [
         dict(
-            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
-            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES[1],
             query_string={
                 'chatId': 1,
             },
@@ -1196,8 +1196,8 @@ class SetForTest:
             },
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
-            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES[1],
             query_string={
                 'chatId': 2,
             },
@@ -1211,8 +1211,8 @@ class SetForTest:
             expected_status_code=403,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
-            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES[1],
             query_string={
                 'chatId': 3333,  # instead of 404
             },
@@ -1226,8 +1226,8 @@ class SetForTest:
             expected_status_code=403,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
-            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES[1],
             query_string={
                 'chatId': 1,
             },
@@ -1242,8 +1242,8 @@ class SetForTest:
             expected_json_dict=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_HISTORY[0],
-            method=Params.UrlsAndMethods.CHAT_HISTORY[1],
+            url=Params.UrlsAndMethods.CHAT_MESSAGES[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGES[1],
             query_string={
                 'chatId': 'what',
             },

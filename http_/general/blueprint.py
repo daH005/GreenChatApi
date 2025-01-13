@@ -33,7 +33,7 @@ from http_.common.apidocs_constants import (
     USER_SPECS,
     USER_EDIT_SPECS,
     USER_CHATS_SPECS,
-    CHAT_HISTORY_SPECS,
+    CHAT_MESSAGES_SPECS,
 )
 from http_.common.urls import Url
 
@@ -156,10 +156,10 @@ def user_chats():
     return get_current_user().chats().as_json()
 
 
-@general_bp.route(Url.CHAT_HISTORY, methods=[HTTPMethod.GET])
+@general_bp.route(Url.CHAT_MESSAGES, methods=[HTTPMethod.GET])
 @jwt_required()
-@swag_from(CHAT_HISTORY_SPECS)
-def chat_history():
+@swag_from(CHAT_MESSAGES_SPECS)
+def chat_messages():
     try:
         chat_id: int = int(request.args[JSONKey.CHAT_ID])
     except (ValueError, KeyError):

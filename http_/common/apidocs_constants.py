@@ -13,7 +13,7 @@ __all__ = (
     'USER_EMAIL_CODE_SEND_SPECS',
     'USER_EMAIL_CODE_CHECK_SPECS',
 
-    'CHAT_HISTORY_SPECS',
+    'CHAT_MESSAGES_SPECS',
     'MESSAGES_FILES_SAVE_SPECS',
     'MESSAGES_FILES_NAMES_SPECS',
     'MESSAGES_FILES_GET_SPECS',
@@ -385,7 +385,7 @@ USER_EMAIL_CODE_CHECK_SPECS = {
     },
 }
 
-CHAT_HISTORY_SPECS = {
+CHAT_MESSAGES_SPECS = {
     'tags': _CHAT_TAGS,
     'description': 'Messages sorted by "creatingDatetime" in descending order.',
     'parameters': [
