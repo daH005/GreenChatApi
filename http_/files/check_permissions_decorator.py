@@ -1,9 +1,9 @@
-from flask import request, abort
-from http import HTTPStatus
 from functools import wraps
+from http import HTTPStatus
+
+from flask import request, abort
 
 from common.json_keys import JSONKey
-from db.builder import db_builder
 from db.models import MessageStorage
 from http_.common.get_current_user import get_current_user
 
@@ -20,8 +20,9 @@ def check_permissions_decorator(func):
         except (KeyError, ValueError):
             return abort(HTTPStatus.BAD_REQUEST)
 
-        storage: MessageStorage | None = db_builder.session.get(MessageStorage, storage_id)
-        if storage is None:
+        try:
+            storage: MessageStorage = MessageStorage.by_id(storage_id)
+        except ValueError:
             return abort(HTTPStatus.NOT_FOUND)
 
         if storage.message is None:

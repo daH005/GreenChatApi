@@ -1,7 +1,7 @@
 from flask_jwt_extended import JWTManager
 
-from db.models import User, BlacklistToken
 from db.builder import db_builder
+from db.models import User, BlacklistToken
 
 __all__ = (
     'jwt',

@@ -1,18 +1,19 @@
-from flask import Blueprint, request, abort
 from http import HTTPMethod, HTTPStatus
-from pydantic import validate_email
+
 from flasgger import swag_from
+from flask import Blueprint, request, abort
+from pydantic import validate_email
 
 from common.json_keys import JSONKey
-from http_.common.simple_response import make_simple_response
-from http_.common.urls import Url
-from http_.email.tasks import send_code_task
-from http_.email.codes.functions import make_and_save_email_code, email_code_is_valid
-from http_.common.validation import EmailAndCodeJSONValidator
 from http_.common.apidocs_constants import (
     USER_EMAIL_CODE_SEND_SPECS,
     USER_EMAIL_CODE_CHECK_SPECS,
 )
+from http_.common.simple_response import make_simple_response
+from http_.common.urls import Url
+from http_.common.validation import EmailAndCodeJSONValidator
+from http_.email.codes.functions import make_and_save_email_code, email_code_is_valid
+from http_.email.tasks import send_code_task
 
 __all__ = (
     'email_bp',
@@ -26,7 +27,7 @@ email_bp: Blueprint = Blueprint('email', __name__)
 def code_send():
     try:
         email: str = validate_email(request.json[JSONKey.EMAIL])[1]
-    except (ValueError, KeyError):
+    except (KeyError, ValueError):
         return abort(HTTPStatus.BAD_REQUEST)
 
     try:

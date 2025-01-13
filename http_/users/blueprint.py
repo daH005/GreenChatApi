@@ -1,10 +1,12 @@
+from http import HTTPMethod, HTTPStatus
+
+from flasgger import swag_from
 from flask import (
     Blueprint,
     request,
     abort,
     Response,
 )
-from http import HTTPMethod, HTTPStatus
 from flask_jwt_extended import (
     set_access_cookies,
     set_refresh_cookies,
@@ -12,21 +14,12 @@ from flask_jwt_extended import (
     get_jwt,
     jwt_required,
 )
-from flasgger import swag_from
 
+from common.json_keys import JSONKey
 from db.builder import db_builder
 from db.models import User, BlacklistToken
 from db.transaction_retry_decorator import transaction_retry_decorator
-from common.json_keys import JSONKey
-from http_.common.get_current_user import get_current_user
-from http_.common.simple_response import make_simple_response
-from http_.common.validation import EmailAndCodeJSONValidator, UserJSONValidator
-from http_.email.codes.functions import (
-    email_code_is_valid,
-    delete_email_code,
-)
 from http_.common.apidocs_constants import (
-    USER_EMAIL_CHECK_SPECS,
     USER_LOGIN_SPECS,
     USER_LOGOUT_SPECS,
     USER_REFRESH_ACCESS_SPECS,
@@ -34,27 +27,20 @@ from http_.common.apidocs_constants import (
     USER_EDIT_SPECS,
     USER_CHATS_SPECS,
 )
+from http_.common.get_current_user import get_current_user
+from http_.common.simple_response import make_simple_response
 from http_.common.urls import Url
-
+from http_.common.validation import EmailAndCodeJSONValidator, UserJSONValidator
+from http_.email.codes.functions import (
+    email_code_is_valid,
+    delete_email_code,
+)
 
 __all__ = (
     'users_bp',
 )
 
 users_bp: Blueprint = Blueprint('users', __name__)
-
-
-@users_bp.route(Url.USER_EMAIL_CHECK, methods=[HTTPMethod.GET])
-@swag_from(USER_EMAIL_CHECK_SPECS)
-def email_check():
-    try:
-        email: str = str(request.args[JSONKey.EMAIL])
-    except KeyError:
-        return abort(HTTPStatus.BAD_REQUEST)
-
-    return {
-        JSONKey.IS_ALREADY_TAKEN: User.email_is_already_taken(email),
-    }
 
 
 @users_bp.route(Url.USER_LOGIN, methods=[HTTPMethod.POST])
@@ -117,7 +103,7 @@ def _make_access_response(user: User,
 @users_bp.route(Url.USER, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(USER_SPECS)
-def user():
+def user_get():
     try:
         user_id: int = int(request.args[JSONKey.USER_ID])
     except KeyError:
@@ -125,8 +111,9 @@ def user():
     except ValueError:
         return abort(HTTPStatus.BAD_REQUEST)
 
-    user: User | None = db_builder.session.get(User, user_id)
-    if user is None:
+    try:
+        user: User = User.by_id(user_id)
+    except ValueError:
         return abort(HTTPStatus.NOT_FOUND)
 
     return user.as_json()

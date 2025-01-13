@@ -1,5 +1,9 @@
 from enum import StrEnum
 
+__all__ = (
+    'JSONKey',
+)
+
 
 class JSONKey(StrEnum):
 
@@ -9,10 +13,12 @@ class JSONKey(StrEnum):
     MESSAGE_ID = 'messageId'
     MESSAGE_IDS = 'messageIds'
     STORAGE_ID = 'storageId'
+    INTERLOCUTOR_ID = 'interlocutorId'
 
     EMAIL = 'email'
     FIRST_NAME = 'firstName'
     LAST_NAME = 'lastName'
+    IS_ONLINE = 'isOnline'
 
     TEXT = 'text'
     CREATING_DATETIME = 'creatingDatetime'
@@ -32,7 +38,6 @@ class JSONKey(StrEnum):
     USER_IDS = 'userIds'
     UNREAD_COUNT = 'unreadCount'
 
-    IS_ALREADY_TAKEN = 'isAlreadyTaken'
     CODE_IS_VALID = 'codeIsValid'
 
     TYPE = 'type'

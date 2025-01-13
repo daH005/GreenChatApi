@@ -1,9 +1,10 @@
 from datetime import datetime
+from os import PathLike
 from pathlib import Path
 from typing import Union, Self, Protocol
-from os import PathLike
 
 __all__ = (
+    'BaseI',
     'BlacklistTokenI',
     'UserI',
     'ChatI',
@@ -23,6 +24,10 @@ class BaseI:
 
     @property
     def id(self) -> int:
+        raise NotImplementedError
+
+    @classmethod
+    def by_id(cls, id_: int) -> Self:
         raise NotImplementedError
 
 
@@ -71,16 +76,6 @@ class UserI(BaseI):
     def by_email(cls, email: str) -> Self:
         raise NotImplementedError
 
-    @classmethod
-    def email_is_already_taken(cls, email: str) -> bool:
-        raise NotImplementedError
-
-    @classmethod
-    def _data_is_already_taken(cls, field_name: str,
-                               value: str,
-                               ) -> bool:
-        raise NotImplementedError
-
     def chats(self) -> 'ChatListI':
         raise NotImplementedError
 
@@ -122,16 +117,23 @@ class ChatI(BaseI):
     def last_message(self) -> 'MessageI':
         raise NotImplementedError
 
-    def messages(self) -> 'MessageListI':
+    def messages(self, offset: int | None = None,
+                 size: int | None = None,
+                 ) -> 'MessageListI':
+        raise NotImplementedError
+
+    def unread_messages_until(self, message_id: int) -> 'MessageListI':
+        raise NotImplementedError
+
+    def interlocutor_messages_after_count(self, message_id: int,
+                                          user_id: int,
+                                          ) -> int:
         raise NotImplementedError
 
     def users(self) -> 'UserListI':
         raise NotImplementedError
 
     def check_user_access(self, user_id: int) -> None:
-        raise NotImplementedError
-
-    def unread_messages_of_user(self, user_id: int) -> 'MessageListI':
         raise NotImplementedError
 
     def interlocutor_of_user(self, user_id: int) -> 'UserI':
@@ -305,13 +307,19 @@ class UnreadCountI(BaseI):
         raise NotImplementedError
 
 
-class UserListI(list['UserI']):
+class BaseListI(list[Union['UserI', 'ChatI', 'MessageI']]):
+
+    def ids(self) -> list[int]:
+        raise NotImplementedError
+
+
+class UserListI(BaseListI, list['UserI']):
     pass
 
 
-class ChatListI(list['ChatI']):
+class ChatListI(BaseListI, list['ChatI']):
     _user_id: int
 
 
-class MessageListI(list['MessageI']):
+class MessageListI(BaseListI, list['MessageI']):
     pass

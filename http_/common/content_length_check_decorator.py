@@ -1,6 +1,7 @@
-from flask import request, abort
-from http import HTTPStatus
 from functools import wraps
+from http import HTTPStatus
+
+from flask import request, abort
 
 __all__ = (
     'content_length_check_decorator',

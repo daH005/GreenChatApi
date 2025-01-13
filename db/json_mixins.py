@@ -1,4 +1,5 @@
 from common.json_keys import JSONKey
+from common.online_set import OnlineSet
 from db.i import (
     UserI,
     ChatI,
@@ -39,6 +40,7 @@ class UserJSONMixin(JSONMixinI, UserI):
             JSONKey.ID: self._id,
             JSONKey.FIRST_NAME: self._first_name,
             JSONKey.LAST_NAME: self._last_name,
+            JSONKey.IS_ONLINE: OnlineSet().exists(self.id),
         }
 
 
@@ -53,12 +55,19 @@ class ChatJSONMixin(JSONMixinI, ChatI):
             last_message = self.last_message.as_json()
         except IndexError:
             last_message = None
+
+        user_ids = self.users().ids()
+        interlocutor_id = None
+        if not self._is_group:
+            interlocutor_id = [_user_id for _user_id in user_ids if _user_id != user_id][0]
+
         return {
             JSONKey.ID: self._id,
+            JSONKey.USER_IDS: user_ids,
+            JSONKey.INTERLOCUTOR_ID: interlocutor_id,
             JSONKey.NAME: self._name,
             JSONKey.IS_GROUP: self._is_group,
             JSONKey.LAST_MESSAGE: last_message,
-            JSONKey.USER_IDS: [user.id for user in self.users()],
             JSONKey.UNREAD_COUNT: self.unread_count_of_user(user_id=user_id).value,
         }
 
@@ -85,8 +94,7 @@ class UnreadCountJSONMixin(JSONMixinI, UnreadCountI):
 
     def as_json(self):
         return {
-            JSONKey.CHAT_ID: self._user_chat_match.chat.id,
-            JSONKey.UNREAD_COUNT: self.value,
+            JSONKey.UNREAD_COUNT: self._value,
         }
 
 
@@ -106,7 +114,7 @@ class ChatListJSONMixin(JSONMixinI, ChatListI, list['ChatJSONMixin']):
 
 class MessageListJSONMixin(JSONMixinI, MessageListI, list['MessageJSONMixin']):
 
-    def as_json(self, offset: int = 0):
+    def as_json(self):
         return {
-            JSONKey.MESSAGES: [msg.as_json() for msg in self[offset:]]
+            JSONKey.MESSAGES: [msg.as_json() for msg in self]
         }

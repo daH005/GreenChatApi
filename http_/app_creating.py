@@ -1,6 +1,6 @@
+from flasgger import Swagger
 from flask import Flask
 from flask_cors import CORS
-from flasgger import Swagger
 
 from config import (
     CORS_ORIGINS,
@@ -9,14 +9,14 @@ from config import (
     JWT_ACCESS_TOKEN_EXPIRES,
     JWT_REFRESH_TOKEN_EXPIRES,
 )
-from http_.common.urls import Url
-from http_.jwt_ import jwt
-from http_.email.blueprint import email_bp
 from http_.avatars.blueprint import avatars_bp
 from http_.backgrounds.blueprint import backgrounds_bp
-from http_.files.blueprint import files_bp
-from http_.users.blueprint import users_bp
 from http_.chats.blueprint import chats_bp
+from http_.common.urls import Url
+from http_.email.blueprint import email_bp
+from http_.files.blueprint import files_bp
+from http_.jwt_ import jwt
+from http_.users.blueprint import users_bp
 
 __all__ = (
     'create_app',

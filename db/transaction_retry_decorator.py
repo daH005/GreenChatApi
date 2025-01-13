@@ -1,6 +1,7 @@
 from functools import wraps
-from sqlalchemy.exc import SQLAlchemyError
 from traceback import print_exc
+
+from sqlalchemy.exc import SQLAlchemyError
 
 from config import DEFAULT_TRANSACTION_RETRY_MAX_ATTEMPTS
 from db.builder import db_builder

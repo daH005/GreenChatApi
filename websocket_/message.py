@@ -6,5 +6,6 @@ __all__ = (
 
 
 class WebSocketMessageJSONDict(TypedDict):
+
     type: str
     data: dict

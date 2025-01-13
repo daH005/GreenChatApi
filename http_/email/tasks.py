@@ -1,16 +1,17 @@
-from smtplib import SMTP_SSL, SMTPAuthenticationError
-from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from celery import Celery
+from email.mime.text import MIMEText
+from smtplib import SMTP_SSL, SMTPAuthenticationError
 from typing import Final
 
-from config import REDIS_URL
+from celery import Celery
+
 from config import (
     EMAIL,
     EMAIL_PASSWORD,
     SMTP_HOST,
     SMTP_PORT,
 )
+from config import REDIS_URL
 
 __all__ = (
     'app',

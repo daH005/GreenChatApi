@@ -1,21 +1,22 @@
-from flask import Blueprint, request, abort, send_file
 from http import HTTPMethod, HTTPStatus
-from flasgger import swag_from
-from flask_jwt_extended import jwt_required
 from pathlib import Path
 
-from config import MESSAGE_FILES_MAX_CONTENT_LENGTH
+from flasgger import swag_from
+from flask import Blueprint, request, abort, send_file
+from flask_jwt_extended import jwt_required
+
 from common.json_keys import JSONKey
-from db.transaction_retry_decorator import transaction_retry_decorator
-from db.models import MessageStorage
+from config import MESSAGE_FILES_MAX_CONTENT_LENGTH
 from db.builder import db_builder
-from http_.common.urls import Url
+from db.models import MessageStorage
+from db.transaction_retry_decorator import transaction_retry_decorator
 from http_.common.apidocs_constants import (
-    MESSAGES_FILES_SAVE_SPECS,
-    MESSAGES_FILES_NAMES_SPECS,
-    MESSAGES_FILES_GET_SPECS,
+    CHAT_MESSAGE_FILES_SAVE_SPECS,
+    CHAT_MESSAGE_FILES_NAMES_SPECS,
+    CHAT_MESSAGE_FILES_GET_SPECS,
 )
 from http_.common.content_length_check_decorator import content_length_check_decorator
+from http_.common.urls import Url
 from http_.files.check_permissions_decorator import check_permissions_decorator
 
 __all__ = (
@@ -27,10 +28,10 @@ files_bp: Blueprint = Blueprint('files', __name__)
 
 @files_bp.route(Url.CHAT_MESSAGE_FILES_SAVE, methods=[HTTPMethod.POST])
 @jwt_required()
-@swag_from(MESSAGES_FILES_SAVE_SPECS)
+@swag_from(CHAT_MESSAGE_FILES_SAVE_SPECS)
 @content_length_check_decorator(MESSAGE_FILES_MAX_CONTENT_LENGTH)
 @transaction_retry_decorator()
-def messages_files_save():
+def chat_message_files_save():
     files = request.files.getlist('files')
     if not files:
         return abort(HTTPStatus.BAD_REQUEST)
@@ -47,9 +48,9 @@ def messages_files_save():
 
 @files_bp.route(Url.CHAT_MESSAGE_FILES_NAMES, methods=[HTTPMethod.GET])
 @jwt_required()
-@swag_from(MESSAGES_FILES_NAMES_SPECS)
+@swag_from(CHAT_MESSAGE_FILES_NAMES_SPECS)
 @check_permissions_decorator
-def messages_files_names(storage: MessageStorage):
+def chat_message_files_names(storage: MessageStorage):
     try:
         return {
             JSONKey.FILENAMES: storage.filenames(),
@@ -60,9 +61,9 @@ def messages_files_names(storage: MessageStorage):
 
 @files_bp.route(Url.CHAT_MESSAGE_FILES_GET, methods=[HTTPMethod.GET])
 @jwt_required()
-@swag_from(MESSAGES_FILES_GET_SPECS)
+@swag_from(CHAT_MESSAGE_FILES_GET_SPECS)
 @check_permissions_decorator
-def messages_files_get(storage: MessageStorage):
+def chat_message_files_get(storage: MessageStorage):
     try:
         filename: str = request.args[JSONKey.FILENAME]
     except (KeyError, ValueError):

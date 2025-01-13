@@ -1,5 +1,5 @@
-from alembic.config import Config
 from alembic import command
+from alembic.config import Config
 
 from config import BASE_DIR, DB_URL
 

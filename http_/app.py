@@ -1,3 +1,5 @@
+from traceback import print_exc
+
 from flask import (
     Flask,
     Response,
@@ -5,8 +7,8 @@ from flask import (
 from werkzeug.exceptions import HTTPException
 
 from db.builder import db_builder
-from http_.common.simple_response import make_simple_response
 from http_.app_creating import create_app
+from http_.common.simple_response import make_simple_response
 
 __all__ = (
     'app',
@@ -24,4 +26,5 @@ def teardown_appcontext(exception: Exception | None = None) -> None:
 
 @app.errorhandler(HTTPException)
 def errorhandler(exception: HTTPException) -> Response:
+    print_exc()
     return make_simple_response(exception.code)

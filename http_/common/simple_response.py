@@ -1,5 +1,6 @@
-from flask import Response, make_response
 from http import HTTPStatus
+
+from flask import Response, make_response
 
 __all__ = (
     'make_simple_response',

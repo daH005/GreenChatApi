@@ -1,15 +1,16 @@
 from typing import Union
 
-from db.json_mixins import (
-    UserListJSONMixin,
-    ChatListJSONMixin,
-    MessageListJSONMixin,
-)
 from db.i import (
     UserListI,
     ChatListI,
     MessageListI,
 )
+from db.json_mixins import (
+    UserListJSONMixin,
+    ChatListJSONMixin,
+    MessageListJSONMixin,
+)
+from db.signal_mixins import MessageListSignalMixin
 
 __all__ = (
     'UserList',
@@ -20,9 +21,13 @@ __all__ = (
 
 class AbstractList(list[Union['User', 'Chat', 'Message']]):
 
-    def ids(self) -> list[int]:
+    def ids(self, exclude_ids: list[int] | None = None) -> list[int]:
+        if exclude_ids is None:
+            exclude_ids = []
         ids = []
         for obj in self:
+            if obj.id in exclude_ids:
+                continue
             ids.append(obj.id)
         return ids
 
@@ -40,12 +45,12 @@ class ChatList(AbstractList, ChatListJSONMixin, ChatListI, list['Chat']):
         self._user_id = user_id
 
 
-class MessageList(AbstractList, MessageListJSONMixin, MessageListI, list['Message']):
+class MessageList(AbstractList, MessageListJSONMixin, MessageListSignalMixin, MessageListI, list['Message']):
     pass
 
 
-from db.models import (
-    User,  # noqa
-    Chat,  # noqa
-    Message,  # noqa
+from db.models import (  # noqa
+    User,
+    Chat,
+    Message,
 )
