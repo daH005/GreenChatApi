@@ -53,6 +53,7 @@ class WebSocketServer:
             await asyncio.Future()
 
     async def _signal_queue_pop_task(self) -> NoReturn:
+        self._online_set.clear()
         while True:
             await asyncio.sleep(0)
             try:

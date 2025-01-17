@@ -19,3 +19,6 @@ class OnlineSet(metaclass=SingletonMeta):
 
     def exists(self, user_id: int | str) -> bool:
         return resident_app.sismember(self._KEY, str(user_id)) is 1
+
+    def clear(self) -> None:
+        resident_app.delete(self._KEY)
