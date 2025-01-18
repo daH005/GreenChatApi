@@ -107,6 +107,9 @@ class Params:
         'Hello3',
     ]
 
+    BIG_TEXT = '0' * 20_000
+    CUT_BIG_TEXT = BIG_TEXT[:10_000]
+
 
 class SetForTest:
     user_login = [
@@ -1277,6 +1280,23 @@ class SetForTest:
             expected_status_code=201,
             expected_signal_queue_messages=anything,
         ),
+        dict(
+            url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[1],
+            json_dict={
+                'chatId': 3,
+                'text': Params.BIG_TEXT,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=201,
+            expected_signal_queue_messages=anything,
+        ),
     ]
 
     chat_message_read = [
@@ -2228,11 +2248,11 @@ class SetForTest:
                         'id': 3,
                         'isGroup': False,
                         'lastMessage': {
-                            'id': 5,
+                            'id': 6,
                             'chatId': 3,
                             'userId': 50000,
                             'storageId': None,
-                            'text': 'Hello1',
+                            'text': Params.CUT_BIG_TEXT,
                             'isRead': False,
                             'creatingDatetime': anything,
                         },
