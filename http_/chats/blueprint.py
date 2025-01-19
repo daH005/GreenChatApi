@@ -7,7 +7,6 @@ from flask import (
     abort,
 )
 from flask_jwt_extended import jwt_required
-from pydantic import ValidationError
 
 from common.json_keys import JSONKey
 from db.builder import db_builder
@@ -74,10 +73,7 @@ def chat_get():
 @swag_from(CHAT_NEW_SPECS)
 @transaction_retry_decorator()
 def chat_new():
-    try:
-        data: NewChatJSONValidator = NewChatJSONValidator.from_json()
-    except ValidationError:
-        return abort(HTTPStatus.BAD_REQUEST)
+    data: NewChatJSONValidator = NewChatJSONValidator.from_json()
 
     user: User = get_current_user()
     if user.id not in data.user_ids:
@@ -186,10 +182,7 @@ def message_get():
 @swag_from(CHAT_MESSAGE_NEW_SPECS)
 @transaction_retry_decorator()
 def message_new():
-    try:
-        data: NewMessageJSONValidator = NewMessageJSONValidator.from_json()
-    except ValidationError:
-        return abort(HTTPStatus.BAD_REQUEST)
+    data: NewMessageJSONValidator = NewMessageJSONValidator.from_json()
 
     try:
         chat: Chat = Chat.by_id(data.chat_id)
