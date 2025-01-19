@@ -303,6 +303,7 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, MessageI):
 class MessageStorage(BaseModel, MessageStorageI):
     __tablename__ = 'message_storages'
     _FILES_PATH: Final[Path] = MEDIA_FOLDER.joinpath('files')
+    _ALTCHARS: bytes = b'-_'
 
     _message_id: Mapped[int | None] = mapped_column(ForeignKey('messages.id', ondelete='CASCADE'),
                                                     name='message_id')
@@ -342,13 +343,11 @@ class MessageStorage(BaseModel, MessageStorageI):
     def path(self) -> Path:
         return self._FILES_PATH.joinpath(str(self._id))
 
-    @staticmethod
-    def _encode_filename(filename: str) -> str:
-        return b64encode(filename.encode()).decode()
+    def _encode_filename(self, filename: str) -> str:
+        return b64encode(filename.encode(), altchars=self._ALTCHARS).decode()
 
-    @staticmethod
-    def _decode_filename(filename: str) -> str:
-        return b64decode(filename).decode()
+    def _decode_filename(self, filename: str) -> str:
+        return b64decode(filename, altchars=self._ALTCHARS).decode()
 
 
 class UserChatMatch(BaseModel, UserChatMatchI):
