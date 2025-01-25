@@ -287,6 +287,9 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, MessageI):
     def read(self) -> None:
         self._is_read = True  # noqa
 
+    def set_text(self, text: str) -> None:
+        self._text = text  # noqa
+
 
 class UserChatMatch(BaseModel, UserChatMatchI):
     __tablename__ = 'user_chat_matches'

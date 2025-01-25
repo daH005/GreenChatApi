@@ -24,6 +24,7 @@ class JSONKey(StrEnum):
     IS_READ = 'isRead'
     HAS_FILES = 'hasFiles'
 
+    FILENAMES = 'filenames'
     FILENAME = 'filename'
 
     OFFSET = 'offset'

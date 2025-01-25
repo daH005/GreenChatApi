@@ -26,6 +26,8 @@ from http_.common.apidocs_constants import (
     CHAT_UNREAD_COUNT_SPECS,
     MESSAGE_SPECS,
     MESSAGE_NEW_SPECS,
+    MESSAGE_EDIT_SPECS,
+    MESSAGE_DELETE_SPECS,
     MESSAGE_READ_SPECS,
     CHAT_MESSAGES_SPECS,
 )
@@ -39,6 +41,7 @@ from http_.common.validation import (
 from http_.common.check_access_decorators import (
     message_access_query_decorator,
     message_access_json_decorator,
+    message_full_access_json_decorator,
     chat_access_query_decorator,
     chat_access_json_decorator,
 )
@@ -184,6 +187,37 @@ def message_new():
     chat.signal_new_unread_count(user_ids)
 
     return message.as_json(), HTTPStatus.CREATED
+
+
+@chats_bp.route(Url.MESSAGE_EDIT, methods=[HTTPMethod.PUT])
+@jwt_required()
+@swag_from(MESSAGE_EDIT_SPECS)
+@transaction_retry_decorator()
+@message_full_access_json_decorator
+def message_edit(message: Message, _):
+    try:
+        text: str = str(request.json[JSONKey.TEXT])
+    except (KeyError, ValueError):
+        return abort(HTTPStatus.BAD_REQUEST)
+
+    message.set_text(text)
+    db_builder.session.commit()
+
+    message.signal_edit(message.chat.users().ids())
+    return make_simple_response(HTTPStatus.OK)
+
+
+@chats_bp.route(Url.MESSAGE_DELETE, methods=[HTTPMethod.DELETE])
+@jwt_required()
+@swag_from(MESSAGE_DELETE_SPECS)
+@transaction_retry_decorator()
+@message_full_access_json_decorator
+def message_delete(message: Message, _):
+    db_builder.session.delete(message)
+    db_builder.session.commit()
+
+    message.signal_delete(message.chat.users().ids())
+    return make_simple_response(HTTPStatus.OK)
 
 
 @chats_bp.route(Url.MESSAGE_READ, methods=[HTTPMethod.PUT])

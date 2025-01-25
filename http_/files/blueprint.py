@@ -11,6 +11,7 @@ from db.models import Message
 from http_.common.simple_response import make_simple_response
 from http_.common.apidocs_constants import (
     MESSAGE_FILES_UPDATE_SPECS,
+    MESSAGE_FILES_DELETE_SPECS,
     MESSAGE_FILES_NAMES_SPECS,
     MESSAGE_FILES_GET_SPECS,
 )
@@ -18,6 +19,7 @@ from http_.common.content_length_check_decorator import content_length_check_dec
 from http_.common.urls import Url
 from http_.common.check_access_decorators import (
     message_full_access_query_decorator,
+    message_full_access_json_decorator,
     message_access_query_decorator,
 )
 
@@ -38,10 +40,31 @@ def message_files_update(message: Message, _):
     if not files:
         return abort(HTTPStatus.BAD_REQUEST)
 
-    message.storage.save(files)
+    message.storage.update(files)
     message.signal_files(message.chat.users().ids())
 
     return make_simple_response(HTTPStatus.CREATED)
+
+
+@files_bp.route(Url.MESSAGE_FILES_DELETE, methods=[HTTPMethod.DELETE])
+@jwt_required()
+@swag_from(MESSAGE_FILES_DELETE_SPECS)
+@message_full_access_json_decorator
+def message_files_delete(message: Message, _):
+    try:
+        filenames: list[str] = request.json[JSONKey.FILENAMES]
+        if not isinstance(filenames, list):
+            raise ValueError
+    except (KeyError, ValueError):
+        return abort(HTTPStatus.BAD_REQUEST)
+
+    try:
+        message.storage.delete(filenames)
+    except TypeError:
+        return abort(HTTPStatus.BAD_REQUEST)
+
+    message.signal_files(message.chat.users().ids())
+    return make_simple_response(HTTPStatus.OK)
 
 
 @files_bp.route(Url.MESSAGE_FILES_NAMES, methods=[HTTPMethod.GET])

@@ -1,7 +1,7 @@
 from base64 import b64encode, b64decode
 from os import listdir
-from pathlib import Path
 from shutil import rmtree
+from pathlib import Path
 from typing import Final
 
 from common.hinting import raises
@@ -27,11 +27,10 @@ class MessageStorage(MessageStorageI):
     def exists(self) -> bool:
         return self.path().exists()
 
-    def save(self, files: list['MessageStorageFileI']) -> None:
+    def update(self, files: list['MessageStorageFileI']) -> None:
         file_folder_path: Path = self.path()
-        if file_folder_path.exists():
-            rmtree(file_folder_path)
-        file_folder_path.mkdir()
+        if not file_folder_path.exists():
+            file_folder_path.mkdir()
 
         secured_filename: str
         for file in files:
@@ -40,6 +39,24 @@ class MessageStorage(MessageStorageI):
 
             secured_filename = self._encode_filename(file.filename)
             file.save(file_folder_path.joinpath(secured_filename))
+
+    @raises(TypeError)
+    def delete(self, filenames: list[str]) -> None:
+        file_folder_path: Path = self.path()
+
+        file_path: Path
+        for filename in filenames:
+            file_path = file_folder_path.joinpath(self._encode_filename(filename))
+            if not file_path.exists():
+                continue
+
+            file_path.unlink()
+
+    def delete_all(self) -> None:
+        path: Path = self.path()
+        if not path.exists():
+            return
+        rmtree(path)
 
     @raises(FileNotFoundError)
     def filenames(self) -> list[str]:
@@ -57,9 +74,11 @@ class MessageStorage(MessageStorageI):
     def path(self) -> Path:
         return self._FILES_PATH.joinpath(str(self._message.id))
 
+    @raises(TypeError)
     def _encode_filename(self, filename: str) -> str:
         return b64encode(filename.encode(), altchars=self._ALTCHARS).decode()
 
+    @raises(TypeError)
     def _decode_filename(self, filename: str) -> str:
         return b64decode(filename, altchars=self._ALTCHARS).decode()
 

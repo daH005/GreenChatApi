@@ -19,8 +19,11 @@ __all__ = (
     'CHAT_MESSAGES_SPECS',
     'MESSAGE_SPECS',
     'MESSAGE_NEW_SPECS',
+    'MESSAGE_EDIT_SPECS',
+    'MESSAGE_DELETE_SPECS',
     'MESSAGE_READ_SPECS',
     'MESSAGE_FILES_UPDATE_SPECS',
+    'MESSAGE_FILES_DELETE_SPECS',
     'MESSAGE_FILES_NAMES_SPECS',
     'MESSAGE_FILES_GET_SPECS',
 )
@@ -35,6 +38,7 @@ _SIMPLE_REQUEST_RESPONSES = {
     201: {},
     202: {},
     400: {},
+    401: {},
     403: {},
     404: {},
     409: {},
@@ -219,6 +223,7 @@ USER_LOGIN_SPECS = {
         200: _SIMPLE_REQUEST_RESPONSES[200],
         201: _SIMPLE_REQUEST_RESPONSES[201],
         400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
     },
 }
 
@@ -230,6 +235,7 @@ USER_LOGOUT_SPECS = {
     ],
     'responses': {
         200: _SIMPLE_REQUEST_RESPONSES[200],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
     },
 }
 
@@ -241,6 +247,7 @@ USER_REFRESH_ACCESS_SPECS = {
     ],
     'responses': {
         200: _SIMPLE_REQUEST_RESPONSES[200],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
     },
 }
 
@@ -260,6 +267,7 @@ USER_SPECS = {
             'schema': _USER_SCHEMA,
         },
         400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
         404: _SIMPLE_REQUEST_RESPONSES[404],
     }
 }
@@ -289,6 +297,7 @@ USER_EDIT_SPECS = {
     'responses': {
         200: _SIMPLE_REQUEST_RESPONSES[200],
         400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
     }
 }
 
@@ -307,7 +316,6 @@ USER_AVATAR_SPECS = {
         200: {
             'description': 'Image file bytes',
         },
-        400: _SIMPLE_REQUEST_RESPONSES[400],
     }
 }
 
@@ -327,6 +335,8 @@ USER_AVATAR_EDIT_SPECS = {
     ],
     'responses': {
         200: _SIMPLE_REQUEST_RESPONSES[200],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
     }
 }
 
@@ -339,7 +349,6 @@ USER_BACKGROUND_SPECS = {
         200: {
             'description': 'Image file bytes',
         },
-        400: _SIMPLE_REQUEST_RESPONSES[400],
     }
 }
 
@@ -359,6 +368,8 @@ USER_BACKGROUND_EDIT_SPECS = {
     ],
     'responses': {
         200: _SIMPLE_REQUEST_RESPONSES[200],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
     }
 }
 
@@ -375,6 +386,7 @@ USER_CHATS_SPECS = {
                 'items': _CHAT_SCHEMA,
             },
         },
+        401: _SIMPLE_REQUEST_RESPONSES[401],
     }
 }
 
@@ -394,6 +406,7 @@ CHAT_SPECS = {
             'schema': _CHAT_SCHEMA
         },
         400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
         403: _SIMPLE_REQUEST_RESPONSES[403],
         404: _SIMPLE_REQUEST_RESPONSES[404],
     }
@@ -422,6 +435,7 @@ CHAT_NEW_SPECS = {
     'responses': {
         201: _SIMPLE_REQUEST_RESPONSES[201],
         400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
         409: _SIMPLE_REQUEST_RESPONSES[409],
     }
 }
@@ -448,6 +462,9 @@ CHAT_TYPING_SPECS = {
     'responses': {
         200: _SIMPLE_REQUEST_RESPONSES[200],
         400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
+        403: _SIMPLE_REQUEST_RESPONSES[403],
+        404: _SIMPLE_REQUEST_RESPONSES[404],
     }
 }
 
@@ -472,6 +489,9 @@ CHAT_UNREAD_COUNT_SPECS = {
             }
         },
         400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
+        403: _SIMPLE_REQUEST_RESPONSES[403],
+        404: _SIMPLE_REQUEST_RESPONSES[404],
     }
 }
 
@@ -501,7 +521,9 @@ CHAT_MESSAGES_SPECS = {
             }
         },
         400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
         403: _SIMPLE_REQUEST_RESPONSES[403],
+        404: _SIMPLE_REQUEST_RESPONSES[404],
     }
 }
 
@@ -521,6 +543,7 @@ MESSAGE_SPECS = {
             'schema': _MESSAGE_SCHEMA,
         },
         400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
         403: _SIMPLE_REQUEST_RESPONSES[403],
         404: _SIMPLE_REQUEST_RESPONSES[404],
     }
@@ -551,6 +574,68 @@ MESSAGE_NEW_SPECS = {
     'responses': {
         201: _SIMPLE_REQUEST_RESPONSES[201],
         400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
+        403: _SIMPLE_REQUEST_RESPONSES[403],
+        404: _SIMPLE_REQUEST_RESPONSES[404],
+    }
+}
+
+MESSAGE_EDIT_SPECS = {
+    'tags': _MESSAGE_TAGS,
+    'parameters': [
+        _ACCESS_TOKEN_COOKIE,
+        _CSRF_TOKEN_HEADER,
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'messageId': {
+                        'type': 'integer',
+                    },
+                    'text': {
+                        'type': 'string',
+                    },
+                },
+            },
+        }
+    ],
+    'responses': {
+        200: _SIMPLE_REQUEST_RESPONSES[200],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
+        403: _SIMPLE_REQUEST_RESPONSES[403],
+        404: _SIMPLE_REQUEST_RESPONSES[404],
+    }
+}
+
+MESSAGE_DELETE_SPECS = {
+    'tags': _MESSAGE_TAGS,
+    'parameters': [
+        _ACCESS_TOKEN_COOKIE,
+        _CSRF_TOKEN_HEADER,
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'messageId': {
+                        'type': 'integer',
+                    },
+                },
+            },
+        }
+    ],
+    'responses': {
+        200: _SIMPLE_REQUEST_RESPONSES[200],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
+        403: _SIMPLE_REQUEST_RESPONSES[403],
+        404: _SIMPLE_REQUEST_RESPONSES[404],
     }
 }
 
@@ -576,6 +661,9 @@ MESSAGE_READ_SPECS = {
     'responses': {
         200: _SIMPLE_REQUEST_RESPONSES[200],
         400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
+        403: _SIMPLE_REQUEST_RESPONSES[403],
+        404: _SIMPLE_REQUEST_RESPONSES[404],
     }
 }
 
@@ -602,7 +690,42 @@ MESSAGE_FILES_UPDATE_SPECS = {
     'responses': {
         201: _SIMPLE_REQUEST_RESPONSES[201],
         400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
+        403: _SIMPLE_REQUEST_RESPONSES[403],
+        404: _SIMPLE_REQUEST_RESPONSES[404],
         413: _SIMPLE_REQUEST_RESPONSES[413],
+    },
+}
+
+MESSAGE_FILES_DELETE_SPECS = {
+    'tags': _MESSAGE_TAGS,
+    'parameters': [
+        _ACCESS_TOKEN_COOKIE,
+        _CSRF_TOKEN_HEADER,
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'messageId': {
+                        'type': 'integer',
+                    },
+                    'filenames': {
+                        'type': 'array',
+                        'items': {'type': 'string'}
+                    }
+                },
+            },
+        }
+    ],
+    'responses': {
+        200: _SIMPLE_REQUEST_RESPONSES[200],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
+        403: _SIMPLE_REQUEST_RESPONSES[403],
+        404: _SIMPLE_REQUEST_RESPONSES[404],
     },
 }
 
@@ -626,6 +749,8 @@ MESSAGE_FILES_NAMES_SPECS = {
                 }
             }
         },
+        400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
         403: _SIMPLE_REQUEST_RESPONSES[403],
         404: _SIMPLE_REQUEST_RESPONSES[404],
     },
@@ -654,6 +779,8 @@ MESSAGE_FILES_GET_SPECS = {
                 'type': 'file',
             }
         },
+        400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
         403: _SIMPLE_REQUEST_RESPONSES[403],
         404: _SIMPLE_REQUEST_RESPONSES[404],
     },

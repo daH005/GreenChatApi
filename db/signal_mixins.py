@@ -44,6 +44,18 @@ class MessageSignalMixin(MessageI):
             JSONKey.MESSAGE_ID: self.id,
         }
 
+    @signal_decorator(SignalType.MESSAGE_EDIT)
+    def signal_edit(self):
+        return {
+            JSONKey.MESSAGE_ID: self.id,
+        }
+
+    @signal_decorator(SignalType.MESSAGE_DELETE)
+    def signal_delete(self):
+        return {
+            JSONKey.MESSAGE_ID: self.id,
+        }
+
     @signal_decorator(SignalType.FILES)
     def signal_files(self):
         return {

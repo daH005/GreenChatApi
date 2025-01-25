@@ -36,7 +36,10 @@ class Params:
 
         CHAT_NEW = '/chat/new', 'POST'
         MESSAGE_NEW = '/message/new', 'POST'
+        MESSAGE_DELETE = '/message/delete', 'DELETE'
+        MESSAGE_EDIT = '/message/edit', 'PUT'
         MESSAGE_FILES_UPDATE = '/message/files/update', 'PUT'
+        MESSAGE_FILES_DELETE = '/message/files/delete', 'DELETE'
         MESSAGE_READ = '/message/read', 'PUT'
         MESSAGE_FILES_NAMES = '/message/files/names', 'GET'
         MESSAGE_FILES_GET = '/message/files/get', 'GET'
@@ -77,6 +80,11 @@ class Params:
         ),
     ]
 
+    FILE_TO_CREATE_AND_DELETE = (
+        BytesIO(b'file'),
+        'fileD.js',
+    )
+
     AVATAR_MAX_BYTES = bytes(300)
     BACKGROUND_MAX_BYTES = bytes(1000)
     FILES_MAX_BYTES = bytes(500)
@@ -110,8 +118,11 @@ class Params:
     BIG_TEXT = '0' * 20_000
     CUT_BIG_TEXT = BIG_TEXT[:10_000]
 
+    UPDATED_TEXT = 'newtext'
+
 
 class SetForTest:
+
     user_login = [
         dict(
             url=Params.UrlsAndMethods.USER_LOGIN[0],
@@ -1208,6 +1219,234 @@ class SetForTest:
             expected_json_object=anything,
             expected_signal_queue_messages=anything,
         ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
+            json_dict={
+                'chatId': 3,
+                'text': '---',
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=201,
+            expected_json_object=anything,
+            expected_signal_queue_messages=anything,
+        ),
+    ]
+
+    message_delete = [
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_DELETE[0],
+            method=Params.UrlsAndMethods.MESSAGE_DELETE[1],
+            json_dict={
+                'messageId': 1,
+            },
+            cookies={
+                'access_token_cookie': create_access_token('what'),
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=401,
+            expected_json_object=anything,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_DELETE[0],
+            method=Params.UrlsAndMethods.MESSAGE_DELETE[1],
+            json_dict={},
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_DELETE[0],
+            method=Params.UrlsAndMethods.MESSAGE_DELETE[1],
+            json_dict={
+                'messageId': 'text',
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_DELETE[0],
+            method=Params.UrlsAndMethods.MESSAGE_DELETE[1],
+            json_dict={
+                'messageId': Params.ID_START + 3,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=403,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_DELETE[0],
+            method=Params.UrlsAndMethods.MESSAGE_DELETE[1],
+            json_dict={
+                'messageId': 100,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=404,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_DELETE[0],
+            method=Params.UrlsAndMethods.MESSAGE_DELETE[1],
+            json_dict={
+                'messageId': Params.ID_START + 6,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=200,
+            expected_signal_queue_messages=[
+                SignalQueueMessage(
+                    user_ids=[Params.ID_START, Params.ID_START + 3],
+                    message={
+                        'type': 'MESSAGE_DELETE',
+                        'data': {
+                            'messageId': Params.ID_START + 6,
+                        },
+                    },
+                ),
+            ],
+        ),
+    ]
+
+    message_edit = [
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_EDIT[0],
+            method=Params.UrlsAndMethods.MESSAGE_EDIT[1],
+            json_dict={
+                'messageId': 1,
+            },
+            cookies={
+                'access_token_cookie': create_access_token('what'),
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=401,
+            expected_json_object=anything,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_EDIT[0],
+            method=Params.UrlsAndMethods.MESSAGE_EDIT[1],
+            json_dict={},
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_EDIT[0],
+            method=Params.UrlsAndMethods.MESSAGE_EDIT[1],
+            json_dict={
+                'messageId': 'text',
+                'text': Params.UPDATED_TEXT,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_EDIT[0],
+            method=Params.UrlsAndMethods.MESSAGE_EDIT[1],
+            json_dict={
+                'messageId': Params.ID_START + 3,
+                'text': Params.UPDATED_TEXT,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=403,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_EDIT[0],
+            method=Params.UrlsAndMethods.MESSAGE_EDIT[1],
+            json_dict={
+                'messageId': 100,
+                'text': Params.UPDATED_TEXT,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=404,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_EDIT[0],
+            method=Params.UrlsAndMethods.MESSAGE_EDIT[1],
+            json_dict={
+                'messageId': Params.ID_START + 2,
+                'text': Params.UPDATED_TEXT,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=200,
+            expected_signal_queue_messages=[
+                SignalQueueMessage(
+                    user_ids=[Params.ID_START, Params.ID_START + 1],
+                    message={
+                        'type': 'MESSAGE_EDIT',
+                        'data': {
+                            'messageId': Params.ID_START + 2,
+                        },
+                    },
+                ),
+            ],
+        ),
     ]
 
     message_files_update = [
@@ -1308,7 +1547,7 @@ class SetForTest:
                 'messageId': Params.ID_START + 3,
             },
             data={
-                'files': deepcopy(Params.FILES),
+                'files': [deepcopy(Params.FILES[0])],
             },
             cookies={
                 'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
@@ -1318,6 +1557,148 @@ class SetForTest:
             },
 
             expected_status_code=201,
+            expected_signal_queue_messages=[
+                SignalQueueMessage(
+                    user_ids=[Params.ID_START + 1, Params.ID_START + 2],
+                    message={
+                        'type': 'FILES',
+                        'data': {
+                            'messageId': Params.ID_START + 3,
+                        },
+                    },
+                ),
+            ],
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[1],
+            query_string={
+                'messageId': Params.ID_START + 3,
+            },
+            data={
+                'files': [deepcopy(Params.FILES[1])],
+            },
+            cookies={
+                'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.SECOND_ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=201,
+            expected_signal_queue_messages=anything,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[1],
+            query_string={
+                'messageId': Params.ID_START + 3,
+            },
+            data={
+                'files': [deepcopy(Params.FILE_TO_CREATE_AND_DELETE)],
+            },
+            cookies={
+                'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.SECOND_ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=201,
+            expected_signal_queue_messages=anything,
+        ),
+    ]
+
+    message_files_delete = [
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_FILES_DELETE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_DELETE[1],
+            data={},
+            cookies={
+                'access_token_cookie': create_access_token('what'),
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=401,
+            expected_content=anything,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_FILES_DELETE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_DELETE[1],
+            json_dict={},
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_FILES_DELETE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_DELETE[1],
+            json_dict={
+                'filenames': 1,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_FILES_DELETE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_DELETE[1],
+            json_dict={
+                'messageId': Params.ID_START + 3,
+                'filenames': [Params.FILE_TO_CREATE_AND_DELETE[1]],
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=403,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_FILES_DELETE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_DELETE[1],
+            json_dict={
+                'messageId': 100,
+                'filenames': [Params.FILE_TO_CREATE_AND_DELETE[1]],
+            },
+            cookies={
+                'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.SECOND_ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=404,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_FILES_DELETE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_DELETE[1],
+            json_dict={
+                'messageId': Params.ID_START + 3,
+                'filenames': [Params.FILE_TO_CREATE_AND_DELETE[1]],
+            },
+            cookies={
+                'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.SECOND_ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=200,
             expected_signal_queue_messages=[
                 SignalQueueMessage(
                     user_ids=[Params.ID_START + 1, Params.ID_START + 2],
@@ -1973,7 +2354,7 @@ class SetForTest:
                     'id': Params.ID_START + 2,
                     'chatId': 1,
                     'userId': Params.ID_START,
-                    'text': Params.MESSAGE_TEXTS[2],
+                    'text': Params.UPDATED_TEXT,
                     'isRead': False,
                     'hasFiles': False,
                     'creatingDatetime': anything,
@@ -2180,7 +2561,7 @@ class SetForTest:
                     'id': Params.ID_START + 2,
                     'chatId': 1,
                     'userId': Params.ID_START,
-                    'text': Params.MESSAGE_TEXTS[2],
+                    'text': Params.UPDATED_TEXT,
                     'isRead': False,
                     'hasFiles': False,
                     'creatingDatetime': anything,
@@ -2297,7 +2678,7 @@ class SetForTest:
                         'id': Params.ID_START + 2,
                         'chatId': 1,
                         'userId': Params.ID_START,
-                        'text': Params.MESSAGE_TEXTS[2],
+                        'text': Params.UPDATED_TEXT,
                         'isRead': False,
                         'hasFiles': False,
                         'creatingDatetime': anything,

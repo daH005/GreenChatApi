@@ -153,6 +153,7 @@ class MessageI(BaseI):
 
     _user: 'UserI'
     _chat: 'ChatI'
+    _storage: 'MessageStorageI'
 
     @classmethod
     def create(cls, text: str,
@@ -188,6 +189,9 @@ class MessageI(BaseI):
     def read(self) -> None:
         raise NotImplementedError
 
+    def set_text(self, text: str) -> None:
+        raise NotImplementedError
+
 
 class MessageStorageI:
     _message: 'MessageI'
@@ -199,7 +203,13 @@ class MessageStorageI:
     def exists(self) -> bool:
         raise NotImplementedError
 
-    def save(self, files: list['MessageStorageFileI']) -> None:
+    def update(self, files: list['MessageStorageFileI']) -> None:
+        raise NotImplementedError
+
+    def delete(self, filenames: list[str]) -> None:
+        raise NotImplementedError
+
+    def delete_all(self) -> None:
         raise NotImplementedError
 
     def filenames(self) -> list[str]:
