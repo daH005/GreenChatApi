@@ -35,8 +35,8 @@ class Params:
         USER_BACKGROUND = '/user/background', 'GET'
 
         CHAT_NEW = '/chat/new', 'POST'
-        MESSAGE_FILES_SAVE = '/message/files/save', 'POST'
         MESSAGE_NEW = '/message/new', 'POST'
+        MESSAGE_FILES_UPDATE = '/message/files/update', 'PUT'
         MESSAGE_READ = '/message/read', 'PUT'
         MESSAGE_FILES_NAMES = '/message/files/names', 'GET'
         MESSAGE_FILES_GET = '/message/files/get', 'GET'
@@ -990,79 +990,7 @@ class SetForTest:
         ),
     ]
 
-    chat_message_files_save = [
-        dict(
-            url=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[0],
-            method=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[1],
-            data={},
-            cookies={
-                'access_token_cookie': create_access_token('what'),
-            },
-            headers={
-                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
-            },
-
-            expected_status_code=401,
-            expected_content=anything,
-        ),
-        dict(
-            url=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[0],
-            method=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[1],
-            data=b'',
-            cookies={
-                'access_token_cookie': Params.ACCESS_TOKEN,
-            },
-            headers={
-                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
-            },
-
-            expected_status_code=400,
-        ),
-        dict(
-            url=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[0],
-            method=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[1],
-            data={
-                'files': [
-                    (
-                        BytesIO(Params.FILES_MAX_BYTES[:len(Params.FILES_MAX_BYTES) // 4]),
-                        'large1.txt',
-                    ),
-                    (
-                        BytesIO(Params.FILES_MAX_BYTES),
-                        'large2.txt',
-                    ),
-                ],
-            },
-            cookies={
-                'access_token_cookie': Params.ACCESS_TOKEN,
-            },
-            headers={
-                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
-            },
-
-            expected_status_code=413,
-        ),
-        dict(
-            url=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[0],
-            method=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[1],
-            data={
-                'files': deepcopy(Params.FILES),
-            },
-            cookies={
-                'access_token_cookie': Params.ACCESS_TOKEN,
-            },
-            headers={
-                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
-            },
-
-            expected_status_code=201,
-            expected_json_object={
-                'storageId': Params.ID_START,
-            },
-        ),
-    ]
-
-    chat_message_new = [
+    message_new = [
         dict(
             url=Params.UrlsAndMethods.MESSAGE_NEW[0],
             method=Params.UrlsAndMethods.MESSAGE_NEW[1],
@@ -1147,23 +1075,6 @@ class SetForTest:
             json_dict={
                 'chatId': 1,
                 'text': Params.MESSAGE_TEXTS[0],
-                'storageId': 100,
-            },
-            cookies={
-                'access_token_cookie': Params.ACCESS_TOKEN,
-            },
-            headers={
-                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
-            },
-
-            expected_status_code=404,
-        ),
-        dict(
-            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
-            json_dict={
-                'chatId': 1,
-                'text': Params.MESSAGE_TEXTS[0],
             },
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -1179,7 +1090,7 @@ class SetForTest:
                     message={
                         'type': 'NEW_MESSAGE',
                         'data': {
-                            'messageId': 1,
+                            'messageId': Params.ID_START,
                         },
                     },
                 ),
@@ -1234,7 +1145,6 @@ class SetForTest:
             json_dict={
                 'chatId': 2,
                 'text': Params.MESSAGE_TEXTS[0],
-                'storageId': Params.ID_START,
             },
             cookies={
                 'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
@@ -1245,23 +1155,6 @@ class SetForTest:
 
             expected_status_code=201,
             expected_signal_queue_messages=anything,
-        ),
-        dict(
-            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
-            json_dict={
-                'chatId': 2,
-                'text': Params.MESSAGE_TEXTS[0],
-                'storageId': Params.ID_START,  # is already taken
-            },
-            cookies={
-                'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
-            },
-            headers={
-                'X-CSRF-TOKEN': Params.SECOND_ACCESS_CSRF_TOKEN,
-            },
-
-            expected_status_code=409,
         ),
         dict(
             url=Params.UrlsAndMethods.MESSAGE_NEW[0],
@@ -1299,7 +1192,129 @@ class SetForTest:
         ),
     ]
 
-    chat_message_read = [
+    message_files_update = [
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[1],
+            data={},
+            cookies={
+                'access_token_cookie': create_access_token('what'),
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=401,
+            expected_content=anything,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[1],
+            data=b'',
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=400,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[1],
+            query_string={
+                'messageId': Params.ID_START + 3,
+            },
+            data={
+                'files': deepcopy(Params.FILES),
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=403,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[1],
+            query_string={
+                'messageId': 100,
+            },
+            data={
+                'files': deepcopy(Params.FILES),
+            },
+            cookies={
+                'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.SECOND_ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=404,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[1],
+            query_string={
+                'messageId': Params.ID_START + 3,
+            },
+            data={
+                'files': [
+                    (
+                        BytesIO(Params.FILES_MAX_BYTES[:len(Params.FILES_MAX_BYTES) // 4]),
+                        'large1.txt',
+                    ),
+                    (
+                        BytesIO(Params.FILES_MAX_BYTES),
+                        'large2.txt',
+                    ),
+                ],
+            },
+            cookies={
+                'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.SECOND_ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=413,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_UPDATE[1],
+            query_string={
+                'messageId': Params.ID_START + 3,
+            },
+            data={
+                'files': deepcopy(Params.FILES),
+            },
+            cookies={
+                'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.SECOND_ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=201,
+            expected_signal_queue_messages=[
+                SignalQueueMessage(
+                    user_ids=[Params.ID_START + 1, Params.ID_START + 2],
+                    message={
+                        'type': 'FILES',
+                        'data': {
+                            'messageId': Params.ID_START + 3,
+                        },
+                    },
+                ),
+            ],
+        ),
+    ]
+
+    message_read = [
         dict(
             url=Params.UrlsAndMethods.MESSAGE_READ[0],
             method=Params.UrlsAndMethods.MESSAGE_READ[1],
@@ -1330,7 +1345,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_READ[0],
             method=Params.UrlsAndMethods.MESSAGE_READ[1],
             json_dict={
-                'messageId': 4,
+                'messageId': Params.ID_START + 3,
             },
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -1360,7 +1375,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_READ[0],
             method=Params.UrlsAndMethods.MESSAGE_READ[1],
             json_dict={
-                'messageId': 2,
+                'messageId': Params.ID_START + 1,
             },
             cookies={
                 'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
@@ -1377,7 +1392,7 @@ class SetForTest:
                         'type': 'READ',
                         'data': {
                             'chatId': 1,
-                            'messageIds': [2, 1],
+                            'messageIds': [Params.ID_START + 1, Params.ID_START],
                         },
                     },
                 ),
@@ -1396,7 +1411,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_READ[0],
             method=Params.UrlsAndMethods.MESSAGE_READ[1],
             json_dict={
-                'messageId': 2,
+                'messageId': Params.ID_START + 1,
             },
             cookies={
                 'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
@@ -1409,7 +1424,7 @@ class SetForTest:
         ),
     ]
 
-    chat_message_files_names = [
+    message_files_names = [
         dict(
             url=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[0],
             method=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[1],
@@ -1441,7 +1456,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[0],
             method=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[1],
             query_string={
-                'storageId': 'text',
+                'messageId': 'text',
             },
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -1456,7 +1471,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[0],
             method=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[1],
             query_string={
-                'storageId': Params.ID_START,
+                'messageId': Params.ID_START + 3,
             },
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -1471,7 +1486,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[0],
             method=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[1],
             query_string={
-                'storageId': 3333,
+                'messageId': 3333,
             },
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -1486,7 +1501,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[0],
             method=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[1],
             query_string={
-                'storageId': Params.ID_START,
+                'messageId': Params.ID_START + 3,
             },
             cookies={
                 'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
@@ -1503,7 +1518,7 @@ class SetForTest:
         ),
     ]
 
-    chat_message_files_get = [
+    message_files_get = [
         dict(
             url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
             method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
@@ -1522,7 +1537,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
             method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={
-                'storageId': 'text',
+                'messageId': 'text',
                 'filename': Params.FILES[0][1],
             },
             cookies={
@@ -1538,7 +1553,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
             method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={
-                'storageId': Params.ID_START,
+                'messageId': Params.ID_START + 3,
             },
             cookies={
                 'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
@@ -1553,7 +1568,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
             method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={
-                'storageId': Params.ID_START,
+                'messageId': Params.ID_START + 3,
                 'filename': Params.FILES[0][1],
             },
             cookies={
@@ -1569,7 +1584,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
             method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={
-                'storageId': Params.ID_START,
+                'messageId': Params.ID_START + 3,
                 'filename': 'blabla.txt',
             },
             cookies={
@@ -1585,7 +1600,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
             method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={
-                'storageId': 13333,
+                'messageId': 13333,
                 'filename': 'blabla.txt',
             },
             cookies={
@@ -1601,7 +1616,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
             method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={
-                'storageId': Params.ID_START,
+                'messageId': Params.ID_START + 3,
                 'filename': Params.FILES[0][1],
             },
             cookies={
@@ -1618,7 +1633,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
             method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={
-                'storageId': Params.ID_START,
+                'messageId': Params.ID_START + 3,
                 'filename': Params.FILES[1][1],
             },
             cookies={
@@ -1937,26 +1952,26 @@ class SetForTest:
                 'id': 1,
                 'isGroup': False,
                 'lastMessage': {
-                    'id': 3,
+                    'id': Params.ID_START + 2,
                     'chatId': 1,
-                    'userId': 50000,
-                    'storageId': None,
+                    'userId': Params.ID_START,
                     'text': 'Hello3',
                     'isRead': False,
+                    'hasFiles': False,
                     'creatingDatetime': anything,
                 },
                 'name': None,
                 'unreadCount': 0,
                 'userIds': [
-                    50000,
-                    50001,
+                    Params.ID_START,
+                    Params.ID_START + 1,
                 ],
-                'interlocutorId': 50001,
+                'interlocutorId': Params.ID_START + 1,
             },
         ),
     ]
 
-    chat_message = [
+    message = [
         dict(
             url=Params.UrlsAndMethods.MESSAGE[0],
             method=Params.UrlsAndMethods.MESSAGE[1],
@@ -2003,7 +2018,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE[0],
             method=Params.UrlsAndMethods.MESSAGE[1],
             query_string={
-                'messageId': 4,
+                'messageId': Params.ID_START + 3,
             },
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -2033,7 +2048,7 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE[0],
             method=Params.UrlsAndMethods.MESSAGE[1],
             query_string={
-                'messageId': 4,
+                'messageId': Params.ID_START + 3,
             },
             cookies={
                 'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
@@ -2044,12 +2059,12 @@ class SetForTest:
 
             expected_status_code=200,
             expected_json_object={
-                'id': 4,
+                'id': Params.ID_START + 3,
                 'chatId': 2,
-                'userId': 50001,
-                'storageId': 50000,
+                'userId': Params.ID_START + 1,
                 'text': 'Hello1',
                 'isRead': False,
+                'hasFiles': True,
                 'creatingDatetime': anything,
             },
         ),
@@ -2144,30 +2159,30 @@ class SetForTest:
             expected_status_code=200,
             expected_json_object=[
                 {
-                    'id': 3,
+                    'id': Params.ID_START + 2,
                     'chatId': 1,
-                    'userId': 50000,
-                    'storageId': None,
+                    'userId': Params.ID_START,
                     'text': 'Hello3',
                     'isRead': False,
+                    'hasFiles': False,
                     'creatingDatetime': anything,
                 },
                 {
-                    'id': 2,
+                    'id': Params.ID_START + 1,
                     'chatId': 1,
-                    'userId': 50000,
-                    'storageId': None,
+                    'userId': Params.ID_START,
                     'text': 'Hello2',
                     'isRead': True,
+                    'hasFiles': False,
                     'creatingDatetime': anything,
                 },
                 {
-                    'id': 1,
+                    'id': Params.ID_START,
                     'chatId': 1,
-                    'userId': 50000,
-                    'storageId': None,
+                    'userId': Params.ID_START,
                     'text': 'Hello1',
                     'isRead': True,
+                    'hasFiles': False,
                     'creatingDatetime': anything,
                 },
             ],
@@ -2189,21 +2204,21 @@ class SetForTest:
             expected_status_code=200,
             expected_json_object=[
                 {
-                    'id': 2,
+                    'id': Params.ID_START + 1,
                     'chatId': 1,
-                    'userId': 50000,
-                    'storageId': None,
+                    'userId': Params.ID_START,
                     'text': 'Hello2',
                     'isRead': True,
+                    'hasFiles': False,
                     'creatingDatetime': anything,
                 },
                 {
-                    'id': 1,
+                    'id': Params.ID_START,
                     'chatId': 1,
-                    'userId': 50000,
-                    'storageId': None,
+                    'userId': Params.ID_START,
                     'text': 'Hello1',
                     'isRead': True,
+                    'hasFiles': False,
                     'creatingDatetime': anything,
                 },
             ],
@@ -2241,41 +2256,41 @@ class SetForTest:
                     'id': 3,
                     'isGroup': False,
                     'lastMessage': {
-                        'id': 6,
+                        'id': Params.ID_START + 5,
                         'chatId': 3,
-                        'userId': 50000,
-                        'storageId': None,
+                        'userId': Params.ID_START,
                         'text': Params.CUT_BIG_TEXT,
                         'isRead': False,
+                        'hasFiles': False,
                         'creatingDatetime': anything,
                     },
                     'name': None,
                     'unreadCount': 0,
                     'userIds': [
-                        50000,
-                        50003,
+                        Params.ID_START,
+                        Params.ID_START + 3,
                     ],
-                    'interlocutorId': 50003,
+                    'interlocutorId': Params.ID_START + 3,
                 },
                 {
                     'id': 1,
                     'isGroup': False,
                     'lastMessage': {
-                        'id': 3,
+                        'id': Params.ID_START + 2,
                         'chatId': 1,
-                        'userId': 50000,
-                        'storageId': None,
+                        'userId': Params.ID_START,
                         'text': 'Hello3',
                         'isRead': False,
+                        'hasFiles': False,
                         'creatingDatetime': anything,
                     },
                     'name': None,
                     'unreadCount': 0,
                     'userIds': [
-                        50000,
-                        50001,
+                        Params.ID_START,
+                        Params.ID_START + 1,
                     ],
-                    'interlocutorId': 50001,
+                    'interlocutorId': Params.ID_START + 1,
                 },
                 {
                     'id': 4,
@@ -2284,10 +2299,10 @@ class SetForTest:
                     'name': None,
                     'unreadCount': 0,
                     'userIds': [
-                        50000,
-                        50004,
+                        Params.ID_START,
+                        Params.ID_START + 4,
                     ],
-                    'interlocutorId': 50004,
+                    'interlocutorId': Params.ID_START + 4,
                 },
             ],
         ),

@@ -15,7 +15,6 @@ from db.models import (
     User,
     Chat,
     Message,
-    MessageStorage,
     UserChatMatch,
     UnreadCount,
 )
@@ -166,22 +165,10 @@ def message_new():
     except PermissionError:
         return abort(HTTPStatus.FORBIDDEN)
 
-    storage: MessageStorage | None
-    if data.storage_id:
-        try:
-            storage = MessageStorage.by_id(data.storage_id)
-        except ValueError:
-            return abort(HTTPStatus.NOT_FOUND)
-        if storage.message:
-            return abort(HTTPStatus.CONFLICT)
-    else:
-        storage = None
-
     message: Message = Message.create(
         text=data.text,
         user=user,
         chat=chat,
-        storage=storage,
     )
     db_builder.session.add(message)
 

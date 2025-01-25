@@ -71,7 +71,6 @@ class NewMessageJSONValidator(BaseValidator):
 
     chat_id: int = Field(alias=JSONKey.CHAT_ID)
     text: str = Field(alias=JSONKey.TEXT)
-    storage_id: int | None = Field(alias=JSONKey.STORAGE_ID, default=None)
 
     @field_validator('text')  # noqa: from pydantic doc
     @classmethod

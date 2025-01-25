@@ -75,10 +75,6 @@ class ChatJSONMixin(JSONMixinI, ChatI):
 class MessageJSONMixin(JSONMixinI, MessageI):
 
     def as_json(self):
-        try:
-            storage_id = self._storage.id
-        except AttributeError:
-            storage_id = None
         return {
             JSONKey.ID: self._id,
             JSONKey.CHAT_ID: self._chat_id,
@@ -86,7 +82,7 @@ class MessageJSONMixin(JSONMixinI, MessageI):
             JSONKey.TEXT: self._text,
             JSONKey.CREATING_DATETIME: self._creating_datetime.isoformat(),
             JSONKey.IS_READ: self._is_read,
-            JSONKey.STORAGE_ID: storage_id,
+            JSONKey.HAS_FILES: self.storage.exists(),
         }
 
 

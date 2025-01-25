@@ -153,13 +153,11 @@ class MessageI(BaseI):
 
     _user: 'UserI'
     _chat: 'ChatI'
-    _storage: Union['MessageStorageI', None]
 
     @classmethod
     def create(cls, text: str,
                user: 'UserI',
                chat: 'ChatI',
-               storage: Union['MessageStorageI', None] = None,
                ) -> Self:
         raise NotImplementedError
 
@@ -184,20 +182,21 @@ class MessageI(BaseI):
         raise NotImplementedError
 
     @property
-    def storage(self) -> Union['MessageStorageI', None]:
+    def storage(self) -> 'MessageStorageI':
         raise NotImplementedError
 
     def read(self) -> None:
         raise NotImplementedError
 
 
-class MessageStorageI(BaseI):
-
-    _message_id: int | None
-    _message: Union['MessageI', None]
+class MessageStorageI:
+    _message: 'MessageI'
 
     @property
-    def message(self) -> Union['MessageI', None]:
+    def message(self) -> 'MessageI':
+        raise NotImplementedError
+
+    def exists(self) -> bool:
         raise NotImplementedError
 
     def save(self, files: list['MessageStorageFileI']) -> None:

@@ -1,9 +1,5 @@
-from base64 import b64encode, b64decode
 from datetime import datetime
-from os import listdir
-from pathlib import Path
-from shutil import rmtree
-from typing import Union, Self, Final, cast
+from typing import Union, Self, cast
 
 from sqlalchemy import (
     Integer,
@@ -24,7 +20,6 @@ from sqlalchemy.orm import (
 )
 
 from common.hinting import raises
-from config import MEDIA_FOLDER
 from db.builder import db_builder
 from db.i import (
     BaseI,
@@ -32,8 +27,6 @@ from db.i import (
     UserI,
     ChatI,
     MessageI,
-    MessageStorageI,
-    MessageStorageFileI,
     UserChatMatchI,
     UnreadCountI,
 )
@@ -55,7 +48,6 @@ __all__ = (
     'User',
     'Chat',
     'Message',
-    'MessageStorage',
     'UserChatMatch',
     'UnreadCount',
 )
@@ -258,19 +250,13 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, MessageI):
 
     _user: Mapped['User'] = relationship(back_populates='_messages', uselist=False)
     _chat: Mapped['Chat'] = relationship(back_populates='_messages', uselist=False)
-    _storage: Mapped[Union['MessageStorage', None]] = relationship(
-        back_populates='_message',
-        cascade='all, delete',
-        uselist=False,
-    )
 
     @classmethod
     def create(cls, text: str,
                user: 'User',
                chat: 'Chat',
-               storage: Union['MessageStorage', None] = None,
                ) -> Self:
-        return cls(_text=text, _user=user, _chat=chat, _storage=storage)
+        return cls(_text=text, _user=user, _chat=chat)
 
     @property
     def text(self) -> str:
@@ -293,61 +279,13 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, MessageI):
         return self._chat
 
     @property
-    def storage(self) -> Union['MessageStorage', None]:
-        return self._storage
+    def storage(self) -> 'MessageStorage':
+        if not hasattr(self, '_storage'):
+            self._storage = MessageStorage(self)
+        return cast(MessageStorage, self._storage)
 
     def read(self) -> None:
         self._is_read = True  # noqa
-
-
-class MessageStorage(BaseModel, MessageStorageI):
-    __tablename__ = 'message_storages'
-    _FILES_PATH: Final[Path] = MEDIA_FOLDER.joinpath('files')
-    _ALTCHARS: bytes = b'-_'
-
-    _message_id: Mapped[int | None] = mapped_column(ForeignKey('messages.id', ondelete='CASCADE'),
-                                                    name='message_id')
-    _message: Mapped[Union['Message', None]] = relationship(back_populates='_storage', uselist=False)
-
-    @property
-    def message(self) -> Union['Message', None]:
-        return self._message
-
-    def save(self, files: list['MessageStorageFileI']) -> None:
-        file_folder_path: Path = self.path()
-        if file_folder_path.exists():
-            rmtree(file_folder_path)
-        file_folder_path.mkdir()
-
-        secured_filename: str
-        for file in files:
-            if not file.filename:
-                continue
-
-            secured_filename = self._encode_filename(file.filename)
-            file.save(file_folder_path.joinpath(secured_filename))
-
-    @raises(FileNotFoundError)
-    def filenames(self) -> list[str]:
-        filenames: list[str] = listdir(self.path())
-        return [self._decode_filename(filename) for filename in filenames]
-
-    @raises(FileNotFoundError)
-    def full_path(self, filename: str) -> Path:
-        filename: str = self._encode_filename(filename)
-        path: Path = self.path().joinpath(filename)
-        if not path.exists():
-            raise FileNotFoundError
-        return path
-
-    def path(self) -> Path:
-        return self._FILES_PATH.joinpath(str(self._id))
-
-    def _encode_filename(self, filename: str) -> str:
-        return b64encode(filename.encode(), altchars=self._ALTCHARS).decode()
-
-    def _decode_filename(self, filename: str) -> str:
-        return b64decode(filename, altchars=self._ALTCHARS).decode()
 
 
 class UserChatMatch(BaseModel, UserChatMatchI):
@@ -513,3 +451,4 @@ from db.lists import (  # noqa
     ChatList,
     MessageList,
 )
+from db.message_storage import MessageStorage  # noqa

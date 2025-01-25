@@ -7,9 +7,8 @@ from flask_jwt_extended import jwt_required
 
 from common.json_keys import JSONKey
 from config import MESSAGE_FILES_MAX_CONTENT_LENGTH
-from db.builder import db_builder
-from db.models import MessageStorage
-from db.transaction_retry_decorator import transaction_retry_decorator
+from db.models import Message
+from http_.common.simple_response import make_simple_response
 from http_.common.apidocs_constants import (
     MESSAGE_FILES_UPDATE_SPECS,
     MESSAGE_FILES_NAMES_SPECS,
@@ -29,34 +28,29 @@ __all__ = (
 files_bp: Blueprint = Blueprint('files', __name__)
 
 
-@files_bp.route(Url.MESSAGE_FILES_UPDATE, methods=[HTTPMethod.POST])
+@files_bp.route(Url.MESSAGE_FILES_UPDATE, methods=[HTTPMethod.PUT])
 @jwt_required()
 @swag_from(MESSAGE_FILES_UPDATE_SPECS)
 @content_length_check_decorator(MESSAGE_FILES_MAX_CONTENT_LENGTH)
-@transaction_retry_decorator()
 @message_full_access_query_decorator
-def message_files_update():
+def message_files_update(message: Message, _):
     files = request.files.getlist('files')
     if not files:
         return abort(HTTPStatus.BAD_REQUEST)
 
-    storage: MessageStorage = MessageStorage()
-    db_builder.session.add(storage)
-    db_builder.session.commit()
+    message.storage.save(files)
+    message.signal_files(message.chat.users().ids())
 
-    storage.save(files)
-    return {
-        JSONKey.STORAGE_ID: storage.id,
-    }, HTTPStatus.CREATED
+    return make_simple_response(HTTPStatus.CREATED)
 
 
 @files_bp.route(Url.MESSAGE_FILES_NAMES, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(MESSAGE_FILES_NAMES_SPECS)
 @message_access_query_decorator
-def message_files_names(storage: MessageStorage):
+def message_files_names(message: Message, _):
     try:
-        return storage.filenames()
+        return message.storage.filenames()
     except FileNotFoundError:
         return abort(HTTPStatus.NOT_FOUND)
 
@@ -65,14 +59,14 @@ def message_files_names(storage: MessageStorage):
 @jwt_required()
 @swag_from(MESSAGE_FILES_GET_SPECS)
 @message_access_query_decorator
-def message_files_get(storage: MessageStorage):
+def message_files_get(message: Message, _):
     try:
         filename: str = request.args[JSONKey.FILENAME]
     except (KeyError, ValueError):
         return abort(HTTPStatus.BAD_REQUEST)
 
     try:
-        file_path: Path = storage.full_path(filename)
+        file_path: Path = message.storage.full_path(filename)
     except FileNotFoundError:
         return abort(HTTPStatus.NOT_FOUND)
 

@@ -3,7 +3,7 @@ from flask.testing import FlaskClient
 from werkzeug.test import TestResponse
 from unittest.mock import patch
 
-from db.models import User, MessageStorage
+from db.models import User, Message
 from http_.app import app
 from http_.email.codes.functions import delete_email_code
 from http_.common.content_length_check_decorator import _max_lengths
@@ -20,7 +20,7 @@ real_signal_queue_messages = []
 def setup_module(module) -> None:
     create_test_db()
 
-    for table_name in (User.__tablename__, MessageStorage.__tablename__):
+    for table_name in (User.__tablename__, Message.__tablename__):
         set_initial_autoincrement_value(table_name, Params.ID_START)
 
     delete_email_code(Params.EMAIL_FOR_CODE)
@@ -28,7 +28,7 @@ def setup_module(module) -> None:
     module.max_lengths_patcher = patch.dict(_max_lengths, {
         'user_avatar_edit': len(Params.AVATAR_MAX_BYTES),
         'user_background_edit': len(Params.BACKGROUND_MAX_BYTES),
-        'chat_message_files_save': len(Params.FILES_MAX_BYTES),
+        'message_files_update': len(Params.FILES_MAX_BYTES),
     })
     module.max_lengths_patcher.start()
 

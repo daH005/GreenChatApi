@@ -100,9 +100,6 @@ _MESSAGE_SCHEMA = {
         'userId': {
             'type': 'integer',
         },
-        'storageId': {
-            'type': ['null', 'integer'],
-        },
         'text': {
             'type': 'string',
         },
@@ -547,9 +544,6 @@ MESSAGE_NEW_SPECS = {
                     'text': {
                         'type': 'string',
                     },
-                    'storageId': {
-                        'type': 'integer',
-                    },
                 },
             },
         }
@@ -591,6 +585,12 @@ MESSAGE_FILES_UPDATE_SPECS = {
         _ACCESS_TOKEN_COOKIE,
         _CSRF_TOKEN_HEADER,
         {
+            'name': 'messageId',
+            'in': 'query',
+            'type': 'integer',
+            'required': True,
+        },
+        {
             'name': 'files',
             'in': 'body',
             'schema': {
@@ -600,16 +600,7 @@ MESSAGE_FILES_UPDATE_SPECS = {
         },
     ],
     'responses': {
-        201: {
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'storageId': {
-                        'type': 'number',
-                    }
-                }
-            }
-        },
+        201: _SIMPLE_REQUEST_RESPONSES[201],
         400: _SIMPLE_REQUEST_RESPONSES[400],
         413: _SIMPLE_REQUEST_RESPONSES[413],
     },
@@ -620,7 +611,7 @@ MESSAGE_FILES_NAMES_SPECS = {
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
         {
-            'name': 'storageId',
+            'name': 'messageId',
             'in': 'query',
             'type': 'integer',
             'required': True,
@@ -645,7 +636,7 @@ MESSAGE_FILES_GET_SPECS = {
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
         {
-            'name': 'storageId',
+            'name': 'messageId',
             'in': 'query',
             'type': 'integer',
             'required': True,

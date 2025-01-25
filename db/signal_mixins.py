@@ -44,6 +44,12 @@ class MessageSignalMixin(MessageI):
             JSONKey.MESSAGE_ID: self.id,
         }
 
+    @signal_decorator(SignalType.FILES)
+    def signal_files(self):
+        return {
+            JSONKey.MESSAGE_ID: self.id,
+        }
+
 
 class MessageListSignalMixin(MessageListI):
 
