@@ -913,6 +913,7 @@ class SetForTest:
             },
 
             expected_status_code=201,
+            expected_json_object=anything,
             expected_signal_queue_messages=[
                 SignalQueueMessage(
                     user_ids=[Params.ID_START, Params.ID_START + 1],
@@ -939,6 +940,7 @@ class SetForTest:
             },
 
             expected_status_code=201,
+            expected_json_object=anything,
             expected_signal_queue_messages=anything,
         ),
         dict(
@@ -955,6 +957,7 @@ class SetForTest:
             },
 
             expected_status_code=201,
+            expected_json_object=anything,
             expected_signal_queue_messages=anything,
         ),
         dict(
@@ -971,6 +974,7 @@ class SetForTest:
             },
 
             expected_status_code=201,
+            expected_json_object=anything,
             expected_signal_queue_messages=anything,
         ),
         dict(
@@ -1084,6 +1088,15 @@ class SetForTest:
             },
 
             expected_status_code=201,
+            expected_json_object={
+                'id': Params.ID_START,
+                'chatId': 1,
+                'userId': Params.ID_START,
+                'text': Params.MESSAGE_TEXTS[0],
+                'isRead': False,
+                'hasFiles': False,
+                'creatingDatetime': anything,
+            },
             expected_signal_queue_messages=[
                 SignalQueueMessage(
                     user_ids=[Params.ID_START, Params.ID_START + 1],
@@ -1120,6 +1133,7 @@ class SetForTest:
             },
 
             expected_status_code=201,
+            expected_json_object=anything,
             expected_signal_queue_messages=anything,
         ),
         dict(
@@ -1137,6 +1151,7 @@ class SetForTest:
             },
 
             expected_status_code=201,
+            expected_json_object=anything,
             expected_signal_queue_messages=anything,
         ),
         dict(
@@ -1154,6 +1169,7 @@ class SetForTest:
             },
 
             expected_status_code=201,
+            expected_json_object=anything,
             expected_signal_queue_messages=anything,
         ),
         dict(
@@ -1171,6 +1187,7 @@ class SetForTest:
             },
 
             expected_status_code=201,
+            expected_json_object=anything,
             expected_signal_queue_messages=anything,
         ),
         dict(
@@ -1188,6 +1205,7 @@ class SetForTest:
             },
 
             expected_status_code=201,
+            expected_json_object=anything,
             expected_signal_queue_messages=anything,
         ),
     ]
@@ -1955,7 +1973,7 @@ class SetForTest:
                     'id': Params.ID_START + 2,
                     'chatId': 1,
                     'userId': Params.ID_START,
-                    'text': 'Hello3',
+                    'text': Params.MESSAGE_TEXTS[2],
                     'isRead': False,
                     'hasFiles': False,
                     'creatingDatetime': anything,
@@ -2062,7 +2080,7 @@ class SetForTest:
                 'id': Params.ID_START + 3,
                 'chatId': 2,
                 'userId': Params.ID_START + 1,
-                'text': 'Hello1',
+                'text': Params.MESSAGE_TEXTS[0],
                 'isRead': False,
                 'hasFiles': True,
                 'creatingDatetime': anything,
@@ -2162,7 +2180,7 @@ class SetForTest:
                     'id': Params.ID_START + 2,
                     'chatId': 1,
                     'userId': Params.ID_START,
-                    'text': 'Hello3',
+                    'text': Params.MESSAGE_TEXTS[2],
                     'isRead': False,
                     'hasFiles': False,
                     'creatingDatetime': anything,
@@ -2171,7 +2189,7 @@ class SetForTest:
                     'id': Params.ID_START + 1,
                     'chatId': 1,
                     'userId': Params.ID_START,
-                    'text': 'Hello2',
+                    'text': Params.MESSAGE_TEXTS[1],
                     'isRead': True,
                     'hasFiles': False,
                     'creatingDatetime': anything,
@@ -2180,7 +2198,7 @@ class SetForTest:
                     'id': Params.ID_START,
                     'chatId': 1,
                     'userId': Params.ID_START,
-                    'text': 'Hello1',
+                    'text': Params.MESSAGE_TEXTS[0],
                     'isRead': True,
                     'hasFiles': False,
                     'creatingDatetime': anything,
@@ -2207,7 +2225,7 @@ class SetForTest:
                     'id': Params.ID_START + 1,
                     'chatId': 1,
                     'userId': Params.ID_START,
-                    'text': 'Hello2',
+                    'text': Params.MESSAGE_TEXTS[1],
                     'isRead': True,
                     'hasFiles': False,
                     'creatingDatetime': anything,
@@ -2216,7 +2234,7 @@ class SetForTest:
                     'id': Params.ID_START,
                     'chatId': 1,
                     'userId': Params.ID_START,
-                    'text': 'Hello1',
+                    'text': Params.MESSAGE_TEXTS[0],
                     'isRead': True,
                     'hasFiles': False,
                     'creatingDatetime': anything,
@@ -2279,7 +2297,7 @@ class SetForTest:
                         'id': Params.ID_START + 2,
                         'chatId': 1,
                         'userId': Params.ID_START,
-                        'text': 'Hello3',
+                        'text': Params.MESSAGE_TEXTS[2],
                         'isRead': False,
                         'hasFiles': False,
                         'creatingDatetime': anything,

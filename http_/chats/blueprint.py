@@ -94,7 +94,7 @@ def chat_new():
 
     chat.signal_new(data.user_ids)
 
-    return make_simple_response(HTTPStatus.CREATED)
+    return chat.as_json(user.id), HTTPStatus.CREATED
 
 
 @chats_bp.route(Url.CHAT_TYPING, methods=[HTTPMethod.POST])
@@ -183,7 +183,7 @@ def message_new():
     message.signal_new([user.id, *user_ids])
     chat.signal_new_unread_count(user_ids)
 
-    return make_simple_response(HTTPStatus.CREATED)
+    return message.as_json(), HTTPStatus.CREATED
 
 
 @chats_bp.route(Url.MESSAGE_READ, methods=[HTTPMethod.PUT])
