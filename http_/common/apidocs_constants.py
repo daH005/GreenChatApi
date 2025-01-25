@@ -16,18 +16,19 @@ __all__ = (
     'CHAT_NEW_SPECS',
     'CHAT_TYPING_SPECS',
     'CHAT_UNREAD_COUNT_SPECS',
-    'CHAT_MESSAGE_SPECS',
-    'CHAT_MESSAGE_NEW_SPECS',
-    'CHAT_MESSAGE_READ_SPECS',
     'CHAT_MESSAGES_SPECS',
-    'CHAT_MESSAGE_FILES_SAVE_SPECS',
-    'CHAT_MESSAGE_FILES_NAMES_SPECS',
-    'CHAT_MESSAGE_FILES_GET_SPECS',
+    'MESSAGE_SPECS',
+    'MESSAGE_NEW_SPECS',
+    'MESSAGE_READ_SPECS',
+    'MESSAGE_FILES_SAVE_SPECS',
+    'MESSAGE_FILES_NAMES_SPECS',
+    'MESSAGE_FILES_GET_SPECS',
 )
 
 
 _USER_TAGS = ['User']
 _CHAT_TAGS = ['Chat']
+_MESSAGE_TAGS = ['Message']
 
 _SIMPLE_REQUEST_RESPONSES = {
     200: {},
@@ -477,83 +478,6 @@ CHAT_UNREAD_COUNT_SPECS = {
     }
 }
 
-CHAT_MESSAGE_SPECS = {
-    'tags': _CHAT_TAGS,
-    'parameters': [
-        _ACCESS_TOKEN_COOKIE,
-        {
-            'name': 'messageId',
-            'in': 'query',
-            'type': 'integer',
-            'required': True,
-        }
-    ],
-    'responses': {
-        200: {
-            'schema': _MESSAGE_SCHEMA,
-        },
-        400: _SIMPLE_REQUEST_RESPONSES[400],
-        403: _SIMPLE_REQUEST_RESPONSES[403],
-        404: _SIMPLE_REQUEST_RESPONSES[404],
-    }
-}
-
-CHAT_MESSAGE_NEW_SPECS = {
-    'tags': _CHAT_TAGS,
-    'parameters': [
-        _ACCESS_TOKEN_COOKIE,
-        _CSRF_TOKEN_HEADER,
-        {
-            'name': 'body',
-            'in': 'body',
-            'required': True,
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'chatId': {
-                        'type': 'integer',
-                    },
-                    'text': {
-                        'type': 'string',
-                    },
-                    'storageId': {
-                        'type': 'integer',
-                    },
-                },
-            },
-        }
-    ],
-    'responses': {
-        201: _SIMPLE_REQUEST_RESPONSES[201],
-        400: _SIMPLE_REQUEST_RESPONSES[400],
-    }
-}
-
-CHAT_MESSAGE_READ_SPECS = {
-    'tags': _CHAT_TAGS,
-    'parameters': [
-        _ACCESS_TOKEN_COOKIE,
-        _CSRF_TOKEN_HEADER,
-        {
-            'name': 'body',
-            'in': 'body',
-            'required': True,
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'messageId': {
-                        'type': 'integer',
-                    },
-                },
-            },
-        }
-    ],
-    'responses': {
-        200: _SIMPLE_REQUEST_RESPONSES[200],
-        400: _SIMPLE_REQUEST_RESPONSES[400],
-    }
-}
-
 CHAT_MESSAGES_SPECS = {
     'tags': _CHAT_TAGS,
     'description': 'Messages sorted by "creatingDatetime" in descending order.',
@@ -584,8 +508,85 @@ CHAT_MESSAGES_SPECS = {
     }
 }
 
-CHAT_MESSAGE_FILES_SAVE_SPECS = {
-    'tags': _CHAT_TAGS,
+MESSAGE_SPECS = {
+    'tags': _MESSAGE_TAGS,
+    'parameters': [
+        _ACCESS_TOKEN_COOKIE,
+        {
+            'name': 'messageId',
+            'in': 'query',
+            'type': 'integer',
+            'required': True,
+        }
+    ],
+    'responses': {
+        200: {
+            'schema': _MESSAGE_SCHEMA,
+        },
+        400: _SIMPLE_REQUEST_RESPONSES[400],
+        403: _SIMPLE_REQUEST_RESPONSES[403],
+        404: _SIMPLE_REQUEST_RESPONSES[404],
+    }
+}
+
+MESSAGE_NEW_SPECS = {
+    'tags': _MESSAGE_TAGS,
+    'parameters': [
+        _ACCESS_TOKEN_COOKIE,
+        _CSRF_TOKEN_HEADER,
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'chatId': {
+                        'type': 'integer',
+                    },
+                    'text': {
+                        'type': 'string',
+                    },
+                    'storageId': {
+                        'type': 'integer',
+                    },
+                },
+            },
+        }
+    ],
+    'responses': {
+        201: _SIMPLE_REQUEST_RESPONSES[201],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
+    }
+}
+
+MESSAGE_READ_SPECS = {
+    'tags': _MESSAGE_TAGS,
+    'parameters': [
+        _ACCESS_TOKEN_COOKIE,
+        _CSRF_TOKEN_HEADER,
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'messageId': {
+                        'type': 'integer',
+                    },
+                },
+            },
+        }
+    ],
+    'responses': {
+        200: _SIMPLE_REQUEST_RESPONSES[200],
+        400: _SIMPLE_REQUEST_RESPONSES[400],
+    }
+}
+
+MESSAGE_FILES_SAVE_SPECS = {
+    'tags': _MESSAGE_TAGS,
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
         _CSRF_TOKEN_HEADER,
@@ -614,8 +615,8 @@ CHAT_MESSAGE_FILES_SAVE_SPECS = {
     },
 }
 
-CHAT_MESSAGE_FILES_NAMES_SPECS = {
-    'tags': _CHAT_TAGS,
+MESSAGE_FILES_NAMES_SPECS = {
+    'tags': _MESSAGE_TAGS,
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
         {
@@ -639,8 +640,8 @@ CHAT_MESSAGE_FILES_NAMES_SPECS = {
     },
 }
 
-CHAT_MESSAGE_FILES_GET_SPECS = {
-    'tags': _CHAT_TAGS,
+MESSAGE_FILES_GET_SPECS = {
+    'tags': _MESSAGE_TAGS,
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
         {

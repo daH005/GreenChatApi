@@ -35,15 +35,15 @@ class Params:
         USER_BACKGROUND = '/user/background', 'GET'
 
         CHAT_NEW = '/chat/new', 'POST'
-        CHAT_MESSAGE_FILES_SAVE = '/chat/message/files/save', 'POST'
-        CHAT_MESSAGE_NEW = '/chat/message/new', 'POST'
-        CHAT_MESSAGE_READ = '/chat/message/read', 'PUT'
-        CHAT_MESSAGE_FILES_NAMES = '/chat/message/files/names', 'GET'
-        CHAT_MESSAGE_FILES_GET = '/chat/message/files/get', 'GET'
+        MESSAGE_FILES_SAVE = '/message/files/save', 'POST'
+        MESSAGE_NEW = '/message/new', 'POST'
+        MESSAGE_READ = '/message/read', 'PUT'
+        MESSAGE_FILES_NAMES = '/message/files/names', 'GET'
+        MESSAGE_FILES_GET = '/message/files/get', 'GET'
         CHAT_UNREAD_COUNT = '/chat/unreadCount', 'GET'
         CHAT_TYPING = '/chat/typing', 'POST'
         CHAT = '/chat', 'GET'
-        CHAT_MESSAGE = '/chat/message', 'GET'
+        MESSAGE = '/message', 'GET'
         CHAT_MESSAGES = '/chat/messages', 'GET'
 
         USER_CHATS = '/user/chats', 'GET'
@@ -992,8 +992,8 @@ class SetForTest:
 
     chat_message_files_save = [
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_SAVE[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_SAVE[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[1],
             data={},
             cookies={
                 'access_token_cookie': create_access_token('what'),
@@ -1006,8 +1006,8 @@ class SetForTest:
             expected_content=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_SAVE[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_SAVE[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[1],
             data=b'',
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -1019,8 +1019,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_SAVE[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_SAVE[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[1],
             data={
                 'files': [
                     (
@@ -1043,8 +1043,8 @@ class SetForTest:
             expected_status_code=413,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_SAVE[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_SAVE[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_SAVE[1],
             data={
                 'files': deepcopy(Params.FILES),
             },
@@ -1064,8 +1064,8 @@ class SetForTest:
 
     chat_message_new = [
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[1],
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={
                 'chatId': 1,
                 'text': Params.MESSAGE_TEXTS[0],
@@ -1081,8 +1081,8 @@ class SetForTest:
             expected_json_object=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[1],
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={},
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -1094,8 +1094,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[1],
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={
                 'chatId': 'text',
                 'text': Params.MESSAGE_TEXTS[0],
@@ -1110,8 +1110,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[1],
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={
                 'chatId': 2,
                 'text': Params.MESSAGE_TEXTS[0],
@@ -1126,8 +1126,8 @@ class SetForTest:
             expected_status_code=403,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[1],
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={
                 'chatId': 100,
                 'text': Params.MESSAGE_TEXTS[0],
@@ -1142,8 +1142,8 @@ class SetForTest:
             expected_status_code=404,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[1],
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={
                 'chatId': 1,
                 'text': Params.MESSAGE_TEXTS[0],
@@ -1159,8 +1159,8 @@ class SetForTest:
             expected_status_code=404,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[1],
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={
                 'chatId': 1,
                 'text': Params.MESSAGE_TEXTS[0],
@@ -1195,8 +1195,8 @@ class SetForTest:
             ],
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[1],
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={
                 'chatId': 1,
                 'text': Params.MESSAGE_TEXTS[1],
@@ -1212,8 +1212,8 @@ class SetForTest:
             expected_signal_queue_messages=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[1],
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={
                 'chatId': 1,
                 'text': Params.MESSAGE_TEXTS[2],
@@ -1229,8 +1229,8 @@ class SetForTest:
             expected_signal_queue_messages=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[1],
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={
                 'chatId': 2,
                 'text': Params.MESSAGE_TEXTS[0],
@@ -1247,8 +1247,8 @@ class SetForTest:
             expected_signal_queue_messages=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[1],
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={
                 'chatId': 2,
                 'text': Params.MESSAGE_TEXTS[0],
@@ -1264,8 +1264,8 @@ class SetForTest:
             expected_status_code=409,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[1],
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={
                 'chatId': 3,
                 'text': Params.MESSAGE_TEXTS[0],
@@ -1281,8 +1281,8 @@ class SetForTest:
             expected_signal_queue_messages=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[1],
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={
                 'chatId': 3,
                 'text': Params.BIG_TEXT,
@@ -1301,8 +1301,8 @@ class SetForTest:
 
     chat_message_read = [
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_READ[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_READ[1],
+            url=Params.UrlsAndMethods.MESSAGE_READ[0],
+            method=Params.UrlsAndMethods.MESSAGE_READ[1],
             cookies={
                 'access_token_cookie': create_access_token('what'),
             },
@@ -1314,8 +1314,8 @@ class SetForTest:
             expected_json_object=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_READ[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_READ[1],
+            url=Params.UrlsAndMethods.MESSAGE_READ[0],
+            method=Params.UrlsAndMethods.MESSAGE_READ[1],
             json_dict={},
             cookies={
                 'access_token_cookie': Params.SECOND_ACCESS_TOKEN,
@@ -1327,8 +1327,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_READ[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_READ[1],
+            url=Params.UrlsAndMethods.MESSAGE_READ[0],
+            method=Params.UrlsAndMethods.MESSAGE_READ[1],
             json_dict={
                 'messageId': 4,
             },
@@ -1342,8 +1342,8 @@ class SetForTest:
             expected_status_code=403,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_READ[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_READ[1],
+            url=Params.UrlsAndMethods.MESSAGE_READ[0],
+            method=Params.UrlsAndMethods.MESSAGE_READ[1],
             json_dict={
                 'messageId': 100,
             },
@@ -1357,8 +1357,8 @@ class SetForTest:
             expected_status_code=404,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_READ[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_READ[1],
+            url=Params.UrlsAndMethods.MESSAGE_READ[0],
+            method=Params.UrlsAndMethods.MESSAGE_READ[1],
             json_dict={
                 'messageId': 2,
             },
@@ -1393,8 +1393,8 @@ class SetForTest:
             ],
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_READ[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_READ[1],
+            url=Params.UrlsAndMethods.MESSAGE_READ[0],
+            method=Params.UrlsAndMethods.MESSAGE_READ[1],
             json_dict={
                 'messageId': 2,
             },
@@ -1411,8 +1411,8 @@ class SetForTest:
 
     chat_message_files_names = [
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[1],
             query_string={},
             cookies={
                 'access_token_cookie': create_access_token('what'),
@@ -1425,8 +1425,8 @@ class SetForTest:
             expected_json_object=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[1],
             query_string={},
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -1438,8 +1438,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[1],
             query_string={
                 'storageId': 'text',
             },
@@ -1453,8 +1453,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[1],
             query_string={
                 'storageId': Params.ID_START,
             },
@@ -1468,8 +1468,8 @@ class SetForTest:
             expected_status_code=403,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[1],
             query_string={
                 'storageId': 3333,
             },
@@ -1483,8 +1483,8 @@ class SetForTest:
             expected_status_code=404,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_NAMES[1],
             query_string={
                 'storageId': Params.ID_START,
             },
@@ -1505,8 +1505,8 @@ class SetForTest:
 
     chat_message_files_get = [
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={},
             cookies={
                 'access_token_cookie': create_access_token('what'),
@@ -1519,8 +1519,8 @@ class SetForTest:
             expected_content=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': 'text',
                 'filename': Params.FILES[0][1],
@@ -1535,8 +1535,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': Params.ID_START,
             },
@@ -1550,8 +1550,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': Params.ID_START,
                 'filename': Params.FILES[0][1],
@@ -1566,8 +1566,8 @@ class SetForTest:
             expected_status_code=403,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': Params.ID_START,
                 'filename': 'blabla.txt',
@@ -1582,8 +1582,8 @@ class SetForTest:
             expected_status_code=404,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': 13333,
                 'filename': 'blabla.txt',
@@ -1598,8 +1598,8 @@ class SetForTest:
             expected_status_code=404,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': Params.ID_START,
                 'filename': Params.FILES[0][1],
@@ -1615,8 +1615,8 @@ class SetForTest:
             expected_content=Params.FILE_CONTENTS[0],
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_GET[1],
+            url=Params.UrlsAndMethods.MESSAGE_FILES_GET[0],
+            method=Params.UrlsAndMethods.MESSAGE_FILES_GET[1],
             query_string={
                 'storageId': Params.ID_START,
                 'filename': Params.FILES[1][1],
@@ -1958,8 +1958,8 @@ class SetForTest:
 
     chat_message = [
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE[1],
+            url=Params.UrlsAndMethods.MESSAGE[0],
+            method=Params.UrlsAndMethods.MESSAGE[1],
             query_string={},
             cookies={
                 'access_token_cookie': create_access_token('what'),
@@ -1972,8 +1972,8 @@ class SetForTest:
             expected_json_object=anything,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE[1],
+            url=Params.UrlsAndMethods.MESSAGE[0],
+            method=Params.UrlsAndMethods.MESSAGE[1],
             query_string={},
             cookies={
                 'access_token_cookie': Params.ACCESS_TOKEN,
@@ -1985,8 +1985,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE[1],
+            url=Params.UrlsAndMethods.MESSAGE[0],
+            method=Params.UrlsAndMethods.MESSAGE[1],
             query_string={
                 'messageId': 'text',
             },
@@ -2000,8 +2000,8 @@ class SetForTest:
             expected_status_code=400,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE[1],
+            url=Params.UrlsAndMethods.MESSAGE[0],
+            method=Params.UrlsAndMethods.MESSAGE[1],
             query_string={
                 'messageId': 4,
             },
@@ -2015,8 +2015,8 @@ class SetForTest:
             expected_status_code=403,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE[1],
+            url=Params.UrlsAndMethods.MESSAGE[0],
+            method=Params.UrlsAndMethods.MESSAGE[1],
             query_string={
                 'messageId': 100,
             },
@@ -2030,8 +2030,8 @@ class SetForTest:
             expected_status_code=404,
         ),
         dict(
-            url=Params.UrlsAndMethods.CHAT_MESSAGE[0],
-            method=Params.UrlsAndMethods.CHAT_MESSAGE[1],
+            url=Params.UrlsAndMethods.MESSAGE[0],
+            method=Params.UrlsAndMethods.MESSAGE[1],
             query_string={
                 'messageId': 4,
             },

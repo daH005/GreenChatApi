@@ -25,9 +25,9 @@ from http_.common.apidocs_constants import (
     CHAT_NEW_SPECS,
     CHAT_TYPING_SPECS,
     CHAT_UNREAD_COUNT_SPECS,
-    CHAT_MESSAGE_SPECS,
-    CHAT_MESSAGE_NEW_SPECS,
-    CHAT_MESSAGE_READ_SPECS,
+    MESSAGE_SPECS,
+    MESSAGE_NEW_SPECS,
+    MESSAGE_READ_SPECS,
     CHAT_MESSAGES_SPECS,
 )
 from http_.common.get_current_user import get_current_user
@@ -155,9 +155,9 @@ def unread_count_get():
     return unread_count.as_json()
 
 
-@chats_bp.route(Url.CHAT_MESSAGE, methods=[HTTPMethod.GET])
+@chats_bp.route(Url.MESSAGE, methods=[HTTPMethod.GET])
 @jwt_required()
-@swag_from(CHAT_MESSAGE_SPECS)
+@swag_from(MESSAGE_SPECS)
 def message_get():
     try:
         message_id: int = int(request.args[JSONKey.MESSAGE_ID])
@@ -177,9 +177,9 @@ def message_get():
     return message.as_json()
 
 
-@chats_bp.route(Url.CHAT_MESSAGE_NEW, methods=[HTTPMethod.POST])
+@chats_bp.route(Url.MESSAGE_NEW, methods=[HTTPMethod.POST])
 @jwt_required()
-@swag_from(CHAT_MESSAGE_NEW_SPECS)
+@swag_from(MESSAGE_NEW_SPECS)
 @transaction_retry_decorator()
 def message_new():
     data: NewMessageJSONValidator = NewMessageJSONValidator.from_json()
@@ -228,9 +228,9 @@ def message_new():
     return make_simple_response(HTTPStatus.CREATED)
 
 
-@chats_bp.route(Url.CHAT_MESSAGE_READ, methods=[HTTPMethod.PUT])
+@chats_bp.route(Url.MESSAGE_READ, methods=[HTTPMethod.PUT])
 @jwt_required()
-@swag_from(CHAT_MESSAGE_READ_SPECS)
+@swag_from(MESSAGE_READ_SPECS)
 @transaction_retry_decorator()
 def message_read():
     try:

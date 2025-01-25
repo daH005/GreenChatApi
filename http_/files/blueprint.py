@@ -11,9 +11,9 @@ from db.builder import db_builder
 from db.models import MessageStorage
 from db.transaction_retry_decorator import transaction_retry_decorator
 from http_.common.apidocs_constants import (
-    CHAT_MESSAGE_FILES_SAVE_SPECS,
-    CHAT_MESSAGE_FILES_NAMES_SPECS,
-    CHAT_MESSAGE_FILES_GET_SPECS,
+    MESSAGE_FILES_SAVE_SPECS,
+    MESSAGE_FILES_NAMES_SPECS,
+    MESSAGE_FILES_GET_SPECS,
 )
 from http_.common.content_length_check_decorator import content_length_check_decorator
 from http_.common.urls import Url
@@ -26,9 +26,9 @@ __all__ = (
 files_bp: Blueprint = Blueprint('files', __name__)
 
 
-@files_bp.route(Url.CHAT_MESSAGE_FILES_SAVE, methods=[HTTPMethod.POST])
+@files_bp.route(Url.MESSAGE_FILES_SAVE, methods=[HTTPMethod.POST])
 @jwt_required()
-@swag_from(CHAT_MESSAGE_FILES_SAVE_SPECS)
+@swag_from(MESSAGE_FILES_SAVE_SPECS)
 @content_length_check_decorator(MESSAGE_FILES_MAX_CONTENT_LENGTH)
 @transaction_retry_decorator()
 def chat_message_files_save():
@@ -46,9 +46,9 @@ def chat_message_files_save():
     }, HTTPStatus.CREATED
 
 
-@files_bp.route(Url.CHAT_MESSAGE_FILES_NAMES, methods=[HTTPMethod.GET])
+@files_bp.route(Url.MESSAGE_FILES_NAMES, methods=[HTTPMethod.GET])
 @jwt_required()
-@swag_from(CHAT_MESSAGE_FILES_NAMES_SPECS)
+@swag_from(MESSAGE_FILES_NAMES_SPECS)
 @check_permissions_decorator
 def chat_message_files_names(storage: MessageStorage):
     try:
@@ -57,9 +57,9 @@ def chat_message_files_names(storage: MessageStorage):
         return abort(HTTPStatus.NOT_FOUND)
 
 
-@files_bp.route(Url.CHAT_MESSAGE_FILES_GET, methods=[HTTPMethod.GET])
+@files_bp.route(Url.MESSAGE_FILES_GET, methods=[HTTPMethod.GET])
 @jwt_required()
-@swag_from(CHAT_MESSAGE_FILES_GET_SPECS)
+@swag_from(MESSAGE_FILES_GET_SPECS)
 @check_permissions_decorator
 def chat_message_files_get(storage: MessageStorage):
     try:
