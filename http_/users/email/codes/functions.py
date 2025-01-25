@@ -7,7 +7,7 @@ from config import (
     EMAIL_PASS_CODE,
     EMAIL_CODES_MAX_ATTEMPTS,
 )
-from http_.email.codes.key_prefixes import KeyPrefix
+from http_.users.email.codes.key_prefixes import KeyPrefix
 
 __all__ = (
     'make_and_save_email_code',

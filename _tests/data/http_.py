@@ -9,8 +9,8 @@ from copy import deepcopy
 from config import EMAIL_PASS_CODE
 from common.signals.message import SignalQueueMessage
 from db.models import User
-from http_.avatars.blueprint import _DEFAULT_AVATAR_PATH
-from http_.backgrounds.blueprint import _DEFAULT_BACKGROUND_PATH
+from http_.users.avatars.blueprint import _DEFAULT_AVATAR_PATH
+from http_.users.backgrounds.blueprint import _DEFAULT_BACKGROUND_PATH
 from _tests.common.anything_place import anything
 
 __all__ = (

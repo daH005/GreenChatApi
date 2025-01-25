@@ -31,16 +31,22 @@ from http_.common.get_current_user import get_current_user
 from http_.common.simple_response import make_simple_response
 from http_.common.urls import Url
 from http_.common.validation import EmailAndCodeJSONValidator, UserJSONValidator
-from http_.email.codes.functions import (
+from http_.users.email.codes.functions import (
     email_code_is_valid,
     delete_email_code,
 )
+from http_.users.avatars.blueprint import avatars_bp
+from http_.users.backgrounds.blueprint import backgrounds_bp
+from http_.users.email.blueprint import email_bp
 
 __all__ = (
     'users_bp',
 )
 
 users_bp: Blueprint = Blueprint('users', __name__)
+
+for bp in (avatars_bp, backgrounds_bp, email_bp):
+    users_bp.register_blueprint(bp)
 
 
 @users_bp.route(Url.USER_LOGIN, methods=[HTTPMethod.POST])

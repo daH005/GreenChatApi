@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from db.models import User, Message
 from http_.app import app
-from http_.email.codes.functions import delete_email_code
+from http_.users.email.codes.functions import delete_email_code
 from http_.common.content_length_check_decorator import _max_lengths
 from _tests.common.set_initial_autoincrement_value import set_initial_autoincrement_value
 from _tests.common.assert_and_save_jsons_if_failed import assert_and_save_jsons_if_failed
@@ -32,7 +32,7 @@ def setup_module(module) -> None:
     })
     module.max_lengths_patcher.start()
 
-    module.send_code_task_delay_patcher = patch('http_.email.tasks.send_code_task.delay')
+    module.send_code_task_delay_patcher = patch('http_.users.email.tasks.send_code_task.delay')
     module.send_code_task_delay_patcher.start()
 
     def signal_queue_push_mock(self, message):

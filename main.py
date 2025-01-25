@@ -1,7 +1,7 @@
 from threading import Thread
 
 from http_.run import run_http_wsgi as run_http
-from http_.email.run import run_celery
+from http_.users.email.run import run_celery
 from websocket_.run import run_websocket
 
 if __name__ == '__main__':
