@@ -11,13 +11,16 @@ from db.builder import db_builder
 from db.models import MessageStorage
 from db.transaction_retry_decorator import transaction_retry_decorator
 from http_.common.apidocs_constants import (
-    MESSAGE_FILES_SAVE_SPECS,
+    MESSAGE_FILES_UPDATE_SPECS,
     MESSAGE_FILES_NAMES_SPECS,
     MESSAGE_FILES_GET_SPECS,
 )
 from http_.common.content_length_check_decorator import content_length_check_decorator
 from http_.common.urls import Url
-from http_.files.check_permissions_decorator import check_permissions_decorator
+from http_.common.check_access_decorators import (
+    message_full_access_query_decorator,
+    message_access_query_decorator,
+)
 
 __all__ = (
     'files_bp',
@@ -26,12 +29,13 @@ __all__ = (
 files_bp: Blueprint = Blueprint('files', __name__)
 
 
-@files_bp.route(Url.MESSAGE_FILES_SAVE, methods=[HTTPMethod.POST])
+@files_bp.route(Url.MESSAGE_FILES_UPDATE, methods=[HTTPMethod.POST])
 @jwt_required()
-@swag_from(MESSAGE_FILES_SAVE_SPECS)
+@swag_from(MESSAGE_FILES_UPDATE_SPECS)
 @content_length_check_decorator(MESSAGE_FILES_MAX_CONTENT_LENGTH)
 @transaction_retry_decorator()
-def chat_message_files_save():
+@message_full_access_query_decorator
+def message_files_update():
     files = request.files.getlist('files')
     if not files:
         return abort(HTTPStatus.BAD_REQUEST)
@@ -49,8 +53,8 @@ def chat_message_files_save():
 @files_bp.route(Url.MESSAGE_FILES_NAMES, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(MESSAGE_FILES_NAMES_SPECS)
-@check_permissions_decorator
-def chat_message_files_names(storage: MessageStorage):
+@message_access_query_decorator
+def message_files_names(storage: MessageStorage):
     try:
         return storage.filenames()
     except FileNotFoundError:
@@ -60,8 +64,8 @@ def chat_message_files_names(storage: MessageStorage):
 @files_bp.route(Url.MESSAGE_FILES_GET, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(MESSAGE_FILES_GET_SPECS)
-@check_permissions_decorator
-def chat_message_files_get(storage: MessageStorage):
+@message_access_query_decorator
+def message_files_get(storage: MessageStorage):
     try:
         filename: str = request.args[JSONKey.FILENAME]
     except (KeyError, ValueError):

@@ -29,6 +29,6 @@ class Url(StrEnum):
     MESSAGE = '/message'
     MESSAGE_NEW = '/message/new'
     MESSAGE_READ = '/message/read'
-    MESSAGE_FILES_SAVE = '/message/files/save'
+    MESSAGE_FILES_UPDATE = '/message/files/update'
     MESSAGE_FILES_NAMES = '/message/files/names'
     MESSAGE_FILES_GET = '/message/files/get'

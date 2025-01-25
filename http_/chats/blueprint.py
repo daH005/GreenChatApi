@@ -37,6 +37,12 @@ from http_.common.validation import (
     NewChatJSONValidator,
     NewMessageJSONValidator,
 )
+from http_.common.check_access_decorators import (
+    message_access_query_decorator,
+    message_access_json_decorator,
+    chat_access_query_decorator,
+    chat_access_json_decorator,
+)
 
 __all__ = (
     'chats_bp',
@@ -48,23 +54,10 @@ chats_bp: Blueprint = Blueprint('chats', __name__)
 @chats_bp.route(Url.CHAT, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(CHAT_SPECS)
-def chat_get():
-    try:
-        chat_id: int = int(request.args[JSONKey.CHAT_ID])
-    except (ValueError, KeyError):
-        return abort(HTTPStatus.BAD_REQUEST)
-
-    try:
-        chat: Chat = Chat.by_id(chat_id)
-    except ValueError:
-        return abort(HTTPStatus.NOT_FOUND)
-
-    user: User = get_current_user()
-    try:
-        chat.check_user_access(user.id)
-    except PermissionError:
-        return abort(HTTPStatus.FORBIDDEN)
-
+@chat_access_query_decorator
+def chat_get(chat: Chat,
+             user: User,
+             ):
     return chat.as_json(user.id)
 
 
@@ -108,23 +101,10 @@ def chat_new():
 @chats_bp.route(Url.CHAT_TYPING, methods=[HTTPMethod.POST])
 @jwt_required()
 @swag_from(CHAT_TYPING_SPECS)
-def typing():
-    try:
-        chat_id: int = int(request.json[JSONKey.CHAT_ID])
-    except (ValueError, KeyError):
-        return abort(HTTPStatus.BAD_REQUEST)
-
-    try:
-        chat: Chat = Chat.by_id(chat_id)
-    except ValueError:
-        return abort(HTTPStatus.NOT_FOUND)
-
-    user: User = get_current_user()
-    try:
-        chat.check_user_access(user.id)
-    except PermissionError:
-        return abort(HTTPStatus.FORBIDDEN)
-
+@chat_access_json_decorator
+def typing(chat: Chat,
+           user: User,
+           ):
     user_ids: list[int] = chat.users().ids(exclude_ids=[user.id])
     chat.signal_typing(user_ids, user_id=user.id)
 
@@ -134,46 +114,37 @@ def typing():
 @chats_bp.route(Url.CHAT_UNREAD_COUNT, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(CHAT_UNREAD_COUNT_SPECS)
-def unread_count_get():
-    try:
-        chat_id: int = int(request.args[JSONKey.CHAT_ID])
-    except (ValueError, KeyError):
-        return abort(HTTPStatus.BAD_REQUEST)
-
-    try:
-        chat: Chat = Chat.by_id(chat_id)
-    except ValueError:
-        return abort(HTTPStatus.NOT_FOUND)
-
-    user: User = get_current_user()
-    try:
-        chat.check_user_access(user.id)
-    except PermissionError:
-        return abort(HTTPStatus.FORBIDDEN)
-
+@chat_access_query_decorator
+def unread_count_get(chat: Chat,
+                     user: User,
+                     ):
     unread_count: UnreadCount = chat.unread_count_of_user(user.id)
     return unread_count.as_json()
+
+
+@chats_bp.route(Url.CHAT_MESSAGES, methods=[HTTPMethod.GET])
+@jwt_required()
+@swag_from(CHAT_MESSAGES_SPECS)
+@chat_access_query_decorator
+def messages_get(chat: Chat, _):
+    offset: int | None
+    try:
+        offset = int(request.args[JSONKey.OFFSET])
+        if offset < 0:
+            raise ValueError
+    except KeyError:
+        offset = None
+    except ValueError:
+        return abort(HTTPStatus.BAD_REQUEST)
+
+    return chat.messages(offset=offset).as_json()
 
 
 @chats_bp.route(Url.MESSAGE, methods=[HTTPMethod.GET])
 @jwt_required()
 @swag_from(MESSAGE_SPECS)
-def message_get():
-    try:
-        message_id: int = int(request.args[JSONKey.MESSAGE_ID])
-    except (ValueError, KeyError):
-        return abort(HTTPStatus.BAD_REQUEST)
-
-    try:
-        message: Message = Message.by_id(message_id)
-    except ValueError:
-        return abort(HTTPStatus.NOT_FOUND)
-
-    try:
-        message.chat.check_user_access(get_current_user().id)
-    except PermissionError:
-        return abort(HTTPStatus.FORBIDDEN)
-
+@message_access_query_decorator
+def message_get(message: Message, _):
     return message.as_json()
 
 
@@ -232,23 +203,10 @@ def message_new():
 @jwt_required()
 @swag_from(MESSAGE_READ_SPECS)
 @transaction_retry_decorator()
-def message_read():
-    try:
-        message_id: int = int(request.json[JSONKey.MESSAGE_ID])
-    except (ValueError, KeyError):
-        return abort(HTTPStatus.BAD_REQUEST)
-
-    try:
-        message: Message = Message.by_id(message_id)
-    except ValueError:
-        return abort(HTTPStatus.NOT_FOUND)
-
-    user: User = get_current_user()
-    try:
-        message.chat.check_user_access(user.id)
-    except PermissionError:
-        return abort(HTTPStatus.FORBIDDEN)
-
+@message_access_json_decorator
+def message_read(message: Message,
+                 user: User,
+                 ):
     sender_read_messages: dict[int, MessageList] = {}
     for history_message in message.chat.unread_messages_until(message.id):
         if history_message.is_read:
@@ -272,35 +230,3 @@ def message_read():
         message.chat.signal_new_unread_count([user.id])
 
     return make_simple_response(HTTPStatus.OK)
-
-
-@chats_bp.route(Url.CHAT_MESSAGES, methods=[HTTPMethod.GET])
-@jwt_required()
-@swag_from(CHAT_MESSAGES_SPECS)
-def messages_get():
-    try:
-        chat_id: int = int(request.args[JSONKey.CHAT_ID])
-    except (ValueError, KeyError):
-        return abort(HTTPStatus.BAD_REQUEST)
-
-    try:
-        chat: Chat = Chat.by_id(chat_id)
-    except ValueError:
-        return abort(HTTPStatus.NOT_FOUND)
-
-    offset: int | None
-    try:
-        offset = int(request.args[JSONKey.OFFSET])
-        if offset < 0:
-            raise ValueError
-    except KeyError:
-        offset = None
-    except ValueError:
-        return abort(HTTPStatus.BAD_REQUEST)
-
-    try:
-        chat.check_user_access(get_current_user().id)
-    except PermissionError:
-        return abort(HTTPStatus.FORBIDDEN)
-
-    return chat.messages(offset=offset).as_json()
