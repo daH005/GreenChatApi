@@ -373,13 +373,8 @@ USER_CHATS_SPECS = {
     'responses': {
         200: {
             'schema': {
-                'type': 'object',
-                'properties': {
-                    'chats': {
-                        'type': 'array',
-                        'items': _CHAT_SCHEMA,
-                    },
-                },
+                'type': 'array',
+                'items': _CHAT_SCHEMA,
             },
         },
     }
@@ -580,13 +575,8 @@ CHAT_MESSAGES_SPECS = {
     'responses': {
         200: {
             'schema': {
-                'type': 'object',
-                'properties': {
-                    'messages': {
-                        'type': 'array',
-                        'items': _MESSAGE_SCHEMA,
-                    }
-                }
+                'type': 'array',
+                'items': _MESSAGE_SCHEMA,
             }
         },
         400: _SIMPLE_REQUEST_RESPONSES[400],
@@ -638,14 +628,9 @@ CHAT_MESSAGE_FILES_NAMES_SPECS = {
     'responses': {
         200: {
             'schema': {
-                'type': 'object',
-                'properties': {
-                    'filenames': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'string',
-                        }
-                    }
+                'type': 'array',
+                'items': {
+                    'type': 'string',
                 }
             }
         },

@@ -76,7 +76,7 @@ def test_endpoints(test_client: FlaskClient, kwargs) -> None:
     if 'expected_content' in kwargs:
         assert response.data == kwargs['expected_content']
     else:
-        assert_and_save_jsons_if_failed(response.json, kwargs.get('expected_json_dict'))
+        assert_and_save_jsons_if_failed(response.json, kwargs.get('expected_json_object'))
 
     values_of_set_cookie = response.headers.getlist('Set-Cookie')
     assert_and_save_jsons_if_failed(values_of_set_cookie_to_dict(values_of_set_cookie), kwargs.get('expected_set_cookie', {}))

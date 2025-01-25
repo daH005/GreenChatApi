@@ -25,12 +25,8 @@ class JSONKey(StrEnum):
     IS_READ = 'isRead'
 
     FILENAME = 'filename'
-    FILENAMES = 'filenames'
 
-    MESSAGES = 'messages'
     OFFSET = 'offset'
-
-    CHATS = 'chats'
 
     NAME = 'name'
     IS_GROUP = 'isGroup'

@@ -52,9 +52,7 @@ def chat_message_files_save():
 @check_permissions_decorator
 def chat_message_files_names(storage: MessageStorage):
     try:
-        return {
-            JSONKey.FILENAMES: storage.filenames(),
-        }
+        return storage.filenames()
     except FileNotFoundError:
         return abort(HTTPStatus.NOT_FOUND)
 

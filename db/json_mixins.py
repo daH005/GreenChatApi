@@ -107,14 +107,10 @@ class UserListJSONMixin(JSONMixinI, UserListI, list['UserJSONMixin']):
 class ChatListJSONMixin(JSONMixinI, ChatListI, list['ChatJSONMixin']):
 
     def as_json(self):
-        return {
-            JSONKey.CHATS: [chat.as_json(self._user_id) for chat in self]
-        }
+        return [chat.as_json(self._user_id) for chat in self]
 
 
 class MessageListJSONMixin(JSONMixinI, MessageListI, list['MessageJSONMixin']):
 
     def as_json(self):
-        return {
-            JSONKey.MESSAGES: [msg.as_json() for msg in self]
-        }
+        return [msg.as_json() for msg in self]

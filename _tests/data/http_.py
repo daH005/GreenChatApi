@@ -312,7 +312,7 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
+            expected_json_object={
                 'isThat': False,
             },
         ),
@@ -325,7 +325,7 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
+            expected_json_object={
                 'isThat': True,
             },
         ),
@@ -343,7 +343,7 @@ class SetForTest:
             },
 
             expected_status_code=401,
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.USER_LOGOUT[0],
@@ -377,7 +377,7 @@ class SetForTest:
             },
 
             expected_status_code=401,
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.USER_REFRESH_ACCESS[0],
@@ -408,7 +408,7 @@ class SetForTest:
             },
 
             expected_status_code=401,  # check blacklist
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
     ]
 
@@ -428,7 +428,7 @@ class SetForTest:
             },
 
             expected_status_code=401,
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.USER_EDIT[0],
@@ -492,7 +492,7 @@ class SetForTest:
             },
 
             expected_status_code=401,
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.USER[0],
@@ -535,7 +535,7 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
+            expected_json_object={
                 'id': Params.ID_START,
                 'email': Params.EMAILS[0],
                 'firstName': Params.NEW_FIRST_NAME,
@@ -557,7 +557,7 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
+            expected_json_object={
                 'id': Params.ID_START + 1,
                 'firstName': Params.DEFAULT_FIRST_NAME,
                 'lastName': Params.DEFAULT_LAST_NAME,
@@ -579,7 +579,7 @@ class SetForTest:
             },
 
             expected_status_code=401,
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.USER_AVATAR_EDIT[0],
@@ -740,7 +740,7 @@ class SetForTest:
             },
 
             expected_status_code=401,
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.USER_BACKGROUND_EDIT[0],
@@ -869,7 +869,7 @@ class SetForTest:
             },
 
             expected_status_code=401,
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.CHAT_NEW[0],
@@ -1056,7 +1056,7 @@ class SetForTest:
             },
 
             expected_status_code=201,
-            expected_json_dict={
+            expected_json_object={
                 'storageId': Params.ID_START,
             },
         ),
@@ -1078,7 +1078,7 @@ class SetForTest:
             },
 
             expected_status_code=401,
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.CHAT_MESSAGE_NEW[0],
@@ -1311,7 +1311,7 @@ class SetForTest:
             },
 
             expected_status_code=401,
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.CHAT_MESSAGE_READ[0],
@@ -1422,7 +1422,7 @@ class SetForTest:
             },
 
             expected_status_code=401,
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.CHAT_MESSAGE_FILES_NAMES[0],
@@ -1496,12 +1496,10 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
-                'filenames': [
-                    Params.FILES[0][1],
-                    Params.FILES[1][1],
-                ],
-            },
+            expected_json_object=[
+                Params.FILES[0][1],
+                Params.FILES[1][1],
+            ],
         ),
     ]
 
@@ -1722,7 +1720,7 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
+            expected_json_object={
                 'unreadCount': 0,
             },
         ),
@@ -1740,7 +1738,7 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
+            expected_json_object={
                 'unreadCount': 1,
             },
         ),
@@ -1861,7 +1859,7 @@ class SetForTest:
             },
 
             expected_status_code=401,
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.CHAT[0],
@@ -1935,7 +1933,7 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
+            expected_json_object={
                 'id': 1,
                 'isGroup': False,
                 'lastMessage': {
@@ -1971,7 +1969,7 @@ class SetForTest:
             },
 
             expected_status_code=401,
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.CHAT_MESSAGE[0],
@@ -2045,7 +2043,7 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
+            expected_json_object={
                 'id': 4,
                 'chatId': 2,
                 'userId': 50001,
@@ -2070,7 +2068,7 @@ class SetForTest:
             },
 
             expected_status_code=401,
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.CHAT_MESSAGES[0],
@@ -2144,37 +2142,35 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
-                'messages': [
-                    {
-                        'id': 3,
-                        'chatId': 1,
-                        'userId': 50000,
-                        'storageId': None,
-                        'text': 'Hello3',
-                        'isRead': False,
-                        'creatingDatetime': anything,
-                    },
-                    {
-                        'id': 2,
-                        'chatId': 1,
-                        'userId': 50000,
-                        'storageId': None,
-                        'text': 'Hello2',
-                        'isRead': True,
-                        'creatingDatetime': anything,
-                    },
-                    {
-                        'id': 1,
-                        'chatId': 1,
-                        'userId': 50000,
-                        'storageId': None,
-                        'text': 'Hello1',
-                        'isRead': True,
-                        'creatingDatetime': anything,
-                    },
-                ],
-            },
+            expected_json_object=[
+                {
+                    'id': 3,
+                    'chatId': 1,
+                    'userId': 50000,
+                    'storageId': None,
+                    'text': 'Hello3',
+                    'isRead': False,
+                    'creatingDatetime': anything,
+                },
+                {
+                    'id': 2,
+                    'chatId': 1,
+                    'userId': 50000,
+                    'storageId': None,
+                    'text': 'Hello2',
+                    'isRead': True,
+                    'creatingDatetime': anything,
+                },
+                {
+                    'id': 1,
+                    'chatId': 1,
+                    'userId': 50000,
+                    'storageId': None,
+                    'text': 'Hello1',
+                    'isRead': True,
+                    'creatingDatetime': anything,
+                },
+            ],
         ),
         dict(
             url=Params.UrlsAndMethods.CHAT_MESSAGES[0],
@@ -2191,28 +2187,26 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
-                'messages': [
-                    {
-                        'id': 2,
-                        'chatId': 1,
-                        'userId': 50000,
-                        'storageId': None,
-                        'text': 'Hello2',
-                        'isRead': True,
-                        'creatingDatetime': anything,
-                    },
-                    {
-                        'id': 1,
-                        'chatId': 1,
-                        'userId': 50000,
-                        'storageId': None,
-                        'text': 'Hello1',
-                        'isRead': True,
-                        'creatingDatetime': anything,
-                    },
-                ],
-            },
+            expected_json_object=[
+                {
+                    'id': 2,
+                    'chatId': 1,
+                    'userId': 50000,
+                    'storageId': None,
+                    'text': 'Hello2',
+                    'isRead': True,
+                    'creatingDatetime': anything,
+                },
+                {
+                    'id': 1,
+                    'chatId': 1,
+                    'userId': 50000,
+                    'storageId': None,
+                    'text': 'Hello1',
+                    'isRead': True,
+                    'creatingDatetime': anything,
+                },
+            ],
         ),
     ]
 
@@ -2228,7 +2222,7 @@ class SetForTest:
             },
 
             expected_status_code=401,
-            expected_json_dict=anything,
+            expected_json_object=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.USER_CHATS[0],
@@ -2241,62 +2235,60 @@ class SetForTest:
             },
 
             expected_status_code=200,
-            expected_json_dict={
+            expected_json_object=[
                 # sort must be by datetime
-                'chats': [
-                    {
+                {
+                    'id': 3,
+                    'isGroup': False,
+                    'lastMessage': {
+                        'id': 6,
+                        'chatId': 3,
+                        'userId': 50000,
+                        'storageId': None,
+                        'text': Params.CUT_BIG_TEXT,
+                        'isRead': False,
+                        'creatingDatetime': anything,
+                    },
+                    'name': None,
+                    'unreadCount': 0,
+                    'userIds': [
+                        50000,
+                        50003,
+                    ],
+                    'interlocutorId': 50003,
+                },
+                {
+                    'id': 1,
+                    'isGroup': False,
+                    'lastMessage': {
                         'id': 3,
-                        'isGroup': False,
-                        'lastMessage': {
-                            'id': 6,
-                            'chatId': 3,
-                            'userId': 50000,
-                            'storageId': None,
-                            'text': Params.CUT_BIG_TEXT,
-                            'isRead': False,
-                            'creatingDatetime': anything,
-                        },
-                        'name': None,
-                        'unreadCount': 0,
-                        'userIds': [
-                            50000,
-                            50003,
-                        ],
-                        'interlocutorId': 50003,
+                        'chatId': 1,
+                        'userId': 50000,
+                        'storageId': None,
+                        'text': 'Hello3',
+                        'isRead': False,
+                        'creatingDatetime': anything,
                     },
-                    {
-                        'id': 1,
-                        'isGroup': False,
-                        'lastMessage': {
-                            'id': 3,
-                            'chatId': 1,
-                            'userId': 50000,
-                            'storageId': None,
-                            'text': 'Hello3',
-                            'isRead': False,
-                            'creatingDatetime': anything,
-                        },
-                        'name': None,
-                        'unreadCount': 0,
-                        'userIds': [
-                            50000,
-                            50001,
-                        ],
-                        'interlocutorId': 50001,
-                    },
-                    {
-                        'id': 4,
-                        'isGroup': False,
-                        'lastMessage': None,
-                        'name': None,
-                        'unreadCount': 0,
-                        'userIds': [
-                            50000,
-                            50004,
-                        ],
-                        'interlocutorId': 50004,
-                    },
-                ],
-            },
+                    'name': None,
+                    'unreadCount': 0,
+                    'userIds': [
+                        50000,
+                        50001,
+                    ],
+                    'interlocutorId': 50001,
+                },
+                {
+                    'id': 4,
+                    'isGroup': False,
+                    'lastMessage': None,
+                    'name': None,
+                    'unreadCount': 0,
+                    'userIds': [
+                        50000,
+                        50004,
+                    ],
+                    'interlocutorId': 50004,
+                },
+            ],
         ),
     ]
