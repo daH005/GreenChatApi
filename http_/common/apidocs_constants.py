@@ -186,7 +186,7 @@ USER_EMAIL_CODE_CHECK_SPECS = {
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'codeIsValid': {
+                    'isThat': {
                         'type': 'boolean',
                     }
                 }

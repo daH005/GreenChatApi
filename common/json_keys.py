@@ -38,7 +38,7 @@ class JSONKey(StrEnum):
     USER_IDS = 'userIds'
     UNREAD_COUNT = 'unreadCount'
 
-    CODE_IS_VALID = 'codeIsValid'
+    IS_THAT = 'isThat'
 
     TYPE = 'type'
     DATA = 'data'

@@ -313,7 +313,7 @@ class SetForTest:
 
             expected_status_code=200,
             expected_json_dict={
-                'codeIsValid': False,
+                'isThat': False,
             },
         ),
         dict(
@@ -326,7 +326,7 @@ class SetForTest:
 
             expected_status_code=200,
             expected_json_dict={
-                'codeIsValid': True,
+                'isThat': True,
             },
         ),
     ]

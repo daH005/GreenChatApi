@@ -44,5 +44,5 @@ def code_send():
 def code_check():
     user_data: EmailAndCodeJSONValidator = EmailAndCodeJSONValidator.from_args()
     return {
-        JSONKey.CODE_IS_VALID: email_code_is_valid(user_data.email, user_data.code),
+        JSONKey.IS_THAT: email_code_is_valid(user_data.email, user_data.code),
     }
