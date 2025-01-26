@@ -17,6 +17,7 @@ __all__ = (
     'CHAT_TYPING_SPECS',
     'CHAT_UNREAD_COUNT_SPECS',
     'CHAT_MESSAGES_SPECS',
+
     'MESSAGE_SPECS',
     'MESSAGE_NEW_SPECS',
     'MESSAGE_EDIT_SPECS',
@@ -111,6 +112,9 @@ _MESSAGE_SCHEMA = {
             'type': 'string',
         },
         'isRead': {
+            'type': 'boolean',
+        },
+        'hasFiles': {
             'type': 'boolean',
         },
     },
