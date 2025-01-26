@@ -25,7 +25,6 @@ from http_.common.apidocs_constants import (
     MESSAGE_DELETE_SPECS,
     MESSAGE_READ_SPECS,
 )
-from http_.common.get_current_user import get_current_user
 from http_.common.simple_response import make_simple_response
 from http_.common.urls import Url
 from http_.common.validation import NewMessageJSONValidator
@@ -33,6 +32,7 @@ from http_.common.check_access_decorators import (
     message_access_query_decorator,
     message_access_json_decorator,
     message_full_access_json_decorator,
+    chat_access_json_decorator,
 )
 from http_.messages.files.blueprint import files_bp
 
@@ -56,20 +56,11 @@ def message_get(message: Message, _):
 @jwt_required()
 @swag_from(MESSAGE_NEW_SPECS)
 @transaction_retry_decorator()
-def message_new():
+@chat_access_json_decorator
+def message_new(chat: Chat,
+                user: User,
+                ):
     data: NewMessageJSONValidator = NewMessageJSONValidator.from_json()
-
-    try:
-        chat: Chat = Chat.by_id(data.chat_id)
-    except ValueError:
-        return abort(HTTPStatus.NOT_FOUND)
-
-    user: User = get_current_user()
-    try:
-        chat.check_user_access(user.id)
-    except PermissionError:
-        return abort(HTTPStatus.FORBIDDEN)
-
     message: Message = Message.create(
         text=data.text,
         user=user,
