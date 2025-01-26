@@ -54,10 +54,12 @@ class WebSocketServer:
 
     async def _signal_queue_pop_task(self) -> NoReturn:
         self._online_set.clear()
+
+        message: SignalQueueMessage
         while True:
-            await asyncio.sleep(0)
+            await asyncio.sleep(0)  # For switching in the asyncio loop
             try:
-                message: SignalQueueMessage = self._signal_queue.pop()
+                message = self._signal_queue.pop()
             except StopIteration:
                 continue
 
