@@ -207,7 +207,7 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, ChatI):
         messages: list[Message] = cast(Query[Message], self._messages).offset(offset).limit(size).all()
         return MessageList(messages)
 
-    def unread_messages_until(self, message_id: int) -> 'MessageList':
+    def unread_messages_up_to(self, message_id: int) -> 'MessageList':
         messages: list[Message] = cast(Query[Message], self._messages).filter(
             Message._id <= message_id,  # noqa
             Message._is_read == False,  # noqa

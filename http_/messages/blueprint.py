@@ -131,7 +131,7 @@ def message_read(message: Message,
                  user: User,
                  ):
     sender_read_messages: dict[int, MessageList] = {}
-    for history_message in message.chat.unread_messages_until(message.id):
+    for history_message in message.chat.unread_messages_up_to(message.id):
         if history_message.is_read:
             continue
 
@@ -139,12 +139,14 @@ def message_read(message: Message,
         sender_read_messages.setdefault(message.user.id, MessageList()).append(history_message)
 
     unread_count: UnreadCount = message.chat.unread_count_of_user(user.id)
+
     new_unread_count: int = message.chat.interlocutor_messages_after_count(message.id, user.id)
-    unread_count_is_new: bool = unread_count.value != new_unread_count
+    unread_count_is_new: bool = new_unread_count < unread_count.value
     if unread_count_is_new:
         unread_count.set(new_unread_count)
 
-    db_builder.session.commit()
+    if unread_count_is_new or sender_read_messages:
+        db_builder.session.commit()
 
     for user_id, messages in sender_read_messages.items():
         messages.signal_read([user_id])
