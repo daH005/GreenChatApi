@@ -248,8 +248,16 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, MessageI):
                                                          default=datetime.utcnow)
     _is_read: Mapped[bool] = mapped_column(Boolean, name='is_read', default=False)
 
-    _user: Mapped['User'] = relationship(back_populates='_messages', uselist=False)
-    _chat: Mapped['Chat'] = relationship(back_populates='_messages', uselist=False)
+    _user: Mapped['User'] = relationship(
+        back_populates='_messages',
+        cascade='all, delete',
+        uselist=False,
+    )
+    _chat: Mapped['Chat'] = relationship(
+        back_populates='_messages',
+        cascade='all, delete',
+        uselist=False,
+    )
 
     @classmethod
     def create(cls, text: str,
@@ -297,8 +305,16 @@ class UserChatMatch(BaseModel, UserChatMatchI):
     _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), name='user_id', nullable=False)
     _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id', ondelete='CASCADE'), name='chat_id', nullable=False)
 
-    _user: Mapped['User'] = relationship(back_populates='_user_chats_matches', uselist=False)
-    _chat: Mapped['Chat'] = relationship(back_populates='_user_chat_matches', uselist=False)
+    _user: Mapped['User'] = relationship(
+        back_populates='_user_chats_matches',
+        cascade='all, delete',
+        uselist=False,
+    )
+    _chat: Mapped['Chat'] = relationship(
+        back_populates='_user_chat_matches',
+        cascade='all, delete',
+        uselist=False,
+    )
     _unread_count: Mapped['UnreadCount'] = relationship(
         back_populates='_user_chat_match',
         cascade='all, delete',
@@ -427,7 +443,11 @@ class UnreadCount(BaseModel, UnreadCountJSONMixin, UnreadCountI):
                                                      name='user_chat_match_id', nullable=False)
     _value: Mapped[int] = mapped_column(Integer, name='value', default=0)
 
-    _user_chat_match: Mapped['UserChatMatch'] = relationship(back_populates='_unread_count', uselist=False)
+    _user_chat_match: Mapped['UserChatMatch'] = relationship(
+        back_populates='_unread_count',
+        cascade='all, delete',
+        uselist=False,
+    )
 
     __table_args__ = (
         CheckConstraint('value >= 0'),
