@@ -19,6 +19,7 @@ __all__ = (
     'BaseValidator',
     'EmailAndCodeJSONValidator',
     'UserJSONValidator',
+    'EditMessageJSONValidator',
     'NewChatJSONValidator',
     'NewMessageJSONValidator',
 )
@@ -66,11 +67,11 @@ class NewChatJSONValidator(BaseValidator):
     is_group: bool = Field(alias=JSONKey.IS_GROUP, default=False)
 
 
-class NewMessageJSONValidator(BaseValidator):
+class BaseMessageJSONValidator(BaseValidator):
     _TEXT_MAX_LENGTH: Final[int] = 10_000
 
-    chat_id: int = Field(alias=JSONKey.CHAT_ID)
-    text: str = Field(alias=JSONKey.TEXT)
+    replied_message_id: int = Field(alias=JSONKey.REPLIED_MESSAGE_ID, default=None)
+    text: str = Field(alias=JSONKey.TEXT, default=None)
 
     @field_validator('text')  # noqa: from pydantic doc
     @classmethod
@@ -86,3 +87,13 @@ class NewMessageJSONValidator(BaseValidator):
         text = sub(r'( ?\n ?)+', '\n', text)
         text = text.strip()
         return text
+
+
+class NewMessageJSONValidator(BaseMessageJSONValidator):
+
+    chat_id: int = Field(alias=JSONKey.CHAT_ID)
+    text: str = Field(alias=JSONKey.TEXT)
+
+
+class EditMessageJSONValidator(BaseMessageJSONValidator):
+    message_id: int = Field(alias=JSONKey.MESSAGE_ID)

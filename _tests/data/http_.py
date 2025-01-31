@@ -1089,6 +1089,23 @@ class SetForTest:
             method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={
                 'chatId': 1,
+                'repliedMessageId': 999,
+                'text': Params.MESSAGE_TEXTS[1],
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=404,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
+            json_dict={
+                'chatId': 1,
                 'text': Params.MESSAGE_TEXTS[0],
             },
             cookies={
@@ -1107,6 +1124,7 @@ class SetForTest:
                 'isRead': False,
                 'hasFiles': False,
                 'creatingDatetime': anything,
+                'repliedMessage': None,
             },
             expected_signal_queue_messages=[
                 SignalQueueMessage(
@@ -1133,7 +1151,25 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_NEW[0],
             method=Params.UrlsAndMethods.MESSAGE_NEW[1],
             json_dict={
+                'chatId': 2,
+                'repliedMessageId': Params.ID_START,
+                'text': Params.MESSAGE_TEXTS[1],
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=403,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_NEW[0],
+            method=Params.UrlsAndMethods.MESSAGE_NEW[1],
+            json_dict={
                 'chatId': 1,
+                'repliedMessageId': Params.ID_START,
                 'text': Params.MESSAGE_TEXTS[1],
             },
             cookies={
@@ -1408,6 +1444,23 @@ class SetForTest:
             url=Params.UrlsAndMethods.MESSAGE_EDIT[0],
             method=Params.UrlsAndMethods.MESSAGE_EDIT[1],
             json_dict={
+                'messageId': Params.ID_START + 2,
+                'repliedMessageId': Params.ID_START + 3,
+                'text': Params.UPDATED_TEXT,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=403,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_EDIT[0],
+            method=Params.UrlsAndMethods.MESSAGE_EDIT[1],
+            json_dict={
                 'messageId': 100,
                 'text': Params.UPDATED_TEXT,
             },
@@ -1419,6 +1472,40 @@ class SetForTest:
             },
 
             expected_status_code=404,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_EDIT[0],
+            method=Params.UrlsAndMethods.MESSAGE_EDIT[1],
+            json_dict={
+                'messageId': Params.ID_START + 2,
+                'repliedMessageId': 999,
+                'text': Params.UPDATED_TEXT,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=404,
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_EDIT[0],
+            method=Params.UrlsAndMethods.MESSAGE_EDIT[1],
+            json_dict={
+                'messageId': Params.ID_START,
+                'repliedMessageId': Params.ID_START,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=409,
+            expected_signal_queue_messages=anything,
         ),
         dict(
             url=Params.UrlsAndMethods.MESSAGE_EDIT[0],
@@ -1446,6 +1533,23 @@ class SetForTest:
                     },
                 ),
             ],
+        ),
+        dict(
+            url=Params.UrlsAndMethods.MESSAGE_EDIT[0],
+            method=Params.UrlsAndMethods.MESSAGE_EDIT[1],
+            json_dict={
+                'messageId': Params.ID_START + 1,
+                'repliedMessageId': Params.ID_START + 2,
+            },
+            cookies={
+                'access_token_cookie': Params.ACCESS_TOKEN,
+            },
+            headers={
+                'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
+            },
+
+            expected_status_code=200,
+            expected_signal_queue_messages=anything,
         ),
     ]
 
@@ -2358,6 +2462,7 @@ class SetForTest:
                     'isRead': False,
                     'hasFiles': False,
                     'creatingDatetime': anything,
+                    'repliedMessage': None,
                 },
                 'name': None,
                 'unreadCount': 0,
@@ -2465,6 +2570,7 @@ class SetForTest:
                 'isRead': False,
                 'hasFiles': True,
                 'creatingDatetime': anything,
+                'repliedMessage': None,
             },
         ),
     ]
@@ -2565,6 +2671,7 @@ class SetForTest:
                     'isRead': False,
                     'hasFiles': False,
                     'creatingDatetime': anything,
+                    'repliedMessage': None,
                 },
                 {
                     'id': Params.ID_START + 1,
@@ -2574,6 +2681,11 @@ class SetForTest:
                     'isRead': True,
                     'hasFiles': False,
                     'creatingDatetime': anything,
+                    'repliedMessage': {
+                        'id': Params.ID_START + 2,
+                        'userId': Params.ID_START,
+                        'text': Params.UPDATED_TEXT,
+                    },
                 },
                 {
                     'id': Params.ID_START,
@@ -2583,6 +2695,7 @@ class SetForTest:
                     'isRead': True,
                     'hasFiles': False,
                     'creatingDatetime': anything,
+                    'repliedMessage': None,
                 },
             ],
         ),
@@ -2610,6 +2723,7 @@ class SetForTest:
                     'isRead': True,
                     'hasFiles': False,
                     'creatingDatetime': anything,
+                    'repliedMessage': anything,
                 },
                 {
                     'id': Params.ID_START,
@@ -2619,6 +2733,7 @@ class SetForTest:
                     'isRead': True,
                     'hasFiles': False,
                     'creatingDatetime': anything,
+                    'repliedMessage': None,
                 },
             ],
         ),
@@ -2662,6 +2777,7 @@ class SetForTest:
                         'isRead': False,
                         'hasFiles': False,
                         'creatingDatetime': anything,
+                        'repliedMessage': None,
                     },
                     'name': None,
                     'unreadCount': 0,
@@ -2682,6 +2798,7 @@ class SetForTest:
                         'isRead': False,
                         'hasFiles': False,
                         'creatingDatetime': anything,
+                        'repliedMessage': None,
                     },
                     'name': None,
                     'unreadCount': 0,

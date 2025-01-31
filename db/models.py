@@ -243,6 +243,7 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, MessageI):
 
     _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), name='user_id', nullable=False)
     _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id', ondelete='CASCADE'), name='chat_id', nullable=False)
+    _replied_message_id: Mapped[int | None] = mapped_column(ForeignKey('messages.id'), name='replied_message_id')
     _text: Mapped[str] = mapped_column(Text, name='text', nullable=False)
     _creating_datetime: Mapped[datetime] = mapped_column(DATETIME(fsp=6), name='creating_datetime',
                                                          default=datetime.utcnow)
@@ -250,12 +251,19 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, MessageI):
 
     _user: Mapped['User'] = relationship(
         back_populates='_messages',
-        cascade='all, delete',
         uselist=False,
     )
     _chat: Mapped['Chat'] = relationship(
         back_populates='_messages',
-        cascade='all, delete',
+        uselist=False,
+    )
+    _replied_message: Mapped[Union['Message', None]] = relationship(
+        back_populates='_reply_message',
+        remote_side='Message._id',
+        uselist=False,
+    )
+    _reply_message: Mapped[Union['Message', None]] = relationship(
+        back_populates='_replied_message',
         uselist=False,
     )
 
@@ -263,8 +271,9 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, MessageI):
     def create(cls, text: str,
                user: 'User',
                chat: 'Chat',
+               replied_message: Union['Message', None] = None,
                ) -> Self:
-        return cls(_text=text, _user=user, _chat=chat)
+        return cls(_text=text, _user=user, _chat=chat, _replied_message=replied_message)
 
     @property
     def text(self) -> str:
@@ -298,6 +307,9 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, MessageI):
     def set_text(self, text: str) -> None:
         self._text = text  # noqa
 
+    def set_replied_message(self, replied_message_id: int | None) -> None:
+        self._replied_message_id = cast(Mapped[int], replied_message_id)
+
 
 class UserChatMatch(BaseModel, UserChatMatchI):
     __tablename__ = 'user_chat_matches'
@@ -307,12 +319,10 @@ class UserChatMatch(BaseModel, UserChatMatchI):
 
     _user: Mapped['User'] = relationship(
         back_populates='_user_chats_matches',
-        cascade='all, delete',
         uselist=False,
     )
     _chat: Mapped['Chat'] = relationship(
         back_populates='_user_chat_matches',
-        cascade='all, delete',
         uselist=False,
     )
     _unread_count: Mapped['UnreadCount'] = relationship(
@@ -445,7 +455,6 @@ class UnreadCount(BaseModel, UnreadCountJSONMixin, UnreadCountI):
 
     _user_chat_match: Mapped['UserChatMatch'] = relationship(
         back_populates='_unread_count',
-        cascade='all, delete',
         uselist=False,
     )
 

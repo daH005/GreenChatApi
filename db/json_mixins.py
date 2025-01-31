@@ -73,8 +73,17 @@ class ChatJSONMixin(JSONMixinI, ChatI):
 
 
 class MessageJSONMixin(JSONMixinI, MessageI):
+    _replied_message: 'MessageJSONMixin'
 
     def as_json(self):
+        if self._replied_message_id:
+            replied_message = {
+                JSONKey.ID: self._replied_message.id,
+                JSONKey.USER_ID: self._replied_message.user.id,
+                JSONKey.TEXT: self._replied_message.text,
+            }
+        else:
+            replied_message = None
         return {
             JSONKey.ID: self._id,
             JSONKey.CHAT_ID: self._chat_id,
@@ -83,6 +92,7 @@ class MessageJSONMixin(JSONMixinI, MessageI):
             JSONKey.CREATING_DATETIME: self._creating_datetime.isoformat(),
             JSONKey.IS_READ: self._is_read,
             JSONKey.HAS_FILES: self.storage.exists(),
+            JSONKey.REPLIED_MESSAGE: replied_message,
         }
 
 

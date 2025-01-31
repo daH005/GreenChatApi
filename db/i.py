@@ -147,18 +147,22 @@ class MessageI(BaseI):
 
     _user_id: int
     _chat_id: int
+    _replied_message_id: int | None
     _text: str
     _creating_datetime: datetime
     _is_read: bool
 
     _user: 'UserI'
     _chat: 'ChatI'
+    _replied_message: Union['MessageI', None]
+    _reply_message: Union['MessageI', None]
     _storage: 'MessageStorageI'
 
     @classmethod
     def create(cls, text: str,
                user: 'UserI',
                chat: 'ChatI',
+               replied_message: Union['MessageI', None] = None,
                ) -> Self:
         raise NotImplementedError
 
@@ -190,6 +194,9 @@ class MessageI(BaseI):
         raise NotImplementedError
 
     def set_text(self, text: str) -> None:
+        raise NotImplementedError
+
+    def set_replied_message(self, replied_message_id: int | None) -> None:
         raise NotImplementedError
 
 

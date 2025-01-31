@@ -117,6 +117,13 @@ _MESSAGE_SCHEMA = {
         'hasFiles': {
             'type': 'boolean',
         },
+        'repliedMessage': {
+            'type': {
+                'id': {'type': 'integer'},
+                'userId': {'type': 'integer'},
+                'text': {'type': 'string'},
+            },
+        },
     },
 }
 

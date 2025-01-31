@@ -11,6 +11,7 @@ class JSONKey(StrEnum):
     USER_ID = 'userId'
     CHAT_ID = 'chatId'
     MESSAGE_ID = 'messageId'
+    REPLIED_MESSAGE_ID = 'repliedMessageId'
     MESSAGE_IDS = 'messageIds'
     INTERLOCUTOR_ID = 'interlocutorId'
 
@@ -23,6 +24,7 @@ class JSONKey(StrEnum):
     CREATING_DATETIME = 'creatingDatetime'
     IS_READ = 'isRead'
     HAS_FILES = 'hasFiles'
+    REPLIED_MESSAGE = 'repliedMessage'
 
     FILENAMES = 'filenames'
     FILENAME = 'filename'
