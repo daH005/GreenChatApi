@@ -12,7 +12,8 @@ from _tests.common.assert_and_save_jsons_if_failed import assert_and_save_jsons_
 from _tests.common.create_test_db import create_test_db
 from _tests.common.values_of_set_cookie_to_dict import values_of_set_cookie_to_dict
 from _tests.common.set_for_test_to_values_and_ids import set_for_test_to_values_and_ids
-from _tests.data.http_ import Params, SetForTest
+from _tests.data.http_.params import Params
+from _tests.data.http_.set_for_tests import SetForTest
 
 real_signal_queue_messages = []
 
@@ -58,20 +59,22 @@ def test_client() -> FlaskClient:
 
 
 @pytest.mark.parametrize('kwargs', **set_for_test_to_values_and_ids(SetForTest))
-def test_endpoints(test_client: FlaskClient, kwargs) -> None:
+def test_endpoints(test_client: FlaskClient,
+                   kwargs,
+                   ) -> None:
     for key, value in kwargs.get('cookies', {}).items():
         test_client.set_cookie(key, value)
 
     response: TestResponse = test_client.open(
         kwargs['url'],
         method=kwargs['method'],
-        query_string=kwargs.get('query_string'),
+        query_string=kwargs.get('query_params'),
         headers=kwargs.get('headers'),
         json=kwargs.get('json_dict'),
         data=kwargs.get('data'),
     )
 
-    assert response.status_code == kwargs['expected_status_code']
+    assert response.status_code == kwargs['expected_status']
 
     if 'expected_content' in kwargs:
         assert response.data == kwargs['expected_content']
@@ -83,3 +86,14 @@ def test_endpoints(test_client: FlaskClient, kwargs) -> None:
 
     if real_signal_queue_messages:
         assert real_signal_queue_messages == kwargs['expected_signal_queue_messages']
+
+
+@pytest.mark.parametrize('endpoint', Params.Endpoint.list_of_protected_endpoints())
+def test_endpoints_for_protect(test_client,
+                               endpoint: Params.Endpoint,
+                               ) -> None:
+    response: TestResponse = test_client.open(
+        endpoint[0],
+        method=endpoint[1],
+    )
+    assert response.status_code == 401
