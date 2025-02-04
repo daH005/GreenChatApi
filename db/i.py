@@ -110,7 +110,7 @@ class ChatI(BaseI):
     @classmethod
     def new_with_all_dependencies(cls, user_ids: list[int],
                                   **kwargs,
-                                  ) -> list[Union[Self, 'UserChatMatchI', 'UnreadCountI']]:
+                                  ) -> tuple[Self, list['UserChatMatchI', 'UnreadCountI']]:
         raise NotImplementedError
 
     @property

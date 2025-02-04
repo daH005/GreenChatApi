@@ -73,8 +73,7 @@ def chat_new():
         else:
             return abort(HTTPStatus.CONFLICT)
 
-    chat: Chat
-    chat, *objects = Chat.new_with_all_dependencies(
+    chat, objects = Chat.new_with_all_dependencies(
         data.user_ids,
         name=data.name,
         is_group=data.is_group,

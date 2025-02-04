@@ -162,25 +162,21 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, ChatI):
     @classmethod
     def new_with_all_dependencies(cls, user_ids: list[int],
                                   **kwargs,
-                                  ) -> list[Union[Self, 'UserChatMatch', 'UnreadCount']]:
+                                  ) -> tuple[Self, list['UserChatMatch', 'UnreadCount']]:
         objects: list[cls | UserChatMatch | UnreadCount] = []
-
         chat: cls = cls.create(**kwargs)
-        objects.append(chat)
 
         for user_id in user_ids:
             match: UserChatMatch = UserChatMatch(
                 _user_id=user_id,
                 _chat=chat,
             )
-
             unread_count: UnreadCount = UnreadCount(
                 _user_chat_match=match,
             )
-
             objects += [match, unread_count]
 
-        return objects
+        return chat, objects
 
     @classmethod
     def create(cls, name: str | None = None,
