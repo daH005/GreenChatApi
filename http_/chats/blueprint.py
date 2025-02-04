@@ -82,7 +82,6 @@ def chat_new():
     db_builder.session.commit()
 
     chat.signal_new(data.user_ids)
-
     return chat.as_json(user.id), HTTPStatus.CREATED
 
 
