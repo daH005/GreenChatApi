@@ -1,4 +1,4 @@
-from _tests.common.anything_place import anything
+from _tests.common.anything_place import anything_place
 from _tests.data.http_.params import Params
 
 __all__ = (
@@ -42,7 +42,7 @@ CHAT_MESSAGES = [
                 'text': Params.UPDATED_TEXT,
                 'isRead': False,
                 'hasFiles': False,
-                'creatingDatetime': anything,
+                'creatingDatetime': anything_place,
                 'repliedMessage': None,
             },
             {
@@ -52,7 +52,7 @@ CHAT_MESSAGES = [
                 'text': Params.MESSAGE_TEXTS[1],
                 'isRead': True,
                 'hasFiles': False,
-                'creatingDatetime': anything,
+                'creatingDatetime': anything_place,
                 'repliedMessage': {
                     'id': Params.ID_START + 2,
                     'userId': Params.ID_START,
@@ -66,7 +66,7 @@ CHAT_MESSAGES = [
                 'text': Params.MESSAGE_TEXTS[0],
                 'isRead': True,
                 'hasFiles': False,
-                'creatingDatetime': anything,
+                'creatingDatetime': anything_place,
                 'repliedMessage': None,
             },
         ],
@@ -85,8 +85,8 @@ CHAT_MESSAGES = [
                 'text': Params.MESSAGE_TEXTS[1],
                 'isRead': True,
                 'hasFiles': False,
-                'creatingDatetime': anything,
-                'repliedMessage': anything,
+                'creatingDatetime': anything_place,
+                'repliedMessage': anything_place,
             },
             {
                 'id': Params.ID_START,
@@ -95,7 +95,7 @@ CHAT_MESSAGES = [
                 'text': Params.MESSAGE_TEXTS[0],
                 'isRead': True,
                 'hasFiles': False,
-                'creatingDatetime': anything,
+                'creatingDatetime': anything_place,
                 'repliedMessage': None,
             },
         ],

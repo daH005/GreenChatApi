@@ -1,4 +1,4 @@
-from _tests.common.anything_place import anything
+from _tests.common.anything_place import anything_place
 from _tests.data.http_.params import Params
 
 __all__ = (
@@ -41,7 +41,7 @@ MESSAGE = [
             'text': Params.MESSAGE_TEXTS[0],
             'isRead': False,
             'hasFiles': True,
-            'creatingDatetime': anything,
+            'creatingDatetime': anything_place,
             'repliedMessage': None,
         },
     ),

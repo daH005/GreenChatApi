@@ -9,13 +9,6 @@ _endpoint = Params.Endpoint.MESSAGE_FILES_DELETE
 MESSAGE_FILES_DELETE = [
     _endpoint.new_as_first_user(
         json_dict={},
-        cookies={
-            'access_token_cookie': Params.ACCESS_TOKEN,
-        },
-        headers={
-            'X-CSRF-TOKEN': Params.ACCESS_CSRF_TOKEN,
-        },
-
         expected_status=400,
     ),
     _endpoint.new_as_first_user(

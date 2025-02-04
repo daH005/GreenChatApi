@@ -1,5 +1,5 @@
 from common.signals.message import SignalQueueMessage
-from _tests.common.anything_place import anything
+from _tests.common.anything_place import anything_place
 from _tests.data.http_.params import Params
 
 __all__ = (
@@ -55,7 +55,7 @@ MESSAGE_EDIT = [
             'repliedMessageId': Params.ID_START,
         },
         expected_status=409,
-        expected_signal_queue_messages=anything,
+        expected_signal_queue_messages=anything_place,
     ),
     _endpoint.new_as_first_user(
         json_dict={
@@ -81,6 +81,6 @@ MESSAGE_EDIT = [
             'repliedMessageId': Params.ID_START + 2,
         },
         expected_status=200,
-        expected_signal_queue_messages=anything,
+        expected_signal_queue_messages=anything_place,
     ),
 ]

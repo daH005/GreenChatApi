@@ -23,7 +23,7 @@ from common.hinting import raises
 from db.builder import db_builder
 from db.i import (
     BaseI,
-    BlacklistTokenI,
+    AuthTokenI,
     UserI,
     ChatI,
     MessageI,
@@ -36,7 +36,6 @@ from db.json_mixins import (
     MessageJSONMixin,
     UnreadCountJSONMixin,
 )
-from db.jwt_mixins import UserJWTMixin
 from db.signal_mixins import (
     ChatSignalMixin,
     MessageSignalMixin,
@@ -44,7 +43,7 @@ from db.signal_mixins import (
 
 __all__ = (
     'BaseModel',
-    'BlacklistToken',
+    'AuthToken',
     'User',
     'Chat',
     'Message',
@@ -72,31 +71,50 @@ class BaseModel(DeclarativeBase, BaseI):
         return type(self).__name__ + f'<{self.id}>'
 
 
-class BlacklistToken(BaseModel, BlacklistTokenI):
-    __tablename__ = 'blacklist_tokens'
+class AuthToken(BaseModel, AuthTokenI):
+    __tablename__ = 'auth_tokens'
 
-    _jti: Mapped[str] = mapped_column(String(500), name='jti', unique=True)
+    _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), name='user_id', nullable=False)
+    _value: Mapped[str] = mapped_column(String(500), name='value', unique=True)
+    _is_refresh: Mapped[bool] = mapped_column(Boolean, name='is_refresh', nullable=False)
+
+    _user: Mapped['User'] = relationship(back_populates='_tokens', uselist=False)
 
     @classmethod
-    def create(cls, jti: str) -> Self:
-        return cls(_jti=jti)
+    def create(cls, value: str,
+               is_refresh: bool,
+               user: 'User',
+               ) -> Self:
+        return cls(_value=value, _is_refresh=is_refresh, _user=user)
 
     @property
-    def jti(self) -> str:
-        return self._jti
+    def value(self) -> str:
+        return self._value
 
     @classmethod
-    def exists(cls, jti: str) -> bool:
-        return db_builder.session.query(cls).filter(cls._jti == jti).first() is not None
+    def exists(cls, value: str) -> bool:
+        return db_builder.session.query(cls).filter(cls._value == value).first() is not None
+
+    @classmethod
+    @raises(ValueError)
+    def by_value(cls, value: str) -> Self:
+        token: cls | None = db_builder.session.query(cls).filter(cls._value == value).first()
+        if token is None:
+            raise ValueError
+        return token
 
 
-class User(BaseModel, UserJSONMixin, UserJWTMixin, UserI):
+class User(BaseModel, UserJSONMixin, UserI):
     __tablename__ = 'users'
 
     _email: Mapped[str] = mapped_column(String(200), name='email', nullable=False, unique=True)
     _first_name: Mapped[str] = mapped_column(String(100), name='first_name', nullable=False, default='New')
     _last_name: Mapped[str] = mapped_column(String(100), name='last_name', nullable=False, default='User')
 
+    _tokens: Mapped[list['AuthToken']] = relationship(
+        back_populates='_user',
+        cascade='all, delete',
+    )
     _messages: Mapped[list['Message']] = relationship(
         back_populates='_user',
         cascade='all, delete',

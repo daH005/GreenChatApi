@@ -13,11 +13,14 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
     get_jwt,
     jwt_required,
+    create_access_token,
+    create_refresh_token,
+    decode_token,
 )
 
 from common.json_keys import JSONKey
 from db.builder import db_builder
-from db.models import User, BlacklistToken
+from db.models import User, AuthToken
 from db.transaction_retry_decorator import transaction_retry_decorator
 from http_.common.apidocs_constants import (
     USER_LOGIN_SPECS,
@@ -44,7 +47,6 @@ __all__ = (
 )
 
 users_bp: Blueprint = Blueprint('users', __name__)
-
 for bp in (avatars_bp, backgrounds_bp, email_bp):
     users_bp.register_blueprint(bp)
 
@@ -71,13 +73,15 @@ def login():
         db_builder.session.commit()
         status_code = HTTPStatus.CREATED
 
-    return _make_access_response(user, status_code)
+    return _make_auth_response(user, status_code)
 
 
 @users_bp.route(Url.USER_LOGOUT, methods=[HTTPMethod.POST])
 @jwt_required()
 @swag_from(USER_LOGOUT_SPECS)
+@transaction_retry_decorator()
 def logout():
+    _revoke_current_token()
     response: Response = make_simple_response(HTTPStatus.OK)
     unset_jwt_cookies(response)
     return response
@@ -88,20 +92,40 @@ def logout():
 @swag_from(USER_REFRESH_ACCESS_SPECS)
 @transaction_retry_decorator()
 def refresh_access():
-    jti: str = get_jwt()['jti']
-    blacklist_token: BlacklistToken = BlacklistToken.create(jti)
-    db_builder.session.add(blacklist_token)
+    _revoke_current_token()
+    return _make_auth_response(get_current_user(), HTTPStatus.OK)
+
+
+def _revoke_current_token() -> None:
+    token: AuthToken = AuthToken.by_value(get_jwt()['jti'])
+    db_builder.session.delete(token)
     db_builder.session.commit()
 
-    return _make_access_response(get_current_user(), HTTPStatus.OK)
 
-
-def _make_access_response(user: User,
-                          status_code: HTTPStatus | int,
-                          ) -> Response:
+def _make_auth_response(user: User,
+                        status_code: HTTPStatus | int,
+                        ) -> Response:
     response: Response = make_simple_response(status_code)
-    set_access_cookies(response, user.create_access_token())
-    set_refresh_cookies(response, user.create_refresh_token())
+
+    access_jwt: str = create_access_token(user.id)
+    set_access_cookies(response, access_jwt)
+
+    refresh_jwt: str = create_refresh_token(user.id)
+    set_refresh_cookies(response, refresh_jwt)
+
+    access_token: AuthToken = AuthToken.create(
+        value=decode_token(access_jwt)['jti'],
+        is_refresh=False,
+        user=user,
+    )
+    refresh_token: AuthToken = AuthToken.create(
+        value=decode_token(refresh_jwt)['jti'],
+        is_refresh=True,
+        user=user,
+    )
+
+    db_builder.session.add_all([access_token, refresh_token])
+    db_builder.session.commit()
 
     return response
 

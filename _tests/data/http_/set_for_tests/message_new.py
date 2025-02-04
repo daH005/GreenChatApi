@@ -1,5 +1,5 @@
 from common.signals.message import SignalQueueMessage
-from _tests.common.anything_place import anything
+from _tests.common.anything_place import anything_place
 from _tests.data.http_.params import Params
 
 __all__ = (
@@ -54,7 +54,7 @@ MESSAGE_NEW = [
             'text': Params.MESSAGE_TEXTS[0],
             'isRead': False,
             'hasFiles': False,
-            'creatingDatetime': anything,
+            'creatingDatetime': anything_place,
             'repliedMessage': None,
         },
         expected_signal_queue_messages=[
@@ -93,8 +93,8 @@ MESSAGE_NEW = [
             'text': Params.MESSAGE_TEXTS[1],
         },
         expected_status=201,
-        expected_json_object=anything,
-        expected_signal_queue_messages=anything,
+        expected_json_object=anything_place,
+        expected_signal_queue_messages=anything_place,
     ),
     _endpoint.new_as_first_user(
         json_dict={
@@ -102,8 +102,8 @@ MESSAGE_NEW = [
             'text': Params.MESSAGE_TEXTS[2],
         },
         expected_status=201,
-        expected_json_object=anything,
-        expected_signal_queue_messages=anything,
+        expected_json_object=anything_place,
+        expected_signal_queue_messages=anything_place,
     ),
     _endpoint.new_as_second_user(
         json_dict={
@@ -111,8 +111,8 @@ MESSAGE_NEW = [
             'text': Params.MESSAGE_TEXTS[0],
         },
         expected_status=201,
-        expected_json_object=anything,
-        expected_signal_queue_messages=anything,
+        expected_json_object=anything_place,
+        expected_signal_queue_messages=anything_place,
     ),
     _endpoint.new_as_first_user(
         json_dict={
@@ -120,8 +120,8 @@ MESSAGE_NEW = [
             'text': Params.MESSAGE_TEXTS[0],
         },
         expected_status=201,
-        expected_json_object=anything,
-        expected_signal_queue_messages=anything,
+        expected_json_object=anything_place,
+        expected_signal_queue_messages=anything_place,
     ),
     _endpoint.new_as_first_user(
         json_dict={
@@ -129,8 +129,8 @@ MESSAGE_NEW = [
             'text': Params.BIG_TEXT,
         },
         expected_status=201,
-        expected_json_object=anything,
-        expected_signal_queue_messages=anything,
+        expected_json_object=anything_place,
+        expected_signal_queue_messages=anything_place,
     ),
     _endpoint.new_as_first_user(
         json_dict={
@@ -138,7 +138,7 @@ MESSAGE_NEW = [
             'text': '---',
         },
         expected_status=201,
-        expected_json_object=anything,
-        expected_signal_queue_messages=anything,
+        expected_json_object=anything_place,
+        expected_signal_queue_messages=anything_place,
     ),
 ]

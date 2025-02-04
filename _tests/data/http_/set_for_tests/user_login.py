@@ -1,4 +1,4 @@
-from _tests.common.anything_place import anything
+from _tests.common.anything_place import anything_place
 from _tests.data.http_.params import Params
 
 __all__ = (
@@ -39,11 +39,12 @@ USER_LOGIN = [
         },
         expected_status=201,
         expected_set_cookie={
-            'access_token_cookie': anything,
-            'csrf_access_token': anything,
-            'refresh_token_cookie': anything,
-            'csrf_refresh_token': anything,
+            'access_token_cookie': anything_place,
+            'csrf_access_token': anything_place,
+            'refresh_token_cookie': anything_place,
+            'csrf_refresh_token': anything_place,
         },
+        common_storage_key=Params.CommonStorageKey.FIRST_USER_JWT,
     ),
     _endpoint.new(
         json_dict={
@@ -51,7 +52,8 @@ USER_LOGIN = [
             'code': Params.EMAIL_CODE,
         },
         expected_status=201,
-        expected_set_cookie=anything,
+        expected_set_cookie=anything_place,
+        common_storage_key=Params.CommonStorageKey.SECOND_USER_JWT,
     ),
     _endpoint.new(
         json_dict={
@@ -59,7 +61,7 @@ USER_LOGIN = [
             'code': Params.EMAIL_CODE,
         },
         expected_status=201,
-        expected_set_cookie=anything,
+        expected_set_cookie=anything_place,
     ),
     _endpoint.new(
         json_dict={
@@ -67,7 +69,7 @@ USER_LOGIN = [
             'code': Params.EMAIL_CODE,
         },
         expected_status=201,
-        expected_set_cookie=anything,
+        expected_set_cookie=anything_place,
     ),
     _endpoint.new(
         json_dict={
@@ -75,7 +77,7 @@ USER_LOGIN = [
             'code': Params.EMAIL_CODE,
         },
         expected_status=201,
-        expected_set_cookie=anything,
+        expected_set_cookie=anything_place,
     ),
     _endpoint.new(
         json_dict={
@@ -84,10 +86,10 @@ USER_LOGIN = [
         },
         expected_status=200,
         expected_set_cookie={
-            'access_token_cookie': anything,
-            'csrf_access_token': anything,
-            'refresh_token_cookie': anything,
-            'csrf_refresh_token': anything,
+            'access_token_cookie': anything_place,
+            'csrf_access_token': anything_place,
+            'refresh_token_cookie': anything_place,
+            'csrf_refresh_token': anything_place,
         },
     ),
 ]

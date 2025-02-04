@@ -2,7 +2,7 @@ from copy import deepcopy
 from io import BytesIO
 
 from common.signals.message import SignalQueueMessage
-from _tests.common.anything_place import anything
+from _tests.common.anything_place import anything_place
 from _tests.data.http_.params import Params
 
 __all__ = (
@@ -79,7 +79,7 @@ MESSAGE_FILES_UPDATE = [
             'files': [deepcopy(Params.FILES[1])],
         },
         expected_status=201,
-        expected_signal_queue_messages=anything,
+        expected_signal_queue_messages=anything_place,
     ),
     _endpoint.new_as_second_user(
         query_params={
@@ -89,6 +89,6 @@ MESSAGE_FILES_UPDATE = [
             'files': [deepcopy(Params.FILE_TO_CREATE_AND_DELETE)],
         },
         expected_status=201,
-        expected_signal_queue_messages=anything,
+        expected_signal_queue_messages=anything_place,
     ),
 ]

@@ -12,6 +12,8 @@ from _tests.common.assert_and_save_jsons_if_failed import assert_and_save_jsons_
 from _tests.common.create_test_db import create_test_db
 from _tests.common.values_of_set_cookie_to_dict import values_of_set_cookie_to_dict
 from _tests.common.set_for_test_to_values_and_ids import set_for_test_to_values_and_ids
+from _tests.common.common_storage import common_storage
+from _tests.common.recursive_fill_func_values_of_dict import recursive_fill_func_values_of_dict
 from _tests.data.http_.params import Params
 from _tests.data.http_.set_for_tests import SetForTest
 
@@ -62,6 +64,8 @@ def test_client() -> FlaskClient:
 def test_endpoints(test_client: FlaskClient,
                    kwargs,
                    ) -> None:
+    kwargs = recursive_fill_func_values_of_dict(kwargs)
+
     for key, value in kwargs.get('cookies', {}).items():
         test_client.set_cookie(key, value)
 
@@ -73,7 +77,6 @@ def test_endpoints(test_client: FlaskClient,
         json=kwargs.get('json_dict'),
         data=kwargs.get('data'),
     )
-
     assert response.status_code == kwargs['expected_status']
 
     if 'expected_content' in kwargs:
@@ -81,11 +84,17 @@ def test_endpoints(test_client: FlaskClient,
     else:
         assert_and_save_jsons_if_failed(response.json, kwargs.get('expected_json_object'))
 
-    values_of_set_cookie = response.headers.getlist('Set-Cookie')
-    assert_and_save_jsons_if_failed(values_of_set_cookie_to_dict(values_of_set_cookie), kwargs.get('expected_set_cookie', {}))
+    set_cookie_dict = values_of_set_cookie_to_dict(response.headers.getlist('Set-Cookie'))
+    assert_and_save_jsons_if_failed(set_cookie_dict, kwargs.get('expected_set_cookie', {}))
 
     if real_signal_queue_messages:
         assert real_signal_queue_messages == kwargs['expected_signal_queue_messages']
+
+    if 'common_storage_key' in kwargs:
+        common_storage[kwargs['common_storage_key']] = {
+            'content': response.data,
+            'set_cookie': set_cookie_dict,
+        }
 
 
 @pytest.mark.parametrize('endpoint', Params.Endpoint.list_of_protected_endpoints())

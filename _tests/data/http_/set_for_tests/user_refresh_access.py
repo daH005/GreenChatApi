@@ -1,4 +1,4 @@
-from _tests.common.anything_place import anything
+from _tests.common.anything_place import anything_place
 from _tests.data.http_.params import Params
 
 __all__ = (
@@ -7,29 +7,19 @@ __all__ = (
 
 _endpoint = Params.Endpoint.USER_REFRESH_ACCESS
 USER_REFRESH_ACCESS = [
-    _endpoint.new(
-        cookies={
-            'refresh_token_cookie': Params.REFRESH_TOKEN,
-        },
-        headers={
-            'X-CSRF-TOKEN': Params.REFRESH_CSRF_TOKEN,
-        },
+    _endpoint.new_as_first_user(
+        jwt_kind='refresh',
         expected_status=200,
         expected_set_cookie={
-            'access_token_cookie': anything,
-            'csrf_access_token': anything,
-            'refresh_token_cookie': anything,
-            'csrf_refresh_token': anything,
+            'access_token_cookie': anything_place,
+            'csrf_access_token': anything_place,
+            'refresh_token_cookie': anything_place,
+            'csrf_refresh_token': anything_place,
         },
     ),
-    _endpoint.new(
-        cookies={
-            'refresh_token_cookie': Params.REFRESH_TOKEN,
-        },
-        headers={
-            'X-CSRF-TOKEN': Params.REFRESH_CSRF_TOKEN,
-        },
-        expected_status=401,  # check blacklist
-        expected_json_object=anything,
+    _endpoint.new_as_first_user(
+        jwt_kind='refresh',
+        expected_status=401,  # check for a blacklist
+        expected_json_object=anything_place,
     ),
 ]

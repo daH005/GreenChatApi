@@ -1,4 +1,4 @@
-from _tests.common.anything_place import anything
+from _tests.common.anything_place import anything_place
 from _tests.data.http_.params import Params
 
 __all__ = (
@@ -21,7 +21,7 @@ USER_CHATS = [
                     'text': Params.CUT_BIG_TEXT,
                     'isRead': False,
                     'hasFiles': False,
-                    'creatingDatetime': anything,
+                    'creatingDatetime': anything_place,
                     'repliedMessage': None,
                 },
                 'name': None,
@@ -42,7 +42,7 @@ USER_CHATS = [
                     'text': Params.UPDATED_TEXT,
                     'isRead': False,
                     'hasFiles': False,
-                    'creatingDatetime': anything,
+                    'creatingDatetime': anything_place,
                     'repliedMessage': None,
                 },
                 'name': None,

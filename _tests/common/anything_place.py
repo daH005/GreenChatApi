@@ -2,7 +2,7 @@ from typing import Any
 
 __all__ = (
     'AnythingPlace',
-    'anything',
+    'anything_place',
 )
 
 
@@ -12,4 +12,4 @@ class AnythingPlace(str):
         return True
 
 
-anything = AnythingPlace()
+anything_place: AnythingPlace = AnythingPlace()

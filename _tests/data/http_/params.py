@@ -1,5 +1,5 @@
 from io import BytesIO
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Self
 
 from flask_jwt_extended import (
@@ -10,6 +10,7 @@ from flask_jwt_extended import (
 
 from config import EMAIL_PASS_CODE
 from db.models import User
+from _tests.common.common_storage import common_storage
 
 __all__ = (
     'Params',
@@ -58,34 +59,38 @@ class Params:
             ]
             return list(filter(lambda x: x not in protected_endpoints, list(cls)))
 
-        def new_as_first_user(self, **kwargs):
+        def new_as_first_user(self, jwt_kind: str = 'access',
+                              **kwargs,
+                              ):
             return self.new_as_some_user(
-                Params.ACCESS_TOKEN,
-                Params.ACCESS_CSRF_TOKEN,
+                Params.CommonStorageKey.FIRST_USER_JWT,
+                jwt_kind,
                 **kwargs,
             )
 
-        def new_as_second_user(self, **kwargs):
+        def new_as_second_user(self, jwt_kind: str = 'access',
+                               **kwargs,
+                               ):
             return self.new_as_some_user(
-                Params.SECOND_ACCESS_TOKEN,
-                Params.SECOND_ACCESS_CSRF_TOKEN,
+                Params.CommonStorageKey.SECOND_USER_JWT,
+                jwt_kind,
                 **kwargs,
             )
 
-        def new_as_some_user(self, token: str,
-                             csrf_token: str,
+        def new_as_some_user(self, common_storage_key: 'Params.CommonStorageKey',
+                             jwt_kind: str,
                              **kwargs,
                              ):
             if self[1] != 'GET':
                 csrf_headers = {
-                    'X-CSRF-TOKEN': csrf_token,
+                    'X-CSRF-TOKEN': lambda: common_storage_key.set_cookie[f'csrf_{jwt_kind}_token'],
                 }
             else:
                 csrf_headers = {}
 
             return self.new(
                 cookies={
-                    'access_token_cookie': token,
+                    f'{jwt_kind}_token_cookie': lambda: common_storage_key.set_cookie[f'{jwt_kind}_token_cookie'],
                     **kwargs.pop('cookies', {}),
                 },
                 headers={
@@ -101,6 +106,19 @@ class Params:
                 method=self[1],
                 **kwargs,
             )
+
+    class CommonStorageKey(StrEnum):
+
+        FIRST_USER_JWT = 'FIRST_USER_JWT'
+        SECOND_USER_JWT = 'SECOND_USER_JWT'
+
+        @property
+        def content(self) -> dict:
+            return common_storage[self]['content']
+
+        @property
+        def set_cookie(self) -> dict:
+            return common_storage[self]['set_cookie']
 
     ID_START = 50000
 
@@ -147,15 +165,6 @@ class Params:
         'user4@mail.ru',
         'user5@mail.ru',
     ]
-
-    ACCESS_TOKEN = create_access_token(ID_START)
-    ACCESS_CSRF_TOKEN = get_csrf_token(ACCESS_TOKEN)
-
-    REFRESH_TOKEN = create_refresh_token(ID_START)
-    REFRESH_CSRF_TOKEN = get_csrf_token(REFRESH_TOKEN)
-
-    SECOND_ACCESS_TOKEN = create_access_token(ID_START + 1)
-    SECOND_ACCESS_CSRF_TOKEN = get_csrf_token(SECOND_ACCESS_TOKEN)
 
     NEW_FIRST_NAME = 'fname'
     NEW_LAST_NAME = 'lname'

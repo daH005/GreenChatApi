@@ -5,7 +5,7 @@ from typing import Union, Self, Protocol
 
 __all__ = (
     'BaseI',
-    'BlacklistTokenI',
+    'AuthTokenI',
     'UserI',
     'ChatI',
     'MessageI',
@@ -31,19 +31,31 @@ class BaseI:
         raise NotImplementedError
 
 
-class BlacklistTokenI:
-    _jti: str
+class AuthTokenI(BaseI):
+
+    _user_id: int
+    _value: str
+    _is_refresh: bool
+
+    _user: 'UserI'
 
     @classmethod
-    def create(cls, jti: str) -> Self:
+    def create(cls, value: str,
+               is_refresh: bool,
+               user: 'UserI',
+               ) -> Self:
         raise NotImplementedError
 
     @property
-    def jti(self) -> str:
+    def value(self) -> str:
         raise NotImplementedError
 
     @classmethod
-    def exists(cls, jti: str) -> bool:
+    def exists(cls, value: str) -> bool:
+        raise NotImplementedError
+
+    @classmethod
+    def by_value(cls, value: str) -> Self:
         raise NotImplementedError
 
 
@@ -53,6 +65,7 @@ class UserI(BaseI):
     _first_name: str
     _last_name: str
 
+    _tokens: list['AuthTokenI']
     _messages: list['MessageI']
     _user_chats_matches: list['UserChatMatchI']
 

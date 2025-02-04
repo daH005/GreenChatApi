@@ -35,8 +35,6 @@ class SetForTest:
     user_login = USER_LOGIN
     user_login_email_code_send = USER_LOGIN_EMAIL_CODE_SEND
     user_login_email_code_check = USER_LOGIN_EMAIL_CODE_CHECK
-    user_logout = USER_LOGOUT
-    user_refresh_access = USER_REFRESH_ACCESS
     user_edit = USER_EDIT
     user = USER
     user_avatar_edit = USER_AVATAR_EDIT
@@ -59,3 +57,6 @@ class SetForTest:
     message = MESSAGE
     chat_messages = CHAT_MESSAGES
     user_chats = USER_CHATS
+
+    user_logout = USER_LOGOUT
+    user_refresh_access = USER_REFRESH_ACCESS
