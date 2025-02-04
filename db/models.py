@@ -22,13 +22,13 @@ from sqlalchemy.orm import (
 from common.hinting import raises
 from db.builder import db_builder
 from db.i import (
-    BaseI,
-    AuthTokenI,
-    UserI,
-    ChatI,
-    MessageI,
-    UserChatMatchI,
-    UnreadCountI,
+    IBaseModel,
+    IAuthToken,
+    IUser,
+    IChat,
+    IMessage,
+    IUserChatMatch,
+    IUnreadCount,
 )
 from db.json_mixins import (
     UserJSONMixin,
@@ -52,7 +52,7 @@ __all__ = (
 )
 
 
-class BaseModel(DeclarativeBase, BaseI):
+class BaseModel(DeclarativeBase, IBaseModel):
     _id: Mapped[int] = mapped_column(primary_key=True, name='id')
 
     @property
@@ -71,7 +71,7 @@ class BaseModel(DeclarativeBase, BaseI):
         return type(self).__name__ + f'<{self.id}>'
 
 
-class AuthToken(BaseModel, AuthTokenI):
+class AuthToken(BaseModel, IAuthToken):
     __tablename__ = 'auth_tokens'
 
     _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), name='user_id', nullable=False)
@@ -104,7 +104,7 @@ class AuthToken(BaseModel, AuthTokenI):
         return token
 
 
-class User(BaseModel, UserJSONMixin, UserI):
+class User(BaseModel, UserJSONMixin, IUser):
     __tablename__ = 'users'
 
     _email: Mapped[str] = mapped_column(String(200), name='email', nullable=False, unique=True)
@@ -160,7 +160,7 @@ class User(BaseModel, UserJSONMixin, UserI):
             self._last_name = cast(Mapped[str], last_name)
 
 
-class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, ChatI):
+class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, IChat):
     __tablename__ = 'chats'
 
     _name: Mapped[str | None] = mapped_column(String(100), name='name', nullable=True)
@@ -255,7 +255,7 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, ChatI):
         return UserChatMatch.unread_count_of_user_of_chat(user_id, self.id)
 
 
-class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, MessageI):
+class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, IMessage):
     __tablename__ = 'messages'
 
     _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), name='user_id', nullable=False)
@@ -328,7 +328,7 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, MessageI):
         self._replied_message_id = cast(Mapped[int], replied_message_id)
 
 
-class UserChatMatch(BaseModel, UserChatMatchI):
+class UserChatMatch(BaseModel, IUserChatMatch):
     __tablename__ = 'user_chat_matches'
 
     _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), name='user_id', nullable=False)
@@ -463,7 +463,7 @@ class UserChatMatch(BaseModel, UserChatMatchI):
         return match.unread_count
 
 
-class UnreadCount(BaseModel, UnreadCountJSONMixin, UnreadCountI):
+class UnreadCount(BaseModel, UnreadCountJSONMixin, IUnreadCount):
     __tablename__ = 'unread_counts'
 
     _user_chat_match_id: Mapped[int] = mapped_column(ForeignKey('user_chat_matches.id', ondelete='CASCADE'),

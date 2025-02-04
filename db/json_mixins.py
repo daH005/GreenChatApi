@@ -1,13 +1,13 @@
 from common.json_keys import JSONKey
 from common.online_set import OnlineSet
 from db.i import (
-    UserI,
-    ChatI,
-    MessageI,
-    UnreadCountI,
-    UserListI,
-    ChatListI,
-    MessageListI,
+    IUser,
+    IChat,
+    IMessage,
+    IUnreadCount,
+    IUserList,
+    IChatList,
+    IMessageList,
 )
 
 __all__ = (
@@ -21,13 +21,13 @@ __all__ = (
 )
 
 
-class JSONMixinI:
+class IJSONMixin:
 
     def as_json(self, *args, **kwargs) -> dict:
         raise NotImplementedError
 
 
-class UserJSONMixin(JSONMixinI, UserI):
+class UserJSONMixin(IJSONMixin, IUser):
 
     def as_full_json(self):
         return {
@@ -44,7 +44,7 @@ class UserJSONMixin(JSONMixinI, UserI):
         }
 
 
-class ChatJSONMixin(JSONMixinI, ChatI):
+class ChatJSONMixin(IJSONMixin, IChat):
 
     @property
     def last_message(self) -> 'MessageJSONMixin':
@@ -72,7 +72,7 @@ class ChatJSONMixin(JSONMixinI, ChatI):
         }
 
 
-class MessageJSONMixin(JSONMixinI, MessageI):
+class MessageJSONMixin(IJSONMixin, IMessage):
     _replied_message: 'MessageJSONMixin'
 
     def as_json(self):
@@ -96,7 +96,7 @@ class MessageJSONMixin(JSONMixinI, MessageI):
         }
 
 
-class UnreadCountJSONMixin(JSONMixinI, UnreadCountI):
+class UnreadCountJSONMixin(IJSONMixin, IUnreadCount):
 
     def as_json(self):
         return {
@@ -104,19 +104,19 @@ class UnreadCountJSONMixin(JSONMixinI, UnreadCountI):
         }
 
 
-class UserListJSONMixin(JSONMixinI, UserListI, list['UserJSONMixin']):
+class UserListJSONMixin(IJSONMixin, IUserList, list['UserJSONMixin']):
 
     def as_json(self):
         raise NotImplementedError
 
 
-class ChatListJSONMixin(JSONMixinI, ChatListI, list['ChatJSONMixin']):
+class ChatListJSONMixin(IJSONMixin, IChatList, list['ChatJSONMixin']):
 
     def as_json(self):
         return [chat.as_json(self._user_id) for chat in self]
 
 
-class MessageListJSONMixin(JSONMixinI, MessageListI, list['MessageJSONMixin']):
+class MessageListJSONMixin(IJSONMixin, IMessageList, list['MessageJSONMixin']):
 
     def as_json(self):
         return [msg.as_json() for msg in self]

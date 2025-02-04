@@ -2,9 +2,9 @@ from common.json_keys import JSONKey
 from common.signals.decorator import signal_decorator
 from common.signals.signal_types import SignalType
 from db.i import (
-    ChatI,
-    MessageI,
-    MessageListI,
+    IChat,
+    IMessage,
+    IMessageList,
 )
 
 __all__ = (
@@ -14,7 +14,7 @@ __all__ = (
 )
 
 
-class ChatSignalMixin(ChatI):
+class ChatSignalMixin(IChat):
 
     @signal_decorator(SignalType.NEW_CHAT)
     def signal_new(self):
@@ -36,7 +36,7 @@ class ChatSignalMixin(ChatI):
         }
 
 
-class MessageSignalMixin(MessageI):
+class MessageSignalMixin(IMessage):
 
     @signal_decorator(SignalType.NEW_MESSAGE)
     def signal_new(self):
@@ -63,7 +63,7 @@ class MessageSignalMixin(MessageI):
         }
 
 
-class MessageListSignalMixin(MessageListI):
+class MessageListSignalMixin(IMessageList):
 
     @signal_decorator(SignalType.READ)
     def signal_read(self):

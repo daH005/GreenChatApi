@@ -4,22 +4,22 @@ from pathlib import Path
 from typing import Union, Self, Protocol
 
 __all__ = (
-    'BaseI',
-    'AuthTokenI',
-    'UserI',
-    'ChatI',
-    'MessageI',
-    'MessageStorageI',
-    'MessageStorageFileI',
-    'UserChatMatchI',
-    'UnreadCountI',
-    'UserListI',
-    'ChatListI',
-    'MessageListI',
+    'IBaseModel',
+    'IAuthToken',
+    'IUser',
+    'IChat',
+    'IMessage',
+    'IMessageStorage',
+    'IMessageStorageFile',
+    'IUserChatMatch',
+    'IUnreadCount',
+    'IUserList',
+    'IChatList',
+    'IMessageList',
 )
 
 
-class BaseI:
+class IBaseModel:
     _id: int
 
     @property
@@ -31,18 +31,18 @@ class BaseI:
         raise NotImplementedError
 
 
-class AuthTokenI(BaseI):
+class IAuthToken(IBaseModel):
 
     _user_id: int
     _value: str
     _is_refresh: bool
 
-    _user: 'UserI'
+    _user: 'IUser'
 
     @classmethod
     def create(cls, value: str,
                is_refresh: bool,
-               user: 'UserI',
+               user: 'IUser',
                ) -> Self:
         raise NotImplementedError
 
@@ -59,15 +59,15 @@ class AuthTokenI(BaseI):
         raise NotImplementedError
 
 
-class UserI(BaseI):
+class IUser(IBaseModel):
 
     _email: str
     _first_name: str
     _last_name: str
 
-    _tokens: list['AuthTokenI']
-    _messages: list['MessageI']
-    _user_chats_matches: list['UserChatMatchI']
+    _tokens: list['IAuthToken']
+    _messages: list['IMessage']
+    _user_chats_matches: list['IUserChatMatch']
 
     @classmethod
     def create(cls, email: str) -> Self:
@@ -89,7 +89,7 @@ class UserI(BaseI):
     def by_email(cls, email: str) -> Self:
         raise NotImplementedError
 
-    def chats(self) -> 'ChatListI':
+    def chats(self) -> 'IChatList':
         raise NotImplementedError
 
     def set_info(self, first_name: str | None = None,
@@ -98,13 +98,13 @@ class UserI(BaseI):
         raise NotImplementedError
 
 
-class ChatI(BaseI):
+class IChat(IBaseModel):
 
     _name: str | None
     _is_group: bool
 
-    _messages: list['MessageI']
-    _user_chat_matches: list['UserChatMatchI']
+    _messages: list['IMessage']
+    _user_chat_matches: list['IUserChatMatch']
 
     @classmethod
     def create(cls, name: str | None = None,
@@ -123,21 +123,21 @@ class ChatI(BaseI):
     @classmethod
     def new_with_all_dependencies(cls, user_ids: list[int],
                                   **kwargs,
-                                  ) -> tuple[Self, list['UserChatMatchI', 'UnreadCountI']]:
+                                  ) -> tuple[Self, list['IUserChatMatch', 'IUnreadCount']]:
         raise NotImplementedError
 
     @property
-    def last_message(self) -> 'MessageI':
+    def last_message(self) -> 'IMessage':
         raise NotImplementedError
 
     def messages(self, offset: int | None = None,
                  size: int | None = None,
-                 ) -> 'MessageListI':
+                 ) -> 'IMessageList':
         raise NotImplementedError
 
     def unread_interlocutor_messages_up_to(self, message_id: int,
                                            user_id_to_ignore: int,
-                                           ) -> 'MessageListI':
+                                           ) -> 'IMessageList':
         raise NotImplementedError
 
     def interlocutor_messages_after_count(self, message_id: int,
@@ -145,20 +145,20 @@ class ChatI(BaseI):
                                           ) -> int:
         raise NotImplementedError
 
-    def users(self) -> 'UserListI':
+    def users(self) -> 'IUserList':
         raise NotImplementedError
 
     def check_user_access(self, user_id: int) -> None:
         raise NotImplementedError
 
-    def interlocutor_of_user(self, user_id: int) -> 'UserI':
+    def interlocutor_of_user(self, user_id: int) -> 'IUser':
         raise NotImplementedError
 
-    def unread_count_of_user(self, user_id: int) -> 'UnreadCountI':
+    def unread_count_of_user(self, user_id: int) -> 'IUnreadCount':
         raise NotImplementedError
 
 
-class MessageI(BaseI):
+class IMessage(IBaseModel):
 
     _user_id: int
     _chat_id: int
@@ -167,17 +167,17 @@ class MessageI(BaseI):
     _creating_datetime: datetime
     _is_read: bool
 
-    _user: 'UserI'
-    _chat: 'ChatI'
-    _replied_message: Union['MessageI', None]
-    _reply_message: Union['MessageI', None]
-    _storage: 'MessageStorageI'
+    _user: 'IUser'
+    _chat: 'IChat'
+    _replied_message: Union['IMessage', None]
+    _reply_message: Union['IMessage', None]
+    _storage: 'IMessageStorage'
 
     @classmethod
     def create(cls, text: str,
-               user: 'UserI',
-               chat: 'ChatI',
-               replied_message: Union['MessageI', None] = None,
+               user: 'IUser',
+               chat: 'IChat',
+               replied_message: Union['IMessage', None] = None,
                ) -> Self:
         raise NotImplementedError
 
@@ -194,15 +194,15 @@ class MessageI(BaseI):
         raise NotImplementedError
 
     @property
-    def user(self) -> 'UserI':
+    def user(self) -> 'IUser':
         raise NotImplementedError
 
     @property
-    def chat(self) -> 'ChatI':
+    def chat(self) -> 'IChat':
         raise NotImplementedError
 
     @property
-    def storage(self) -> 'MessageStorageI':
+    def storage(self) -> 'IMessageStorage':
         raise NotImplementedError
 
     def read(self) -> None:
@@ -215,17 +215,17 @@ class MessageI(BaseI):
         raise NotImplementedError
 
 
-class MessageStorageI:
-    _message: 'MessageI'
+class IMessageStorage:
+    _message: 'IMessage'
 
     @property
-    def message(self) -> 'MessageI':
+    def message(self) -> 'IMessage':
         raise NotImplementedError
 
     def exists(self) -> bool:
         raise NotImplementedError
 
-    def update(self, files: list['MessageStorageFileI']) -> None:
+    def update(self, files: list['IMessageStorageFile']) -> None:
         raise NotImplementedError
 
     def delete(self, filenames: list[str]) -> None:
@@ -252,77 +252,77 @@ class MessageStorageI:
         raise NotImplementedError
 
 
-class MessageStorageFileI(Protocol):
+class IMessageStorageFile(Protocol):
     filename: str
 
     def save(self, path: PathLike[str]) -> None:
         pass
 
 
-class UserChatMatchI(BaseI):
+class IUserChatMatch(IBaseModel):
 
     _user_id: int
     _chat_id: int
 
-    _user: 'UserI'
-    _chat: 'ChatI'
-    _unread_count: 'UnreadCountI'
+    _user: 'IUser'
+    _chat: 'IChat'
+    _unread_count: 'IUnreadCount'
 
     @property
-    def user(self) -> 'UserI':
+    def user(self) -> 'IUser':
         raise NotImplementedError
 
     @property
-    def chat(self) -> 'ChatI':
+    def chat(self) -> 'IChat':
         raise NotImplementedError
 
     @property
-    def unread_count(self) -> 'UnreadCountI':
+    def unread_count(self) -> 'IUnreadCount':
         raise NotImplementedError
 
     @classmethod
     def chat_if_user_has_access(cls, user_id: int,
                                 chat_id: int,
-                                ) -> 'ChatI':
+                                ) -> 'IChat':
         raise NotImplementedError
 
     @classmethod
-    def users_of_chat(cls, chat_id: int) -> 'UserListI':
+    def users_of_chat(cls, chat_id: int) -> 'IUserList':
         raise NotImplementedError
 
     @classmethod
-    def chats_of_user(cls, user_id: int) -> 'ChatListI':
+    def chats_of_user(cls, user_id: int) -> 'IChatList':
         raise NotImplementedError
 
     @classmethod
     def interlocutor_of_user_of_chat(cls, user_id: int,
                                      chat_id: int,
-                                     ) -> 'UserI':
+                                     ) -> 'IUser':
         raise NotImplementedError
 
     @classmethod
     def private_chat_between_users(cls, first_user_id: int,
                                    second_user_id: int,
-                                   ) -> 'ChatI':
+                                   ) -> 'IChat':
         raise NotImplementedError
 
     @classmethod
-    def all_interlocutors_of_user(cls, user_id: int) -> 'UserListI':
+    def all_interlocutors_of_user(cls, user_id: int) -> 'IUserList':
         raise NotImplementedError
 
     @classmethod
     def unread_count_of_user_of_chat(cls, user_id: int,
                                      chat_id: int,
-                                     ) -> 'UnreadCountI':
+                                     ) -> 'IUnreadCount':
         raise NotImplementedError
 
 
-class UnreadCountI(BaseI):
+class IUnreadCount(IBaseModel):
 
     _user_chat_match_id: int
     _value: int
 
-    _user_chat_match: 'UserChatMatchI'
+    _user_chat_match: 'IUserChatMatch'
 
     @property
     def value(self) -> int:
@@ -338,19 +338,19 @@ class UnreadCountI(BaseI):
         raise NotImplementedError
 
 
-class BaseListI(list[Union['UserI', 'ChatI', 'MessageI']]):
+class IBaseList(list[Union['IUser', 'IChat', 'IMessage']]):
 
     def ids(self) -> list[int]:
         raise NotImplementedError
 
 
-class UserListI(BaseListI, list['UserI']):
+class IUserList(IBaseList, list['IUser']):
     pass
 
 
-class ChatListI(BaseListI, list['ChatI']):
+class IChatList(IBaseList, list['IChat']):
     _user_id: int
 
 
-class MessageListI(BaseListI, list['MessageI']):
+class IMessageList(IBaseList, list['IMessage']):
     pass

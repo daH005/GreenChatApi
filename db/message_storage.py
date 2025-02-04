@@ -6,14 +6,14 @@ from typing import Final
 
 from common.hinting import raises
 from config import MEDIA_FOLDER
-from db.i import MessageStorageI, MessageStorageFileI
+from db.i import IMessageStorage, IMessageStorageFile
 
 __all__ = (
     'MessageStorage',
 )
 
 
-class MessageStorage(MessageStorageI):
+class MessageStorage(IMessageStorage):
     _FILES_PATH: Final[Path] = MEDIA_FOLDER.joinpath('files')
     _ALTCHARS: bytes = b'-_'
 
@@ -27,7 +27,7 @@ class MessageStorage(MessageStorageI):
     def exists(self) -> bool:
         return self.path().exists()
 
-    def update(self, files: list['MessageStorageFileI']) -> None:
+    def update(self, files: list['IMessageStorageFile']) -> None:
         file_folder_path: Path = self.path()
         if not file_folder_path.exists():
             file_folder_path.mkdir()

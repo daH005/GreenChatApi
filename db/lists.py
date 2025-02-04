@@ -1,9 +1,9 @@
 from typing import Union
 
 from db.i import (
-    UserListI,
-    ChatListI,
-    MessageListI,
+    IUserList,
+    IChatList,
+    IMessageList,
 )
 from db.json_mixins import (
     UserListJSONMixin,
@@ -32,11 +32,11 @@ class AbstractList(list[Union['User', 'Chat', 'Message']]):
         return ids
 
 
-class UserList(AbstractList, UserListJSONMixin, UserListI, list['User']):
+class UserList(AbstractList, UserListJSONMixin, IUserList, list['User']):
     pass
 
 
-class ChatList(AbstractList, ChatListJSONMixin, ChatListI, list['Chat']):
+class ChatList(AbstractList, ChatListJSONMixin, IChatList, list['Chat']):
 
     def __init__(self, items: list['Chat'],
                  user_id: int,
@@ -45,7 +45,7 @@ class ChatList(AbstractList, ChatListJSONMixin, ChatListI, list['Chat']):
         self._user_id = user_id
 
 
-class MessageList(AbstractList, MessageListJSONMixin, MessageListSignalMixin, MessageListI, list['Message']):
+class MessageList(AbstractList, MessageListJSONMixin, MessageListSignalMixin, IMessageList, list['Message']):
     pass
 
 
