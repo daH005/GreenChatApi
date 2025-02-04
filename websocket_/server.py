@@ -92,7 +92,7 @@ class WebSocketServer:
             return
 
         try:
-            user_id: int = self._try_to_get_user_id_by_jwt(jwt)
+            user_id: int = self._user_id_by_jwt(jwt)
         except ValueError:
             return
 
@@ -119,20 +119,20 @@ class WebSocketServer:
         return match.group(1)
 
     @raises(ValueError)
-    def _try_to_get_user_id_by_jwt(self, jwt: str) -> int:
-        email: str = self._try_to_get_email_from_jwt(jwt)
+    def _user_id_by_jwt(self, jwt: str) -> int:
+        user_id: int = self._extract_user_id_from_jwt(jwt)
         db_builder.session.remove()  # for session updating
-        return User.by_email(email=email).id
+        return User.by_id(user_id).id
 
     @raises(ValueError)
-    def _try_to_get_email_from_jwt(self, jwt: str) -> str:
+    def _extract_user_id_from_jwt(self, jwt: str) -> int:
         try:
             decoded: dict = decode_jwt(
                 jwt,
                 key=self._jwt_secret_key,
                 algorithms=[self._jwt_algorithm],
             )
-            return decoded['sub']
+            return int(decoded['sub'])
         except KeyError:
             raise ValueError
 

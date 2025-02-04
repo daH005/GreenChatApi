@@ -12,10 +12,10 @@ jwt: JWTManager = JWTManager()
 
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data) -> User | None:
-    email: str = jwt_data['sub']
+    user_id: int = int(jwt_data['sub'])
     try:
         db_builder.session.remove()  # Important: The place chosen by experience way for gunicorn correct work
-        return User.by_email(email)
+        return User.by_id(user_id)
     except ValueError:
         return None
 

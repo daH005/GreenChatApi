@@ -148,13 +148,13 @@ class Params:
         'user5@mail.ru',
     ]
 
-    ACCESS_TOKEN = create_access_token(EMAILS[0])
+    ACCESS_TOKEN = create_access_token(ID_START)
     ACCESS_CSRF_TOKEN = get_csrf_token(ACCESS_TOKEN)
 
-    REFRESH_TOKEN = create_refresh_token(EMAILS[0])
+    REFRESH_TOKEN = create_refresh_token(ID_START)
     REFRESH_CSRF_TOKEN = get_csrf_token(REFRESH_TOKEN)
 
-    SECOND_ACCESS_TOKEN = create_access_token(EMAILS[1])
+    SECOND_ACCESS_TOKEN = create_access_token(ID_START + 1)
     SECOND_ACCESS_CSRF_TOKEN = get_csrf_token(SECOND_ACCESS_TOKEN)
 
     NEW_FIRST_NAME = 'fname'
