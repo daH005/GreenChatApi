@@ -155,9 +155,9 @@ class User(BaseModel, UserJSONMixin, UserI):
                  last_name: str | None = None,
                  ) -> None:
         if first_name is not None:
-            self._first_name = first_name  # noqa
+            self._first_name = cast(Mapped[str], first_name)
         if last_name is not None:
-            self._last_name = last_name  # noqa
+            self._last_name = cast(Mapped[str], last_name)
 
 
 class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, ChatI):
@@ -319,10 +319,10 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, MessageI):
         return cast(MessageStorage, self._storage)
 
     def read(self) -> None:
-        self._is_read = True  # noqa
+        self._is_read = cast(Mapped[bool], True)
 
     def set_text(self, text: str) -> None:
-        self._text = text  # noqa
+        self._text = cast(Mapped[str], text)
 
     def set_replied_message(self, replied_message_id: int | None) -> None:
         self._replied_message_id = cast(Mapped[int], replied_message_id)
@@ -484,7 +484,7 @@ class UnreadCount(BaseModel, UnreadCountJSONMixin, UnreadCountI):
         return self._value
 
     def set(self, value: int) -> None:
-        self._value = value  # noqa
+        self._value = cast(Mapped[int], value)
 
     def increase(self) -> None:
         self._value += 1
@@ -492,7 +492,7 @@ class UnreadCount(BaseModel, UnreadCountJSONMixin, UnreadCountI):
     def decrease(self) -> None:
         self._value -= 1
         if self._value < 0:
-            self._value = 0  # noqa
+            self._value = cast(Mapped[int], 0)
 
 
 from db.lists import (  # noqa
