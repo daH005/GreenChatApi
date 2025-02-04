@@ -203,19 +203,22 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, ChatI):
         messages: list[Message] = cast(Query[Message], self._messages).offset(offset).limit(size).all()
         return MessageList(messages)
 
-    def unread_messages_up_to(self, message_id: int) -> 'MessageList':
+    def unread_interlocutor_messages_up_to(self, message_id: int,
+                                           user_id_to_ignore: int,
+                                           ) -> 'MessageList':
         messages: list[Message] = cast(Query[Message], self._messages).filter(
             Message._id <= message_id,  # noqa
             Message._is_read == False,  # noqa
+            Message._user_id != user_id_to_ignore,  # noqa
         ).all()
         return MessageList(messages)
 
     def interlocutor_messages_after_count(self, message_id: int,
-                                          user_id: int,
+                                          user_id_to_ignore: int,
                                           ) -> int:
         return cast(Query[Message], self._messages).filter(
             Message._id > message_id,  # noqa
-            Message._user_id != user_id,  # noqa
+            Message._user_id != user_id_to_ignore,  # noqa
         ).count()
 
     def users(self) -> 'UserList':

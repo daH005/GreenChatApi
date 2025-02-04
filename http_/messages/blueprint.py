@@ -150,10 +150,7 @@ def message_read(message: Message,
                  user: User,
                  ):
     sender_read_messages: dict[int, MessageList] = {}
-    for history_message in message.chat.unread_messages_up_to(message.id):
-        if history_message.is_read:
-            continue
-
+    for history_message in message.chat.unread_interlocutor_messages_up_to(message.id, user.id):
         history_message.read()
         sender_read_messages.setdefault(message.user.id, MessageList()).append(history_message)
 

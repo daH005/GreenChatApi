@@ -122,11 +122,13 @@ class ChatI(BaseI):
                  ) -> 'MessageListI':
         raise NotImplementedError
 
-    def unread_messages_up_to(self, message_id: int) -> 'MessageListI':
+    def unread_interlocutor_messages_up_to(self, message_id: int,
+                                           user_id_to_ignore: int,
+                                           ) -> 'MessageListI':
         raise NotImplementedError
 
     def interlocutor_messages_after_count(self, message_id: int,
-                                          user_id: int,
+                                          user_id_to_ignore: int,
                                           ) -> int:
         raise NotImplementedError
 
