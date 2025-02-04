@@ -9,6 +9,7 @@ from sqlalchemy import (
     ForeignKey,
     desc,
     CheckConstraint,
+    func,
 )
 from sqlalchemy.dialects.mysql import DATETIME
 from sqlalchemy.orm import (
@@ -417,35 +418,46 @@ class UserChatMatch(BaseModel, IUserChatMatch):
     def private_chat_between_users(cls, first_user_id: int,
                                    second_user_id: int,
                                    ) -> 'Chat':
-        chat_ids: list[int] = []
+        query = db_builder.session.query(cls, Chat)
 
-        matches = db_builder.session.query(cls).filter(
-            (cls._user_id == first_user_id) | (cls._user_id == second_user_id),
-        ).all()
-        matches = cast(list[cls], matches)
-        for match in matches:
-            if match.chat.is_group:
-                continue
-            if match._chat_id in chat_ids:
-                return match.chat
-            chat_ids.append(match._chat_id)
+        joined_query = query.join(
+            Chat, Chat._id == cls._chat_id,
+        )
 
-        raise ValueError
+        filtered_query = joined_query.filter(
+            Chat._is_group == False,  # noqa
+            cls._user_id.in_([
+                first_user_id,
+                second_user_id,
+            ]),
+        ).group_by(cls._chat_id).having(
+            func.count(cls._user_id) == 2,
+        )
+
+        chat: Chat | None = filtered_query.with_entities(Chat).first()
+        if chat is None:
+            raise ValueError
+
+        return chat
 
     @classmethod
     def all_interlocutors_of_user(cls, user_id: int) -> 'UserList':
-        interlocutors: set[User] = set[User]()
+        chat_ids: list[int] = cast(
+            list[int],
+            db_builder.session.query(cls._chat_id).filter(cls._user_id == user_id).all(),
+        )
+        query = db_builder.session.query(cls, User)
 
-        chats: ChatList = cls.chats_of_user(user_id)
-        users: UserList
-        for chat in chats:
-            users = cls.users_of_chat(chat.id)
-            interlocutors.update(users)
+        joined_query = query.join(
+            User, User._id == cls._user_id,
+        )
 
-        self_user: User | None = db_builder.session.get(User, user_id)
-        if self_user in interlocutors:
-            interlocutors.remove(self_user)
+        filtered_query = joined_query.filter(
+            cls._user_id != user_id,
+            cls._chat_id.in_(chat_ids),
+        )
 
+        interlocutors: list[User] = cast(list[User], filtered_query.with_entities(User).all())
         return UserList(interlocutors)
 
     @classmethod

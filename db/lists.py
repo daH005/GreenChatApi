@@ -24,12 +24,7 @@ class AbstractList(list[Union['User', 'Chat', 'Message']]):
     def ids(self, exclude_ids: list[int] | None = None) -> list[int]:
         if exclude_ids is None:
             exclude_ids = []
-        ids = []
-        for obj in self:
-            if obj.id in exclude_ids:
-                continue
-            ids.append(obj.id)
-        return ids
+        return list(filter(lambda x: x not in exclude_ids, map(lambda x: x.id, self)))
 
 
 class UserList(AbstractList, UserListJSONMixin, IUserList, list['User']):
