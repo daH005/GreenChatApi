@@ -18,7 +18,7 @@ from common.signals.exceptions import SignalQueueIsEmptyException
 from db.builders import db_sync_builder
 from db.exceptions import DBEntityNotFoundException
 from db.models import User, UserChatMatch
-from websocket_.logs import init_logs, logger
+from common.logs import logger
 from websocket_.exceptions import (
     InvalidOriginException,
     JWTNotFoundInCookiesException,
@@ -50,10 +50,6 @@ class WebSocketServer:
         self._clients: dict[int, list[ServerConnection]] = {}
 
     def run(self) -> NoReturn:
-        init_logs()  # The place chosen by experience way
-        self._run()
-
-    def _run(self) -> NoReturn:
         Thread(target=self._signal_queue_pop_task).start()
         with serve(handler=self._handler, host=self._host, port=self._port, ssl=self._ssl_context) as server:
             logger.info(f'WebSocketServer is serving on wss://{self._host}:{self._port}')
@@ -75,12 +71,12 @@ class WebSocketServer:
             )
 
     def _handler(self, client: ServerConnection) -> None:
-        logger.info(f'New client connected.')
+        logger.info(f'New client connected. Total connected users: {len(self._clients)}')
         try:
             self._handle_client(client)
         except ConnectionClosed:
             pass
-        logger.info(f'Client disconnected.')
+        logger.info('Client disconnected.')
 
     @raises(ConnectionClosed)
     def _handle_client(self, client: ServerConnection) -> None:

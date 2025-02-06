@@ -12,3 +12,6 @@ def init_logs() -> None:
     basicConfig(level=INFO)
     logger.setLevel(level=INFO)
     logger.disabled = False
+
+
+init_logs()

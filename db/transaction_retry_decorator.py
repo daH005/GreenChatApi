@@ -1,9 +1,10 @@
 from functools import wraps
-from traceback import print_exc
+from traceback import format_exc
 
 from sqlalchemy.exc import DBAPIError
 
 from config import DEFAULT_TRANSACTION_RETRY_MAX_ATTEMPTS
+from common.logs import logger
 from db.builders import db_sync_builder
 
 __all__ = (
@@ -19,10 +20,10 @@ def transaction_retry_decorator(max_attempts: int = DEFAULT_TRANSACTION_RETRY_MA
             try:
                 return func(*args, **kwargs)
             except DBAPIError:
-                print_exc()
                 db_sync_builder.session.rollback()
 
                 if __cur_attempt > max_attempts:
+                    logger.critical(format_exc)
                     raise
 
                 return wrapper(*args, **kwargs, __cur_attempt=__cur_attempt + 1)
