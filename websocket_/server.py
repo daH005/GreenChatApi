@@ -14,7 +14,7 @@ from websockets import (
 from common.hinting import raises
 from common.json_keys import JSONKey
 from common.online_set import OnlineSet
-from common.signals.message import SignalQueueMessage
+from common.signals.message import SignalQueueMessage, SignalQueueMessageJSONDictToForward
 from common.signals.queue import SignalQueue
 from common.signals.signal_types import SignalType
 from common.signals.exceptions import SignalQueueIsEmpty
@@ -27,7 +27,6 @@ from websocket_.exceptions import (
     JWTNotFoundInCookies,
     UserIdNotFoundInJWT,
 )
-from websocket_.message import WebSocketMessageJSONDict
 
 __all__ = (
     'WebSocketServer',
@@ -199,21 +198,21 @@ class WebSocketServer:
         )
 
     async def _send_to_many_users(self, user_ids: list[int],
-                                  message: WebSocketMessageJSONDict,
+                                  message: SignalQueueMessageJSONDictToForward,
                                   ) -> None:
         user_ids = set(user_ids)
         for id_ in user_ids:
             await self._send_to_one_user(id_, message)
 
     async def _send_to_one_user(self, user_id: int,
-                                message: WebSocketMessageJSONDict,
+                                message: SignalQueueMessageJSONDictToForward,
                                 ) -> None:
         for client in self._clients.get(user_id, []):
             await self._send_to_one_client(client, message)
 
     @staticmethod
     async def _send_to_one_client(client: WebSocketServerProtocol,
-                                  message: WebSocketMessageJSONDict,
+                                  message: SignalQueueMessageJSONDictToForward,
                                   ) -> None:
         try:
             await client.send(json.dumps(message))
