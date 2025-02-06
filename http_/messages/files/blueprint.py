@@ -40,7 +40,7 @@ def message_files_update(message: Message, _):
     if not files:
         return abort(HTTPStatus.BAD_REQUEST)
 
-    message.storage.update(files)
+    message.get_storage().update(files)
     message.signal_files(message.chat.users().ids())
 
     return make_simple_response(HTTPStatus.CREATED)
@@ -59,7 +59,7 @@ def message_files_delete(message: Message, _):
         return abort(HTTPStatus.BAD_REQUEST)
 
     try:
-        message.storage.delete(filenames)
+        message.get_storage().delete(filenames)
     except TypeError:
         return abort(HTTPStatus.BAD_REQUEST)
 
@@ -73,7 +73,7 @@ def message_files_delete(message: Message, _):
 @message_access_query_decorator
 def message_files_names(message: Message, _):
     try:
-        return message.storage.filenames()
+        return message.get_storage().filenames()
     except FileNotFoundError:
         return abort(HTTPStatus.NOT_FOUND)
 
@@ -89,7 +89,7 @@ def message_files_get(message: Message, _):
         return abort(HTTPStatus.BAD_REQUEST)
 
     try:
-        file_path: Path = message.storage.full_path(filename)
+        file_path: Path = message.get_storage().full_path(filename)
     except FileNotFoundError:
         return abort(HTTPStatus.NOT_FOUND)
 

@@ -107,7 +107,7 @@ def message_edit(message: Message, _):
         if data.replied_message_id == message.id:
             return abort(HTTPStatus.CONFLICT)
         replied_message: Message = _get_replied_message(data.replied_message_id, message.chat.id)
-        message.set_replied_message(replied_message.id)
+        message.set_replied_message_id(replied_message.id)
 
     db_builder.session.commit()
 

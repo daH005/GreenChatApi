@@ -91,7 +91,7 @@ class MessageJSONMixin(IJSONMixin, IMessage):
             JSONKey.TEXT: self._text,
             JSONKey.CREATING_DATETIME: self._creating_datetime.isoformat(),
             JSONKey.IS_READ: self._is_read,
-            JSONKey.HAS_FILES: self.storage.exists(),
+            JSONKey.HAS_FILES: self.get_storage().exists(),
             JSONKey.REPLIED_MESSAGE: replied_message,
         }
 

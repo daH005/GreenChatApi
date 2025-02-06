@@ -201,8 +201,7 @@ class IMessage(IBaseModel):
     def chat(self) -> 'IChat':
         raise NotImplementedError
 
-    @property
-    def storage(self) -> 'IMessageStorage':
+    def get_storage(self) -> 'IMessageStorage':
         raise NotImplementedError
 
     def read(self) -> None:
@@ -211,7 +210,7 @@ class IMessage(IBaseModel):
     def set_text(self, text: str) -> None:
         raise NotImplementedError
 
-    def set_replied_message(self, replied_message_id: int | None) -> None:
+    def set_replied_message_id(self, replied_message_id: int | None) -> None:
         raise NotImplementedError
 
 

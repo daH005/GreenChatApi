@@ -66,6 +66,7 @@ class BaseModel(DeclarativeBase, IBaseModel):
         obj: cls = cast(cls, db_builder.session.get(cls, id_))
         if not obj:
             raise ValueError
+
         return obj
 
     def __repr__(self) -> str:
@@ -102,6 +103,7 @@ class AuthToken(BaseModel, IAuthToken):
         token: cls | None = db_builder.session.query(cls).filter(cls._value == value).first()
         if token is None:
             raise ValueError
+
         return token
 
 
@@ -147,6 +149,7 @@ class User(BaseModel, UserJSONMixin, IUser):
         user: cls | None = db_builder.session.query(cls).filter(cls._email == email).first()
         if user is None:
             raise ValueError
+
         return user
 
     def chats(self) -> 'ChatList':
@@ -182,7 +185,7 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, IChat):
     def new_with_all_dependencies(cls, user_ids: list[int],
                                   **kwargs,
                                   ) -> tuple[Self, list['UserChatMatch', 'UnreadCount']]:
-        objects: list[cls | UserChatMatch | UnreadCount] = []
+        objects: list[UserChatMatch | UnreadCount] = []
         chat: cls = cls.create(**kwargs)
 
         for user_id in user_ids:
@@ -219,18 +222,20 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, IChat):
     def messages(self, offset: int | None = None,
                  size: int | None = None,
                  ) -> 'MessageList':
-        messages: list[Message] = cast(Query[Message], self._messages).offset(offset).limit(size).all()
-        return MessageList(messages)
+        return MessageList(
+            cast(Query[Message], self._messages).offset(offset).limit(size).all(),
+        )
 
     def unread_interlocutor_messages_up_to(self, message_id: int,
                                            user_id_to_ignore: int,
                                            ) -> 'MessageList':
-        messages: list[Message] = cast(Query[Message], self._messages).filter(
-            Message._id <= message_id,  # noqa
-            Message._is_read == False,  # noqa
-            Message._user_id != user_id_to_ignore,  # noqa
-        ).all()
-        return MessageList(messages)
+        return MessageList(
+            cast(Query[Message], self._messages).filter(
+                Message._id <= message_id,  # noqa
+                Message._is_read == False,  # noqa
+                Message._user_id != user_id_to_ignore,  # noqa
+            ).all(),
+        )
 
     def interlocutor_messages_after_count(self, message_id: int,
                                           user_id_to_ignore: int,
@@ -313,8 +318,7 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, IMessage):
     def chat(self) -> Chat:
         return self._chat
 
-    @property
-    def storage(self) -> 'MessageStorage':
+    def get_storage(self) -> 'MessageStorage':
         if not hasattr(self, '_storage'):
             self._storage = MessageStorage(self)
         return cast(MessageStorage, self._storage)
@@ -325,7 +329,7 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, IMessage):
     def set_text(self, text: str) -> None:
         self._text = cast(Mapped[str], text)
 
-    def set_replied_message(self, replied_message_id: int | None) -> None:
+    def set_replied_message_id(self, replied_message_id: int | None) -> None:
         self._replied_message_id = cast(Mapped[int], replied_message_id)
 
 
@@ -369,36 +373,44 @@ class UserChatMatch(BaseModel, IUserChatMatch):
         match: cls | None = db_builder.session.query(cls).filter(
             cls._user_id == user_id, cls._chat_id == chat_id
         ).first()
-        if match is not None:
-            return match.chat
-        raise PermissionError
+        if match is None:
+            raise PermissionError
+
+        return match.chat
 
     @classmethod
     def users_of_chat(cls, chat_id: int) -> 'UserList':
-        matches = db_builder.session.query(cls).filter(cls._chat_id == chat_id).all()
-        matches = cast(list[cls], matches)
-        return UserList([match.user for match in matches])
+        query: Query[cls] = db_builder.session.query(
+            cls, User,
+        ).join(
+            User, User._id == cls._user_id,
+        ).filter(
+            cls._chat_id == chat_id,
+        ).with_entities(User)
+
+        return UserList(
+            cast(list[User], query.all()),
+        )
 
     @classmethod
     def chats_of_user(cls, user_id: int) -> 'ChatList':
-        query = db_builder.session.query(cls, Chat, Message)
-
-        joined_query = query.join(
+        query: Query[cls] = db_builder.session.query(
+            cls, Chat, Message,
+        ).join(
             Chat, Chat._id == cls._chat_id,
         ).join(
             Message, Chat._id == Message._chat_id,  # noqa
             isouter=True,
-        )
-
-        filtered_and_ordered_query = joined_query.filter(
+        ).filter(
             cls._user_id == user_id,
         ).order_by(
             desc(Message._creating_datetime),  # noqa
-        )
+        ).with_entities(Chat)
 
-        chats = filtered_and_ordered_query.with_entities(Chat).all()
-        chats = cast(list[Chat], chats)
-        return ChatList(chats, user_id)
+        return ChatList(
+            cast(list[Chat], query.all()),
+            user_id,
+        )
 
     @classmethod
     @raises(ValueError)
@@ -409,22 +421,21 @@ class UserChatMatch(BaseModel, IUserChatMatch):
             cls._user_id != user_id,
             cls._chat_id == chat_id,
         ).first()
-        if interlocutor_match is not None:
-            return interlocutor_match.user
-        raise ValueError
+        if interlocutor_match is None:
+            raise ValueError
+
+        return interlocutor_match.user
 
     @classmethod
     @raises(ValueError)
     def private_chat_between_users(cls, first_user_id: int,
                                    second_user_id: int,
                                    ) -> 'Chat':
-        query = db_builder.session.query(cls, Chat)
-
-        joined_query = query.join(
+        query: Query[cls] = db_builder.session.query(
+            cls, Chat,
+        ).join(
             Chat, Chat._id == cls._chat_id,
-        )
-
-        filtered_query = joined_query.filter(
+        ).filter(
             Chat._is_group == False,  # noqa
             cls._user_id.in_([
                 first_user_id,
@@ -432,9 +443,9 @@ class UserChatMatch(BaseModel, IUserChatMatch):
             ]),
         ).group_by(cls._chat_id).having(
             func.count(cls._user_id) == 2,
-        )
+        ).with_entities(Chat)
 
-        chat: Chat | None = filtered_query.with_entities(Chat).first()
+        chat: Chat | None = cast(Chat | None, query.first())
         if chat is None:
             raise ValueError
 
@@ -446,19 +457,18 @@ class UserChatMatch(BaseModel, IUserChatMatch):
             list[int],
             db_builder.session.query(cls._chat_id).filter(cls._user_id == user_id).all(),
         )
-        query = db_builder.session.query(cls, User)
-
-        joined_query = query.join(
+        query: Query[cls] = db_builder.session.query(
+            cls, User,
+        ).join(
             User, User._id == cls._user_id,
-        )
-
-        filtered_query = joined_query.filter(
+        ).filter(
             cls._user_id != user_id,
             cls._chat_id.in_(chat_ids),
-        )
+        ).with_entities(User)
 
-        interlocutors: list[User] = cast(list[User], filtered_query.with_entities(User).all())
-        return UserList(interlocutors)
+        return UserList(
+            cast(list[User], query.all()),
+        )
 
     @classmethod
     @raises(PermissionError)
