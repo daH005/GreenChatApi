@@ -6,7 +6,7 @@ from flask import (
 )
 from werkzeug.exceptions import HTTPException
 
-from db.builder import db_builder
+from db.builders import db_sync_builder
 from http_.app_creating import create_app
 from http_.common.simple_response import make_simple_response
 
@@ -21,7 +21,7 @@ app: Flask = create_app(__name__)
 def teardown_appcontext(exception: Exception | None = None) -> None:
     if exception:
         print(exception)
-    db_builder.session.remove()
+    db_sync_builder.session.remove()
 
 
 @app.errorhandler(HTTPException)

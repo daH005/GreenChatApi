@@ -1,5 +1,5 @@
 from config import DB_URL
-from db.builder import db_builder
+from db.builders import db_sync_builder
 
 __all__ = (
     'init_db',
@@ -7,4 +7,4 @@ __all__ = (
 
 
 def init_db() -> None:
-    db_builder.init_session(DB_URL)
+    db_sync_builder.init_session(DB_URL)

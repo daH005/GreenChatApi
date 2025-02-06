@@ -21,7 +21,7 @@ from sqlalchemy.orm import (
 )
 
 from common.hinting import raises
-from db.builder import db_builder
+from db.builders import db_sync_builder
 from db.exceptions import (
     DBEntityNotFoundException,
     DBEntityIsForbiddenException,
@@ -67,7 +67,7 @@ class BaseModel(DeclarativeBase, IBaseModel):
     @classmethod
     @raises(DBEntityNotFoundException)
     def by_id(cls, id_: int) -> Self:
-        obj: cls = cast(cls, db_builder.session.get(cls, id_))
+        obj: cls = cast(cls, db_sync_builder.session.get(cls, id_))
         if not obj:
             raise DBEntityNotFoundException
 
@@ -99,12 +99,12 @@ class AuthToken(BaseModel, IAuthToken):
 
     @classmethod
     def exists(cls, value: str) -> bool:
-        return db_builder.session.query(cls).filter(cls._value == value).first() is not None
+        return db_sync_builder.session.query(cls).filter(cls._value == value).first() is not None
 
     @classmethod
     @raises(DBEntityNotFoundException)
     def by_value(cls, value: str) -> Self:
-        token: cls | None = db_builder.session.query(cls).filter(cls._value == value).first()
+        token: cls | None = db_sync_builder.session.query(cls).filter(cls._value == value).first()
         if token is None:
             raise DBEntityNotFoundException
 
@@ -150,7 +150,7 @@ class User(BaseModel, UserJSONMixin, IUser):
     @classmethod
     @raises(DBEntityNotFoundException)
     def by_email(cls, email: str) -> Self:
-        user: cls | None = db_builder.session.query(cls).filter(cls._email == email).first()
+        user: cls | None = db_sync_builder.session.query(cls).filter(cls._email == email).first()
         if user is None:
             raise DBEntityNotFoundException
 
@@ -374,7 +374,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
     def chat_if_user_has_access(cls, user_id: int,
                                 chat_id: int,
                                 ) -> 'Chat':
-        match: cls | None = db_builder.session.query(cls).filter(
+        match: cls | None = db_sync_builder.session.query(cls).filter(
             cls._user_id == user_id, cls._chat_id == chat_id
         ).first()
         if match is None:
@@ -384,7 +384,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
 
     @classmethod
     def users_of_chat(cls, chat_id: int) -> 'UserList':
-        query: Query[cls] = db_builder.session.query(
+        query: Query[cls] = db_sync_builder.session.query(
             cls, User,
         ).join(
             User, User._id == cls._user_id,
@@ -398,7 +398,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
 
     @classmethod
     def chats_of_user(cls, user_id: int) -> 'ChatList':
-        query: Query[cls] = db_builder.session.query(
+        query: Query[cls] = db_sync_builder.session.query(
             cls, Chat, Message,
         ).join(
             Chat, Chat._id == cls._chat_id,
@@ -421,7 +421,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
     def interlocutor_of_user_of_chat(cls, user_id: int,
                                      chat_id: int,
                                      ) -> 'User':
-        interlocutor_match: cls | None = db_builder.session.query(cls).filter(
+        interlocutor_match: cls | None = db_sync_builder.session.query(cls).filter(
             cls._user_id != user_id,
             cls._chat_id == chat_id,
         ).first()
@@ -435,7 +435,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
     def private_chat_between_users(cls, first_user_id: int,
                                    second_user_id: int,
                                    ) -> 'Chat':
-        query: Query[cls] = db_builder.session.query(
+        query: Query[cls] = db_sync_builder.session.query(
             cls, Chat,
         ).join(
             Chat, Chat._id == cls._chat_id,
@@ -459,9 +459,9 @@ class UserChatMatch(BaseModel, IUserChatMatch):
     def all_interlocutors_of_user(cls, user_id: int) -> 'UserList':
         chat_ids: list[int] = cast(
             list[int],
-            db_builder.session.query(cls._chat_id).filter(cls._user_id == user_id).all(),
+            db_sync_builder.session.query(cls._chat_id).filter(cls._user_id == user_id).all(),
         )
-        query: Query[cls] = db_builder.session.query(
+        query: Query[cls] = db_sync_builder.session.query(
             cls, User,
         ).join(
             User, User._id == cls._user_id,
@@ -479,7 +479,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
     def unread_count_of_user_of_chat(cls, user_id: int,
                                      chat_id: int,
                                      ) -> 'UnreadCount':
-        match: cls | None = db_builder.session.query(cls).filter(
+        match: cls | None = db_sync_builder.session.query(cls).filter(
             cls._user_id == user_id,
             cls._chat_id == chat_id,
         ).first()

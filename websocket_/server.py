@@ -18,7 +18,7 @@ from common.signals.message import SignalQueueMessage, SignalQueueMessageJSONDic
 from common.signals.queue import SignalQueue
 from common.signals.signal_types import SignalType
 from common.signals.exceptions import SignalQueueIsEmptyException
-from db.builder import db_builder
+from db.builders import db_sync_builder
 from db.exceptions import DBEntityNotFoundException
 from db.models import User, UserChatMatch
 from websocket_.logs import init_logs, logger
@@ -142,7 +142,7 @@ class WebSocketServer:
         except PyJWTError:
             raise UserIdNotFoundInJWTException
 
-        db_builder.session.remove()  # For a session updating
+        db_sync_builder.session.remove()  # For a session updating
 
         try:
             return User.by_id(user_id).id

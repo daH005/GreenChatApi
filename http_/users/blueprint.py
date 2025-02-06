@@ -19,7 +19,7 @@ from flask_jwt_extended import (
 )
 
 from common.json_keys import JSONKey
-from db.builder import db_builder
+from db.builders import db_sync_builder
 from db.exceptions import DBEntityNotFoundException
 from db.models import User, AuthToken
 from db.transaction_retry_decorator import transaction_retry_decorator
@@ -70,8 +70,8 @@ def login():
         status_code = HTTPStatus.OK
     except DBEntityNotFoundException:
         user = User.create(user_data.email)
-        db_builder.session.add(user)
-        db_builder.session.commit()
+        db_sync_builder.session.add(user)
+        db_sync_builder.session.commit()
         status_code = HTTPStatus.CREATED
 
     return _make_auth_response(user, status_code)
@@ -99,8 +99,8 @@ def refresh_access():
 
 def _revoke_current_token() -> None:
     token: AuthToken = AuthToken.by_value(get_jwt()['jti'])
-    db_builder.session.delete(token)
-    db_builder.session.commit()
+    db_sync_builder.session.delete(token)
+    db_sync_builder.session.commit()
 
 
 def _make_auth_response(user: User,
@@ -125,8 +125,8 @@ def _make_auth_response(user: User,
         user=user,
     )
 
-    db_builder.session.add_all([access_token, refresh_token])
-    db_builder.session.commit()
+    db_sync_builder.session.add_all([access_token, refresh_token])
+    db_sync_builder.session.commit()
 
     return response
 
@@ -161,7 +161,7 @@ def user_edit():
         data.first_name,
         data.last_name,
     )
-    db_builder.session.commit()
+    db_sync_builder.session.commit()
 
     return make_simple_response(HTTPStatus.OK)
 

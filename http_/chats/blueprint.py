@@ -9,7 +9,7 @@ from flask import (
 from flask_jwt_extended import jwt_required
 
 from common.json_keys import JSONKey
-from db.builder import db_builder
+from db.builders import db_sync_builder
 from db.exceptions import DBEntityNotFoundException
 from db.models import (
     User,
@@ -79,8 +79,8 @@ def chat_new():
         name=data.name,
         is_group=data.is_group,
     )
-    db_builder.session.add_all([chat, *objects])
-    db_builder.session.commit()
+    db_sync_builder.session.add_all([chat, *objects])
+    db_sync_builder.session.commit()
 
     chat.signal_new(data.user_ids)
     return chat.as_json(user.id), HTTPStatus.CREATED

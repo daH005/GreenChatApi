@@ -1,6 +1,6 @@
 from flask_jwt_extended import JWTManager
 
-from db.builder import db_builder
+from db.builders import db_sync_builder
 from db.exceptions import DBEntityNotFoundException
 from db.models import User, AuthToken
 
@@ -19,7 +19,7 @@ def token_in_blocklist_callback(_, jwt_payload: dict) -> bool:
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data) -> User | None:
     user_id: int = int(jwt_data['sub'])
-    db_builder.session.remove()  # Important: The place chosen by experience way for gunicorn correct work
+    db_sync_builder.session.remove()  # Important: The place chosen by experience way for gunicorn correct work
     try:
         return User.by_id(user_id)
     except DBEntityNotFoundException:

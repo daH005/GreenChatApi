@@ -7,7 +7,7 @@ from flask import (
 )
 from flask_jwt_extended import jwt_required
 
-from db.builder import db_builder
+from db.builders import db_sync_builder
 from db.exceptions import DBEntityNotFoundException
 from db.lists import MessageList
 from db.models import (
@@ -74,7 +74,7 @@ def message_new(chat: Chat,
         chat=chat,
         replied_message=replied_message,
     )
-    db_builder.session.add(message)
+    db_sync_builder.session.add(message)
 
     unread_count: UnreadCount
     user_ids = chat.users().ids(exclude_ids=[user.id])
@@ -82,7 +82,7 @@ def message_new(chat: Chat,
         unread_count = chat.unread_count_of_user(user_id)
         unread_count.increase()
 
-    db_builder.session.commit()
+    db_sync_builder.session.commit()
 
     message.signal_new([user.id, *user_ids])
     chat.signal_new_unread_count(user_ids)
@@ -110,7 +110,7 @@ def message_edit(message: Message, _):
         replied_message: Message = _get_replied_message(data.replied_message_id, message.chat.id)
         message.set_replied_message_id(replied_message.id)
 
-    db_builder.session.commit()
+    db_sync_builder.session.commit()
 
     message.signal_edit(message.chat.users().ids())
     return make_simple_response(HTTPStatus.OK)
@@ -135,8 +135,8 @@ def _get_replied_message(replied_message_id: int,
 @transaction_retry_decorator()
 @message_full_access_json_decorator
 def message_delete(message: Message, _):
-    db_builder.session.delete(message)
-    db_builder.session.commit()
+    db_sync_builder.session.delete(message)
+    db_sync_builder.session.commit()
 
     message.signal_delete(message.chat.users().ids())
     return make_simple_response(HTTPStatus.OK)
@@ -163,7 +163,7 @@ def message_read(message: Message,
         unread_count.set(new_unread_count)
 
     if unread_count_is_new or sender_read_messages:
-        db_builder.session.commit()
+        db_sync_builder.session.commit()
 
     for user_id, messages in sender_read_messages.items():
         messages.signal_read([user_id])

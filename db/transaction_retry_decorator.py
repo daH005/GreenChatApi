@@ -4,7 +4,7 @@ from traceback import print_exc
 from sqlalchemy.exc import DBAPIError
 
 from config import DEFAULT_TRANSACTION_RETRY_MAX_ATTEMPTS
-from db.builder import db_builder
+from db.builders import db_sync_builder
 
 __all__ = (
     'transaction_retry_decorator',
@@ -20,7 +20,7 @@ def transaction_retry_decorator(max_attempts: int = DEFAULT_TRANSACTION_RETRY_MA
                 return func(*args, **kwargs)
             except DBAPIError:
                 print_exc()
-                db_builder.session.rollback()
+                db_sync_builder.session.rollback()
 
                 if __cur_attempt > max_attempts:
                     raise
