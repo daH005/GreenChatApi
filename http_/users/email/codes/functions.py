@@ -7,6 +7,7 @@ from config import (
     EMAIL_PASS_CODE,
     EMAIL_CODES_MAX_ATTEMPTS,
 )
+from http_.users.email.codes.exceptions import InvalidCodeException
 from http_.users.email.codes.key_prefixes import KeyPrefix
 
 __all__ = (
@@ -16,12 +17,12 @@ __all__ = (
 )
 
 
-@raises(ValueError)
+@raises(InvalidCodeException)
 def make_and_save_email_code(identify: str,
                              code: int | None = None,
                              ) -> int:
     if KeyPrefix.EMAIL_CODE.exists(identify):
-        raise ValueError
+        raise InvalidCodeException
 
     if code is None:
         code: int = _make_random_four_digit_number()

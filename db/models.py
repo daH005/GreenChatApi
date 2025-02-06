@@ -22,6 +22,10 @@ from sqlalchemy.orm import (
 
 from common.hinting import raises
 from db.builder import db_builder
+from db.exceptions import (
+    DBEntityNotFound,
+    DBEntityIsForbidden,
+)
 from db.i import (
     IBaseModel,
     IAuthToken,
@@ -61,11 +65,11 @@ class BaseModel(DeclarativeBase, IBaseModel):
         return self._id
 
     @classmethod
-    @raises(ValueError)
+    @raises(DBEntityNotFound)
     def by_id(cls, id_: int) -> Self:
         obj: cls = cast(cls, db_builder.session.get(cls, id_))
         if not obj:
-            raise ValueError
+            raise DBEntityNotFound
 
         return obj
 
@@ -98,11 +102,11 @@ class AuthToken(BaseModel, IAuthToken):
         return db_builder.session.query(cls).filter(cls._value == value).first() is not None
 
     @classmethod
-    @raises(ValueError)
+    @raises(DBEntityNotFound)
     def by_value(cls, value: str) -> Self:
         token: cls | None = db_builder.session.query(cls).filter(cls._value == value).first()
         if token is None:
-            raise ValueError
+            raise DBEntityNotFound
 
         return token
 
@@ -144,11 +148,11 @@ class User(BaseModel, UserJSONMixin, IUser):
         return self._last_name
 
     @classmethod
-    @raises(ValueError)
+    @raises(DBEntityNotFound)
     def by_email(cls, email: str) -> Self:
         user: cls | None = db_builder.session.query(cls).filter(cls._email == email).first()
         if user is None:
-            raise ValueError
+            raise DBEntityNotFound
 
         return user
 
@@ -248,15 +252,15 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, IChat):
     def users(self) -> 'UserList':
         return UserList(UserChatMatch.users_of_chat(self.id))
 
-    @raises(PermissionError)
+    @raises(DBEntityIsForbidden)
     def check_user_access(self, user_id: int) -> None:
         UserChatMatch.chat_if_user_has_access(user_id, self.id)
 
-    @raises(ValueError)
+    @raises(DBEntityNotFound)
     def interlocutor_of_user(self, user_id: int) -> 'User':
         return UserChatMatch.interlocutor_of_user_of_chat(user_id, self.id)
 
-    @raises(PermissionError)
+    @raises(DBEntityIsForbidden)
     def unread_count_of_user(self, user_id: int) -> 'UnreadCount':
         return UserChatMatch.unread_count_of_user_of_chat(user_id, self.id)
 
@@ -366,7 +370,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
         return self._unread_count
 
     @classmethod
-    @raises(PermissionError)
+    @raises(DBEntityIsForbidden)
     def chat_if_user_has_access(cls, user_id: int,
                                 chat_id: int,
                                 ) -> 'Chat':
@@ -374,7 +378,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
             cls._user_id == user_id, cls._chat_id == chat_id
         ).first()
         if match is None:
-            raise PermissionError
+            raise DBEntityIsForbidden
 
         return match.chat
 
@@ -413,7 +417,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
         )
 
     @classmethod
-    @raises(ValueError)
+    @raises(DBEntityNotFound)
     def interlocutor_of_user_of_chat(cls, user_id: int,
                                      chat_id: int,
                                      ) -> 'User':
@@ -422,12 +426,12 @@ class UserChatMatch(BaseModel, IUserChatMatch):
             cls._chat_id == chat_id,
         ).first()
         if interlocutor_match is None:
-            raise ValueError
+            raise DBEntityNotFound
 
         return interlocutor_match.user
 
     @classmethod
-    @raises(ValueError)
+    @raises(DBEntityNotFound)
     def private_chat_between_users(cls, first_user_id: int,
                                    second_user_id: int,
                                    ) -> 'Chat':
@@ -447,7 +451,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
 
         chat: Chat | None = cast(Chat | None, query.first())
         if chat is None:
-            raise ValueError
+            raise DBEntityNotFound
 
         return chat
 
@@ -471,7 +475,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
         )
 
     @classmethod
-    @raises(PermissionError)
+    @raises(DBEntityIsForbidden)
     def unread_count_of_user_of_chat(cls, user_id: int,
                                      chat_id: int,
                                      ) -> 'UnreadCount':
@@ -480,7 +484,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
             cls._chat_id == chat_id,
         ).first()
         if match is None:
-            raise PermissionError
+            raise DBEntityIsForbidden
 
         return match.unread_count
 

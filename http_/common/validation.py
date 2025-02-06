@@ -22,6 +22,7 @@ __all__ = (
     'EditMessageJSONValidator',
     'NewChatJSONValidator',
     'NewMessageJSONValidator',
+    'FilenamesJSONValidator',
 )
 
 
@@ -97,3 +98,7 @@ class NewMessageJSONValidator(BaseMessageJSONValidator):
 
 class EditMessageJSONValidator(BaseMessageJSONValidator):
     message_id: int = Field(alias=JSONKey.MESSAGE_ID)
+
+
+class FilenamesJSONValidator(BaseValidator):
+    filenames: list[str] = Field(alias=JSONKey.FILENAMES)

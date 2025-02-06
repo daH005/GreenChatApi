@@ -5,6 +5,10 @@ from typing import Union
 
 from common.hinting import raises
 from common.json_keys import JSONKey
+from db.exceptions import (
+    DBEntityNotFound,
+    DBEntityIsForbidden,
+)
 from db.models import (
     BaseModel,
     Chat,
@@ -110,13 +114,13 @@ def _abstract_access_decorator(func,
 
         try:
             entity = model.by_id(entity_id)
-        except ValueError:
+        except DBEntityNotFound:
             return abort(HTTPStatus.NOT_FOUND)
 
         user: User = get_current_user()
         try:
             check_access_func(entity, user.id)
-        except PermissionError:
+        except DBEntityIsForbidden:
             return abort(HTTPStatus.FORBIDDEN)
 
         return func(entity, user)
@@ -124,32 +128,34 @@ def _abstract_access_decorator(func,
     return wrapper
 
 
+@raises(KeyError, ValueError)
 def _get_id_from_query(key: str) -> int:
     return int(request.args[key])
 
 
+@raises(KeyError, ValueError)
 def _get_id_from_json(key: str) -> int:
     return int(request.json[key])
 
 
-@raises(PermissionError)
+@raises(DBEntityIsForbidden)
 def _chat_access_checking(chat: Chat,
                           user_id: int,
                           ) -> None:
     chat.check_user_access(user_id)
 
 
-@raises(PermissionError)
+@raises(DBEntityIsForbidden)
 def _message_access_checking(message: Message,
                              user_id: int,
                              ) -> None:
     message.chat.check_user_access(user_id)
 
 
-@raises(PermissionError)
+@raises(DBEntityIsForbidden)
 def _message_full_access_checking(message: Message,
                                   user_id: int,
                                   ) -> None:
     _message_access_checking(message, user_id)
     if message.user.id != user_id:
-        raise PermissionError
+        raise DBEntityIsForbidden

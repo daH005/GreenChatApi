@@ -10,6 +10,7 @@ from flask_jwt_extended import jwt_required
 
 from common.json_keys import JSONKey
 from db.builder import db_builder
+from db.exceptions import DBEntityNotFound
 from db.models import (
     User,
     Chat,
@@ -68,7 +69,7 @@ def chat_new():
     if user_ids_len == 2 and not data.is_group:
         try:
             UserChatMatch.private_chat_between_users(*data.user_ids)
-        except ValueError:
+        except DBEntityNotFound:
             pass
         else:
             return abort(HTTPStatus.CONFLICT)

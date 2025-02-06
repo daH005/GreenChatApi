@@ -12,6 +12,7 @@ from http_.common.apidocs_constants import (
 from http_.common.simple_response import make_simple_response
 from http_.common.urls import Url
 from http_.common.validation import EmailAndCodeJSONValidator
+from http_.users.email.codes.exceptions import InvalidCodeException
 from http_.users.email.codes.functions import make_and_save_email_code, email_code_is_valid
 from http_.users.email.tasks import send_code_task
 
@@ -32,7 +33,7 @@ def code_send():
 
     try:
         code: int = make_and_save_email_code(email)
-    except ValueError:
+    except InvalidCodeException:
         return abort(HTTPStatus.CONFLICT)
     send_code_task.delay(to=email, code=code)
 

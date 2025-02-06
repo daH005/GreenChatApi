@@ -3,8 +3,9 @@ from typing import Final
 
 from common.hinting import raises
 from common.resident_app import resident_app
-from common.signals.message import SignalQueueMessage
 from common.singleton import SingletonMeta
+from common.signals.exceptions import SignalQueueIsEmpty
+from common.signals.message import SignalQueueMessage
 
 __all__ = (
     'SignalQueue',
@@ -21,11 +22,11 @@ class SignalQueue(metaclass=SingletonMeta):
     def _dump(message: SignalQueueMessage) -> str:
         return json.dumps(message._asdict())
 
-    @raises(StopIteration)
+    @raises(SignalQueueIsEmpty)
     def pop(self) -> SignalQueueMessage:
         dumped_message: str | None = resident_app.lpop(self._KEY)
         if not dumped_message:
-            raise StopIteration
+            raise SignalQueueIsEmpty
         return self._load(dumped_message)
 
     @staticmethod

@@ -8,6 +8,7 @@ from flask import (
 from flask_jwt_extended import jwt_required
 
 from db.builder import db_builder
+from db.exceptions import DBEntityNotFound
 from db.lists import MessageList
 from db.models import (
     User,
@@ -120,7 +121,7 @@ def _get_replied_message(replied_message_id: int,
                          ) -> Message:
     try:
         replied_message: Message = Message.by_id(replied_message_id)
-    except ValueError:
+    except DBEntityNotFound:
         return abort(HTTPStatus.NOT_FOUND)
     if replied_message.chat.id != chat_id:
         raise abort(HTTPStatus.FORBIDDEN)

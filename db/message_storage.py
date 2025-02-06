@@ -28,9 +28,9 @@ class MessageStorage(IMessageStorage):
         return self.path().exists()
 
     def update(self, files: list['IMessageStorageFile']) -> None:
-        file_folder_path: Path = self.path()
-        if not file_folder_path.exists():
-            file_folder_path.mkdir()
+        folder_path: Path = self.path()
+        if not folder_path.exists():
+            folder_path.mkdir()
 
         secured_filename: str
         for file in files:
@@ -38,15 +38,14 @@ class MessageStorage(IMessageStorage):
                 continue
 
             secured_filename = self._encode_filename(file.filename)
-            file.save(file_folder_path.joinpath(secured_filename))
+            file.save(folder_path.joinpath(secured_filename))
 
-    @raises(TypeError)
     def delete(self, filenames: list[str]) -> None:
-        file_folder_path: Path = self.path()
+        folder_path: Path = self.path()
 
         file_path: Path
         for filename in filenames:
-            file_path = file_folder_path.joinpath(self._encode_filename(filename))
+            file_path = folder_path.joinpath(self._encode_filename(filename))
             if not file_path.exists():
                 continue
 
@@ -74,11 +73,9 @@ class MessageStorage(IMessageStorage):
     def path(self) -> Path:
         return self._FILES_PATH.joinpath(str(self._message.id))
 
-    @raises(TypeError)
     def _encode_filename(self, filename: str) -> str:
         return b64encode(filename.encode(), altchars=self._ALTCHARS).decode()
 
-    @raises(TypeError)
     def _decode_filename(self, filename: str) -> str:
         return b64decode(filename, altchars=self._ALTCHARS).decode()
 

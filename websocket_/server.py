@@ -4,8 +4,12 @@ import re
 from ssl import SSLContext
 from typing import NoReturn, Final
 
-from jwt import decode as decode_jwt
-from websockets import serve, WebSocketServerProtocol, ConnectionClosed
+from jwt import decode as decode_jwt, PyJWTError
+from websockets import (
+    serve,
+    WebSocketServerProtocol,
+    ConnectionClosed,
+)
 
 from common.hinting import raises
 from common.json_keys import JSONKey
@@ -13,9 +17,16 @@ from common.online_set import OnlineSet
 from common.signals.message import SignalQueueMessage
 from common.signals.queue import SignalQueue
 from common.signals.signal_types import SignalType
+from common.signals.exceptions import SignalQueueIsEmpty
 from db.builder import db_builder
+from db.exceptions import DBEntityNotFound
 from db.models import User, UserChatMatch
 from websocket_.logs import init_logs, logger
+from websocket_.exceptions import (
+    InvalidOriginException,
+    JWTNotFoundInCookies,
+    UserIdNotFoundInJWT,
+)
 from websocket_.message import WebSocketMessageJSONDict
 
 __all__ = (
@@ -60,7 +71,7 @@ class WebSocketServer:
             await asyncio.sleep(0)  # For switching in the asyncio loop
             try:
                 message = self._signal_queue.pop()
-            except StopIteration:
+            except SignalQueueIsEmpty:
                 continue
 
             await self._send_to_many_users(
@@ -82,18 +93,24 @@ class WebSocketServer:
             return
 
         try:
-            self._check_origin(client.request_headers['Origin'])
-        except (KeyError, ValueError):
+            origin: str = client.request_headers['Origin']
+            cookies: str = client.request_headers['Cookie']
+        except KeyError:
             return
 
         try:
-            jwt: str = self._extract_jwt_from_cookies(client.request_headers['Cookie'])
-        except ValueError:
+            self._check_origin(origin)
+        except InvalidOriginException:
+            return
+
+        try:
+            jwt: str = self._extract_jwt_from_cookies(cookies)
+        except JWTNotFoundInCookies:
             return
 
         try:
             user_id: int = self._user_id_by_jwt(jwt)
-        except ValueError:
+        except UserIdNotFoundInJWT:
             return
 
         await self._add_client(user_id, client)
@@ -104,27 +121,36 @@ class WebSocketServer:
             await self._del_client(user_id, client)
             raise
 
-    @raises(ValueError)
+    @raises(InvalidOriginException)
     def _check_origin(self, origin: str) -> None:
         for origin_regex in self._origins:
             if re.match(origin_regex, origin):
                 return
-        raise ValueError
+        raise InvalidOriginException
 
-    @raises(ValueError)
+    @raises(JWTNotFoundInCookies)
     def _extract_jwt_from_cookies(self, cookies: str) -> str:
         match = re.search(self._RE_TO_EXTRACT_JWT_FROM_COOKIES, cookies)
         if not match:
-            raise ValueError
+            raise JWTNotFoundInCookies
+
         return match.group(1)
 
-    @raises(ValueError)
+    @raises(UserIdNotFoundInJWT)
     def _user_id_by_jwt(self, jwt: str) -> int:
-        user_id: int = self._extract_user_id_from_jwt(jwt)
-        db_builder.session.remove()  # for session updating
-        return User.by_id(user_id).id
+        try:
+            user_id: int = self._extract_user_id_from_jwt(jwt)
+        except PyJWTError:
+            raise UserIdNotFoundInJWT
 
-    @raises(ValueError)
+        db_builder.session.remove()  # For a session updating
+
+        try:
+            return User.by_id(user_id).id
+        except DBEntityNotFound:
+            raise UserIdNotFoundInJWT
+
+    @raises(PyJWTError)
     def _extract_user_id_from_jwt(self, jwt: str) -> int:
         try:
             decoded: dict = decode_jwt(
@@ -134,7 +160,7 @@ class WebSocketServer:
             )
             return int(decoded['sub'])
         except KeyError:
-            raise ValueError
+            raise PyJWTError
 
     async def _add_client(self, user_id: int,
                           client: WebSocketServerProtocol,

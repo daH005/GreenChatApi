@@ -27,6 +27,8 @@ __all__ = (
     'files_bp',
 )
 
+from http_.common.validation import FilenamesJSONValidator
+
 files_bp: Blueprint = Blueprint('files', __name__)
 
 
@@ -51,19 +53,11 @@ def message_files_update(message: Message, _):
 @swag_from(MESSAGE_FILES_DELETE_SPECS)
 @message_full_access_json_decorator
 def message_files_delete(message: Message, _):
-    try:
-        filenames: list[str] = request.json[JSONKey.FILENAMES]
-        if not isinstance(filenames, list):
-            raise ValueError
-    except (KeyError, ValueError):
-        return abort(HTTPStatus.BAD_REQUEST)
+    filenames: list[str] = FilenamesJSONValidator.from_json().filenames
 
-    try:
-        message.get_storage().delete(filenames)
-    except TypeError:
-        return abort(HTTPStatus.BAD_REQUEST)
-
+    message.get_storage().delete(filenames)
     message.signal_files(message.chat.users().ids())
+
     return make_simple_response(HTTPStatus.OK)
 
 
