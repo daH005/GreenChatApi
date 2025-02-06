@@ -1,7 +1,7 @@
 from functools import wraps
 from traceback import print_exc
 
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import DBAPIError
 
 from config import DEFAULT_TRANSACTION_RETRY_MAX_ATTEMPTS
 from db.builder import db_builder
@@ -18,7 +18,7 @@ def transaction_retry_decorator(max_attempts: int = DEFAULT_TRANSACTION_RETRY_MA
         def wrapper(*args, __cur_attempt: int = 0, **kwargs):
             try:
                 return func(*args, **kwargs)
-            except SQLAlchemyError:
+            except DBAPIError:
                 print_exc()
                 db_builder.session.rollback()
 
