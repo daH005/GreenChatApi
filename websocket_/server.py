@@ -1,15 +1,12 @@
-import asyncio
 import json
 import re
 from ssl import SSLContext
 from typing import NoReturn, Final
+from threading import Thread
 
 from jwt import decode as decode_jwt, PyJWTError
-from websockets import (
-    serve,
-    WebSocketServerProtocol,
-    ConnectionClosed,
-)
+from websockets import ConnectionClosed
+from websockets.sync.server import serve, ServerConnection
 
 from common.hinting import raises
 from common.json_keys import JSONKey
@@ -50,50 +47,49 @@ class WebSocketServer:
 
         self._online_set: OnlineSet = OnlineSet()
         self._signal_queue: SignalQueue = SignalQueue()
-        self._clients: dict[int, list[WebSocketServerProtocol]] = {}
+        self._clients: dict[int, list[ServerConnection]] = {}
 
     def run(self) -> NoReturn:
         init_logs()  # The place chosen by experience way
-        asyncio.run(self._run())
+        self._run()
 
-    async def _run(self) -> NoReturn:
-        asyncio.create_task(self._signal_queue_pop_task())
-        async with serve(ws_handler=self._handler, host=self._host, port=self._port, ssl=self._ssl_context):
+    def _run(self) -> NoReturn:
+        Thread(target=self._signal_queue_pop_task).start()
+        with serve(handler=self._handler, host=self._host, port=self._port, ssl=self._ssl_context) as server:
             logger.info(f'WebSocketServer is serving on wss://{self._host}:{self._port}')
-            await asyncio.Future()
+            server.serve_forever()
 
-    async def _signal_queue_pop_task(self) -> NoReturn:
+    def _signal_queue_pop_task(self) -> NoReturn:
         self._online_set.clear()
 
         message: SignalQueueMessage
         while True:
-            await asyncio.sleep(0)  # For switching in the asyncio loop
             try:
                 message = self._signal_queue.pop()
             except SignalQueueIsEmptyException:
                 continue
 
-            await self._send_to_many_users(
+            self._send_to_many_users(
                 user_ids=message.user_ids,
                 message=message.message,
             )
 
-    async def _handler(self, client: WebSocketServerProtocol) -> None:
+    def _handler(self, client: ServerConnection) -> None:
         logger.info(f'New client connected.')
         try:
-            await self._handle_client(client)
+            self._handle_client(client)
         except ConnectionClosed:
             pass
         logger.info(f'Client disconnected.')
 
     @raises(ConnectionClosed)
-    async def _handle_client(self, client: WebSocketServerProtocol) -> None:
-        if 'Cookie' not in client.request_headers:
+    def _handle_client(self, client: ServerConnection) -> None:
+        if 'Cookie' not in client.request.headers:
             return
 
         try:
-            origin: str = client.request_headers['Origin']
-            cookies: str = client.request_headers['Cookie']
+            origin: str = client.request.headers['Origin']
+            cookies: str = client.request.headers['Cookie']
         except KeyError:
             return
 
@@ -112,12 +108,12 @@ class WebSocketServer:
         except UserIdNotFoundInJWTException:
             return
 
-        await self._add_client(user_id, client)
+        self._add_client(user_id, client)
         try:
             while True:
-                await client.recv()
+                client.recv()
         except ConnectionClosed:
-            await self._del_client(user_id, client)
+            self._del_client(user_id, client)
             raise
 
     @raises(InvalidOriginException)
@@ -161,19 +157,19 @@ class WebSocketServer:
         except KeyError:
             raise PyJWTError
 
-    async def _add_client(self, user_id: int,
-                          client: WebSocketServerProtocol,
-                          ) -> None:
+    def _add_client(self, user_id: int,
+                    client: ServerConnection,
+                    ) -> None:
         if user_id not in self._clients:
             self._clients[user_id] = []
             self._online_set.add(user_id)
-            await self._send_online_statuses(user_id, True)
+            self._send_online_statuses(user_id, True)
 
         self._clients[user_id].append(client)
 
-    async def _del_client(self, user_id: int,
-                          client: WebSocketServerProtocol,
-                          ) -> None:
+    def _del_client(self, user_id: int,
+                    client: ServerConnection,
+                    ) -> None:
         try:
             self._clients[user_id].remove(client)
         except (KeyError, ValueError):
@@ -182,12 +178,12 @@ class WebSocketServer:
         if not self._clients[user_id]:
             self._clients.pop(user_id)
             self._online_set.remove(user_id)
-            await self._send_online_statuses(user_id, False)
+            self._send_online_statuses(user_id, False)
 
-    async def _send_online_statuses(self, user_id: int,
-                                    status: bool,
-                                    ) -> None:
-        await self._send_to_many_users(
+    def _send_online_statuses(self, user_id: int,
+                              status: bool,
+                              ) -> None:
+        self._send_to_many_users(
             user_ids=UserChatMatch.all_interlocutors_of_user(user_id).ids(),
             message={
                 JSONKey.TYPE: SignalType.ONLINE_STATUSES,
@@ -197,24 +193,24 @@ class WebSocketServer:
             },
         )
 
-    async def _send_to_many_users(self, user_ids: list[int],
-                                  message: SignalQueueMessageJSONDictToForward,
-                                  ) -> None:
+    def _send_to_many_users(self, user_ids: list[int],
+                            message: SignalQueueMessageJSONDictToForward,
+                            ) -> None:
         user_ids = set(user_ids)
         for id_ in user_ids:
-            await self._send_to_one_user(id_, message)
+            self._send_to_one_user(id_, message)
 
-    async def _send_to_one_user(self, user_id: int,
-                                message: SignalQueueMessageJSONDictToForward,
-                                ) -> None:
+    def _send_to_one_user(self, user_id: int,
+                          message: SignalQueueMessageJSONDictToForward,
+                          ) -> None:
         for client in self._clients.get(user_id, []):
-            await self._send_to_one_client(client, message)
+            self._send_to_one_client(client, message)
 
     @staticmethod
-    async def _send_to_one_client(client: WebSocketServerProtocol,
-                                  message: SignalQueueMessageJSONDictToForward,
-                                  ) -> None:
+    def _send_to_one_client(client: ServerConnection,
+                            message: SignalQueueMessageJSONDictToForward,
+                            ) -> None:
         try:
-            await client.send(json.dumps(message))
+            client.send(json.dumps(message))
         except ConnectionClosed:
             return
