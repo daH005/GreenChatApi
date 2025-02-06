@@ -1,12 +1,12 @@
 __all__ = (
-    'DBEntityNotFound',
-    'DBEntityIsForbidden',
+    'DBEntityNotFoundException',
+    'DBEntityIsForbiddenException',
 )
 
 
-class DBEntityNotFound(Exception):
+class DBEntityNotFoundException(Exception):
     pass
 
 
-class DBEntityIsForbidden(Exception):
+class DBEntityIsForbiddenException(Exception):
     pass

@@ -20,7 +20,7 @@ from flask_jwt_extended import (
 
 from common.json_keys import JSONKey
 from db.builder import db_builder
-from db.exceptions import DBEntityNotFound
+from db.exceptions import DBEntityNotFoundException
 from db.models import User, AuthToken
 from db.transaction_retry_decorator import transaction_retry_decorator
 from http_.common.apidocs_constants import (
@@ -68,7 +68,7 @@ def login():
     try:
         user = User.by_email(user_data.email)
         status_code = HTTPStatus.OK
-    except DBEntityNotFound:
+    except DBEntityNotFoundException:
         user = User.create(user_data.email)
         db_builder.session.add(user)
         db_builder.session.commit()
@@ -144,7 +144,7 @@ def user_get():
 
     try:
         user: User = User.by_id(user_id)
-    except DBEntityNotFound:
+    except DBEntityNotFoundException:
         return abort(HTTPStatus.NOT_FOUND)
 
     return user.as_json()

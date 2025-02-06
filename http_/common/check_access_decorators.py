@@ -6,8 +6,8 @@ from typing import Union
 from common.hinting import raises
 from common.json_keys import JSONKey
 from db.exceptions import (
-    DBEntityNotFound,
-    DBEntityIsForbidden,
+    DBEntityNotFoundException,
+    DBEntityIsForbiddenException,
 )
 from db.models import (
     BaseModel,
@@ -114,13 +114,13 @@ def _abstract_access_decorator(func,
 
         try:
             entity = model.by_id(entity_id)
-        except DBEntityNotFound:
+        except DBEntityNotFoundException:
             return abort(HTTPStatus.NOT_FOUND)
 
         user: User = get_current_user()
         try:
             check_access_func(entity, user.id)
-        except DBEntityIsForbidden:
+        except DBEntityIsForbiddenException:
             return abort(HTTPStatus.FORBIDDEN)
 
         return func(entity, user)
@@ -138,24 +138,24 @@ def _get_id_from_json(key: str) -> int:
     return int(request.json[key])
 
 
-@raises(DBEntityIsForbidden)
+@raises(DBEntityIsForbiddenException)
 def _chat_access_checking(chat: Chat,
                           user_id: int,
                           ) -> None:
     chat.check_user_access(user_id)
 
 
-@raises(DBEntityIsForbidden)
+@raises(DBEntityIsForbiddenException)
 def _message_access_checking(message: Message,
                              user_id: int,
                              ) -> None:
     message.chat.check_user_access(user_id)
 
 
-@raises(DBEntityIsForbidden)
+@raises(DBEntityIsForbiddenException)
 def _message_full_access_checking(message: Message,
                                   user_id: int,
                                   ) -> None:
     _message_access_checking(message, user_id)
     if message.user.id != user_id:
-        raise DBEntityIsForbidden
+        raise DBEntityIsForbiddenException

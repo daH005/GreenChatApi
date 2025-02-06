@@ -17,15 +17,15 @@ from common.online_set import OnlineSet
 from common.signals.message import SignalQueueMessage, SignalQueueMessageJSONDictToForward
 from common.signals.queue import SignalQueue
 from common.signals.signal_types import SignalType
-from common.signals.exceptions import SignalQueueIsEmpty
+from common.signals.exceptions import SignalQueueIsEmptyException
 from db.builder import db_builder
-from db.exceptions import DBEntityNotFound
+from db.exceptions import DBEntityNotFoundException
 from db.models import User, UserChatMatch
 from websocket_.logs import init_logs, logger
 from websocket_.exceptions import (
     InvalidOriginException,
-    JWTNotFoundInCookies,
-    UserIdNotFoundInJWT,
+    JWTNotFoundInCookiesException,
+    UserIdNotFoundInJWTException,
 )
 
 __all__ = (
@@ -70,7 +70,7 @@ class WebSocketServer:
             await asyncio.sleep(0)  # For switching in the asyncio loop
             try:
                 message = self._signal_queue.pop()
-            except SignalQueueIsEmpty:
+            except SignalQueueIsEmptyException:
                 continue
 
             await self._send_to_many_users(
@@ -104,12 +104,12 @@ class WebSocketServer:
 
         try:
             jwt: str = self._extract_jwt_from_cookies(cookies)
-        except JWTNotFoundInCookies:
+        except JWTNotFoundInCookiesException:
             return
 
         try:
             user_id: int = self._user_id_by_jwt(jwt)
-        except UserIdNotFoundInJWT:
+        except UserIdNotFoundInJWTException:
             return
 
         await self._add_client(user_id, client)
@@ -127,27 +127,27 @@ class WebSocketServer:
                 return
         raise InvalidOriginException
 
-    @raises(JWTNotFoundInCookies)
+    @raises(JWTNotFoundInCookiesException)
     def _extract_jwt_from_cookies(self, cookies: str) -> str:
         match = re.search(self._RE_TO_EXTRACT_JWT_FROM_COOKIES, cookies)
         if not match:
-            raise JWTNotFoundInCookies
+            raise JWTNotFoundInCookiesException
 
         return match.group(1)
 
-    @raises(UserIdNotFoundInJWT)
+    @raises(UserIdNotFoundInJWTException)
     def _user_id_by_jwt(self, jwt: str) -> int:
         try:
             user_id: int = self._extract_user_id_from_jwt(jwt)
         except PyJWTError:
-            raise UserIdNotFoundInJWT
+            raise UserIdNotFoundInJWTException
 
         db_builder.session.remove()  # For a session updating
 
         try:
             return User.by_id(user_id).id
-        except DBEntityNotFound:
-            raise UserIdNotFoundInJWT
+        except DBEntityNotFoundException:
+            raise UserIdNotFoundInJWTException
 
     @raises(PyJWTError)
     def _extract_user_id_from_jwt(self, jwt: str) -> int:

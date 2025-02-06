@@ -1,7 +1,7 @@
 __all__ = (
-    'SignalQueueIsEmpty',
+    'SignalQueueIsEmptyException',
 )
 
 
-class SignalQueueIsEmpty(Exception):
+class SignalQueueIsEmptyException(Exception):
     pass

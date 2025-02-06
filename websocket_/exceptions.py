@@ -1,7 +1,7 @@
 __all__ = (
     'InvalidOriginException',
-    'JWTNotFoundInCookies',
-    'UserIdNotFoundInJWT',
+    'JWTNotFoundInCookiesException',
+    'UserIdNotFoundInJWTException',
 )
 
 
@@ -9,9 +9,9 @@ class InvalidOriginException(Exception):
     pass
 
 
-class JWTNotFoundInCookies(Exception):
+class JWTNotFoundInCookiesException(Exception):
     pass
 
 
-class UserIdNotFoundInJWT(Exception):
+class UserIdNotFoundInJWTException(Exception):
     pass

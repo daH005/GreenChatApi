@@ -11,7 +11,7 @@ from flask import (
     Response,
 )
 
-from db.exceptions import DBEntityNotFound
+from db.exceptions import DBEntityNotFoundException
 from db.models import User
 from http_.common.get_current_user import get_current_user
 from http_.common.simple_response import make_simple_response
@@ -30,7 +30,7 @@ def get_user_image(user_id: int,
                    ) -> Response:
     try:
         User.by_id(user_id)
-    except DBEntityNotFound:
+    except DBEntityNotFoundException:
         return abort(HTTPStatus.NOT_FOUND)
 
     path: Path = _make_user_image_path(str(user_id), folder_path)
