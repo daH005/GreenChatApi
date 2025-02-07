@@ -67,4 +67,34 @@ USER_CHATS = [
             },
         ],
     ),
+    _endpoint.new_as_first_user(
+        query_params={
+            'offset': 1,
+            'size': 1,
+        },
+        expected_status=200,
+        expected_json_object=[
+            {
+                'id': 1,
+                'isGroup': False,
+                'lastMessage': {
+                    'id': Params.ID_START + 2,
+                    'chatId': 1,
+                    'userId': Params.ID_START,
+                    'text': Params.UPDATED_TEXT,
+                    'isRead': False,
+                    'hasFiles': False,
+                    'creatingDatetime': anything_place,
+                    'repliedMessage': None,
+                },
+                'name': None,
+                'unreadCount': 0,
+                'userIds': [
+                    Params.ID_START,
+                    Params.ID_START + 1,
+                ],
+                'interlocutorId': Params.ID_START + 1,
+            },
+        ],
+    ),
 ]

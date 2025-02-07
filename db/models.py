@@ -7,9 +7,9 @@ from sqlalchemy import (
     Text,
     Boolean,
     ForeignKey,
-    desc,
     CheckConstraint,
     func,
+    Subquery,
 )
 from sqlalchemy.dialects.mysql import DATETIME
 from sqlalchemy.orm import (
@@ -156,8 +156,10 @@ class User(BaseModel, UserJSONMixin, IUser):
 
         return user
 
-    def chats(self) -> 'ChatList':
-        return UserChatMatch.chats_of_user(self.id)
+    def chats(self, offset: int | None = None,
+              size: int | None = None,
+              ) -> 'ChatList':
+        return UserChatMatch.chats_of_user(self.id, offset, size)
 
     def set_info(self, first_name: str | None = None,
                  last_name: str | None = None,
@@ -227,7 +229,7 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, IChat):
                  size: int | None = None,
                  ) -> 'MessageList':
         return MessageList(
-            cast(Query[Message], self._messages).offset(offset).limit(size).all(),
+            cast(Query[Message], self._messages).limit(size).offset(offset).all(),
         )
 
     def unread_interlocutor_messages_up_to(self, message_id: int,
@@ -397,22 +399,33 @@ class UserChatMatch(BaseModel, IUserChatMatch):
         )
 
     @classmethod
-    def chats_of_user(cls, user_id: int) -> 'ChatList':
-        query: Query[cls] = db_sync_builder.session.query(
-            cls, Chat, Message,
-        ).join(
-            Chat, Chat._id == cls._chat_id,
-        ).join(
-            Message, Chat._id == Message._chat_id,  # noqa
-            isouter=True,
+    def chats_of_user(cls, user_id: int,
+                      offset: int | None = None,
+                      size: int | None = None,
+                      ) -> 'ChatList':
+        subquery: Subquery = db_sync_builder.session.query(
+            cls._chat_id,
+            Message._creating_datetime,  # noqa
+            func.row_number().over(
+                partition_by=cls._chat_id,
+                order_by=Message._creating_datetime.desc(),  # noqa
+            ).label('rn'),
+        ).outerjoin(
+            Message, cls._chat_id == Message._chat_id,  # noqa
         ).filter(
             cls._user_id == user_id,
+        ).subquery()
+
+        query: Query[Chat] = db_sync_builder.session.query(subquery).join(
+            Chat, Chat._id == subquery.c._chat_id,  # noqa
+        ).filter(
+            subquery.c.rn == 1,
         ).order_by(
-            desc(Message._creating_datetime),  # noqa
+            subquery.c._creating_datetime.desc(),  # noqa
         ).with_entities(Chat)
 
         return ChatList(
-            cast(list[Chat], query.all()),
+            cast(list[Chat], query.limit(size).offset(offset).all()),
             user_id,
         )
 

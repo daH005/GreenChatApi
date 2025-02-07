@@ -19,6 +19,27 @@ CHAT_MESSAGES = [
     ),
     _endpoint.new_as_first_user(
         query_params={
+            'chatId': 1,
+            'offset': -1,
+        },
+        expected_status=400,
+    ),
+    _endpoint.new_as_first_user(
+        query_params={
+            'chatId': 1,
+            'size': 0,
+        },
+        expected_status=400,
+    ),
+    _endpoint.new_as_first_user(
+        query_params={
+            'chatId': 1,
+            'size': 101,
+        },
+        expected_status=400,
+    ),
+    _endpoint.new_as_first_user(
+        query_params={
             'chatId': 2,
         },
         expected_status=403,
@@ -75,6 +96,7 @@ CHAT_MESSAGES = [
         query_params={
             'chatId': 1,
             'offset': 1,
+            'size': 1,
         },
         expected_status=200,
         expected_json_object=[
@@ -87,16 +109,6 @@ CHAT_MESSAGES = [
                 'hasFiles': False,
                 'creatingDatetime': anything_place,
                 'repliedMessage': anything_place,
-            },
-            {
-                'id': Params.ID_START,
-                'chatId': 1,
-                'userId': Params.ID_START,
-                'text': Params.MESSAGE_TEXTS[0],
-                'isRead': True,
-                'hasFiles': False,
-                'creatingDatetime': anything_place,
-                'repliedMessage': None,
             },
         ],
     ),

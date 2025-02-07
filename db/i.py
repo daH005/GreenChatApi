@@ -89,7 +89,9 @@ class IUser(IBaseModel):
     def by_email(cls, email: str) -> Self:
         raise NotImplementedError
 
-    def chats(self) -> 'IChatList':
+    def chats(self, offset: int | None = None,
+              size: int | None = None,
+              ) -> 'IChatList':
         raise NotImplementedError
 
     def set_info(self, first_name: str | None = None,
@@ -290,7 +292,10 @@ class IUserChatMatch(IBaseModel):
         raise NotImplementedError
 
     @classmethod
-    def chats_of_user(cls, user_id: int) -> 'IChatList':
+    def chats_of_user(cls, user_id: int,
+                      offset: int | None = None,
+                      size: int | None = None,
+                      ) -> 'IChatList':
         raise NotImplementedError
 
     @classmethod

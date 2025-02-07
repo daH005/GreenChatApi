@@ -30,6 +30,7 @@ class JSONKey(StrEnum):
     FILENAME = 'filename'
 
     OFFSET = 'offset'
+    SIZE = 'size'
 
     NAME = 'name'
     IS_GROUP = 'isGroup'

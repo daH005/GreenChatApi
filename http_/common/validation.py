@@ -23,6 +23,7 @@ __all__ = (
     'NewChatJSONValidator',
     'NewMessageJSONValidator',
     'FilenamesJSONValidator',
+    'OffsetSizeJSONValidator',
 )
 
 
@@ -102,3 +103,9 @@ class EditMessageJSONValidator(BaseMessageJSONValidator):
 
 class FilenamesJSONValidator(BaseValidator):
     filenames: list[str] = Field(alias=JSONKey.FILENAMES)
+
+
+class OffsetSizeJSONValidator(BaseValidator):
+
+    offset: int = Field(alias=JSONKey.OFFSET, ge=0, default=0)
+    size: int = Field(alias=JSONKey.SIZE, ge=1, le=100, default=20)

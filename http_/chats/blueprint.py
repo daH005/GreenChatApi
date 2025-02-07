@@ -3,12 +3,10 @@ from http import HTTPMethod, HTTPStatus
 from flasgger import swag_from
 from flask import (
     Blueprint,
-    request,
     abort,
 )
 from flask_jwt_extended import jwt_required
 
-from common.json_keys import JSONKey
 from db.builders import db_sync_builder
 from db.exceptions import DBEntityNotFoundException
 from db.models import (
@@ -28,7 +26,7 @@ from http_.common.apidocs_constants import (
 from http_.common.get_current_user import get_current_user
 from http_.common.simple_response import make_simple_response
 from http_.common.urls import Url
-from http_.common.validation import NewChatJSONValidator
+from http_.common.validation import NewChatJSONValidator, OffsetSizeJSONValidator
 from http_.common.check_access_decorators import (
     chat_access_query_decorator,
     chat_access_json_decorator,
@@ -115,14 +113,5 @@ def unread_count_get(chat: Chat,
 @swag_from(CHAT_MESSAGES_SPECS)
 @chat_access_query_decorator
 def messages_get(chat: Chat, _):
-    offset: int | None
-    try:
-        offset = int(request.args[JSONKey.OFFSET])
-        if offset < 0:
-            raise ValueError
-    except KeyError:
-        offset = None
-    except ValueError:
-        return abort(HTTPStatus.BAD_REQUEST)
-
-    return chat.messages(offset=offset).as_json()
+    data: OffsetSizeJSONValidator = OffsetSizeJSONValidator.from_args()
+    return chat.messages(data.offset, data.size).as_json()

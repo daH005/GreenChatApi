@@ -34,7 +34,11 @@ from http_.common.apidocs_constants import (
 from http_.common.get_current_user import get_current_user
 from http_.common.simple_response import make_simple_response
 from http_.common.urls import Url
-from http_.common.validation import EmailAndCodeJSONValidator, UserJSONValidator
+from http_.common.validation import (
+    EmailAndCodeJSONValidator,
+    UserJSONValidator,
+    OffsetSizeJSONValidator,
+)
 from http_.users.email.codes.functions import (
     email_code_is_valid,
     delete_email_code,
@@ -170,4 +174,5 @@ def user_edit():
 @jwt_required()
 @swag_from(USER_CHATS_SPECS)
 def user_chats():
-    return get_current_user().chats().as_json()
+    data: OffsetSizeJSONValidator = OffsetSizeJSONValidator.from_args()
+    return get_current_user().chats(data.offset, data.size).as_json()
