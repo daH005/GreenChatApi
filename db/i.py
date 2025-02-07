@@ -1,3 +1,5 @@
+from collections import UserList as CustomList
+
 from datetime import datetime
 from os import PathLike
 from pathlib import Path
@@ -342,19 +344,19 @@ class IUnreadCount(IBaseModel):
         raise NotImplementedError
 
 
-class IBaseList(list[Union['IUser', 'IChat', 'IMessage']]):
+class IBaseList(CustomList[Union['IUser', 'IChat', 'IMessage']]):
 
     def ids(self) -> list[int]:
         raise NotImplementedError
 
 
-class IUserList(IBaseList, list['IUser']):
+class IUserList(IBaseList, CustomList['IUser']):
     pass
 
 
-class IChatList(IBaseList, list['IChat']):
+class IChatList(IBaseList, CustomList['IChat']):
     _user_id: int
 
 
-class IMessageList(IBaseList, list['IMessage']):
+class IMessageList(IBaseList, CustomList['IMessage']):
     pass

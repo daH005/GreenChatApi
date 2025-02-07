@@ -1,3 +1,5 @@
+from collections import UserList as CustomList
+
 from common.json_keys import JSONKey
 from common.online_set import OnlineSet
 from db.i import (
@@ -104,19 +106,19 @@ class UnreadCountJSONMixin(IJSONMixin, IUnreadCount):
         }
 
 
-class UserListJSONMixin(IJSONMixin, IUserList, list['UserJSONMixin']):
+class UserListJSONMixin(IJSONMixin, IUserList, CustomList['UserJSONMixin']):
 
     def as_json(self):
         raise NotImplementedError
 
 
-class ChatListJSONMixin(IJSONMixin, IChatList, list['ChatJSONMixin']):
+class ChatListJSONMixin(IJSONMixin, IChatList, CustomList['ChatJSONMixin']):
 
     def as_json(self):
         return [chat.as_json(self._user_id) for chat in self]
 
 
-class MessageListJSONMixin(IJSONMixin, IMessageList, list['MessageJSONMixin']):
+class MessageListJSONMixin(IJSONMixin, IMessageList, CustomList['MessageJSONMixin']):
 
     def as_json(self):
         return [msg.as_json() for msg in self]

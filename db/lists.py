@@ -1,4 +1,5 @@
 from typing import Union
+from collections import UserList as CustomList
 
 from db.i import (
     IUserList,
@@ -19,7 +20,7 @@ __all__ = (
 )
 
 
-class AbstractList(list[Union['User', 'Chat', 'Message']]):
+class AbstractList(CustomList[Union['User', 'Chat', 'Message']]):
 
     def ids(self, exclude_ids: list[int] | None = None) -> list[int]:
         if exclude_ids is None:
@@ -27,11 +28,11 @@ class AbstractList(list[Union['User', 'Chat', 'Message']]):
         return list(filter(lambda x: x not in exclude_ids, map(lambda x: x.id, self)))
 
 
-class UserList(AbstractList, UserListJSONMixin, IUserList, list['User']):
+class UserList(AbstractList, UserListJSONMixin, IUserList, CustomList['User']):
     pass
 
 
-class ChatList(AbstractList, ChatListJSONMixin, IChatList, list['Chat']):
+class ChatList(AbstractList, ChatListJSONMixin, IChatList, CustomList['Chat']):
 
     def __init__(self, items: list['Chat'],
                  user_id: int,
@@ -40,7 +41,7 @@ class ChatList(AbstractList, ChatListJSONMixin, IChatList, list['Chat']):
         self._user_id = user_id
 
 
-class MessageList(AbstractList, MessageListJSONMixin, MessageListSignalMixin, IMessageList, list['Message']):
+class MessageList(AbstractList, MessageListJSONMixin, MessageListSignalMixin, IMessageList, CustomList['Message']):
     pass
 
 
