@@ -60,11 +60,10 @@ def chat_new():
     if user.id not in data.user_ids:
         data.user_ids.insert(0, user.id)
 
-    user_ids_len = len(data.user_ids)
-    if user_ids_len <= 1:
-        return abort(HTTPStatus.BAD_REQUEST)
+    if not data.is_group:
+        if len(data.user_ids) != 2:
+            return abort(HTTPStatus.BAD_REQUEST)
 
-    if user_ids_len == 2 and not data.is_group:
         try:
             UserChatMatch.private_chat_between_users(*data.user_ids)
         except DBEntityNotFoundException:
