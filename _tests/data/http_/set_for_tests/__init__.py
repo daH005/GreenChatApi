@@ -1,4 +1,5 @@
 from _tests.data.http_.set_for_tests.chat import CHAT
+from _tests.data.http_.set_for_tests.chat_by_interlocutor import CHAT_BY_INTERLOCUTOR
 from _tests.data.http_.set_for_tests.chat_messages import CHAT_MESSAGES
 from _tests.data.http_.set_for_tests.chat_new import CHAT_NEW
 from _tests.data.http_.set_for_tests.chat_typing import CHAT_TYPING
@@ -54,6 +55,7 @@ class SetForTest:
     chat_unread_count = CHAT_UNREAD_COUNT
     chat_typing = CHAT_TYPING
     chat = CHAT
+    chat_by_interlocutor = CHAT_BY_INTERLOCUTOR
     message = MESSAGE
     chat_messages = CHAT_MESSAGES
     user_chats = USER_CHATS

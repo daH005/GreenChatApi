@@ -21,6 +21,7 @@ class Url(StrEnum):
     USER_CHATS = '/user/chats'
 
     CHAT = '/chat'
+    CHAT_BY_INTERLOCUTOR = '/chat/byInterlocutor'
     CHAT_NEW = '/chat/new'
     CHAT_TYPING = '/chat/typing'
     CHAT_UNREAD_COUNT = '/chat/unreadCount'

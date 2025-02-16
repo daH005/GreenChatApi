@@ -266,6 +266,13 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, IChat):
     def unread_count_of_user(self, user_id: int) -> 'UnreadCount':
         return UserChatMatch.unread_count_of_user_of_chat(user_id, self.id)
 
+    @classmethod
+    @raises(DBEntityNotFoundException)
+    def between_users(cls, first_user_id: int,
+                      second_user_id: int,
+                      ) -> Self:
+        return UserChatMatch.private_chat_between_users(first_user_id, second_user_id)
+
 
 class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, IMessage):
     __tablename__ = 'messages'

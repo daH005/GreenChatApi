@@ -4,9 +4,11 @@ from flasgger import swag_from
 from flask import (
     Blueprint,
     abort,
+    request,
 )
 from flask_jwt_extended import jwt_required
 
+from common.json_keys import JSONKey
 from db.builders import db_sync_builder
 from db.exceptions import DBEntityNotFoundException
 from db.models import (
@@ -18,6 +20,7 @@ from db.models import (
 from db.transaction_retry_decorator import transaction_retry_decorator
 from http_.common.apidocs_constants import (
     CHAT_SPECS,
+    CHAT_BY_INTERLOCUTOR_SPECS,
     CHAT_NEW_SPECS,
     CHAT_TYPING_SPECS,
     CHAT_UNREAD_COUNT_SPECS,
@@ -47,6 +50,27 @@ def chat_get(chat: Chat,
              user: User,
              ):
     return chat.as_json(user.id)
+
+
+@chats_bp.route(Url.CHAT_BY_INTERLOCUTOR, methods=[HTTPMethod.GET])
+@jwt_required()
+@swag_from(CHAT_BY_INTERLOCUTOR_SPECS)
+def chat_by_interlocutor():
+    try:
+        interlocutor_id: int = int(request.args[JSONKey.INTERLOCUTOR_ID])
+    except (KeyError, ValueError):
+        return abort(HTTPStatus.BAD_REQUEST)
+
+    try:
+        User.by_id(interlocutor_id)
+    except DBEntityNotFoundException:
+        return abort(HTTPStatus.NOT_FOUND)
+
+    current_user: User = get_current_user()
+    try:
+        return Chat.between_users(current_user.id, interlocutor_id).as_json(current_user.id)
+    except DBEntityNotFoundException:
+        return abort(HTTPStatus.NOT_FOUND)
 
 
 @chats_bp.route(Url.CHAT_NEW, methods=[HTTPMethod.POST])

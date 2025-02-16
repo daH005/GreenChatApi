@@ -161,6 +161,12 @@ class IChat(IBaseModel):
     def unread_count_of_user(self, user_id: int) -> 'IUnreadCount':
         raise NotImplementedError
 
+    @classmethod
+    def between_users(cls, first_user_id: int,
+                      second_user_id: int,
+                      ) -> 'IChat':
+        raise NotImplementedError
+
 
 class IMessage(IBaseModel):
 

@@ -13,6 +13,7 @@ __all__ = (
     'USER_CHATS_SPECS',
 
     'CHAT_SPECS',
+    'CHAT_BY_INTERLOCUTOR_SPECS',
     'CHAT_NEW_SPECS',
     'CHAT_TYPING_SPECS',
     'CHAT_UNREAD_COUNT_SPECS',
@@ -419,6 +420,27 @@ CHAT_SPECS = {
         400: _SIMPLE_REQUEST_RESPONSES[400],
         401: _SIMPLE_REQUEST_RESPONSES[401],
         403: _SIMPLE_REQUEST_RESPONSES[403],
+        404: _SIMPLE_REQUEST_RESPONSES[404],
+    }
+}
+
+CHAT_BY_INTERLOCUTOR_SPECS = {
+    'tags': _CHAT_TAGS,
+    'parameters': [
+        _ACCESS_TOKEN_COOKIE,
+        {
+            'name': 'interlocutorId',
+            'in': 'query',
+            'type': 'integer',
+            'required': True,
+        }
+    ],
+    'responses': {
+        200: {
+            'schema': _CHAT_SCHEMA
+        },
+        400: _SIMPLE_REQUEST_RESPONSES[400],
+        401: _SIMPLE_REQUEST_RESPONSES[401],
         404: _SIMPLE_REQUEST_RESPONSES[404],
     }
 }

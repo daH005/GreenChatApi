@@ -45,6 +45,7 @@ class Params:
         CHAT_UNREAD_COUNT = '/chat/unreadCount', 'GET'
         CHAT_TYPING = '/chat/typing', 'POST'
         CHAT = '/chat', 'GET'
+        CHAT_BY_INTERLOCUTOR = '/chat/byInterlocutor', 'GET'
         MESSAGE = '/message', 'GET'
         CHAT_MESSAGES = '/chat/messages', 'GET'
 
