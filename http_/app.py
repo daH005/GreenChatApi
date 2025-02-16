@@ -1,4 +1,5 @@
-from traceback import format_exc
+from traceback import format_exc, print_exc
+from http import HTTPStatus
 
 from flask import (
     Flask,
@@ -19,12 +20,13 @@ app: Flask = create_app(__name__)
 
 
 @app.teardown_appcontext
-def teardown_appcontext(exception: HTTPException | Exception | None = None) -> None:
-    if not isinstance(exception, HTTPException):
-        logger.critical(format_exc())
+def teardown_appcontext() -> None:
     db_sync_builder.session.remove()
 
 
 @app.errorhandler(HTTPException)
 def errorhandler(exception: HTTPException) -> Response:
+    if exception.code == HTTPStatus.INTERNAL_SERVER_ERROR:
+        print_exc()
+        logger.critical(format_exc())
     return make_simple_response(exception.code)
