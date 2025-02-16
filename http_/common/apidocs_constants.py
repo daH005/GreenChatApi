@@ -68,6 +68,21 @@ _CSRF_TOKEN_HEADER = {
     'type': 'string',
 }
 
+_OFFSET_AND_SIZE_QUERY_PARAMS = [
+    {
+        'name': 'offset',
+        'in': 'query',
+        'type': 'integer',
+        'required': False,
+    },
+    {
+        'name': 'size',
+        'in': 'query',
+        'type': 'integer',
+        'required': False,
+    }
+]
+
 _USER_SCHEMA = {
     'type': 'object',
     'required': [
@@ -390,6 +405,7 @@ USER_CHATS_SPECS = {
     'description': 'Chats sorted by "creatingDatetime" of "lastMessage" in descending order.',
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
+        *_OFFSET_AND_SIZE_QUERY_PARAMS,
     ],
     'responses': {
         200: {
@@ -539,12 +555,7 @@ CHAT_MESSAGES_SPECS = {
             'type': 'integer',
             'required': True,
         },
-        {
-            'name': 'offset',
-            'in': 'query',
-            'type': 'integer',
-            'required': False,
-        }
+        *_OFFSET_AND_SIZE_QUERY_PARAMS,
     ],
     'responses': {
         200: {
