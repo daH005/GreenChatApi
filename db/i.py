@@ -15,6 +15,7 @@ __all__ = (
     'IMessageStorageFile',
     'IUserChatMatch',
     'IUnreadCount',
+    'IBaseList',
     'IUserList',
     'IChatList',
     'IMessageList',

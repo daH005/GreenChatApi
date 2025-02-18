@@ -2,6 +2,7 @@ from typing import Union
 from collections import UserList as CustomList
 
 from db.i import (
+    IBaseList,
     IUserList,
     IChatList,
     IMessageList,
@@ -20,7 +21,7 @@ __all__ = (
 )
 
 
-class AbstractList(CustomList[Union['User', 'Chat', 'Message']]):
+class AbstractList(IBaseList, CustomList[Union['User', 'Chat', 'Message']]):
 
     def ids(self, exclude_ids: list[int] | None = None) -> list[int]:
         if exclude_ids is None:
