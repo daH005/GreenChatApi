@@ -178,7 +178,7 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, IChat):
 
     _messages: Mapped[list['Message']] = relationship(
         back_populates='_chat',
-        order_by='-Message._id',
+        order_by='-Message._creating_datetime',
         cascade='all, delete',
         lazy='dynamic',
     )
