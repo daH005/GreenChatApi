@@ -18,7 +18,7 @@ from common.signals.exceptions import SignalQueueIsEmptyException
 from db.builders import db_sync_builder
 from db.exceptions import DBEntityNotFoundException
 from db.models import User, UserChatMatch
-from common.logs import logger
+from common.logs import logger, init_logs
 from websocket_.exceptions import (
     InvalidOriginException,
     JWTNotFoundInCookiesException,
@@ -50,6 +50,7 @@ class WebSocketServer:
         self._clients: dict[int, list[ServerConnection]] = {}
 
     def run(self) -> NoReturn:
+        init_logs()
         Thread(target=self._signal_queue_pop_task).start()
         with serve(handler=self._handler, host=self._host, port=self._port, ssl=self._ssl_context) as server:
             logger.info(f'WebSocketServer is serving on wss://{self._host}:{self._port}')
