@@ -1,7 +1,7 @@
 from json import dumps as json_dumps
 from pathlib import Path
 
-from config import BASE_DIR
+from config.paths import BASE_DIR
 
 __all__ = (
     'assert_and_save_jsons_if_failed',

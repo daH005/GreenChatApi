@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Final
 
 from common.hinting import raises
-from config import MEDIA_FOLDER
+from config.paths import MEDIA_FOLDER
 from db.i import IMessageStorage, IMessageStorageFile
 
 __all__ = (

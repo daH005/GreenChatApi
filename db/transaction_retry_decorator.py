@@ -3,7 +3,7 @@ from traceback import format_exc
 
 from sqlalchemy.exc import DBAPIError
 
-from config import DEFAULT_TRANSACTION_RETRY_MAX_ATTEMPTS
+from config.db import DEFAULT_TRANSACTION_RETRY_MAX_ATTEMPTS
 from common.logs import logger
 from db.builders import db_sync_builder
 

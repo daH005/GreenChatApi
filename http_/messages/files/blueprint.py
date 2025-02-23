@@ -6,7 +6,7 @@ from flask import Blueprint, request, abort, send_file
 from flask_jwt_extended import jwt_required
 
 from common.json_keys import JSONKey
-from config import MESSAGE_FILES_MAX_CONTENT_LENGTH
+from config.api import MESSAGE_FILES_MAX_CONTENT_LENGTH
 from db.models import Message
 from http_.common.simple_response import make_simple_response
 from http_.common.apidocs_constants import (

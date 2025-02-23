@@ -2,7 +2,7 @@ from subprocess import run as run_subprocess
 from typing import NoReturn
 
 from common.ssl_context import create_ssl_context
-from config import HOST, HTTP_PORT as PORT, SSL_KEYFILE, SSL_CERTFILE
+from config.api import HOST, HTTP_PORT as PORT, SSL_CERTFILE, SSL_KEYFILE
 from db.init import init_db
 from http_.app import app
 

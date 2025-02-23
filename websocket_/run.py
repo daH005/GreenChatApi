@@ -1,15 +1,7 @@
 from typing import NoReturn
 
 from common.ssl_context import create_ssl_context
-from config import (
-    HOST,
-    WEBSOCKET_PORT,
-    JWT_SECRET_KEY,
-    JWT_ALGORITHM,
-    CORS_ORIGINS,
-    SSL_CERTFILE,
-    SSL_KEYFILE,
-)
+from config.api import HOST, WEBSOCKET_PORT, SSL_CERTFILE, SSL_KEYFILE, CORS_ORIGINS, JWT_SECRET_KEY, JWT_ALGORITHM
 from db.init import init_db
 from websocket_.server import WebSocketServer
 

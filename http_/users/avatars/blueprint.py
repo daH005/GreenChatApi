@@ -11,11 +11,8 @@ from flask import (
 from flask_jwt_extended import jwt_required
 
 from common.json_keys import JSONKey
-from config import (
-    STATIC_FOLDER,
-    MEDIA_FOLDER,
-    USER_AVATAR_MAX_CONTENT_LENGTH,
-)
+from config.paths import STATIC_FOLDER, MEDIA_FOLDER
+from config.api import USER_AVATAR_MAX_CONTENT_LENGTH
 from http_.common.apidocs_constants import (
     USER_AVATAR_SPECS,
     USER_AVATAR_EDIT_SPECS,

@@ -6,11 +6,8 @@ from flasgger import swag_from
 from flask import Blueprint
 from flask_jwt_extended import jwt_required
 
-from config import (
-    STATIC_FOLDER,
-    MEDIA_FOLDER,
-    USER_BACKGROUND_MAX_CONTENT_LENGTH,
-)
+from config.paths import STATIC_FOLDER, MEDIA_FOLDER
+from config.api import USER_BACKGROUND_MAX_CONTENT_LENGTH
 from http_.common.apidocs_constants import (
     USER_BACKGROUND_SPECS,
     USER_BACKGROUND_EDIT_SPECS,

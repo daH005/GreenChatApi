@@ -1,51 +1,49 @@
 from os import environ
-from dotenv import load_dotenv
-from typing import Final
 from pathlib import Path
-from sqlalchemy.engine.url import URL
+from typing import Final
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 __all__ = (
-    'BASE_DIR',
-    'STATIC_FOLDER',
-    'MEDIA_FOLDER',
     'DEBUG',
+
     'HOST',
     'HTTP_PORT',
+    'WEBSOCKET_PORT',
+
     'SSL_CERTFILE',
     'SSL_KEYFILE',
-    'WEBSOCKET_PORT',
+
     'CORS_ORIGINS',
+
     'JWT_SECRET_KEY',
     'JWT_ALGORITHM',
     'JWT_ACCESS_TOKEN_EXPIRES',
     'JWT_REFRESH_TOKEN_EXPIRES',
-    'DB_URL',
-    'DB_TEST_URL',
+
     'REDIS_HOST',
     'REDIS_PORT',
     'REDIS_URL',
+
     'SMTP_HOST',
     'SMTP_PORT',
+
     'EMAIL',
     'EMAIL_PASSWORD',
     'EMAIL_CODES_EXPIRES',
     'EMAIL_PASS_CODE',
     'EMAIL_CODES_MAX_ATTEMPTS',
+
     'USER_AVATAR_MAX_CONTENT_LENGTH',
     'USER_BACKGROUND_MAX_CONTENT_LENGTH',
     'MESSAGE_FILES_MAX_CONTENT_LENGTH',
-    'DEFAULT_TRANSACTION_RETRY_MAX_ATTEMPTS',
 )
-
-load_dotenv()
-
-BASE_DIR: Path = Path(__file__).resolve().parent  # '.../api'
-STATIC_FOLDER: Path = BASE_DIR.joinpath('static')
-MEDIA_FOLDER: Path = BASE_DIR.joinpath('media')
 
 DEBUG: Final[bool] = False if environ['DEBUG'].lower() == 'false' else bool(environ['DEBUG'])
 
-HOST: Final[str] = environ['HOST']  # Хост общий для HTTP и WebSocket.
+HOST: Final[str] = environ['HOST']  # Is common for HTTP and WebSocket.
 HTTP_PORT: Final[int] = int(environ['HTTP_PORT'])
 WEBSOCKET_PORT: Final[int] = int(environ['WEBSOCKET_PORT'])
 
@@ -58,18 +56,6 @@ JWT_SECRET_KEY: Final[str] = environ['JWT_SECRET_KEY']
 JWT_ALGORITHM: Final[str] = environ['JWT_ALGORITHM']
 JWT_ACCESS_TOKEN_EXPIRES: Final[int] = int(environ['JWT_ACCESS_TOKEN_EXPIRES'])
 JWT_REFRESH_TOKEN_EXPIRES: Final[int] = int(environ['JWT_REFRESH_TOKEN_EXPIRES'])
-
-DB_URL: URL = URL.create(
-    drivername=environ['DB_DRIVERNAME'],
-    username=environ['DB_USERNAME'],
-    password=environ['DB_PASSWORD'],
-    host=environ['DB_HOST'],
-    port=int(environ['DB_PORT']),
-    database=environ['DB_NAME'],
-)
-DB_TEST_URL: URL = DB_URL.set(
-    database=environ['DB_TEST_NAME'],
-)
 
 REDIS_HOST: Final[str] = environ['REDIS_HOST']
 REDIS_PORT: Final[int] = int(environ['REDIS_PORT'])
@@ -87,5 +73,3 @@ EMAIL_CODES_MAX_ATTEMPTS: Final[int] = int(environ['EMAIL_CODES_MAX_ATTEMPTS'])
 USER_AVATAR_MAX_CONTENT_LENGTH: Final[int] = int(environ['USER_AVATAR_MAX_CONTENT_LENGTH'])
 USER_BACKGROUND_MAX_CONTENT_LENGTH: Final[int] = int(environ['USER_BACKGROUND_MAX_CONTENT_LENGTH'])
 MESSAGE_FILES_MAX_CONTENT_LENGTH: Final[int] = int(environ['MESSAGE_FILES_MAX_CONTENT_LENGTH'])
-
-DEFAULT_TRANSACTION_RETRY_MAX_ATTEMPTS: Final[int] = int(environ['DEFAULT_TRANSACTION_RETRY_MAX_ATTEMPTS'])

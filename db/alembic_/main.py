@@ -1,7 +1,10 @@
+from sys import argv
+
 from alembic import command
 from alembic.config import Config
 
-from config import BASE_DIR, DB_URL
+from config.paths import BASE_DIR
+from config.db import DB_URL
 
 __all__ = (
     'config',
@@ -41,16 +44,36 @@ def make_migrations() -> None:
 
 
 if __name__ == '__main__':
-    answer = input('Have you stopped the app? (write yes): ')
-    if answer != 'yes':
-        print('Invalid')
+    action: str
+    try:
+        action = argv[1]
+    except IndexError:
+        print('The first argument is absent.')
         exit()
 
-    enter = input('Input "1" for revision, "2" for migrations: ')
-    if enter == '1':
-        make_revision(input('Enter your revision message: '))
-    elif enter == '2':
+    yes: bool
+    try:
+        if argv[2] != '--yes':
+            print('The second argument is invalid. It must be --yes or nothing.')
+            exit()
+        yes = True
+    except IndexError:
+        yes = False
+
+    if not yes:
+        answer = input('Have you stopped the app? (write yes): ')
+        if answer != 'yes':
+            print('The answer is invalid...')
+            exit()
+
+    if action.startswith('--revision='):
+        message: str = action.split('=')[1]
+        if not message:
+            print('After the --revision must be some text message.')
+            exit()
+        make_revision(message)
+    elif action == '--migrate':
         make_migrations()
     else:
-        print('Invalid')
+        print('The first argument is invalid. It must be --revision=<message> or --migrate.')
         exit()

@@ -1,4 +1,4 @@
-from config import DB_URL
+from config.db import DB_URL
 from db.builders import db_sync_builder
 
 __all__ = (

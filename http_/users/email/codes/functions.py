@@ -1,12 +1,7 @@
 from random import randint
 
 from common.hinting import raises
-from config import (
-    DEBUG,
-    EMAIL_CODES_EXPIRES,
-    EMAIL_PASS_CODE,
-    EMAIL_CODES_MAX_ATTEMPTS,
-)
+from config.api import DEBUG, EMAIL_CODES_EXPIRES, EMAIL_PASS_CODE, EMAIL_CODES_MAX_ATTEMPTS
 from http_.users.email.codes.exceptions import InvalidCodeException
 from http_.users.email.codes.key_prefixes import KeyPrefix
 

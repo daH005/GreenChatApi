@@ -2,13 +2,7 @@ from flasgger import Swagger
 from flask import Flask
 from flask_cors import CORS
 
-from config import (
-    CORS_ORIGINS,
-    JWT_SECRET_KEY,
-    JWT_ALGORITHM,
-    JWT_ACCESS_TOKEN_EXPIRES,
-    JWT_REFRESH_TOKEN_EXPIRES,
-)
+from config.api import CORS_ORIGINS, JWT_SECRET_KEY, JWT_ALGORITHM, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRES
 from http_.chats.blueprint import chats_bp
 from http_.common.urls import Url
 from http_.messages.files.blueprint import files_bp

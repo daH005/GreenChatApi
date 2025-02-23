@@ -1,6 +1,6 @@
 from redis import Redis
 
-from config import REDIS_HOST, REDIS_PORT
+from config.api import REDIS_HOST, REDIS_PORT
 
 __all__ = (
     'resident_app',

@@ -8,7 +8,7 @@ from flask_jwt_extended import (
     get_csrf_token,
 )
 
-from config import EMAIL_PASS_CODE
+from config.api import EMAIL_PASS_CODE
 from db.models import User
 from _tests.common.common_storage import common_storage
 

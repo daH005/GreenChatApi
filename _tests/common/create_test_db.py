@@ -1,4 +1,4 @@
-from config import DB_TEST_URL
+from config.db import DB_TEST_URL
 from db.builders import db_sync_builder
 from db.models import BaseModel
 

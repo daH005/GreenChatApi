@@ -5,13 +5,7 @@ from typing import Final
 
 from celery import Celery
 
-from config import (
-    EMAIL,
-    EMAIL_PASSWORD,
-    SMTP_HOST,
-    SMTP_PORT,
-)
-from config import REDIS_URL
+from config.api import REDIS_URL, SMTP_HOST, SMTP_PORT, EMAIL, EMAIL_PASSWORD
 
 __all__ = (
     'app',
