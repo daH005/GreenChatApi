@@ -53,12 +53,12 @@ class Params:
 
         @classmethod
         def list_of_protected_endpoints(cls) -> list[Self]:
-            protected_endpoints = [
+            not_protected_endpoints = [
                 cls.USER_LOGIN,
                 cls.USER_LOGIN_EMAIL_CODE_CHECK,
                 cls.USER_LOGIN_EMAIL_CODE_SEND,
             ]
-            return list(filter(lambda x: x not in protected_endpoints, list(cls)))
+            return list(filter(lambda x: x not in not_protected_endpoints, list(cls)))
 
         def new_as_first_user(self, jwt_kind: str = 'access',
                               **kwargs,
