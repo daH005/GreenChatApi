@@ -21,6 +21,10 @@ DB_URL: URL = URL.create(
     database=environ['DB_NAME'],
 )
 DB_TEST_URL: URL = DB_URL.set(
+    username=environ['DB_TEST_USERNAME'],
+    password=environ['DB_TEST_PASSWORD'],
+    host=environ['DB_TEST_HOST'],
+    port=int(environ['DB_TEST_PORT']),
     database=environ['DB_TEST_NAME'],
 )
 

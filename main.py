@@ -1,3 +1,4 @@
+import pytest
 from threading import Thread
 from sys import argv
 from typing import NoReturn
@@ -9,6 +10,8 @@ from websocket_.run import run_websocket
 
 
 def main() -> NoReturn:
+    _run_tests()
+
     need_migrations: bool
     try:
         if argv[1] != '--with-migrations':
@@ -25,6 +28,10 @@ def main() -> NoReturn:
 
     while True:
         pass
+
+
+def _run_tests() -> None:
+    pytest.main(['./_tests/test_http.py'])
 
 
 if __name__ == '__main__':
