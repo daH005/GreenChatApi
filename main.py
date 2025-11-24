@@ -31,7 +31,7 @@ def main() -> NoReturn:
 
 
 def _run_tests() -> None:
-    pytest.main(['./_tests/test_http.py'])
+    pytest.main(['_tests'])
 
 
 if __name__ == '__main__':
