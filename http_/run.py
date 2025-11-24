@@ -18,6 +18,7 @@ def run_http_wsgi() -> NoReturn:
         f'--certfile={SSL_CERTFILE}', f'--keyfile={SSL_KEYFILE}',
         '-w', '4',
         '-b', f'{HOST}:{PORT}',
+        '--access-logfile', '-',
         'http_.app_for_wsgi:app',
     ])
 
