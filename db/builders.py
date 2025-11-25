@@ -49,7 +49,7 @@ class DBSyncBuilder(AbstractDBBuilder):
     def init_session(self, url: URL | str,
                      isolation_level: str | None = _DEFAULT_ISOLATION_LEVEL,
                      ) -> None:
-        self._engine = create_engine(url=url, isolation_level=isolation_level)
+        self._engine = create_engine(url=url, isolation_level=isolation_level, pool_size=30)
         self._session = scoped_session(
             sessionmaker(
                 bind=self._engine,
