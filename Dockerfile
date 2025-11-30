@@ -3,9 +3,9 @@ FROM python:3.11
 RUN useradd -m user
 
 WORKDIR /home/user/api
-COPY ./requirements.txt .
 
-RUN pip3 install -r requirements.txt
+COPY ./requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 USER user
 COPY --chown=user:user . .
