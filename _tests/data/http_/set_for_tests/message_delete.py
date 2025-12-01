@@ -53,5 +53,6 @@ MESSAGE_DELETE = [
         },
         expected_status=200,
         expected_signal_queue_messages=anything_place,
+        expected_unexistence_of_media_files_or_folders=[f'./files/{Params.ID_START + 3}'],
     ),
 ]

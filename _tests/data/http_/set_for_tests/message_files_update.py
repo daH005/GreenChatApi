@@ -70,6 +70,7 @@ MESSAGE_FILES_UPDATE = [
                 },
             ),
         ],
+        expected_existence_of_media_files_or_folders=[f'./files/{Params.ID_START + 3}/ZmlsZTEudHh0'],
     ),
     _endpoint.new_as_second_user(
         query_params={
@@ -80,6 +81,7 @@ MESSAGE_FILES_UPDATE = [
         },
         expected_status=201,
         expected_signal_queue_messages=anything_place,
+        expected_existence_of_media_files_or_folders=[f'./files/{Params.ID_START + 3}/ZmlsZTIucHk='],
     ),
     _endpoint.new_as_second_user(
         query_params={
@@ -90,5 +92,6 @@ MESSAGE_FILES_UPDATE = [
         },
         expected_status=201,
         expected_signal_queue_messages=anything_place,
+        expected_existence_of_media_files_or_folders=[f'./files/{Params.ID_START + 3}/ZmlsZUQuanM='],
     ),
 ]

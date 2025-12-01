@@ -48,5 +48,6 @@ MESSAGE_FILES_DELETE = [
                 },
             ),
         ],
+        expected_unexistence_of_media_files_or_folders=[f'./files/{Params.ID_START + 3}/ZmlsZUQuanM='],
     ),
 ]

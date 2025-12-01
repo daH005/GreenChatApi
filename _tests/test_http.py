@@ -3,6 +3,7 @@ from flask.testing import FlaskClient
 from werkzeug.test import TestResponse
 from unittest.mock import patch
 
+from config.paths import MEDIA_FOLDER
 from db.models import User, Message
 from http_.app import app
 from http_.users.email.codes.functions import delete_email_code
@@ -95,6 +96,14 @@ def test_endpoints(test_client: FlaskClient,
             'content': response.data,
             'set_cookie': set_cookie_dict,
         }
+
+    if 'expected_existence_of_media_files_or_folders' in kwargs:
+        for relative_path in kwargs['expected_existence_of_media_files_or_folders']:
+            assert MEDIA_FOLDER.joinpath(relative_path).exists()
+
+    if 'expected_unexistence_of_media_files_or_folders' in kwargs:
+        for relative_path in kwargs['expected_unexistence_of_media_files_or_folders']:
+            assert not MEDIA_FOLDER.joinpath(relative_path).exists()
 
 
 @pytest.mark.parametrize('endpoint', Params.Endpoint.list_of_protected_endpoints())

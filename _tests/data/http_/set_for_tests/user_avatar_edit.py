@@ -34,5 +34,6 @@ USER_AVATAR_EDIT = [
             'Content-Type': 'image/png',
         },
         expected_status=200,
+        expected_existence_of_media_files_or_folders=[f'./avatars/{Params.ID_START}.jpg'],
     ),
 ]
