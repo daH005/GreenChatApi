@@ -52,8 +52,8 @@ def edit_user_image(folder_path: Path) -> Response:
     except UnidentifiedImageError:
         return abort(HTTPStatus.BAD_REQUEST)
 
-    avatar_path: Path = _make_user_image_path(str(get_current_user().id), folder_path)
-    avatar_path.write_bytes(request.data)
+    image_path: Path = _make_user_image_path(str(get_current_user().id), folder_path)
+    image_path.write_bytes(request.data)
 
     return make_simple_response(HTTPStatus.OK)
 
