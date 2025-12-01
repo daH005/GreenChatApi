@@ -138,7 +138,9 @@ def message_delete(message: Message, _):
     db_sync_builder.session.delete(message)
     db_sync_builder.session.commit()
 
+    message.get_storage().delete_all()
     message.signal_delete(message.chat.users().ids())
+
     return make_simple_response(HTTPStatus.OK)
 
 

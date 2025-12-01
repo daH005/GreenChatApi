@@ -45,18 +45,18 @@ class SetForTest:
 
     chat_new = CHAT_NEW
     message_new = MESSAGE_NEW
-    message_delete = MESSAGE_DELETE
-    message_edit = MESSAGE_EDIT
     message_files_update = MESSAGE_FILES_UPDATE
     message_files_delete = MESSAGE_FILES_DELETE
     message_read = MESSAGE_READ
     message_files_names = MESSAGE_FILES_NAMES
-    message_files_get = MESSAGE_FILES_GET
+    message_files_get = MESSAGE_FILES_GET 
+    message = MESSAGE
+    message_edit = MESSAGE_EDIT
+    message_delete = MESSAGE_DELETE
     chat_unread_count = CHAT_UNREAD_COUNT
     chat_typing = CHAT_TYPING
     chat = CHAT
     chat_by_interlocutor = CHAT_BY_INTERLOCUTOR
-    message = MESSAGE
     chat_messages = CHAT_MESSAGES
     user_chats = USER_CHATS
 
