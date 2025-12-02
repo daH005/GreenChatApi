@@ -4,7 +4,6 @@ from flask_cors import CORS
 
 from config.api import CORS_ORIGINS, JWT_SECRET_KEY, JWT_ALGORITHM, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRES
 from http_.chats.blueprint import chats_bp
-from http_.common.urls import Url
 from http_.jwt_ import jwt
 from http_.users.blueprint import users_bp
 from http_.messages.blueprint import messages_bp
@@ -32,7 +31,7 @@ def _init_app_config_and_options(app: Flask) -> None:
         JWT_COOKIE_SAMESITE='None',
         JWT_TOKEN_LOCATION=['cookies'],
         JWT_ACCESS_COOKIE_PATH='/',
-        JWT_REFRESH_COOKIE_PATH=Url.USER_REFRESH_ACCESS,
+        JWT_REFRESH_COOKIE_PATH='/',
         JWT_SECRET_KEY=JWT_SECRET_KEY,
         JWT_ALGORITHM=JWT_ALGORITHM,
         JWT_ACCESS_TOKEN_EXPIRES=JWT_ACCESS_TOKEN_EXPIRES,
