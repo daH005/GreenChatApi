@@ -77,13 +77,14 @@ class BaseMessageJSONValidator(BaseValidator):
 
     @field_validator('text')  # noqa: from pydantic doc
     @classmethod
-    def _validate_text(cls, text: str, values) -> str:
-        if not text and not values.data.get('storage_id'):
+    def _validate_text(cls, text: str) -> str:
+        text = _cls.clear_text(text)
+        if not text:
             raise AssertionError
-        return cls.clear_text(text)
+        return text
 
     @classmethod
-    def clear_text(cls, text: str) -> str:
+    def _clear_text(cls, text: str) -> str:
         text = text[:cls._TEXT_MAX_LENGTH]
         text = sub(r' {2,}', ' ', text)
         text = sub(r'( ?\n ?)+', '\n', text)
