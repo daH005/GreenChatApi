@@ -78,7 +78,7 @@ class BaseMessageJSONValidator(BaseValidator):
     @field_validator('text')  # noqa: from pydantic doc
     @classmethod
     def _validate_text(cls, text: str) -> str:
-        text = _cls.clear_text(text)
+        text = cls._clear_text(text)
         if not text:
             raise AssertionError
         return text
