@@ -36,7 +36,7 @@ class WebSocketServer:
     def __init__(self, host: str, port: int,
                  jwt_secret_key: str, jwt_algorithm: str,
                  origins: list[str],
-                 ssl_context: SSLContext,
+                 ssl_context: SSLContext | None = None,
                  ) -> None:
         self._host = host
         self._port = port

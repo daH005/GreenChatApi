@@ -2,7 +2,7 @@ from subprocess import run as run_subprocess
 from typing import NoReturn
 
 from common.ssl_context import create_ssl_context
-from config.api import HOST, HTTP_PORT as PORT, SSL_CERTFILE, SSL_KEYFILE
+from config.api import HOST, HTTP_PORT as PORT
 from db.init import init_db
 from http_.app import app
 
@@ -15,7 +15,6 @@ __all__ = (
 def run_http_wsgi() -> NoReturn:
     run_subprocess([
         'gunicorn',
-        f'--certfile={SSL_CERTFILE}', f'--keyfile={SSL_KEYFILE}',
         '-w', '4',
         '-b', f'{HOST}:{PORT}',
         '--access-logfile', '-',
@@ -25,4 +24,4 @@ def run_http_wsgi() -> NoReturn:
 
 def run_default_http() -> NoReturn:
     init_db()
-    app.run(HOST, PORT, ssl_context=create_ssl_context(SSL_CERTFILE, SSL_KEYFILE))
+    app.run(HOST, PORT)
