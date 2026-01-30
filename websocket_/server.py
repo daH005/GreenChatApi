@@ -35,14 +35,14 @@ class WebSocketServer:
 
     def __init__(self, host: str, port: int,
                  jwt_secret_key: str, jwt_algorithm: str,
-                 origins: list[str],
+                 origins: list[str] | None = None,
                  ssl_context: SSLContext | None = None,
                  ) -> None:
         self._host = host
         self._port = port
         self._jwt_secret_key = jwt_secret_key
         self._jwt_algorithm = jwt_algorithm
-        self._origins = origins
+        self._origins = [] if origins is None else origins
         self._ssl_context = ssl_context
 
         self._online_set: OnlineSet = OnlineSet()
@@ -88,21 +88,25 @@ class WebSocketServer:
             origin: str = client.request.headers['Origin']
             cookies: str = client.request.headers['Cookie']
         except KeyError:
+            logger.info('Client has been disconnected due to origin or cookie header was not found.')
             return
 
         try:
             self._check_origin(origin)
         except InvalidOriginException:
+            logger.info('Client has been disconnected due to invalid origin.')
             return
 
         try:
             jwt: str = self._extract_jwt_from_cookies(cookies)
         except JWTNotFoundInCookiesException:
+            logger.info('Client has been disconnected due to JWT was not found in cookies.')
             return
 
         try:
             user_id: int = self._user_id_by_jwt(jwt)
         except UserIdNotFoundInJWTException:
+            logger.info('Client has been disconnected due to invalid JWT (user id was not found).')
             return
 
         self._add_client(user_id, client)
@@ -115,6 +119,9 @@ class WebSocketServer:
 
     @raises(InvalidOriginException)
     def _check_origin(self, origin: str) -> None:
+        if not self._origins:
+            return
+
         for origin_regex in self._origins:
             if re.match(origin_regex, origin):
                 return

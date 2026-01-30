@@ -2,7 +2,13 @@ from flasgger import Swagger
 from flask import Flask
 from flask_cors import CORS
 
-from config.api import CORS_ORIGINS, JWT_SECRET_KEY, JWT_ALGORITHM, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRES
+from config.api import (
+    JWT_SECRET_KEY,
+    JWT_ALGORITHM,
+    JWT_ACCESS_TOKEN_EXPIRES, 
+    JWT_REFRESH_TOKEN_EXPIRES, 
+    CORS_ORIGINS,
+)
 from http_.chats.blueprint import chats_bp
 from http_.jwt_ import jwt
 from http_.users.blueprint import users_bp
@@ -46,7 +52,7 @@ def _init_jwt(app: Flask) -> None:
 
 
 def _init_cors(app: Flask) -> None:
-    CORS(app, origins=CORS_ORIGINS, supports_credentials=True, expose_headers=['Set-Cookie'])
+    CORS(app, origins=CORS_ORIGINS, supports_credentials=True)
 
 
 def _init_swagger(app: Flask) -> None:
