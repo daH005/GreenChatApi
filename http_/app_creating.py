@@ -43,7 +43,6 @@ def _init_app_config_and_options(app: Flask) -> None:
         JWT_ACCESS_TOKEN_EXPIRES=JWT_ACCESS_TOKEN_EXPIRES,
         JWT_REFRESH_TOKEN_EXPIRES=JWT_REFRESH_TOKEN_EXPIRES,
     )
-    app.app_context().push()
     app.json.ensure_ascii = False
 
 

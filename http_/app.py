@@ -20,7 +20,8 @@ app: Flask = create_app(__name__)
 
 
 @app.teardown_appcontext
-def teardown_appcontext() -> None:
+def teardown_appcontext(exception=None) -> None:
+    # Very-very important: it ensures synchronization in all gunicorn workers:
     db_sync_builder.session.remove()
 
 

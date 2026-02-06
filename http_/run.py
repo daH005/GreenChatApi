@@ -18,6 +18,7 @@ def run_http_wsgi() -> NoReturn:
         '-w', '4',
         '-b', f'{HOST}:{PORT}',
         '--access-logfile', '-',
+        '--error-logfile', '-',
         'http_.app_for_wsgi:app',
     ])
 

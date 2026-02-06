@@ -78,6 +78,8 @@ class WebSocketServer:
         except ConnectionClosed:
             pass
         logger.info('Client disconnected.')
+        # Likewise `@app.teardown_appcontext` in flask:
+        db_sync_builder.session.remove()
 
     @raises(ConnectionClosed)
     def _handle_client(self, client: ServerConnection) -> None:
@@ -141,8 +143,6 @@ class WebSocketServer:
             user_id: int = self._extract_user_id_from_jwt(jwt)
         except PyJWTError:
             raise UserIdNotFoundInJWTException
-
-        db_sync_builder.session.remove()  # For a session updating
 
         try:
             return User.by_id(user_id).id
