@@ -479,7 +479,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
     def all_interlocutors_of_user(cls, user_id: int) -> 'UserList':
         chat_ids: list[int] = cast(
             list[int],
-            db_sync_builder.session.query(cls._chat_id).filter(cls._user_id == user_id).all(),
+            [row[0] for row in db_sync_builder.session.query(cls._chat_id).filter(cls._user_id == user_id).all()],
         )
         query: Query[cls] = db_sync_builder.session.query(
             cls, User,
