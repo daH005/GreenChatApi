@@ -88,7 +88,7 @@ def test_endpoints(test_client: FlaskClient,
     set_cookie_dict = values_of_set_cookie_to_dict(response.headers.getlist('Set-Cookie'))
     assert_and_save_jsons_if_failed(set_cookie_dict, kwargs.get('expected_set_cookie', {}))
 
-    if real_signal_queue_messages:
+    if 'expected_signal_queue_messages' in kwargs:
         assert real_signal_queue_messages == kwargs['expected_signal_queue_messages']
 
     if 'common_storage_key' in kwargs:
