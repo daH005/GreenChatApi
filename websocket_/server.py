@@ -188,7 +188,7 @@ class WebSocketServer:
                               status: bool,
                               ) -> None:
         self._send_to_many_users(
-            user_ids=UserChatMatch.all_interlocutors_of_user(user_id).ids(),
+            user_ids=UserChatMatch.all_interlocutors_of_all_chats_of_user(user_id).ids(),
             message={
                 JSONKey.TYPE: SignalType.ONLINE_STATUSES,
                 JSONKey.DATA: {

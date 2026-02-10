@@ -6,7 +6,6 @@ from db.i import (
     IUser,
     IChat,
     IMessage,
-    IUnreadCount,
     IUserList,
     IChatList,
     IMessageList,
@@ -16,7 +15,6 @@ __all__ = (
     'UserJSONMixin',
     'ChatJSONMixin',
     'MessageJSONMixin',
-    'UnreadCountJSONMixin',
     'UserListJSONMixin',
     'ChatListJSONMixin',
     'MessageListJSONMixin'
@@ -60,7 +58,7 @@ class ChatJSONMixin(IJSONMixin, IChat):
             JSONKey.INTERLOCUTOR_ID: interlocutor_id,
             JSONKey.NAME: self._name,
             JSONKey.IS_GROUP: self._is_group,
-            JSONKey.UNREAD_COUNT: self.unread_count_of_user(user_id=user_id).value,
+            JSONKey.UNREAD_COUNT: self.unread_count_of_user(user_id=user_id),
         }
 
 
@@ -85,14 +83,6 @@ class MessageJSONMixin(IJSONMixin, IMessage):
             JSONKey.IS_READ: self._is_read,
             JSONKey.HAS_FILES: self.get_storage().exists(),
             JSONKey.REPLIED_MESSAGE: replied_message,
-        }
-
-
-class UnreadCountJSONMixin(IJSONMixin, IUnreadCount):
-
-    def as_json(self):
-        return {
-            JSONKey.UNREAD_COUNT: self._value,
         }
 
 

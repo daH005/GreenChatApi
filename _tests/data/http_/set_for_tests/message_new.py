@@ -67,15 +67,6 @@ MESSAGE_NEW = [
                     },
                 },
             ),
-            SignalQueueMessage(
-                user_ids=[Params.ID_START + 1],
-                message={
-                    'type': 'NEW_UNREAD_COUNT',
-                    'data': {
-                        'chatId': 1,
-                    },
-                },
-            ),
         ],
     ),
     _endpoint.new_as_first_user(

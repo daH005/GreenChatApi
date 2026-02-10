@@ -9,12 +9,11 @@ from flask_jwt_extended import jwt_required
 
 from db.builders import db_sync_builder
 from db.exceptions import DBEntityNotFoundException
-from db.lists import MessageList, UserList
+from db.lists import MessageList
 from db.models import (
     User,
     Chat,
     Message,
-    UnreadCount,
 )
 from db.transaction_retry_decorator import transaction_retry_decorator
 from http_.common.apidocs_constants import (
@@ -147,23 +146,14 @@ def message_read(message: Message,
                  ):
     sender_read_messages: dict[int, MessageList] = {}
     for history_message in message.chat.unread_interlocutor_messages_up_to(message.id, user.id):
-        # history_message.read()
+        history_message.read()
         sender_read_messages.setdefault(message.user.id, MessageList()).append(history_message)
 
-    unread_count: UnreadCount = message.chat.unread_count_of_user(user.id)
-
-    new_unread_count: int = message.chat.interlocutor_messages_after_count(message.id, user.id)
-    unread_count_is_new: bool = new_unread_count < unread_count.value
-    if unread_count_is_new:
-        unread_count.set(new_unread_count)
-
-    if unread_count_is_new or sender_read_messages:
-        db_sync_builder.session.commit()
+    message.chat.set_last_seen_message_id_of_user(user.id, message.id)
+    db_sync_builder.session.commit()
 
     for user_id, messages in sender_read_messages.items():
         messages.signal_read([user_id])
-
-    if unread_count_is_new:
-        message.chat.signal_new_unread_count([user.id])
+    message.chat.signal_new_unread_count([user.id])
 
     return make_simple_response(HTTPStatus.OK)

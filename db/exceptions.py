@@ -10,7 +10,3 @@ class DBEntityNotFoundException(Exception):
 
 class DBEntityIsForbiddenException(Exception):
     pass
-
-
-class DBEntityIsNoneAtTheMomentException(Exception):
-    pass

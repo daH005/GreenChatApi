@@ -7,7 +7,6 @@ from sqlalchemy import (
     Text,
     Boolean,
     ForeignKey,
-    CheckConstraint,
     func,
     Subquery,
 )
@@ -25,7 +24,6 @@ from db.builders import db_sync_builder
 from db.exceptions import (
     DBEntityNotFoundException,
     DBEntityIsForbiddenException,
-    DBEntityIsNoneAtTheMomentException,
 )
 from db.i import (
     IBaseModel,
@@ -34,13 +32,11 @@ from db.i import (
     IChat,
     IMessage,
     IUserChatMatch,
-    IUnreadCount,
 )
 from db.json_mixins import (
     UserJSONMixin,
     ChatJSONMixin,
     MessageJSONMixin,
-    UnreadCountJSONMixin,
 )
 from db.signal_mixins import (
     ChatSignalMixin,
@@ -54,7 +50,6 @@ __all__ = (
     'Chat',
     'Message',
     'UserChatMatch',
-    'UnreadCount',
 )
 
 
@@ -191,8 +186,8 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, IChat):
     @classmethod
     def new_with_all_dependencies(cls, user_ids: list[int],
                                   **kwargs,
-                                  ) -> tuple[Self, list['UserChatMatch', 'UnreadCount']]:
-        objects: list[UserChatMatch | UnreadCount] = []
+                                  ) -> tuple[Self, list['UserChatMatch']]:
+        matches: list[UserChatMatch] = []
         chat: cls = cls.create(**kwargs)
 
         for user_id in user_ids:
@@ -200,12 +195,9 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, IChat):
                 _user_id=user_id,
                 _chat=chat,
             )
-            unread_count: UnreadCount = UnreadCount(
-                _user_chat_match=match,
-            )
-            objects += [match, unread_count]
+            matches.append(match)
 
-        return chat, objects
+        return chat, matches
 
     @classmethod
     def create(cls, name: str | None = None,
@@ -263,13 +255,22 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, IChat):
     def interlocutor_of_user(self, user_id: int) -> 'User':
         return UserChatMatch.interlocutor_of_user_of_chat(user_id, self.id)
 
-    def interlocutors_of_user(self, user_id: int) -> 'UserList':
+    def all_interlocutors_of_user(self, user_id: int) -> 'UserList':
         users: UserList = self.users()
         return UserList([user for user in users if user.id != user_id])
 
-    @raises(DBEntityIsForbiddenException)
-    def unread_count_of_user(self, user_id: int) -> 'UnreadCount':
-        return UserChatMatch.unread_count_of_user_of_chat(user_id, self.id)
+    @raises(DBEntityNotFoundException)
+    def unread_count_of_user(self, user_id: int) -> int:
+        last_seen_message_id: int = self.last_seen_message_id_of_user(user_id)
+        return self.interlocutor_messages_after_count(last_seen_message_id, user_id)
+
+    @raises(DBEntityNotFoundException)
+    def last_seen_message_id_of_user(self, user_id: int) -> int:
+        return UserChatMatch.last_seen_message_id_of_user(user_id, self.id)
+
+    @raises(DBEntityNotFoundException)
+    def set_last_seen_message_id_of_user(self, user_id: int, message_id: int) -> None:
+        UserChatMatch.set_last_seen_message_id_of_user(user_id, self.id, message_id)
 
     @classmethod
     @raises(DBEntityNotFoundException)
@@ -305,10 +306,6 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, IMessage):
     )
     _reply_message: Mapped[Union['Message', None]] = relationship(
         back_populates='_replied_message',
-        uselist=False,
-    )
-    _user_chat_match: Mapped['UserChatMatch'] = relationship(
-        back_populates='_last_seen_message',
         uselist=False,
     )
 
@@ -360,7 +357,8 @@ class UserChatMatch(BaseModel, IUserChatMatch):
 
     _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), name='user_id', nullable=False)
     _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id', ondelete='CASCADE'), name='chat_id', nullable=False)
-    _last_seen_message_id: Mapped[int | None] = mapped_column(ForeignKey('messages.id'), name='last_seen_message_id', nullable=True)
+    # This is not full-mapped message ID, this is rather a position of user reading.
+    _last_seen_message_id: Mapped[int] = mapped_column(Integer, name='last_seen_message_id', default=-1)
 
     _user: Mapped['User'] = relationship(
         back_populates='_user_chats_matches',
@@ -368,15 +366,6 @@ class UserChatMatch(BaseModel, IUserChatMatch):
     )
     _chat: Mapped['Chat'] = relationship(
         back_populates='_user_chat_matches',
-        uselist=False,
-    )
-    _unread_count: Mapped['UnreadCount'] = relationship(
-        back_populates='_user_chat_match',
-        cascade='all, delete',
-        uselist=False,
-    )
-    _last_seen_message: Mapped[Union['Message', None]] = relationship(
-        back_populates='_user_chat_match',
         uselist=False,
     )
 
@@ -389,8 +378,8 @@ class UserChatMatch(BaseModel, IUserChatMatch):
         return self._chat
 
     @property
-    def unread_count(self) -> 'UnreadCount':
-        return self._unread_count
+    def last_seen_message_id(self) -> int:
+        return self._last_seen_message_id
 
     @classmethod
     @raises(DBEntityIsForbiddenException)
@@ -490,7 +479,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
         return chat
 
     @classmethod
-    def all_interlocutors_of_user(cls, user_id: int) -> 'UserList':
+    def all_interlocutors_of_all_chats_of_user(cls, user_id: int) -> 'UserList':
         chat_ids: list[int] = cast(
             list[int],
             [row[0] for row in db_sync_builder.session.query(cls._chat_id).filter(cls._user_id == user_id).all()],
@@ -509,22 +498,8 @@ class UserChatMatch(BaseModel, IUserChatMatch):
         )
 
     @classmethod
-    @raises(DBEntityIsForbiddenException)
-    def unread_count_of_user_of_chat(cls, user_id: int,
-                                     chat_id: int,
-                                     ) -> 'UnreadCount':
-        match: cls | None = db_sync_builder.session.query(cls).filter(
-            cls._user_id == user_id,
-            cls._chat_id == chat_id,
-        ).first()
-        if match is None:
-            raise DBEntityIsForbiddenException
-
-        return match.unread_count
-
-    @classmethod
-    @raises(DBEntityNotFoundException, DBEntityIsNoneAtTheMomentException)
-    def last_seen_message_of_user(user_id: int, chat_id: int) -> 'Message':
+    @raises(DBEntityNotFoundException)
+    def last_seen_message_id_of_user(cls, user_id: int, chat_id: int) -> int:
         match: cls | None = db_sync_builder.session.query(cls).filter(
             cls._user_id == user_id,
             cls._chat_id == chat_id,
@@ -532,14 +507,11 @@ class UserChatMatch(BaseModel, IUserChatMatch):
         if match is None:
             raise DBEntityNotFoundException
 
-        message: Message | None = match._last_seen_message
-        if message is None:
-            raise DBEntityIsNoneAtTheMomentException
-        return message
+        return match._last_seen_message_id
 
     @classmethod
     @raises(DBEntityNotFoundException)
-    def set_last_seen_message_for_user(user_id: int, chat_id: int, message_id: int) -> None:
+    def set_last_seen_message_id_of_user(cls, user_id: int, chat_id: int, message_id: int) -> None:
         match: cls | None = db_sync_builder.session.query(cls).filter(
             cls._user_id == user_id,
             cls._chat_id == chat_id,
@@ -548,41 +520,9 @@ class UserChatMatch(BaseModel, IUserChatMatch):
             raise DBEntityNotFoundException
 
         message: Message = Message.by_id(message_id)
-        if message.chat_id != chat_id:
+        if message.chat.id != chat_id:
             raise DBEntityNotFoundException
         match._last_seen_message_id = message_id
-
-
-class UnreadCount(BaseModel, UnreadCountJSONMixin, IUnreadCount):
-    __tablename__ = 'unread_counts'
-
-    _user_chat_match_id: Mapped[int] = mapped_column(ForeignKey('user_chat_matches.id', ondelete='CASCADE'),
-                                                     name='user_chat_match_id', nullable=False)
-    _value: Mapped[int] = mapped_column(Integer, name='value', default=0)
-
-    _user_chat_match: Mapped['UserChatMatch'] = relationship(
-        back_populates='_unread_count',
-        uselist=False,
-    )
-
-    __table_args__ = (
-        CheckConstraint('value >= 0'),
-    )
-
-    @property
-    def value(self) -> int:
-        return self._value
-
-    def set(self, value: int) -> None:
-        self._value = cast(Mapped[int], value)
-
-    def increase(self) -> None:
-        self._value += 1
-
-    def decrease(self) -> None:
-        self._value -= 1
-        if self._value < 0:
-            self._value = cast(Mapped[int], 0)
 
 
 from db.lists import (  # noqa

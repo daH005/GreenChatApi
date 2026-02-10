@@ -14,7 +14,6 @@ __all__ = (
     'IMessageStorage',
     'IMessageStorageFile',
     'IUserChatMatch',
-    'IUnreadCount',
     'IBaseList',
     'IUserList',
     'IChatList',
@@ -128,7 +127,7 @@ class IChat(IBaseModel):
     @classmethod
     def new_with_all_dependencies(cls, user_ids: list[int],
                                   **kwargs,
-                                  ) -> tuple[Self, list['IUserChatMatch', 'IUnreadCount']]:
+                                  ) -> tuple[Self, list['IUserChatMatch']]:
         raise NotImplementedError
 
     @property
@@ -159,7 +158,16 @@ class IChat(IBaseModel):
     def interlocutor_of_user(self, user_id: int) -> 'IUser':
         raise NotImplementedError
 
-    def unread_count_of_user(self, user_id: int) -> 'IUnreadCount':
+    def all_interlocutors_of_user(self, user_id: int) -> 'IUserList':
+        raise NotImplementedError
+
+    def unread_count_of_user(self, user_id: int) -> int:
+        raise NotImplementedError
+
+    def last_seen_message_id_of_user(self, user_id: int) -> int:
+        raise NotImplementedError
+
+    def set_last_seen_message_id_of_user(self, user_id: int, message_id: int) -> None:
         raise NotImplementedError
 
     @classmethod
@@ -273,10 +281,10 @@ class IUserChatMatch(IBaseModel):
 
     _user_id: int
     _chat_id: int
+    _last_seen_message_id: int | None
 
     _user: 'IUser'
     _chat: 'IChat'
-    _unread_count: 'IUnreadCount'
 
     @property
     def user(self) -> 'IUser':
@@ -287,7 +295,7 @@ class IUserChatMatch(IBaseModel):
         raise NotImplementedError
 
     @property
-    def unread_count(self) -> 'IUnreadCount':
+    def last_seen_message_id(self) -> int:
         raise NotImplementedError
 
     @classmethod
@@ -320,34 +328,15 @@ class IUserChatMatch(IBaseModel):
         raise NotImplementedError
 
     @classmethod
-    def all_interlocutors_of_user(cls, user_id: int) -> 'IUserList':
+    def all_interlocutors_of_all_chats_of_user(cls, user_id: int) -> 'IUserList':
         raise NotImplementedError
 
     @classmethod
-    def unread_count_of_user_of_chat(cls, user_id: int,
-                                     chat_id: int,
-                                     ) -> 'IUnreadCount':
+    def last_seen_message_id_of_user(cls, user_id: int, chat_id: int) -> int:
         raise NotImplementedError
 
-
-class IUnreadCount(IBaseModel):
-
-    _user_chat_match_id: int
-    _value: int
-
-    _user_chat_match: 'IUserChatMatch'
-
-    @property
-    def value(self) -> int:
-        raise NotImplementedError
-
-    def set(self, value: int) -> None:
-        raise NotImplementedError
-
-    def increase(self) -> None:
-        raise NotImplementedError
-
-    def decrease(self) -> None:
+    @classmethod
+    def set_last_seen_message_id_of_user(cls, user_id: int, chat_id: int, message_id: int) -> None:
         raise NotImplementedError
 
 

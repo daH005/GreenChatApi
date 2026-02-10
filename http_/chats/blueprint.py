@@ -14,9 +14,7 @@ from db.exceptions import DBEntityNotFoundException
 from db.models import (
     User,
     Chat,
-    Message,
     UserChatMatch,
-    UnreadCount,
 )
 from db.transaction_retry_decorator import transaction_retry_decorator
 from http_.common.apidocs_constants import (
@@ -128,14 +126,12 @@ def typing(chat: Chat,
 def unread_count_get(chat: Chat,
                      user: User,
                      ):
-    last_seen_message: Message | None = chat.last_seen_message_of_user(user.id)
-    if last_seen_message is None:
-        count = 0
-    else:
-        count = chat.interlocutor_messages_after_count(message.id, user.id),
-    return {
-        JSONKey.UNREAD_COUNT: count
-    }
+    try:
+        return {
+            JSONKey.UNREAD_COUNT: chat.unread_count_of_user(user.id),
+        }
+    except DBEntityNotFoundException:
+        return abort(HTTPStatus.NOT_FOUND)
 
 
 @chats_bp.route(Url.CHAT_MESSAGES, methods=[HTTPMethod.GET])
