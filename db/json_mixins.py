@@ -48,16 +48,7 @@ class UserJSONMixin(IJSONMixin, IUser):
 
 class ChatJSONMixin(IJSONMixin, IChat):
 
-    @property
-    def last_message(self) -> 'MessageJSONMixin':
-        raise NotImplementedError
-
     def as_json(self, user_id: int):
-        try:
-            last_message = self.last_message.as_json()
-        except IndexError:
-            last_message = None
-
         user_ids = self.users().ids()
         interlocutor_id = None
         if not self._is_group:
@@ -69,7 +60,6 @@ class ChatJSONMixin(IJSONMixin, IChat):
             JSONKey.INTERLOCUTOR_ID: interlocutor_id,
             JSONKey.NAME: self._name,
             JSONKey.IS_GROUP: self._is_group,
-            JSONKey.LAST_MESSAGE: last_message,
             JSONKey.UNREAD_COUNT: self.unread_count_of_user(user_id=user_id).value,
         }
 

@@ -25,6 +25,7 @@ from db.builders import db_sync_builder
 from db.exceptions import (
     DBEntityNotFoundException,
     DBEntityIsForbiddenException,
+    DBEntityIsNoneAtTheMomentException,
 )
 from db.i import (
     IBaseModel,
@@ -233,22 +234,22 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, IChat):
         )
 
     def unread_interlocutor_messages_up_to(self, message_id: int,
-                                           user_id_to_ignore: int,
+                                           user_id: int,
                                            ) -> 'MessageList':
         return MessageList(
             cast(Query[Message], self._messages).filter(
                 Message._id <= message_id,  # noqa
                 Message._is_read == False,  # noqa
-                Message._user_id != user_id_to_ignore,  # noqa
+                Message._user_id != user_id,  # noqa
             ).all(),
         )
 
     def interlocutor_messages_after_count(self, message_id: int,
-                                          user_id_to_ignore: int,
+                                          user_id: int,
                                           ) -> int:
         return cast(Query[Message], self._messages).filter(
             Message._id > message_id,  # noqa
-            Message._user_id != user_id_to_ignore,  # noqa
+            Message._user_id != user_id,  # noqa
         ).count()
 
     def users(self) -> 'UserList':
@@ -261,6 +262,10 @@ class Chat(BaseModel, ChatJSONMixin, ChatSignalMixin, IChat):
     @raises(DBEntityNotFoundException)
     def interlocutor_of_user(self, user_id: int) -> 'User':
         return UserChatMatch.interlocutor_of_user_of_chat(user_id, self.id)
+
+    def interlocutors_of_user(self, user_id: int) -> 'UserList':
+        users: UserList = self.users()
+        return UserList([user for user in users if user.id != user_id])
 
     @raises(DBEntityIsForbiddenException)
     def unread_count_of_user(self, user_id: int) -> 'UnreadCount':
@@ -300,6 +305,10 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, IMessage):
     )
     _reply_message: Mapped[Union['Message', None]] = relationship(
         back_populates='_replied_message',
+        uselist=False,
+    )
+    _user_chat_match: Mapped['UserChatMatch'] = relationship(
+        back_populates='_last_seen_message',
         uselist=False,
     )
 
@@ -351,6 +360,7 @@ class UserChatMatch(BaseModel, IUserChatMatch):
 
     _user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), name='user_id', nullable=False)
     _chat_id: Mapped[int] = mapped_column(ForeignKey('chats.id', ondelete='CASCADE'), name='chat_id', nullable=False)
+    _last_seen_message_id: Mapped[int | None] = mapped_column(ForeignKey('messages.id'), name='last_seen_message_id', nullable=True)
 
     _user: Mapped['User'] = relationship(
         back_populates='_user_chats_matches',
@@ -363,6 +373,10 @@ class UserChatMatch(BaseModel, IUserChatMatch):
     _unread_count: Mapped['UnreadCount'] = relationship(
         back_populates='_user_chat_match',
         cascade='all, delete',
+        uselist=False,
+    )
+    _last_seen_message: Mapped[Union['Message', None]] = relationship(
+        back_populates='_user_chat_match',
         uselist=False,
     )
 
@@ -507,6 +521,36 @@ class UserChatMatch(BaseModel, IUserChatMatch):
             raise DBEntityIsForbiddenException
 
         return match.unread_count
+
+    @classmethod
+    @raises(DBEntityNotFoundException, DBEntityIsNoneAtTheMomentException)
+    def last_seen_message_of_user(user_id: int, chat_id: int) -> 'Message':
+        match: cls | None = db_sync_builder.session.query(cls).filter(
+            cls._user_id == user_id,
+            cls._chat_id == chat_id,
+        ).first()
+        if match is None:
+            raise DBEntityNotFoundException
+
+        message: Message | None = match._last_seen_message
+        if message is None:
+            raise DBEntityIsNoneAtTheMomentException
+        return message
+
+    @classmethod
+    @raises(DBEntityNotFoundException)
+    def set_last_seen_message_for_user(user_id: int, chat_id: int, message_id: int) -> None:
+        match: cls | None = db_sync_builder.session.query(cls).filter(
+            cls._user_id == user_id,
+            cls._chat_id == chat_id,
+        ).first()
+        if match is None:
+            raise DBEntityNotFoundException
+
+        message: Message = Message.by_id(message_id)
+        if message.chat_id != chat_id:
+            raise DBEntityNotFoundException
+        match._last_seen_message_id = message_id
 
 
 class UnreadCount(BaseModel, UnreadCountJSONMixin, IUnreadCount):

@@ -37,16 +37,6 @@ CHAT = [
         expected_json_object={
             'id': 1,
             'isGroup': False,
-            'lastMessage': {
-                'id': Params.ID_START + 2,
-                'chatId': 1,
-                'userId': Params.ID_START,
-                'text': Params.UPDATED_TEXT,
-                'isRead': False,
-                'hasFiles': False,
-                'creatingDatetime': anything_place,
-                'repliedMessage': None,
-            },
             'name': None,
             'unreadCount': 0,
             'userIds': [

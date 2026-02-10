@@ -14,6 +14,7 @@ from db.exceptions import DBEntityNotFoundException
 from db.models import (
     User,
     Chat,
+    Message,
     UserChatMatch,
     UnreadCount,
 )
@@ -127,8 +128,14 @@ def typing(chat: Chat,
 def unread_count_get(chat: Chat,
                      user: User,
                      ):
-    unread_count: UnreadCount = chat.unread_count_of_user(user.id)
-    return unread_count.as_json()
+    last_seen_message: Message | None = chat.last_seen_message_of_user(user.id)
+    if last_seen_message is None:
+        count = 0
+    else:
+        count = chat.interlocutor_messages_after_count(message.id, user.id),
+    return {
+        JSONKey.UNREAD_COUNT: count
+    }
 
 
 @chats_bp.route(Url.CHAT_MESSAGES, methods=[HTTPMethod.GET])

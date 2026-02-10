@@ -9,7 +9,7 @@ from flask_jwt_extended import jwt_required
 
 from db.builders import db_sync_builder
 from db.exceptions import DBEntityNotFoundException
-from db.lists import MessageList
+from db.lists import MessageList, UserList
 from db.models import (
     User,
     Chat,
@@ -75,18 +75,11 @@ def message_new(chat: Chat,
         replied_message=replied_message,
     )
     db_sync_builder.session.add(message)
-
-    unread_count: UnreadCount
-    user_ids = chat.users().ids(exclude_ids=[user.id])
-    for user_id in user_ids:
-        unread_count = chat.unread_count_of_user(user_id)
-        unread_count.increase()
-
     db_sync_builder.session.commit()
 
-    message.signal_new([user.id, *user_ids])
-    chat.signal_new_unread_count(user_ids)
-
+    message.signal_new(
+        chat.users().ids(),
+    )
     return message.as_json(), HTTPStatus.CREATED
 
 
@@ -154,7 +147,7 @@ def message_read(message: Message,
                  ):
     sender_read_messages: dict[int, MessageList] = {}
     for history_message in message.chat.unread_interlocutor_messages_up_to(message.id, user.id):
-        history_message.read()
+        # history_message.read()
         sender_read_messages.setdefault(message.user.id, MessageList()).append(history_message)
 
     unread_count: UnreadCount = message.chat.unread_count_of_user(user.id)

@@ -165,7 +165,6 @@ _CHAT_SCHEMA = {
             'type': 'array',
             'items': {'type': 'integer'},
         },
-        'lastMessage': _MESSAGE_SCHEMA,
     },
 }
 
@@ -402,7 +401,7 @@ USER_BACKGROUND_EDIT_SPECS = {
 
 USER_CHATS_SPECS = {
     'tags': _USER_TAGS,
-    'description': 'Chats sorted by "creatingDatetime" of "lastMessage" in descending order.',
+    'description': 'Chats sorted by "creatingDatetime" of last messages in descending order.',
     'parameters': [
         _ACCESS_TOKEN_COOKIE,
         *_OFFSET_AND_SIZE_QUERY_PARAMS,

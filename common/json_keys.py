@@ -34,7 +34,6 @@ class JSONKey(StrEnum):
 
     NAME = 'name'
     IS_GROUP = 'isGroup'
-    LAST_MESSAGE = 'lastMessage'
     USER_IDS = 'userIds'
     UNREAD_COUNT = 'unreadCount'
 
