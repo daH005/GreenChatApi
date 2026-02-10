@@ -65,6 +65,7 @@ MESSAGE_FILES_UPDATE = [
                 message={
                     'type': 'FILES',
                     'data': {
+                        'chatId': 2,
                         'messageId': Params.ID_START + 3,
                     },
                 },

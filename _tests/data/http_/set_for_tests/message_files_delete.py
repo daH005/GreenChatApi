@@ -43,6 +43,7 @@ MESSAGE_FILES_DELETE = [
                 message={
                     'type': 'FILES',
                     'data': {
+                        'chatId': 2,
                         'messageId': Params.ID_START + 3,
                     },
                 },

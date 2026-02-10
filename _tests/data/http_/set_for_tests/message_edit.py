@@ -69,6 +69,7 @@ MESSAGE_EDIT = [
                 message={
                     'type': 'MESSAGE_EDIT',
                     'data': {
+                        'chatId': 1,
                         'messageId': Params.ID_START + 2,
                     },
                 },

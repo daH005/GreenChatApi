@@ -41,6 +41,7 @@ MESSAGE_DELETE = [
                 message={
                     'type': 'MESSAGE_DELETE',
                     'data': {
+                        'chatId': 3,
                         'messageId': Params.ID_START + 6,
                     },
                 },

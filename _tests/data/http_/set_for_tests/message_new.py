@@ -63,6 +63,7 @@ MESSAGE_NEW = [
                 message={
                     'type': 'NEW_MESSAGE',
                     'data': {
+                        'chatId': 1,
                         'messageId': Params.ID_START,
                     },
                 },
