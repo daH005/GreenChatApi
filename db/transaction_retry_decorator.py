@@ -23,7 +23,7 @@ def transaction_retry_decorator(max_attempts: int = DEFAULT_TRANSACTION_RETRY_MA
                 db_sync_builder.session.rollback()
 
                 if __cur_attempt > max_attempts:
-                    logger.critical(format_exc)
+                    logger.critical(format_exc())
                     raise
 
                 return wrapper(*args, **kwargs, __cur_attempt=__cur_attempt + 1)
