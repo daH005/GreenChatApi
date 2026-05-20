@@ -7,6 +7,7 @@ from config.paths import MEDIA_FOLDER
 from db.models import User, Message
 from http_.app import app
 from http_.users.email.codes.functions import delete_email_code
+from http_.common.urls import Url
 from http_.common.content_length_check_decorator import _max_lengths
 from _tests.common.set_initial_autoincrement_value import set_initial_autoincrement_value
 from _tests.common.assert_and_save_jsons_if_failed import assert_and_save_jsons_if_failed
@@ -115,3 +116,14 @@ def test_endpoints_for_protect(test_client,
         method=endpoint[1],
     )
     assert response.status_code == 401
+
+
+def test_endpoints_complete_coverage() -> None:
+    prod_urls = set(Url)
+    test_urls = {endpoint[0] for endpoint in Params.Endpoint}
+
+    missing_in_test = prod_urls - test_urls
+    missing_in_prod = test_urls - prod_urls
+
+    assert not missing_in_test, f'Missing in Params.Endpoint: {missing_in_test}'
+    assert not missing_in_prod, f'Extra endpoints in Params.Endpoint: {missing_in_prod}'

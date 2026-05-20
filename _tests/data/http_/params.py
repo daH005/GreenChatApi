@@ -2,12 +2,6 @@ from io import BytesIO
 from enum import Enum, StrEnum
 from typing import Self
 
-from flask_jwt_extended import (
-    create_access_token,
-    create_refresh_token,
-    get_csrf_token,
-)
-
 from config.api import EMAIL_PASS_CODE
 from db.models import User
 from _tests.common.common_storage import common_storage
