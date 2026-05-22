@@ -223,7 +223,7 @@ class IMessage(IBaseModel):
     def get_storage(self) -> 'IMessageStorage':
         raise NotImplementedError
 
-    def read(self) -> None:
+    def set_as_read(self) -> None:
         raise NotImplementedError
 
     def set_text(self, text: str) -> None:

@@ -342,7 +342,7 @@ class Message(BaseModel, MessageJSONMixin, MessageSignalMixin, IMessage):
             self._storage = MessageStorage(self)
         return cast(MessageStorage, self._storage)
 
-    def read(self) -> None:
+    def set_as_read(self) -> None:
         self._is_read = cast(Mapped[bool], True)
 
     def set_text(self, text: str) -> None:
